@@ -41,7 +41,7 @@ route() {
     cp "${HW}/gen/routed/voxhub.ses" "${HW}/gen/work/voxhub.ses"
     # always start from a fresh placement so that this step is repeatable
     kc "python3 gen/build_pcb.py place gen/work/voxhub.net /work/hardware && python3 gen/build_pcb.py finish /work/hardware \
-        && gen/postroute.sh /work/hardware 12 && python3 gen/build_pcb.py pours /work/hardware"
+        && gen/postroute.sh /work/hardware 30 && python3 gen/build_pcb.py pours /work/hardware"
 }
 outputs() {
     kc "kicad-cli pcb drc --schematic-parity --severity-all --exit-code-violations --format report -o outputs/drc.rpt voxhub.kicad_pcb; \

@@ -9,6 +9,7 @@ Everything in this repository is generated from code - schematic, PCB, enclosure
 | | |
 |---|---|
 | ![PCB render](hardware/outputs/render_iso.png) | ![Enclosure](enclosure/renders/enclosure_rear.png) |
+| carrier with CM4 + heat sink (component side) | enclosure, rear view: USB-C PD in, 2 x USB-A, microSD |
 
 > **Status: revision A, design complete, not yet built.** ERC and DRC pass, the OS image builds and the add-on's
 > test-suite passes, but no hardware exists yet. Read [DECISIONS.md](DECISIONS.md) ("Open items") before ordering boards.
@@ -145,13 +146,14 @@ These are estimates, not measurements - verify with `vcgencmd measure_temp` on t
 
 ## How to build everything
 
-Prerequisites: Linux, Docker, Python >= 3.10, Java >= 25 (only for re-routing the PCB).
+Prerequisites: Linux, Docker, Python >= 3.10, Java >= 21 (only for re-running the autorouter).
 
 ```bash
 # 1. Hardware: schematic -> ERC -> netlist -> placement -> autoroute -> DRC -> fabrication outputs
 docker pull kicad/kicad:9.0
-wget https://github.com/freerouting/freerouting/releases/download/v2.5.0/freerouting-2.5.0.jar -P hardware/
-SKIP_ROUTE=1 hardware/build.sh all      # re-uses the checked-in routing; drop SKIP_ROUTE to route again (~20 min)
+SKIP_ROUTE=1 hardware/build.sh all      # re-uses the checked-in autorouter session (reproduces the committed board, ~25 min)
+# to autoroute again: wget -P hardware https://github.com/freerouting/freerouting/releases/download/v2.0.1/freerouting-2.0.1.jar
+#                     hardware/build.sh all
 
 # 2. Enclosure: STL / 3MF / STEP + renders
 pip install cadquery
@@ -176,10 +178,13 @@ add this repository as an add-on repository in Home Assistant and install **VoxH
 | Check | Result | Evidence |
 |---|---|---|
 | ERC (kicad-cli 9.0.9) | 0 errors, 0 warnings | `hardware/outputs/erc.rpt` |
-| Netlist equals the code model | all pins match | `hardware/build.sh sch` |
-| DRC with schematic parity | see `hardware/README.md` | `hardware/outputs/drc.rpt` |
+| Netlist equals the code model | all 152 components / 94 nets match pin by pin | `hardware/gen/model_netlist.json` vs. KiCad netlist |
+| DRC with schematic parity (kicad-cli 9.0.9) | 0 violations, 0 unconnected pads, 0 parity issues; 5 cosmetic checks waived (10 warnings, each explained in `hardware/README.md`) | `hardware/outputs/drc.rpt`, `drc_waived_checks_enabled.rpt` |
 | Footprints vs. datasheets | table in `DECISIONS.md` section 9 | |
-| Enclosure fit | 0 mm^3 interference PCB assembly vs. printed parts | `enclosure/voxhub_enclosure.py`, `enclosure/renders/` |
+| PCB render | kicad-cli 3D renders | `hardware/outputs/render_*.png` |
+| Enclosure fit | 0 mm^3 interference PCB assembly vs. printed parts; visual check in the section renders | `enclosure/voxhub_enclosure.py`, `enclosure/renders/` |
+| Power budget / thermal estimate | above | |
+| Sourcing | every BOM line Active at check time; ICS-43434, PCM12, PESD24VL1BA, GRM31CR6YA106 were replaced after the check found them EOL/obsolete | `hardware/outputs/bom.csv`, DECISIONS.md |
 | OS image | built from HAOS 18.5, verified | `os/README.md` |
 | Assistant | 86 unit tests pass | `assistant/tests/` |
 

@@ -102,10 +102,33 @@ CM5 (higher power, would need 5 V/5 A and has no advantage for a cloud-LLM voice
 - Speaker (40 mm, 4 ohm, 3 W) sits next to the PCB, fires upwards, and is clamped by a pedestal on the base plate.
 - CM4 antenna end at the board edge, copper keep-out under the antenna corner; MGM240P at the front edge with the
   keep-out used by SparkFun's reference layout.
-- No Ethernet, HDMI, camera, PCIe: not required; leaving them out keeps the board 2-signal-layer routable.
+- No Ethernet, HDMI, camera, PCIe: not required; leaving them out keeps the board routable on two signal layers.
   Consequence: first-boot network setup is done by pre-seeding Wi-Fi credentials into the image (`os/build-image.sh --wifi-ssid`).
 - No fan: 14 x 14 x 6 mm heat sink on the SoC plus vents; see thermal estimate in README.
 - User button dropped (wake word + mute switch cover the UI); debug UART header footprint is DNP.
+
+## 6a. PCB implementation (how a board gets routed without a GUI)
+
+- 4 layers: F.Cu / GND plane / +5 V plane / B.Cu. +3V3 is routed (<= 0.5 A, widely distributed).
+- **Placement by script**: fixed positions for connectors, ICs and mechanics; passives are placed greedily next to the pad they
+  connect to (decoupling capacitors are spread over the supply pins of their IC). The first, tighter placement (0.15 mm between
+  courtyards) left no routing channels; 0.45 mm plus a 0.6 mm halo around ICs made the board routable.
+- **Power fan-out by script** before autorouting: every GND / +5 V SMD pad gets a stub + via to its plane; CM4 socket power pins use vias
+  on the connector centre line so that the outside of both pad rows stays free for signal escape; the 0.4 mm WLCSP gets a fixed escape pattern.
+- **Autorouter: Freerouting 2.0.1.** v2.5.0 was tried first: it honours a pass limit but did not converge on this board (30-80
+  open connections, oscillating). v2.0.1 leaves 4-5 connections open and stops by itself; it ignores `--router.max_passes`, so it is
+  not used with a tight placement where it never terminates. v1.9.0 needs a display (no headless JRE support).
+- **Patch router + DRC-driven repair** (in `gen/build_pcb.py`): completes the remaining connections with A* and rip-up, and removes
+  anything KiCad's DRC objects to, iterating until `kicad-cli pcb drc` reports nothing. KiCad's DRC is the only judge.
+- **USB**: the hub is rotated so that its downstream pins face the USB-A connector and its upstream pins face the CM4. The six data
+  nets are re-routed after everything else as short 0.2 mm traces (about 45 ohm over a 0.1 mm prepreg -> ~90 ohm uncoupled differential).
+  True coupled-pair routing was not attempted: the pin order at the CM4 socket would force a polarity crossover, and a scripted
+  pair router with via swaps was out of proportion for 16-32 mm of USB 2.0.
+- Two pcbnew scripting pitfalls that cost time and are worth knowing: `BOARD.Save()` rewrites the `.kicad_pro` with default design
+  rules (the build restores `gen/project_settings.json` after every save), and KiCad orders tracks by random UUID on save, which made
+  the patch router non-deterministic until tracks were sorted canonically.
+- The mute switch SW1 (C&K JS202011JCQN, vertical actuator) sits on the side facing the top cover; it replaced the side-actuated
+  PCM12 that went end-of-life.
 
 ## 7. Operating system
 
@@ -154,7 +177,7 @@ These could not be closed from inside the sandbox and are deliberately not hidde
    JS202011JCQN body/actuator height (3.5 + 2.0 mm assumed), speaker CMS-4017-34SP frame details. The enclosure is
    parametric - adjust the constants at the top of `enclosure/voxhub_enclosure.py`.
 5. **MGM240P antenna keep-out dimensions** come from SparkFun's layout, not from the Silicon Labs figure.
-6. **USB 2.0 pairs were routed by the autorouter as ordinary tracks** (see hardware/README, "Known limitations").
-   Acceptable for short high-speed runs but not impedance-verified; measure eye/enumeration on the first prototypes.
+6. **USB 2.0 data lines are matched single-ended 0.2 mm traces, not coupled pairs** (skew 1.2 / 4.6 / 2.4 mm, see hardware/README
+   "Known limitations"). The 90 ohm target depends on the 0.10 mm outer prepreg called out in the fab notes; measure on the first prototypes.
 7. Stock and prices are web-search snapshots, not live quotes.
 8. Nothing here has been powered on. Treat revision A as a prototype spin.

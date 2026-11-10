@@ -26,7 +26,7 @@ FIXED = {
     "J4": (56.0, 8.7, 180, "F"),       # microSD (rear edge; shield pads end 0.37 mm inside the edge)
     "U1": (13.0, 14.0, 0, "F"), "Q1": (23.5, 9.5, 90, "F"),
     "U2": (8.5, 25.5, 90, "F"), "L1": (9.0, 36.0, 0, "F"),
-    "U4": (33.5, 26.5, 0, "F"), "U7": (32.0, 18.6, 0, "F"), "U8": (38.2, 18.6, 0, "F"),
+    "U4": (33.5, 26.5, 270, "F"), "U7": (32.0, 18.6, 0, "F"), "U8": (38.2, 18.6, 0, "F"),
     "U5": (45.8, 4.0, 90, "F"), "U6": (45.8, 10.5, 90, "F"),
     "U3": (68.5, 9.0, 0, "F"),
     "J2": (74.0, 64.96, 0, "F"), "J3": (74.0, 31.04, 0, "F"),
@@ -50,6 +50,20 @@ def write_project(outdir):
     import shutil
     shutil.copyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "project_settings.json"),
                     os.path.join(outdir, "voxhub.kicad_pro"))
+
+def sorted_tracks(board):
+    """Tracks/vias in a canonical order.  KiCad orders items by their (random) UUIDs when saving, so
+    without this the patch router would see a different order - and take different decisions - on every run."""
+    def key(tr):
+        if tr.Type() == pcbnew.PCB_VIA_T:
+            q = tr.GetPosition(); return (tr.GetNetname(), 1, 0, q.x, q.y, q.x, q.y, tr.GetWidth(pcbnew.F_Cu))
+        a, e = tr.GetStart(), tr.GetEnd()
+        if (a.x, a.y) > (e.x, e.y): a, e = e, a
+        return (tr.GetNetname(), 0, tr.GetLayer(), a.x, a.y, e.x, e.y, tr.GetWidth())
+    return sorted(board.GetTracks(), key=key)
+
+def sorted_fps(board):
+    return sorted(board.GetFootprints(), key=lambda fp: fp.GetReference())
 
 def P(x, y):
     return pcbnew.VECTOR2I(MM(OX + x), MM(OY + y))
@@ -289,6 +303,40 @@ def place(netlist, outdir):
     text("USB-C PD 9-20V", 13.0, 9.2, pcbnew.F_SilkS, 0.6)
     text("VoxHub CM4 rev A - this side faces the top cover", 60.0, 50.0, pcbnew.B_SilkS, 1.0)
     text("MUTE", 33.5, 57.0, pcbnew.B_SilkS, 0.8)
+    # ---- mechanical drawing layer (exported to DXF): holes, ports, connector envelopes -----
+    mech = [("feature", "ref", "x_mm", "y_mm", "detail")]
+    def circle(x, y, d):
+        s = pcbnew.PCB_SHAPE(board); s.SetShape(pcbnew.SHAPE_T_CIRCLE); s.SetLayer(pcbnew.Dwgs_User)
+        s.SetCenter(P(x, y)); s.SetEnd(P(x + d / 2, y)); s.SetWidth(MM(0.1)); board.Add(s)
+    def boxd(bb):
+        s = pcbnew.PCB_SHAPE(board); s.SetShape(pcbnew.SHAPE_T_RECT); s.SetLayer(pcbnew.Dwgs_User)
+        s.SetStart(P(bb[0], bb[1])); s.SetEnd(P(bb[2], bb[3])); s.SetWidth(MM(0.1)); board.Add(s)
+    fmm = pcbnew.ToMM
+    for ref in sorted(fps):
+        fp = fps[ref]; q = fp.GetPosition(); x, y = fmm(q.x) - OX, fmm(q.y) - OY
+        if ref in ("H1", "H2", "H3", "H4"):
+            circle(x, y, 2.7); text(ref, x, y - 2.2, pcbnew.Dwgs_User, 0.8); mech.append(("PCB mounting hole", ref, x, y, "2.7 mm NPTH (M2.5)"))
+        elif ref in ("H5", "H6", "H7", "H8"):
+            circle(x, y, 2.7); circle(x, y, 5.1); mech.append(("CM4 spacer", ref, x, y, "M2.5 SMT spacer, 1.5 mm high, hole 3.7 mm"))
+        elif ref in ("J1", "J4", "J6", "J7", "J5", "SW1", "U11"):
+            bb = crt_bbox(fp); boxd(bb); text(ref, (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2, pcbnew.Dwgs_User, 0.8)
+            mech.append(("connector/part envelope", ref, x, y, "courtyard %.2f,%.2f .. %.2f,%.2f; side %s" % (bb[0], bb[1], bb[2], bb[3], "B" if fp.IsFlipped() else "F")))
+        for pad in fp.Pads():
+            if pad.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH and (ref.startswith("MK") or ref.startswith("D")):
+                pq = pad.GetPosition(); px, py = fmm(pq.x) - OX, fmm(pq.y) - OY
+                if ref.startswith("MK"):
+                    circle(px, py, 0.8); circle(px, py, 5.0); mech.append(("microphone port", ref, px, py, "0.8 mm hole through PCB, sound enters from the side opposite the components"))
+                else:
+                    circle(px, py, 3.0); mech.append(("LED light slot", ref, px, py, "1.8 x 2.4 mm slot, reverse-mount LED shines to the side opposite the components"))
+    boxd((CM4_X0 - 51.5, CM4_Y0 - 36.5, CM4_X0 + 3.5, CM4_Y0 + 3.5)); text("CM4 module outline", 71.5, 48.0, pcbnew.Dwgs_User, 1.2)
+    mech.append(("CM4 module outline", "J2/J3", 71.5, 48.0, "55 x 40 mm, x 44..99, y 28..68, 1.5 mm above the PCB"))
+    mech.append(("board outline", "-", 0.0, 0.0, "100 x 74 mm, origin = rear-left corner seen from the component side, 3 mm corner radius; KiCad page offset %.0f/%.0f mm" % (OX, OY)))
+    import csv as _csv
+    os.makedirs(os.path.join(outdir, "outputs"), exist_ok=True)
+    with open(os.path.join(outdir, "outputs", "mechanical_positions.csv"), "w", newline="") as fh:
+        w_ = _csv.writer(fh)
+        for row in mech:
+            w_.writerow([("%.3f" % v) if isinstance(v, float) else v for v in row])
     add_rule_areas(board)
     fanout(board)
     board.BuildConnectivity()
@@ -317,7 +365,7 @@ def _seg_rect(x1, y1, x2, y2, r):
 def fanout(board):
     f = pcbnew.ToMM
     pads = []      # (net, layers 'F'/'B'/'*', bbox, pad)
-    for fp in board.GetFootprints():
+    for fp in sorted_fps(board):
         for p in fp.Pads():
             b = p.GetBoundingBox()
             bb = (f(b.GetLeft()) - OX, f(b.GetTop()) - OY, f(b.GetRight()) - OX, f(b.GetBottom()) - OY)
@@ -381,7 +429,7 @@ def fanout(board):
                 return False
         return True
 
-    for fp in board.GetFootprints():
+    for fp in sorted_fps(board):
         if fp.GetReference() != "U9":
             continue
         q0 = fp.GetPosition(); ux, uy = f(q0.x) - OX, f(q0.y) - OY
@@ -504,7 +552,7 @@ def add_rule_areas(board):
     e = 0.35
     for i, r_ in enumerate((rect(0, 0, W, e), rect(0, H - e, W, H), rect(0, 0, e, H), rect(W - e, 0, W, H))):
         poly_zone(board, r_, ALL_CU, keepout=True, name="KO_EDGE%d" % i)
-    for fp in board.GetFootprints():
+    for fp in sorted_fps(board):
         ref = fp.GetReference()
         q = fp.GetPosition(); x, y = f(q.x) - OX, f(q.y) - OY
         if ref.startswith("FID"):          # fiducial: 2 mm mask opening must stay free of other copper
@@ -518,7 +566,7 @@ def add_rule_areas(board):
 def board_keepouts(board):
     f = pcbnew.ToMM
     out = []
-    for z in list(board.Zones()) + [z for fp in board.GetFootprints() for z in fp.Zones()]:
+    for z in list(board.Zones()) + [z for fp in sorted_fps(board) for z in fp.Zones()]:
         if z.GetIsRuleArea():
             b = z.GetBoundingBox()
             out.append((f(b.GetLeft()) - OX, f(b.GetTop()) - OY, f(b.GetRight()) - OX, f(b.GetBottom()) - OY))
@@ -537,7 +585,7 @@ def finish(outdir):
     if os.path.exists(ses):
         ok = pcbnew.ImportSpecctraSES(board, ses)
         print("SES import:", ok)
-    tracks = list(board.GetTracks()); _KEEP.append(tracks)
+    tracks = sorted_tracks(board); _KEEP.append(tracks)
     for tr in tracks:
         if tr.Type() != pcbnew.PCB_VIA_T and tr.GetWidth() < MM(0.1):
             tr.SetWidth(MM(0.1))
@@ -579,10 +627,10 @@ def add_power_pours(board):
         x0, y0, x1, y1 = f(b.GetLeft()) - OX, f(b.GetTop()) - OY, f(b.GetRight()) - OX, f(b.GetBottom()) - OY
         corners.setdefault(net, []).extend([(x0 - 0.3, y0 - 0.3), (x1 + 0.3, y0 - 0.3), (x1 + 0.3, y1 + 0.3), (x0 - 0.3, y1 + 0.3)])
     l1 = None
-    for fp in board.GetFootprints():
+    for fp in sorted_fps(board):
         if fp.GetReference() == "L1":
             q = fp.GetPosition(); l1 = (f(q.x) - OX, f(q.y) - OY)
-    for fp in board.GetFootprints():
+    for fp in sorted_fps(board):
         for pad in fp.Pads():
             n = pad.GetNetname()
             if not pad.IsOnLayer(pcbnew.F_Cu):
@@ -609,7 +657,7 @@ def add_power_pours(board):
 def _geom(board, tracks):
     f = pcbnew.ToMM
     pads = []
-    for fp in board.GetFootprints():
+    for fp in sorted_fps(board):
         for p in fp.Pads():
             th = p.GetAttribute() in (pcbnew.PAD_ATTRIB_PTH, pcbnew.PAD_ATTRIB_NPTH)
             if not th and not (p.IsOnLayer(pcbnew.F_Cu) or p.IsOnLayer(pcbnew.B_Cu)):
@@ -690,16 +738,23 @@ def _components(net, pads, items):
         comps[find(plane)]["plane"] = True
     return list(comps.values())
 
-def patch(outdir, report=None, max_jobs=400):
+def patch(outdir, report=None, max_jobs=400, reroute=()):
     import heapq
     import numpy as np
     board = pcbnew.LoadBoard(os.path.join(outdir, "voxhub.kicad_pcb"))
-    tracks = list(board.GetTracks()); _KEEP.append(tracks)
+    tracks = sorted_tracks(board); _KEEP.append(tracks)
+    if reroute:          # rip the given nets completely; they are then re-joined below by shortest paths
+        n_rip = 0
+        for i_, tr in enumerate(tracks):
+            if tr is not None and tr.GetNetname() in reroute and not tr.IsLocked():
+                board.Remove(tr); _KEEP.append(tr); tracks[i_] = None; n_rip += 1
+        print("  ripped %d items of %s for re-routing" % (n_rip, list(reroute)))
     cleanup(board, tracks)
     kos = board_keepouts(board)
     G = 0.05; VR = 0.25
-    nets = sorted({p.GetNetname() for fp in board.GetFootprints() for p in fp.Pads() if p.GetNetname() and not p.GetNetname().startswith("unconnected-")})
-    queue = list(nets)
+    nets = sorted({p.GetNetname() for fp in sorted_fps(board) for p in fp.Pads() if p.GetNetname() and not p.GetNetname().startswith("unconnected-")})
+    queue = [n_ for n_ in reroute if n_ in nets] + [n_ for n_ in nets if n_ not in reroute]
+    usb = set(NETCLASSES["USB"][2])
     stats = dict(joined=0, failed=[], ripped=0)
     tries = {}
     jobs = 0
@@ -723,7 +778,14 @@ def patch(outdir, report=None, max_jobs=400):
         power = net in NETCLASSES["Power"][2]
         done = False
         # (track width, clearance used for the search); the last entry is the tightest the board rules allow
-        for width, clr in (((0.3, 0.18), (0.15, 0.18), (0.12, 0.165)) if power else ((0.15, 0.15), (0.12, 0.13))):
+        if net in usb:      # USB 2.0 data: 0.2 mm (about 45 ohm to the plane 0.1 mm below), stay on one layer if at all possible
+            variants = ((0.2, 0.16), (0.2, 0.13))
+        elif power:
+            variants = ((0.3, 0.18), (0.15, 0.18), (0.12, 0.165))
+        else:
+            variants = ((0.15, 0.15), (0.12, 0.13))
+        via_cost = 400 if net in usb else 50
+        for width, clr in variants:
             xs = [q[0] for q in ap + bp]; ys = [q[1] for q in ap + bp]
             m = 4.0 + 2.0 * tries.get(net, 0)
             x0, y0, x1, y1 = max(0.4, min(xs) - m), max(0.4, min(ys) - m), min(W - 0.4, max(xs) + m), min(H - 0.4, max(ys) + m)
@@ -824,9 +886,9 @@ def patch(outdir, report=None, max_jobs=400):
                         if n2 not in came and g2 < best.get(n2, 1e18):
                             best[n2] = g2; heapq.heappush(openh, (g2 + 1.5 * h(n2), g2, n2, c))
                     if not hardv[cx, cy] and not hard[1 - cl][cx, cy] and not (hard[cl][cx, cy] and not free[cl][cx, cy]):
-                        vc = 50
+                        vc = via_cost
                         if softv[cx, cy] or soft[0][cx, cy] or soft[1][cx, cy]:
-                            vc = 250 if ripup else None
+                            vc = via_cost + 200 if ripup else None
                         if vc is not None:
                             n2 = (cx, cy, 1 - cl); g2 = gsc + vc
                             if n2 not in came and g2 < best.get(n2, 1e18):
@@ -931,7 +993,7 @@ def cleanup(board, tracks):
     `tracks` is the caller's list of track objects (None entries = already removed)."""
     f = pcbnew.ToMM
     pads = {}
-    for fp in board.GetFootprints():
+    for fp in sorted_fps(board):
         for p in fp.Pads():
             if p.GetNetname():
                 b = p.GetBoundingBox()
@@ -1018,7 +1080,7 @@ def repair(outdir, report):
     import re
     board = pcbnew.LoadBoard(os.path.join(outdir, "voxhub.kicad_pcb"))
     f = pcbnew.ToMM
-    tracks = list(board.GetTracks()); _KEEP.append(tracks)
+    tracks = sorted_tracks(board); _KEEP.append(tracks)
     txt = open(report).read()
     kinds = ("clearance", "shorting_items", "tracks_crossing", "hole_clearance", "hole_to_hole", "copper_edge_clearance",
              "track_dangling", "via_dangling", "items_not_allowed", "solder_mask_bridge", "track_width")
@@ -1109,6 +1171,26 @@ if __name__ == "__main__":
     elif sys.argv[1] == "repair":
         repair(sys.argv[2], sys.argv[3])
     elif sys.argv[1] == "patch":
-        patch(sys.argv[2])
+        rr = ()
+        if "--reroute-usb" in sys.argv:
+            u = list(NETCLASSES["USB"][2])          # UP_P, UP_N, 1_P, 1_N, 2_P, 2_N
+            variant = int(sys.argv[sys.argv.index("--variant") + 1]) if "--variant" in sys.argv else 0
+            orders = [u, [u[1], u[0], u[3], u[2], u[5], u[4]], u[2:] + u[:2], list(reversed(u)), [u[4], u[5], u[2], u[3], u[0], u[1]], [u[3], u[2], u[5], u[4], u[1], u[0]]]
+            rr = tuple(orders[variant % len(orders)])
+        patch(sys.argv[2], reroute=rr)
+    elif sys.argv[1] == "stats":
+        b = pcbnew.LoadBoard(os.path.join(sys.argv[2], "voxhub.kicad_pcb"))
+        L, V = {}, {}
+        ntr = nvia = 0
+        for tr in b.GetTracks():
+            n_ = tr.GetNetname()
+            if tr.Type() == pcbnew.PCB_VIA_T: V[n_] = V.get(n_, 0) + 1; nvia += 1
+            else: L[n_] = L.get(n_, 0.0) + pcbnew.ToMM(tr.GetLength()); ntr += 1
+        print("track segments: %d, vias: %d (GND %d, +5V %d)" % (ntr, nvia, V.get("GND", 0), V.get("+5V", 0)))
+        for a_, c_ in (("USB_UP_P", "USB_UP_N"), ("USB1_P", "USB1_N"), ("USB2_P", "USB2_N")):
+            print("%-9s %6.2f mm (%d vias)   %-9s %6.2f mm (%d vias)   skew %.2f mm" % (
+                a_, L.get(a_, 0), V.get(a_, 0), c_, L.get(c_, 0), V.get(c_, 0), abs(L.get(a_, 0) - L.get(c_, 0))))
+        for n_ in ("SD_CLK", "SD_CMD", "SD_DAT0", "SD_DAT1", "SD_DAT2", "SD_DAT3", "I2S_BCLK", "PDM_CLK_M"):
+            print("%-9s %6.1f mm (%d vias)" % (n_, L.get(n_, 0), V.get(n_, 0)))
     else:
         finish(sys.argv[2])
