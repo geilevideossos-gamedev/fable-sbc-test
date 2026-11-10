@@ -7,7 +7,18 @@ import sys
 import pytest
 
 from voxhub_assistant.audio import CHUNK_BYTES, AudioError, Microphone, Speaker
-from voxhub_assistant.leds import BLUE, EV_SW, GREEN, SW_MUTE_DEVICE, Leds, MuteSwitch, State
+from voxhub_assistant.leds import (
+    BLUE,
+    EV_KEY,
+    EV_SW,
+    GREEN,
+    KEY_MICMUTE,
+    SW_MUTE_DEVICE,
+    Leds,
+    MuteSwitch,
+    State,
+    _has_bit,
+)
 from voxhub_assistant.leds import parse_switch_events as parse
 
 
@@ -60,10 +71,32 @@ def test_parse_switch_events():
     assert parse(mute_on + other + mute_off) is False
     assert parse(other) is None
     assert parse(b"") is None
+    # stock gpio-key overlay: KEY_MICMUTE held while muted
+    assert parse(event.pack(0, 0, EV_KEY, KEY_MICMUTE, 1)) is True
+    assert parse(event.pack(0, 0, EV_KEY, KEY_MICMUTE, 0)) is False
 
 
-async def test_mute_switch_absent_is_ignored():
-    switch = MuteSwitch(True, device_name="no-such-device-voxhub-test")
+def test_mute_device_discovery(tmp_path):
+    def add(n, name, sw="0", key="0"):
+        dev = tmp_path / f"event{n}" / "device"
+        (dev / "capabilities").mkdir(parents=True)
+        (dev / "name").write_text(name + "\n")
+        (dev / "capabilities" / "sw").write_text(sw + "\n")
+        (dev / "capabilities" / "key").write_text(key + "\n")
+
+    assert _has_bit("4000", SW_MUTE_DEVICE) and not _has_bit("2000", SW_MUTE_DEVICE)
+    key_bitmap = "100000000000000 0 0 0"  # bit 248 = word 3, bit 56
+    assert _has_bit(key_bitmap, KEY_MICMUTE)
+    add(0, "some keyboard", key="ffff")
+    assert MuteSwitch._find(tmp_path) is None
+    add(1, "button@1b", key=key_bitmap)
+    assert MuteSwitch._find(tmp_path) == ("/dev/input/event1", False)
+    add(2, "voxhub-mute", sw="4000")
+    assert MuteSwitch._find(tmp_path) == ("/dev/input/event1", False)  # first match wins
+
+
+async def test_mute_switch_absent_is_ignored(tmp_path):
+    switch = MuteSwitch(True, sysfs=tmp_path)
     assert switch.muted is False
     switch.close()
     assert MuteSwitch(False).muted is False

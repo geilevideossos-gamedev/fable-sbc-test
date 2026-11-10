@@ -49,7 +49,7 @@ assistant/
                       VoxHub CM4 running Home Assistant OS
  ┌────────────────────────────────────────────────────────────────────────────┐
  │                                                                            │
- │  2x ICS-43434 ──I2S──┐                              ┌──I2S── MAX98357A ──► │ speaker
+ │  2x PDM mic→ADAU7002─┐                              ┌──I2S── MAX98357A ──► │ speaker
  │  (googlevoicehat     │                              │        4 ohm / 3 W   │
  │   ALSA card)         ▼                              │                      │
  │              ┌──────────────── hassio_audio (PulseAudio) ───────────────┐  │
@@ -292,7 +292,7 @@ exact names run `ha audio info` in the SSH add-on and look at the `input` and `o
 lists. Either select them in the *Audio* card or copy the names into `input_device` /
 `output_device`. If the card is missing entirely, the device tree overlay is not loaded.
 
-**The wake word never triggers or Whisper returns nothing.** The ICS-43434 microphones
+**The wake word never triggers or Whisper returns nothing.** The PDM MEMS microphones (IM69D130 via ADAU7002)
 deliver 24-bit samples in a 32-bit I2S frame, and typical speech sits far below full
 scale, so after conversion to 16 bit the signal is quiet. Raise `mic_gain` (4 to 8 is a
 normal range for this microphone) and/or the PulseAudio source volume

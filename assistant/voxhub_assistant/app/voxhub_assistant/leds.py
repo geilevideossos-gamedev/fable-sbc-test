@@ -19,8 +19,8 @@ from pathlib import Path
 _LOGGER = logging.getLogger(__name__)
 
 LED_ROOT = Path("/sys/class/leds")
-GREEN = "voxhub:green:status"
-BLUE = "voxhub:blue:status"
+GREEN = "voxhub-green"
+BLUE = "voxhub-blue"
 
 
 class State(Enum):
@@ -88,44 +88,63 @@ class Leds:
 
 
 # Linux input event constants (include/uapi/linux/input-event-codes.h)
+EV_KEY = 0x01
 EV_SW = 0x05
-SW_MUTE_DEVICE = 0x0E
+SW_MUTE_DEVICE = 0x0E  # custom voxhub overlay: gpio-keys switch
+KEY_MICMUTE = 248  # stock "gpio-key" overlay: key held down while muted
 _EVENT = struct.Struct("llHHi")  # struct input_event on 64-bit: timeval, type, code, value
-_EVIOCGSW_2 = (2 << 30) | (2 << 16) | (ord("E") << 8) | 0x1B  # _IOC(_IOC_READ, 'E', 0x1b, 2)
+
+
+def _eviocg(nr: int, length: int) -> int:
+    return (2 << 30) | (length << 16) | (ord("E") << 8) | nr  # _IOC(_IOC_READ, 'E', nr, length)
 
 
 def parse_switch_events(data: bytes) -> bool | None:
-    """Return the latest SW_MUTE_DEVICE value in a buffer of input events, if any."""
+    """Return the latest mute state in a buffer of input events, if any."""
     muted: bool | None = None
     for offset in range(0, len(data) - _EVENT.size + 1, _EVENT.size):
         _, _, kind, code, value = _EVENT.unpack_from(data, offset)
-        if kind == EV_SW and code == SW_MUTE_DEVICE:
+        if (kind, code) in ((EV_SW, SW_MUTE_DEVICE), (EV_KEY, KEY_MICMUTE)):
             muted = bool(value)
     return muted
 
 
+def _has_bit(hex_words: str, bit: int) -> bool:
+    """Test a bit in a sysfs capability bitmap (space separated hex words, MSW first)."""
+    try:
+        value = int("".join(w.zfill(16) for w in hex_words.split()) or "0", 16)
+    except ValueError:
+        return False
+    return bool(value >> bit & 1)
+
+
 class MuteSwitch:
-    """Tracks the hardware mute slide switch exposed as a gpio-keys switch."""
+    """Tracks the hardware mute slide switch (gpio-keys: SW_MUTE_DEVICE or KEY_MICMUTE)."""
 
     def __init__(
         self,
         enabled: bool = True,
-        device_name: str = "voxhub-switches",
         on_change: Callable[[bool], None] | None = None,
+        sysfs: Path = Path("/sys/class/input"),
     ) -> None:
         self.muted = False
         self._on_change = on_change
         self._fd: int | None = None
         if not enabled:
             return
-        path = self._find(device_name)
-        if path is None:
-            _LOGGER.info("Input device '%s' not found; mute switch ignored", device_name)
+        found = self._find(sysfs)
+        if found is None:
+            _LOGGER.info("No mute switch input device found; mute switch ignored")
             return
+        path, is_switch = found
         try:
             self._fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
-            bits = fcntl.ioctl(self._fd, _EVIOCGSW_2, bytes(2))
-            self.muted = bool(int.from_bytes(bits, "little") >> SW_MUTE_DEVICE & 1)
+            if is_switch:
+                bits = fcntl.ioctl(self._fd, _eviocg(0x1B, 2), bytes(2))
+                self.muted = _bit(bits, SW_MUTE_DEVICE)
+            else:
+                bits = fcntl.ioctl(self._fd, _eviocg(0x18, 96), bytes(96))
+                self.muted = _bit(bits, KEY_MICMUTE)
             asyncio.get_running_loop().add_reader(self._fd, self._readable)
             _LOGGER.info("Mute switch on %s (muted=%s)", path, self.muted)
         except OSError as err:
@@ -133,11 +152,17 @@ class MuteSwitch:
             self.close()
 
     @staticmethod
-    def _find(device_name: str) -> str | None:
-        for name_file in sorted(Path("/sys/class/input").glob("event*/device/name")):
+    def _find(sysfs: Path) -> tuple[str, bool] | None:
+        """Locate the input device by capability, so it works with either overlay."""
+        for dev in sorted(sysfs.glob("event*/device")):
             with contextlib.suppress(OSError):
-                if name_file.read_text().strip() == device_name:
-                    return f"/dev/input/{name_file.parent.parent.name}"
+                if _has_bit((dev / "capabilities" / "sw").read_text(), SW_MUTE_DEVICE):
+                    return f"/dev/input/{dev.parent.name}", True
+                name = (dev / "name").read_text().strip()
+                if _has_bit((dev / "capabilities" / "key").read_text(), KEY_MICMUTE) and (
+                    "button" in name or "voxhub" in name or "gpio" in name
+                ):
+                    return f"/dev/input/{dev.parent.name}", False
         return None
 
     def _readable(self) -> None:
@@ -162,3 +187,7 @@ class MuteSwitch:
             with contextlib.suppress(OSError):
                 os.close(self._fd)
             self._fd = None
+
+
+def _bit(bits: bytes, bit: int) -> bool:
+    return bool(int.from_bytes(bits, "little") >> bit & 1)

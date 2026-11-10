@@ -117,9 +117,9 @@ def res(sh, val, x, y, a, b, horiz=True, dnp=False):
                  textpos=((1.9, -1.0, "left"), (1.9, 1.5, "left")))
     return r
 
-def led(sh, key, x, y, a, k, value):
+def led(sh, key, x, y, a, k, value, pos=None):
     r = ref("D")
-    sh.place("LED", r, value, x, y, {"2": a, "1": k}, rot=90, footprint=PARTS[key][3], fields=F(key),
+    sh.place("LED", r, value, x, y, {"2": a, "1": k}, rot=90, footprint=PARTS[key][3], fields=F(key), pos=pos,
              textpos=((2.2, -1.0, "left"), (2.2, 1.5, "left")))
     return r
 
@@ -131,6 +131,7 @@ def tp(sh, x, y, net, name):
 # Sheet 2: POWER  (USB-C PD sink -> load switch -> 5.1 V buck)
 # =========================================================================
 s = d.sheet("power", "Power: USB-C PD sink, 5 V buck")
+d.near = "U1"
 s.box(15, 20, 225, 150, "USB-C input and PD sink controller (CYPD3177 'BCR', resistor-strapped: 9-20 V, 2 A minimum)")
 s.place("USB_C_Receptacle_USB2.0_16P", "J1", "USB4105-GF-A", 40, 80,
         {"A4": "VBUS", "A9": "VBUS", "B4": "VBUS", "B9": "VBUS", "A5": "CC1", "B5": "CC2",
@@ -158,6 +159,7 @@ s.text("Straps: VBUS_MIN = 9 V, VBUS_MAX = 20 V,\nISNK_COARSE = 2 A, ISNK_FINE =
 res(s, "1k", 150, 135, "PD_FAULT", "PD_FAULT_LED")
 led(s, "LED_R", 175, 140, "PD_FAULT_LED", GND, "PD FAULT (red)")
 res(s, "49.9k", 112, 142, "PD_VDDD", "PD_FLIP")
+d.near = "Q1"
 s.box(15, 155, 130, 275, "VBUS load switch: P-FET driven by the BCR's active-low, slew-controlled gate driver")
 s.place("AO3401A", ref("Q"), "AO3401A", 60, 190, {"1": "PD_GATE", "2": "VBUS", "3": "VBUS_SW"}, rot=0, footprint=PARTS["Q_P"][3], fields=F("Q_P"))
 res(s, "100k", 35, 215, "VBUS", "PD_GATE"); cap(s, "C_10n", 35, 240, "VBUS", "PD_GATE")
@@ -166,6 +168,7 @@ r = ref("D"); s.place("D_Zener", r, "10V", 60, 240, {"1": "VBUS", "2": "PD_GATE"
 res(s, "150k", 95, 215, "PD_GATE", "PD_FET_EN")
 s.text("VBUS_FET_EN pulls low after a 9-20 V contract.\nVgs = -0.4 x VBUS (-3.6 V @ 9 V, -8 V @ 20 V),\n10 V zener clamps transients.", 70, 262, size=1.4)
 s.flag("VBUS", 30, 180); s.flag("VBUS_SW", 100, 180); s.flag(GND, 30, 265)
+d.near = "U2"
 s.box(135, 155, 405, 247, "5.1 V / 4 A synchronous buck (LMR33640, 400 kHz) - UVLO 7.0 V keeps it off at vSafe5V")
 s.place("LMR33640ADDA", "U2", "LMR33640ADDAR", 215, 205,
         {"1": GND, "2": "VBUS_SW", "3": "BUCK_EN", "4": "NC", "5": "BUCK_FB", "6": "BUCK_VCC", "7": "BUCK_BOOT", "8": "BUCK_SW", "9": GND},
@@ -183,6 +186,7 @@ for i in range(4): cap(s, "C_22u", 315 + i * 11, 200, V5)
 cap(s, "C_100n", 359, 200, V5)
 res(s, "2.2k", 340, 235, V5, "PWR_LED_A"); led(s, "LED_G", 365, 240, "PWR_LED_A", GND, "PWR (green)")
 s.flag(V5, 380, 205)
+d.near = "TPZONE"
 for i, (n, nm) in enumerate((("VBUS", "VBUS"), ("VBUS_SW", "VBUS_SW"), (V5, "+5V"), (V33, "+3V3"), (GND, "GND"))):
     tp(s, 300 + i * 20, 172, n, nm)
 
@@ -190,6 +194,7 @@ for i, (n, nm) in enumerate((("VBUS", "VBUS"), ("VBUS_SW", "VBUS_SW"), (V5, "+5V
 # Sheet 3: CM4 socket, microSD, UI (LEDs, mute switch), debug
 # =========================================================================
 s = d.sheet("cm4", "Compute Module 4 socket, microSD, user interface")
+d.near = "J2"
 n1 = {n: "NC" for n in range(1, 101)}
 for n in range(1, 101):
     if CM4[n] == "GND": n1[n] = GND
@@ -206,27 +211,30 @@ for n in range(101, 201):
 n2.update({101: GND, 103: "USB_UP_N", 105: "USB_UP_P"})
 s.place("CM4_J2", "J3", "DF40C-100DS-0.4V(51)", 185, 150, {str(k): v for k, v in n2.items()}, fields=F("J_CM4"))
 s.text("Module: Raspberry Pi CM4 Lite, wireless (CM4104000 / CM4102000 / CM4108000)\nGPIO map: see README. USB_OTG_ID tied low = host.", 30, 275, size=1.6)
+d.near = "U3"
 s.box(250, 20, 405, 110, "microSD (boot / storage) - card power switched by SD_PWR_ON")
 s.place("Micro_SD_Card_Det_Hirose_DM3AT", "J4", "DM3AT-SF-PEJM5", 370, 65,
         {"1": "SD_DAT2", "2": "SD_DAT3", "3": "SD_CMD", "4": "SD_VDD", "5": "SD_CLK", "6": GND, "7": "SD_DAT0", "8": "SD_DAT1",
          "9": "NC", "10": "NC", "11": GND}, footprint=PARTS["J_SD"][3], fields=F("J_SD"))
 s.place("TPS2553", "U3", "TPS2553DBVR", 290, 50, {"1": V33, "3": "SD_PWR_ON", "2": GND, "6": "SD_VDD", "4": "NC", "5": "SD_ILIM"}, fields=F("U_SW"))
 res(s, "49.9k", 290, 72, "SD_ILIM", GND); res(s, "10k", 290, 82, V33, "SD_PWR_ON")
-cap(s, "C_100n", 262, 95, V33); cap(s, "C_4u7", 320, 95, "SD_VDD"); cap(s, "C_100n", 331, 95, "SD_VDD")
+cap(s, "C_100n", 262, 95, V33); d.near = "J4"; cap(s, "C_4u7", 320, 95, "SD_VDD"); cap(s, "C_100n", 331, 95, "SD_VDD")
 s.flag("SD_VDD", 342, 98)
+d.near = "UI"
 s.box(250, 115, 405, 215, "User interface: status LEDs (reverse-mount, shine through PCB to the top cover) and hardware mic mute")
 for i, (key, en, name) in enumerate((("LED_UG", "LED_G_EN", "GREEN"), ("LED_UB", "LED_B_EN", "BLUE"))):
     x = 265 + i * 55
     res(s, "680" if i == 0 else "470", x, 135, V5, "LED%d_A" % i)
-    led(s, key, x + 20, 150, "LED%d_A" % i, "LED%d_K" % i, name)
+    led(s, key, x + 20, 150, "LED%d_A" % i, "LED%d_K" % i, name, pos=(34.0 + i * 4.6, 71.2, 90, "F"))
     q = ref("Q"); s.place("2N7002", q, "2N7002", x + 5, 180, {"1": en, "2": GND, "3": "LED%d_K" % i}, footprint=PARTS["Q_N"][3], fields=F("Q_N"))
-    res(s, "100k", x, 200, en, GND)
+    res(s, "10k", x, 200, en, GND)   # beats the SoC's ~50k boot-time pull-up on GPIO5/6
 s.place("SW_DPDT_x2", "SW1", "JS202011JCQN (MUTE)", 375, 140, {"1": "NC", "2": V33, "3": "MIC_MUTE"}, unit=1, footprint=PARTS["SW_MUTE"][3], fields=F("SW_MUTE"))
 s.place("SW_DPDT_x2", "SW1", "JS202011JCQN (MUTE)", 375, 165, {"4": "MIC_SDATA", "5": "I2S_DIN", "6": GND}, unit=2, footprint=PARTS["SW_MUTE"][3], fields=F("SW_MUTE"))
-res(s, "330", 370, 185, "MIC_MUTE", "MUTE_LED_A"); led(s, "LED_UR", 395, 200, "MUTE_LED_A", GND, "RED (muted)")
+res(s, "330", 370, 185, "MIC_MUTE", "MUTE_LED_A"); led(s, "LED_UR", 395, 200, "MUTE_LED_A", GND, "RED (muted)", pos=(43.2, 71.2, 90, "F"))
 res(s, "10k", 370, 195, "MIC_MUTE", "MUTE_SENSE"); res(s, "100k", 370, 205, "MUTE_SENSE", GND)
 res(s, "100k", 330, 205, "I2S_DIN", GND)
 s.text("SW1 pole A lights the red LED, pole B physically disconnects mic data\nfrom the CM4 (I2S_DIN grounded) - mute cannot be overridden by software.", 252, 213, size=1.4)
+d.near = "CM4CAP"
 s.box(250, 220, 405, 247, "Module support: activity LED, 5 V decoupling, rpiboot jumper, debug UART (DNP)")
 res(s, "1k", 265, 230, V33, "ACT_LED_A"); led(s, "LED_G", 290, 236, "ACT_LED_A", "ACT_LED_K", "ACT (green)")
 cap(s, "C_22u", 320, 235, V5); cap(s, "C_22u", 331, 235, V5); cap(s, "C_100n", 342, 235, V5); cap(s, "C_100n", 353, 235, V33)
@@ -239,6 +247,7 @@ s.place("Conn_01x03", "J5", "DEBUG UART", 60, 250, {"1": GND, "2": "DBG_TX", "3"
 # Sheet 4: USB hub and host ports
 # =========================================================================
 s = d.sheet("usb", "USB 2.0 hub and USB-A host ports")
+d.near = "U4"
 s.box(15, 20, 215, 275, "USB2514B hub: upstream = CM4 USB2, ports 1-2 = USB-A, ports 3-4 disabled by strap")
 s.place("USB2514B_Bi", "U4", "USB2514B-I/M2", 110, 130,
         {"1": "USB1_N", "2": "USB1_P", "3": "USB2_N", "4": "USB2_P", "5": V33, "6": "HUB_DIS3M", "7": "HUB_DIS3P", "8": "HUB_DIS4M", "9": "HUB_DIS4P", "10": V33,
@@ -261,7 +270,7 @@ cap(s, "C_4u7", 151, 245, V33)
 s.box(220, 20, 405, 247, "Downstream ports: per-port 1.2 A current-limited switch, ESD protection, stacked USB-A")
 for i in (1, 2):
     y = 60 + (i - 1) * 110
-    u = ref("U")  # U5/U6
+    d.near = "U%d" % (4 + i)
     s.place("TPS2553", "U%d" % (4 + i), "TPS2553DBVR", 255, y, {"1": V5, "3": "USB_PWR%d" % i, "2": GND, "6": "USB%d_VBUS" % i,
             "4": "USB_OC%d_N" % i, "5": "USB%d_ILIM" % i}, fields=F("U_SW"))
     res(s, "20k", 255, y + 22, "USB%d_ILIM" % i, GND); res(s, "10k", 255, y + 32, V33, "USB_OC%d_N" % i)
@@ -281,15 +290,18 @@ s = d.sheet("audio", "Audio: PDM microphones, PDM-to-I2S, class-D speaker amplif
 s.box(15, 20, 215, 150, "Stereo MEMS microphone array (bottom port through PCB) and PDM -> I2S converter")
 for i, sel in enumerate((GND, V33)):
     x = 45 + i * 60
+    d.near = "MK%d" % (i + 1)
     s.place("IM69D130", "MK%d" % (i + 1), "IM69D130", x, 60, {"1": "PDM_DAT", "2": V33, "3": "PDM_CLK_M", "4": sel, "5": GND},
             fields=F("MK_PDM"))
     cap(s, "C_100n", x - 20, 95, V33)
 s.text("MK1 SELECT=GND (left), MK2 SELECT=VDD (right); 70 mm apart", 30, 115, size=1.5)
+d.near = "U9"
 s.place("ADAU7002", "U9", "ADAU7002ACBZ-R7", 165, 60, {"A1": "PDM_DAT", "A2": "PDM_CLK", "D2": V33, "C1": GND, "D1": V33,
         "B2": "I2S_BCLK", "C2": "I2S_LRCLK", "B1": "MIC_SDATA"}, fields=F("U_PDM"))
 res(s, "33", 150, 95, "PDM_CLK", "PDM_CLK_M"); cap(s, "C_100n", 190, 100, V33); res(s, "100k", 150, 105, "MIC_SDATA", GND)
 res(s, "100k", 150, 115, "PDM_DAT", GND)
 s.text("CONFIG = IOVDD -> I2S output; BCLK = 64 fs, PDM clock = 64 fs (3.072 MHz @ 48 kHz)", 110, 135, size=1.5)
+d.near = "U10"
 s.box(15, 155, 215, 275, "Speaker amplifier (MAX98357A, I2S in, 3.2 W into 4 ohm from 5 V)")
 s.place("MAX98357A", "U10", "MAX98357AETE+T", 100, 205,
         {"1": "I2S_DOUT", "2": "NC", "3": GND, "4": "AMP_SD", "7": V5, "8": V5, "9": "SPK_P", "10": "SPK_N", "11": GND,
@@ -302,6 +314,7 @@ s.text("SD_MODE driven by GPIO16 (3.3 V = left channel, low = shutdown). GAIN_SL
 # Sheet 6: Zigbee / Thread radio
 # =========================================================================
 s = d.sheet("zigbee", "Zigbee / Thread radio (MGM240P, EFR32MG24)")
+d.near = "U11"
 z = {n: "NC" for n in range(1, 37)}
 for n in (1, 14, 23, 32, 34, 35, 36): z[n] = GND
 z.update({15: V33, 31: "ZB_NRST", 8: "ZB_SWCLK", 9: "ZB_SWDIO", 10: "ZB_SWO", 12: "UART4_RX", 13: "UART4_TX",
@@ -309,6 +322,7 @@ z.update({15: V33, 31: "ZB_NRST", 8: "ZB_SWCLK", 9: "ZB_SWDIO", 10: "ZB_SWO", 12
 s.box(15, 20, 290, 150, "MGM240P network co-processor on CM4 UART4 (GPIO8-11, hardware flow control) + SWD")
 s.place("MGM240P", "U11", "MGM240PB32VNA3", 110, 85, {str(k): v for k, v in z.items()}, fields=F("U_ZB"))
 cap(s, "C_4u7", 30, 130, V33); cap(s, "C_100n", 41, 130, V33); cap(s, "C_100n", 60, 130, "ZB_NRST")
+res(s, "10k", 90, 135, V33, "ZB_NRST"); res(s, "10k", 90, 143, V33, "ZB_BOOT")   # GPIO24/25 default to pull-down at boot
 s.place("Conn_ARM_SWD_TagConnect_TC2030-NL", "J8", "TC2030-NL (SWD)", 230, 80,
         {"1": V33, "2": "ZB_SWDIO", "3": "ZB_NRST", "4": "ZB_SWCLK", "5": GND, "6": "ZB_SWO"}, in_bom=False,
         fields={"MPN": "", "Manufacturer": "", "PartDescription": "Tag-Connect footprint (no part)"})
@@ -319,6 +333,7 @@ s.text("UART: PA05 = module TX -> GPIO9 (RXD4), PA06 = module RX <- GPIO8 (TXD4)
 # Root sheet: mechanical items
 # =========================================================================
 s = d.root
+d.near = None
 s.text("VoxHub CM4 - Home Assistant voice hub\nUSB-C PD (9-20 V) -> 5.1 V buck -> CM4 Lite + USB hub + audio + Zigbee", 30, 40, size=3.0, bold=True)
 for i in range(4):
     s.place("MountingHole", "H%d" % (i + 1), "M2.5 board mount", 40 + i * 30, 170, {}, footprint="MountingHole:MountingHole_2.7mm_M2.5",

@@ -512,6 +512,58 @@
 				)
 			)
 		)
+		(symbol "voxhub:R"
+			(pin_numbers (hide yes))
+			(pin_names (offset 0))
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "R" (at 2.032 0 90) (effects (font (size 1.27 1.27))))
+			(property "Value" "R" (at 0 0 90) (effects (font (size 1.27 1.27))))
+			(property "Footprint" ""
+				(at -1.778 0 90)
+				(effects (font (size 1.27 1.27)) (hide yes))
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects (font (size 1.27 1.27)) (hide yes))
+			)
+			(property "Description" "Resistor"
+				(at 0 0 0)
+				(effects (font (size 1.27 1.27)) (hide yes))
+			)
+			(property "ki_keywords" "R res resistor"
+				(at 0 0 0)
+				(effects (font (size 1.27 1.27)) (hide yes))
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(effects (font (size 1.27 1.27)) (hide yes))
+			)
+			(symbol "R_0_1"
+				(rectangle
+					(start -1.016 -2.54)
+					(end 1.016 2.54)
+					(stroke (width 0.254) (type default))
+					(fill (type none))
+				)
+			)
+			(symbol "R_1_1"
+				(pin passive line
+					(at 0 3.81 270)
+					(length 1.27)
+					(name "~" (effects (font (size 1.27 1.27))))
+					(number "1" (effects (font (size 1.27 1.27))))
+				)
+				(pin passive line
+					(at 0 -3.81 90)
+					(length 1.27)
+					(name "~" (effects (font (size 1.27 1.27))))
+					(number "2" (effects (font (size 1.27 1.27))))
+				)
+			)
+			(embedded_fonts no)
+		)
 	)
 	(rectangle
 		(start 15 20)
@@ -1475,6 +1527,212 @@
 		)
 	)
 	(symbol
+		(lib_id "voxhub:R")
+		(at 90.17 134.62 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "6ef61c47-fc57-5d94-95e8-d739e2f8aee6")
+		(property "Reference" "R46" (at 90.17 132.32 0) (effects (font (size 1.27 1.27))))
+		(property "Value" "10k" (at 90.17 137.22 0) (effects (font (size 1.27 1.27))))
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 90.17 134.62 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Datasheet" "~"
+			(at 90.17 134.62 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Description" "Resistor"
+			(at 90.17 134.62 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Manufacturer" "Yageo"
+			(at 90.17 134.62 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 90.17 134.62 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "PartDescription" "RES 10k 1% 1/16W 0402"
+			(at 90.17 134.62 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(pin "1" (uuid "d7788ce6-3a11-5f93-a155-85cfbe25a73f"))
+		(pin "2" (uuid "7af5c1a5-004e-5f62-b228-9660b3ff7ddb"))
+		(instances
+			(project "voxhub"
+				(path "/65b581be-9e0b-5b89-99c2-ab9018ecaca7/1980e2c9-a494-5cb8-9cc5-fa2452d5da33"
+					(reference "R46")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts (xy 86.36 134.62) (xy 83.82 134.62))
+		(stroke (width 0) (type default))
+		(uuid "2f2737c8-09d8-5ac2-a9dd-be91904c34d5")
+	)
+	(symbol
+		(lib_id "voxhub:+3V3")
+		(at 83.82 134.62 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "9d9d66b4-1b04-528e-885f-a525aa66c802")
+		(property "Reference" "#PWR614"
+			(at 87.63 134.62 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Value" "+3V3" (at 77.74 134.62 0) (effects (font (size 1.27 1.27))))
+		(property "Footprint" ""
+			(at 83.82 134.62 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Datasheet" ""
+			(at 83.82 134.62 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 83.82 134.62 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(pin "1" (uuid "a0ecd3f0-1cad-55ff-9a2b-9353f0ec1c5b"))
+		(instances
+			(project "voxhub"
+				(path "/65b581be-9e0b-5b89-99c2-ab9018ecaca7/1980e2c9-a494-5cb8-9cc5-fa2452d5da33"
+					(reference "#PWR614")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts (xy 93.98 134.62) (xy 96.52 134.62))
+		(stroke (width 0) (type default))
+		(uuid "f3f9d7d9-216c-5815-b7f6-289b197a7666")
+	)
+	(global_label "ZB_NRST"
+		(shape passive)
+		(at 96.52 134.62 0)
+		(fields_autoplaced yes)
+		(effects (font (size 1.27 1.27)) (justify left))
+		(uuid "d24c9a14-cffa-54a3-aeb7-bf2723390ed0")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 96.52 134.62 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+	)
+	(symbol
+		(lib_id "voxhub:R")
+		(at 90.17 143.51 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e092af21-803a-5c66-93da-14887fe5eddc")
+		(property "Reference" "R47" (at 90.17 141.21 0) (effects (font (size 1.27 1.27))))
+		(property "Value" "10k" (at 90.17 146.11 0) (effects (font (size 1.27 1.27))))
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 90.17 143.51 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Datasheet" "~"
+			(at 90.17 143.51 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Description" "Resistor"
+			(at 90.17 143.51 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Manufacturer" "Yageo"
+			(at 90.17 143.51 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "MPN" "RC0402FR-0710KL"
+			(at 90.17 143.51 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "PartDescription" "RES 10k 1% 1/16W 0402"
+			(at 90.17 143.51 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(pin "1" (uuid "05c04b3f-9130-511f-ba30-8f30d1d581b7"))
+		(pin "2" (uuid "f7806caa-a026-5f8f-89f8-c698a6f499ce"))
+		(instances
+			(project "voxhub"
+				(path "/65b581be-9e0b-5b89-99c2-ab9018ecaca7/1980e2c9-a494-5cb8-9cc5-fa2452d5da33"
+					(reference "R47")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts (xy 86.36 143.51) (xy 83.82 143.51))
+		(stroke (width 0) (type default))
+		(uuid "3b3a3a43-bd20-5987-9f52-bb372b434698")
+	)
+	(symbol
+		(lib_id "voxhub:+3V3")
+		(at 83.82 143.51 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "41bc9d6f-ed00-5915-a806-0b9b5cf21c2e")
+		(property "Reference" "#PWR615"
+			(at 87.63 143.51 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Value" "+3V3" (at 77.74 143.51 0) (effects (font (size 1.27 1.27))))
+		(property "Footprint" ""
+			(at 83.82 143.51 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Datasheet" ""
+			(at 83.82 143.51 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 83.82 143.51 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+		(pin "1" (uuid "22804005-f629-5c3a-98ea-3f1faf315238"))
+		(instances
+			(project "voxhub"
+				(path "/65b581be-9e0b-5b89-99c2-ab9018ecaca7/1980e2c9-a494-5cb8-9cc5-fa2452d5da33"
+					(reference "#PWR615")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts (xy 93.98 143.51) (xy 96.52 143.51))
+		(stroke (width 0) (type default))
+		(uuid "2afde837-5d0b-55d0-805f-d86c03b45612")
+	)
+	(global_label "ZB_BOOT"
+		(shape passive)
+		(at 96.52 143.51 0)
+		(fields_autoplaced yes)
+		(effects (font (size 1.27 1.27)) (justify left))
+		(uuid "57d3db59-bf35-5421-9bea-df23f813d89a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 96.52 143.51 0)
+			(effects (font (size 1.27 1.27)) (hide yes))
+		)
+	)
+	(symbol
 		(lib_id "voxhub:Conn_ARM_SWD_TagConnect_TC2030-NL")
 		(at 229.87 80.01 0)
 		(unit 1)
@@ -1540,8 +1798,8 @@
 		(in_bom no)
 		(on_board yes)
 		(dnp no)
-		(uuid "9d9d66b4-1b04-528e-885f-a525aa66c802")
-		(property "Reference" "#PWR614"
+		(uuid "260a9192-004f-595d-a529-479a51182f79")
+		(property "Reference" "#PWR616"
 			(at 227.33 71.12 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
@@ -1558,11 +1816,11 @@
 			(at 227.33 67.31 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
-		(pin "1" (uuid "a0ecd3f0-1cad-55ff-9a2b-9353f0ec1c5b"))
+		(pin "1" (uuid "20a14004-cd84-5616-b789-6e24b8c415b5"))
 		(instances
 			(project "voxhub"
 				(path "/65b581be-9e0b-5b89-99c2-ab9018ecaca7/1980e2c9-a494-5cb8-9cc5-fa2452d5da33"
-					(reference "#PWR614")
+					(reference "#PWR616")
 					(unit 1)
 				)
 			)
@@ -1581,8 +1839,8 @@
 		(in_bom no)
 		(on_board yes)
 		(dnp no)
-		(uuid "41bc9d6f-ed00-5915-a806-0b9b5cf21c2e")
-		(property "Reference" "#PWR615"
+		(uuid "0edbe5b6-0d1a-5137-8ea6-c7c60a2bc7d5")
+		(property "Reference" "#PWR617"
 			(at 227.33 99.06 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
@@ -1599,11 +1857,11 @@
 			(at 227.33 92.71 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
-		(pin "1" (uuid "22804005-f629-5c3a-98ea-3f1faf315238"))
+		(pin "1" (uuid "9df1e4c3-5409-529e-a5f8-a1faedc04f7a"))
 		(instances
 			(project "voxhub"
 				(path "/65b581be-9e0b-5b89-99c2-ab9018ecaca7/1980e2c9-a494-5cb8-9cc5-fa2452d5da33"
-					(reference "#PWR615")
+					(reference "#PWR617")
 					(unit 1)
 				)
 			)

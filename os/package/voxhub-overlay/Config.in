@@ -1,0 +1,7 @@
+config BR2_PACKAGE_VOXHUB_OVERLAY
+	bool "voxhub-overlay"
+	depends on BR2_LINUX_KERNEL
+	select BR2_PACKAGE_HOST_DTC
+	help
+	  Device tree overlay for the VoxHub CM4 carrier board
+	  (I2S audio, status LEDs, mute switch, UART4 radio, I2C1).

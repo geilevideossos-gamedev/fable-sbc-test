@@ -261,7 +261,7 @@ class Sheet:
         return u
 
     def place(self, name, ref, value, x, y, nets, rot=0, footprint=None, fields=None, unit=1,
-              dnp=False, stub=2.54, textpos=None, in_bom=True, hide_value=False):
+              dnp=False, stub=2.54, textpos=None, in_bom=True, hide_value=False, pos=None):
         """nets: {pin number or pin name: net | 'NC'}; every pin must be covered."""
         meta = self.d.lib.meta[name]
         fields = dict(fields or {})
@@ -272,7 +272,8 @@ class Sheet:
             raise ValueError("duplicate reference " + ref)
         comp = self.d.components.setdefault(ref, dict(ref=ref, value=value, sheet=self.name, pins={},
                                                       footprint=footprint if footprint is not None else meta["props"].get("Footprint", [0, 0, ""])[2],
-                                                      fields=fields, dnp=dnp, in_bom=in_bom))
+                                                      fields=fields, dnp=dnp, in_bom=in_bom,
+                                                      near=getattr(self.d, 'near', None), pos=pos))
         for p in meta["pins"]:
             if p["unit"] not in (0, unit):
                 continue
