@@ -1,0 +1,112 @@
+configuration:
+  anthropic_api_key:
+    name: Anthropic API key
+    description: API key from console.anthropic.com. Stored in the add-on options and never written to the log.
+  model:
+    name: Claude model
+    description: claude-haiku-5-5 is the fastest and cheapest (recommended for voice). Sonnet and Opus are more capable but slower and more expensive.
+  custom_model:
+    name: Custom model id
+    description: Optional. Any Anthropic model id; overrides the model selected above.
+  effort:
+    name: Effort
+    description: How much the model thinks before answering. "low" gives the fastest replies.
+  max_tokens:
+    name: Max tokens
+    description: Upper limit for one model response (thinking included).
+  request_timeout:
+    name: API timeout (seconds)
+    description: Timeout for one request to the Anthropic API.
+  assistant_name:
+    name: Assistant name
+    description: The name the assistant uses for itself.
+  language:
+    name: Language
+    description: Language code passed to Whisper (e.g. en, de, fr) and the assistant's default reply language.
+  system_prompt_extra:
+    name: Extra instructions
+    description: Optional text appended to the system prompt, e.g. facts about your household.
+  conversation_timeout:
+    name: Conversation timeout (seconds)
+    description: The conversation memory is cleared after this much inactivity.
+  max_history_turns:
+    name: Remembered turns
+    description: Number of previous question/answer pairs sent to Claude as context. 0 disables memory.
+  wake_word_engine:
+    name: Wake word engine
+    description: '"wyoming" uses the openWakeWord add-on; "local" runs openWakeWord inside this add-on.'
+  wake_word:
+    name: Wake word
+    description: Model name (e.g. hey_jarvis, ok_nabu, alexa) or, for the local engine, a path such as /share/openwakeword/my_word.onnx.
+  wake_word_uri:
+    name: Wake word service URI
+    description: Wyoming URI of the openWakeWord add-on.
+  wake_word_threshold:
+    name: Wake word threshold
+    description: Detection threshold for the local engine (0.05 to 1.0). Higher means fewer false activations.
+  wake_sound:
+    name: Wake sound
+    description: Play a short beep when the wake word is detected.
+  stt_uri:
+    name: Speech-to-text URI
+    description: Wyoming URI of the Whisper add-on.
+  tts_uri:
+    name: Text-to-speech URI
+    description: Wyoming URI of the Piper add-on.
+  tts_voice:
+    name: Piper voice
+    description: Voice name such as en_US-lessac-medium. Empty uses the Piper add-on's default voice.
+  input_device:
+    name: PulseAudio source
+    description: Optional source name. Empty uses the input selected on the add-on's Audio card.
+  output_device:
+    name: PulseAudio sink
+    description: Optional sink name. Empty uses the output selected on the add-on's Audio card.
+  mic_command:
+    name: Capture command
+    description: Advanced. Command that writes raw 16 kHz mono S16_LE audio to stdout. Empty uses parec.
+  speaker_command:
+    name: Playback command
+    description: Advanced. Command that reads raw PCM from stdin; {rate}, {channels} and {format} are substituted. Empty uses pacat.
+  mic_gain:
+    name: Microphone gain
+    description: Software gain applied to the microphone signal. The VoxHub I2S microphones are quiet; try 4 to 8.
+  volume:
+    name: Speaker volume
+    description: Software volume from 0.0 to 1.0.
+  silence_seconds:
+    name: End-of-speech silence (seconds)
+    description: How long you must be silent before the recording stops.
+  max_utterance_seconds:
+    name: Maximum recording (seconds)
+    description: Hard limit for one spoken request.
+  no_speech_timeout:
+    name: No-speech timeout (seconds)
+    description: Go back to sleep if nothing is said after the wake word.
+  vad_sensitivity:
+    name: Speech detection ratio
+    description: Audio counts as speech when it is this many times louder than the background noise. Lower is more sensitive.
+  follow_up:
+    name: Follow-up mode
+    description: Keep listening after each answer so you can continue without the wake word.
+  follow_up_seconds:
+    name: Follow-up window (seconds)
+    description: How long to wait for a follow-up request.
+  exposed_domains:
+    name: Readable entity domains
+    description: Entity domains Claude can see and read. Leave empty for the built-in default list.
+  allowed_service_domains:
+    name: Allowed service domains
+    description: Domains whose services Claude may call (for entities of those domains only).
+  denied_service_domains:
+    name: Denied service domains
+    description: Domains Claude may never control. Takes precedence over the allow-list.
+  leds:
+    name: Status LEDs
+    description: Drive the VoxHub status LEDs. Needs protection mode off; ignored when the LEDs are not present.
+  mute_switch:
+    name: Mute switch
+    description: Follow the VoxHub hardware mute switch. Needs protection mode off; ignored when not present.
+  log_level:
+    name: Log level
+    description: Transcripts are only logged at debug level.

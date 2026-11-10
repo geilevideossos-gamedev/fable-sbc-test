@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "voxhub")(type "KiCad")(uri "${KIPRJMOD}/voxhub.kicad_sym")(options "")(descr "VoxHub project symbols (generated)"))
+)
