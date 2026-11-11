@@ -130,3 +130,22 @@ make[1]: *** [Makefile:83: _all] Error 2
 make[1]: Leaving directory 'os/output/haos-src/buildroot'
 make: *** [Makefile:56: voxhub] Error 2
 === exit 2 2026-11-11T16:21:19Z ===
+
+##### 2026-11-11 attempt 6: host-libyaml built first (start 16:30:36Z, exit 16:37:40Z), 214 of 218 packages installed
+>>> uboot 2026.04 Building
+>>> uboot 2026.04 Installing to target
+>>> uboot 2026.04 Installing to images directory
+>>> host-tempio 2026.07.0 Downloading
+	github.com/stretchr/testify/assert/yaml imports
+	gopkg.in/yaml.v3: unrecognized import path "gopkg.in/yaml.v3": https fetch: Get "https://gopkg.in/yaml.v3?go-get=1": net/http: TLS handshake timeout
+cp -v 'os/output/cache/github-mirror/tempio-2026.07.0-go2.tar.gz' 'os/output/haos-src/output/build/.tempio-2026.07.0-go2.tar.gz.Z7UEiN/output' 
+cp: cannot stat 'os/output/cache/github-mirror/tempio-2026.07.0-go2.tar.gz': No such file or directory
+wget -nd -t 3 --connect-timeout=10 -O 'os/output/haos-src/output/build/.tempio-2026.07.0-go2.tar.gz.1Y4eZ7/output' 'https://github.com/home-assistant/tempio/archive/2026.07.0/tempio-2026.07.0-go2.tar.gz' 
+--2026-11-11 16:37:39--  https://github.com/home-assistant/tempio/archive/2026.07.0/tempio-2026.07.0-go2.tar.gz
+2026-11-11 16:37:39 ERROR 403: Forbidden.
+2026-11-11 16:37:40 ERROR 404: Not Found.
+2026-11-11 16:37:40 ERROR 404: Not Found.
+make[2]: *** [package/pkg-generic.mk:179: os/output/haos-src/output/build/host-tempio-2026.07.0/.stamp_downloaded] Error 1
+make[1]: *** [Makefile:83: _all] Error 2
+make: *** [Makefile:56: voxhub] Error 2
+=== exit 2 2026-11-11T16:37:40Z ===

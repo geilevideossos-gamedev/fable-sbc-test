@@ -65,6 +65,7 @@ this if you manage updates yourself.
 ./os/build-image.sh full                      # regular user + Docker: uses the HAOS builder container (scripts/enter.sh)
 VOXHUB_NO_DOCKER=1 ./os/build-image.sh full   # build directly on a Debian / Ubuntu host
 VOXHUB_NO_DOCKER=1 VOXHUB_GITHUB_VIA_GIT=1 ./os/build-image.sh full   # ... on a network that blocks GitHub tarball URLs
+VOXHUB_GOPROXY=https://proxy.golang.org ./os/build-image.sh full      # ... where gopkg.in or other Go module hosts are unreachable
 ```
 
 The full build must run as a **regular user** with sudo and Docker access - HAOS's `enter.sh` and several Buildroot
@@ -82,6 +83,15 @@ for the complete download list (`make show-info`), and for every GitHub "archive
 (sources.buildroot.net) does not carry it runs `git fetch --depth 1` and `git archive | gzip -n` into
 `os/output/cache/github-mirror/`, which is then used as `BR2_PRIMARY_SITE`. Buildroot verifies each of these files
 against its `.hash` file like any other download (the git-made tarballs are byte-identical to GitHub's).
+
+`VOXHUB_GOPROXY=<url>` is for networks from which the hosts of single Go modules cannot be reached. Buildroot vendors
+the modules of its Go packages (tempio, os-agent, ...) with `GOPROXY=direct`, i.e. from each module's own host; with this
+option the script puts the given module proxy into `buildroot/package/pkg-golang.mk` of the cloned tree instead. The
+modules are still checked against `go.sum`, and the vendored tarball against Buildroot's `.hash` file.
+
+On a host build the script also builds Buildroot's `host-libyaml` first if `/usr/include/yaml.h` exists (i.e. `libyaml-dev`
+is installed): U-Boot's device tree compiler enables YAML support when it sees that header and would then fail to link,
+because Buildroot's pkg-config does not know the host's library. The HAOS builder container has no `libyaml-dev`.
 
 The script clones `home-assistant/operating-system` at the latest release tag (with the Buildroot
 submodule) and adds, without modifying any upstream file except one `source` line in `Config.in`:
@@ -107,7 +117,7 @@ Requirements: 30-40 GB disk, 8 GB RAM, 1-3 hours on a 16-core machine (see the m
 | `googlevoicehat-soundcard.dtbo` decompiled | **OK** - `sdmode-gpios = <&gpio 16 0>`, matches the schematic |
 | `voxhub-overlay.dts` compiles (`dtc -@`) and applies to the real `bcm2711-rpi-cm4.dtb` (`fdtoverlay`) | **OK** |
 | `voxhub_defconfig` accepted by Buildroot (`make voxhub_defconfig`) | **OK** - `.config` written, `BR2_PACKAGE_VOXHUB_OVERLAY=y` |
-| Full from-source build | **IN PROGRESS at the time of this commit** (attempt 6 of 2026-11-11) - see the run log below |
+| Full from-source build | **IN PROGRESS at the time of this commit** (attempt 7 of 2026-11-11) - see the run log below |
 | Boot on hardware | not done (no hardware) |
 
 ### Full build: run log of 2026-11-11
@@ -117,6 +127,7 @@ Command (as the unprivileged user `builder`, HAOS 18.5, 218 Buildroot packages):
 
 ```bash
 CCACHE_DISABLE=1 VOXHUB_NO_DOCKER=1 VOXHUB_GITHUB_VIA_GIT=1 os/build-image.sh full --version 18.5
+# from attempt 7 on additionally: VOXHUB_GOPROXY=https://proxy.golang.org
 ```
 
 | Attempt | Got as far as | Stopped by | What was changed |
@@ -127,7 +138,8 @@ CCACHE_DISABLE=1 VOXHUB_NO_DOCKER=1 VOXHUB_GITHUB_VIA_GIT=1 os/build-image.sh fu
 | 3 | source prefetch | bug in the new prefetch code (a `grep` without match ended the script under `set -o pipefail`) | fixed |
 | 4 | 3 h 00 min, 153 of 218 packages installed, stopped in `libblockdev 3.3.1 Building` | `libtool: error: '.../output/build/util-linux-2.40.4/libuuid.la' is not a valid libtool archive`. **Self-inflicted by a disk-space helper of the sandbox session (not part of this repository)**: to stay inside the disk allowance it emptied the build directories of finished packages, but the staging copies of `libfdisk.la` / `libmount.la` (and four more) point back into those build directories | the four affected build directories (`util-linux`, `host-util-linux`, `gnutls`, `dhcp`) were deleted so that Buildroot rebuilds them; the helper now leaves every directory alone that a libtool archive refers to |
 | 5 | 2 h 19 min more, 190 of 218 packages installed (kernel 6.18 with the `voxhub` fragment and its out-of-tree modules built), stopped in `uboot 2026.04 Building` | `scripts/dtc/yamltree.o: undefined reference to 'yaml_emitter_emit'` ... `make[4]: *** [scripts/Makefile.host:105: scripts/dtc/dtc] Error 1`. **Host contamination:** U-Boot's dtc enables YAML support when `/usr/include/yaml.h` exists on the build host (Buildroot passes `PKG_CONFIG_SYSROOT_DIR=/`), then asks Buildroot's own pkg-config for the library, which only knows Buildroot's host directory. This sandbox image ships `libyaml-dev`; the HAOS builder container does not | on host builds `build-image.sh` now builds Buildroot's `host-libyaml` first when `/usr/include/yaml.h` exists |
-| 6 | running at the time of this commit | - | - |
+| 6 | 7 min more (U-Boot now builds), 214 of 218 packages installed, stopped in `host-tempio 2026.07.0 Downloading` | `gopkg.in/yaml.v3: unrecognized import path ... https fetch: Get "https://gopkg.in/yaml.v3?go-get=1": net/http: TLS handshake timeout`, then `ERROR 403: Forbidden` for the pre-vendored tarball on GitHub and 404 on Buildroot's mirror. Buildroot vendors Go modules with `GOPROXY=direct`; **gopkg.in cannot be reached from this sandbox** (three plain HTTPS requests timed out as well), while the official module proxy can | new option `VOXHUB_GOPROXY` (see above) |
+| 7 | running at the time of this commit | - | - |
 
 None of the stops so far had anything to do with the board definition: the configuration (`make voxhub-config`), the
 toolchain (GCC 13.4 / glibc 2.41), systemd, Docker 29.8.2, containerd and the kernel with the `voxhub` config fragment

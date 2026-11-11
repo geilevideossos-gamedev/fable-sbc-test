@@ -23,6 +23,8 @@
 # Environment (full mode): VOXHUB_NO_DOCKER=1       build on the host instead of in the HAOS builder container
 #                          VOXHUB_GITHUB_VIA_GIT=1  fetch github.com "archive" sources with git (for networks
 #                                                   that block those tarball URLs); host builds only
+#                          VOXHUB_GOPROXY=URL       Go module proxy for the Go packages, e.g. https://proxy.golang.org
+#                                                   (Buildroot fetches every module from its own host otherwise)
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -41,7 +43,7 @@ while [ $# -gt 0 ]; do
         --wifi-country) WIFI_COUNTRY="$2"; shift ;;
         --custom-overlay) CUSTOM_OVERLAY=1 ;;
         --keep-work) KEEP=1 ;;
-        -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
+        -h|--help) sed -n '2,27p' "$0"; exit 0 ;;
         *) echo "unknown argument: $1" >&2; exit 2 ;;
     esac
     shift
@@ -263,6 +265,14 @@ full() {
     echo 'BR2_PACKAGE_VOXHUB_OVERLAY=y' >> "${ext}/configs/voxhub_defconfig"
     cp "${ext}/configs/voxhub_defconfig" "${HERE}/board/voxhub_defconfig"   # keep a copy for review
 
+    # Buildroot vendors the Go modules of its Go packages with GOPROXY=direct, i.e. from each module's own host
+    # (gopkg.in, golang.org, github.com, ...).  Where one of those cannot be reached a module proxy does the job; go.sum
+    # and Buildroot's hash of the vendored tarball are checked exactly as before.
+    if [ -n "${VOXHUB_GOPROXY:-}" ]; then
+        sed -i "s|GOPROXY=[^ ]* \\\\$|GOPROXY=${VOXHUB_GOPROXY} \\\\|" "${src}/buildroot/package/pkg-golang.mk"
+        grep -q "GOPROXY=${VOXHUB_GOPROXY} " "${src}/buildroot/package/pkg-golang.mk" \
+            || { echo "could not set the Go module proxy in buildroot/package/pkg-golang.mk" >&2; exit 1; }
+    fi
     log "building (this takes a long time)"
     if command -v docker >/dev/null && docker info >/dev/null 2>&1 && [ -z "${VOXHUB_NO_DOCKER:-}" ]; then
         (cd "${src}" && ./scripts/enter.sh make voxhub)

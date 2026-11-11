@@ -52,9 +52,10 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 - [x] Board definition (meta, defconfig, kernel fragment, overlay package) for the official HAOS build system
 - [x] Device tree overlay - compiles and applies to the real HAOS 18.5 CM4 device tree
 - [x] `build-image.sh repack`: flashable `haos_voxhub-cm4-18.5.img.xz` built and verified
-- [x] `build-image.sh full`: non-root check, host-build cache directories, git fallback for GitHub tarballs
-- [~] `build-image.sh full` run: attempt 6 IN PROGRESS at the time of this commit (attempts 1-5: where and why each
-      stopped is in `os/README.md`; 190 of 218 packages incl. the kernel were built in attempt 5)
+- [x] `build-image.sh full`: non-root check, host-build cache directories, git fallback for GitHub tarballs,
+      optional Go module proxy, host-libyaml on hosts with libyaml-dev
+- [~] `build-image.sh full` run: attempt 7 IN PROGRESS at the time of this commit (attempts 1-6: where and why each
+      stopped is in `os/README.md`; 214 of 218 packages incl. kernel and U-Boot were built by attempt 6)
 - [ ] Boot test on hardware
 
 ## Showcase (`/media`)
