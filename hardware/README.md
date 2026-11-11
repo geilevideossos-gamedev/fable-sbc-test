@@ -86,7 +86,7 @@ How the board is produced:
 | Min. track / space | 0.10 mm / 0.12 mm (design-rule minimum; router targets 0.15 / 0.13 mm; the narrowest track on the committed board is 0.15 mm - the patch router's 0.12 mm fallback was not needed) |
 | Vias | through, 0.5 mm pad / 0.25 mm drill (signal) and 0.6 / 0.3 mm (power); tented both sides |
 | Min. drill | 0.25 mm; min. hole-to-hole 0.25 mm |
-| Via-in-pad | only in the exposed pads of U1, U2, U4, U10 (thermal/ground vias, 0.3 mm, tented on B; the eight under U2 are part of the KiCad footprint) - no filling required |
+| Via-in-pad | in the exposed pads of U1, U2, U4, U10 (thermal/ground vias, 0.3 mm, tented on B; the eight under U2 are part of the KiCad footprint) - no filling required. In addition two 0.5 / 0.25 mm plane vias of the scripted fan-out lie inside QFN lead pads: U1 pin 19 (GND, outer end of the pad) and U10 pin 7 (+5 V, inner end of the pad, under the package). They are open in the paste area: have these two plugged, or accept a possibly starved joint on a prototype and inspect both leads |
 | Slots / NPTH | 3 non-plated slots 1.8 x 2.4 mm (reverse-mount LEDs), **4 plated slots 0.6 mm wide** (1.4 and 1.7 mm long, shell stakes of the USB-C connector J1), NPTH: 2 x 0.8 mm (microphone ports), 2 x 0.65 mm (J1 locating pegs), 3 x 0.99 mm (Tag-Connect J8), 4 x 2.7 mm (mounting), 4 x 3.7 mm (spacers) |
 | Finish | **ENIG** (0.4 mm pitch WLCSP and mezzanine connectors) |
 | Mask / silk | any colour; silkscreen is clipped by the mask openings (Gerbers are plotted with `--subtract-soldermask`) |
@@ -138,9 +138,9 @@ How the board is produced:
 
 | Check | Count | Why it is waived |
 |---|---|---|
-| `silk_edge_clearance` | 4 | Library silkscreen of the edge connectors (USB-C, USB-A, microSD) reaches the board edge by design; it is cut off at the outline. |
-| `silk_over_copper` | 2 | Library silkscreen lines over exposed pads; the Gerbers are plotted with silkscreen subtracted from mask openings, so nothing is printed on pads. |
-| `silk_overlap` | 2 | Overlapping silkscreen of neighbouring parts (cosmetic). Reference designators are on the F.Fab layer, not on silk. |
+| `silk_edge_clearance` | 4 | The library outlines of the stacked USB-A connector J6 (rear edge) and of the radio module U11 (front edge) reach over the board edge by design; they are cut off at the outline. |
+| `silk_over_copper` | 2 | The two board texts 'USB-C PD 9-20V' and the repository URL touch mask openings; the Gerbers are plotted with silkscreen subtracted from mask openings, so nothing is printed on pads. |
+| `silk_overlap` | 2 | The outlines of C6 and C17 cross those two texts (cosmetic). Reference designators are on the F.Fab layer, not on silk. |
 | `footprint_type_mismatch` | 1 | U2 uses KiCad's `...HSOP-8-1EP..._ThermalVias` footprint: an SMD part whose exposed pad contains plated thermal vias, which KiCad classifies as "through hole". Intentional. |
 | `lib_footprint_mismatch` | 1 | Only J1 (USB-C) is reported: its board copy differs from the library footprint in the layer set of the two NPTH locating-peg pads (library F&B.Cu, board *.Cu). Pad size equals drill size, so no copper is affected. (The 3D model paths rewritten to `hardware/3dmodels` are not what this check reports.) |
 
@@ -154,14 +154,19 @@ thermal relief spokes >= 1.
   and analogue-quality details were not reviewed by a human layout engineer.
 - **Buck converter.** The power stage is placed by hand (`FIXED` in `gen/build_pcb.py`): VIN / PGND of U2 face the PD
   stage, SW / BOOT / VCC face the inductor. The 220 nF bypass C10 sits 1.8 mm from VIN / PGND, the two 10 uF capacitors
-  C8 / C9 directly above it (4 mm), and all three share one F.Cu pour with the VIN pin; boot capacitor C12 and VCC
+  C8 / C9 directly above it (VIN pads 4 mm from the pin), and all three share one F.Cu pour with the VIN pin; boot capacitor C12 and VCC
   capacitor C11 are 1.8 mm from their pins; the inductor's switch-node pad is 6.4 mm below the SW pin in one pour with it
   and C12; the four output capacitors are below the inductor. Routing and pours are still automatic. **Known weak spot:
   the feed from the load switch Q1 to that input pour** is a single 0.4 mm track of about 19 mm (17 mm of it on B.Cu) with
   two 0.6 / 0.3 mm vias, because the PD controller sits between Q1 and the regulator: about 25 mOhm, 15 mV at the typical
-  0.6 A, 54 mV and roughly +35 K (IPC-2221) at the theoretical 2.2 A peak. (VBUS from the USB-C pins to Q1, including the
-  TVS and the input capacitors, is one pour.) Fine for a prototype; widen that feed to >= 1 mm or pour it before a
-  production spin.
+  0.6 A, 54 mV and roughly +35 K (IPC-2221) at the theoretical 2.2 A peak. VBUS from the USB-C pins to Q1 is one pour,
+  but its last 2.3 mm into Q1's source pad, the 2.6 mm link to the TVS and the link between the two VBUS pads of J1 are
+  only 0.4 mm wide. **The ground side is still the scripted fan-out:** PGND (pin 1) and C10 share one 0.6 / 0.3 mm via
+  on a 0.4 mm x 2.1 mm track and are not tied to the exposed pad on the top layer; C8 / C9 return through the inner GND
+  plane (ground pads 6.6 / 4.5 mm from PGND). Regulation is not at risk (C10 is tied to both pins by top copper), and
+  all of this is fine for a prototype. **Before a production spin:** tie PGND to the exposed pad and give it its own
+  vias, widen the Q1 feed and the VBUS necks to >= 1 mm or pour them, and move the two fan-out vias out of the QFN lead
+  pads (fab notes above).
 - **USB 2.0 pairs are loosely coupled, not true differential pairs** (see stack-up note), but they are length matched and
   free of stubs. `outputs/routing_stats.txt`: pad-to-pad length (hub pin to connector pin) 30.96 / 30.96 mm upstream,
   11.21 / 11.21 mm port 1, 15.17 / 15.17 mm port 2, i.e. an intra-pair skew of 0.00 mm on all three pairs against the usual

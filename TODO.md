@@ -81,8 +81,14 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 - [x] Independent review of all revision A1 deliverables: 5 reviewers + 5 verifiers, 51 findings, 48 confirmed
 - [x] All confirmed findings fixed or documented (DECISIONS.md log no. 17-27); the USB result was re-verified with the
       reviewers' own scripts on the new board
-- [x] Second round on the fixes (4 re-checkers + 4 verifiers): all 48 fixed, USB confirmed a third time, 17 new findings
+- [x] Second round on the fixes (4 re-checkers + 4 verifiers): 47 of 48 fixed and one partly, USB confirmed a third time, 17 new findings
       confirmed and fixed - the one that mattered: the buck input capacitor C8 had lost its pour (log no. 28, 29)
+
+- [x] Third, focused round on the power-stage change (3 + 3): split pour gone, USB confirmed with a fourth parser,
+      12 low findings - texts and scripts fixed, board items documented (log no. 30)
+- [ ] Before a production spin (documented, deliberately not changed any more): tie PGND to the exposed pad / own vias,
+      widen the 0.4 mm feed from the load switch and the VBUS necks, move two fan-out vias out of QFN lead pads
+      (U1 pin 19, U10 pin 7), move the URL text clear of C17
 
 ## Documentation
 - [x] DECISIONS.md (decision log of revision A1, datasheet verification table, sourcing decisions, open items)

@@ -25,7 +25,8 @@ mkdir -p "${WORK}/models" "${WORK}/tex" "${WORK}/frames"
 # Finished frames are reused when a render is restarted - but only while the inputs are the same.  After a change to
 # the board, the enclosure, a part model, these scripts or SAMPLES the old frames are thrown away.
 FP="$( { cat "${ROOT}/hardware/voxhub.kicad_pcb" "${ROOT}/hardware/outputs/voxhub_pcb.step" "${ROOT}/enclosure/voxhub_assembly.step" \
-             "${HERE}"/*.py; find "${ROOT}/hardware/3dmodels" -name '*.step' | sort | xargs cat; echo "${SAMPLES}"; } | sha256sum | cut -d' ' -f1)"
+             "${HERE}"/*.py "${HERE}/build_showcase.sh"; find "${ROOT}/hardware/3dmodels" -name '*.step' -print0 | sort -z | xargs -0 cat; \
+         echo "${SAMPLES}"; } | sha256sum | cut -d' ' -f1)"
 if [ "$(cat "${WORK}/frames/.inputs" 2>/dev/null || true)" != "${FP}" ]; then
     n="$(find "${WORK}/frames" -name 'f*.png' | wc -l)"
     [ "${n}" = 0 ] || echo "inputs changed since the last render: discarding ${n} old frames"

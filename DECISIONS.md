@@ -40,7 +40,8 @@ Every change, with its reason:
 | 26 | **`VOXHUB_GOPROXY`: optional Go module proxy for the OS build** | Attempt 6 stopped at the last Go package: Buildroot fetches Go modules from their own hosts (`GOPROXY=direct`) and gopkg.in is not reachable from this environment. The option rewrites that one setting in the cloned Buildroot tree; integrity checks (go.sum, Buildroot's tarball hash) are unchanged. Opt-in, like the git fallback for GitHub tarballs. |
 | 27 | **OS host build: the RAUC signing key paths of the HAOS scripts are redirected from `/build` to the cloned tree**; the disk-space helper of the session is switched off | Attempt 8 stopped in `post-build.sh` (`Can't open "/build/key.pem"`): `/build` only exists inside the HAOS builder container. Attempt 7 had stopped one step earlier because the helper had emptied the python3 build directory that Buildroot needs for the final `.pyc` compilation - the second self-inflicted stop, so the helper went. **Attempt 9 completed**: image and OTA bundle built and inspected (os/README.md). |
 | 28 | **Buck power stage placed by hand**: U2 turned by 180 degrees (VIN / PGND towards the PD stage, SW / BOOT / VCC towards the inductor), C10 + C8 + C9 in one pour with the VIN pin, C12 and C11 1.8 mm from BOOT / SW and VCC, inductor under the SW pin, output capacitors below it | The second review round found that the fix of row 19 had a side effect: with the inductor on the VIN side the switch-node track ran between C8 and the regulator, cut C8 off from the VIN pour and left it on a 20 mm long 0.4 mm track round the inductor pad. Placing single parts was treating symptoms; the greedy placer is the wrong tool for a switching converter. USB result unchanged (0.00 mm, no vias), build reproducible. What is still automatic and weak (the 0.4 mm feed from Q1) is listed under Open items. |
-| 29 | **Second review round on the fixes** (four re-checkers + four verifiers): all 48 confirmed findings of round one fixed; the USB result re-computed a third time independently and confirmed; 17 new findings confirmed (one medium: row 28; the rest wording, counts and script robustness), 5 refuted | A fix can introduce the next defect - row 28 is the proof. Fixed in the same pass: the settle loop now gives up on a repeated violation list instead of equal counts and never reads a stale DRC report; `build.sh` checks for `zip`; `build-image.sh` refuses a clone of another HAOS version and Wi-Fi options in full mode; `build_showcase.sh` discards frames rendered from other inputs; counts and dates in the texts corrected. |
+| 29 | **Second review round on the fixes** (four re-checkers + four verifiers): 47 of the 48 confirmed findings of round one fixed, one (bom-1) partly - its leftover sentence is among the new findings and is corrected now; the USB result re-computed a third time independently and confirmed; 17 new findings confirmed (one medium: row 28; the rest wording, counts and script robustness), 5 refuted | A fix can introduce the next defect - row 28 is the proof. Fixed in the same pass: the settle loop now gives up on a repeated violation list instead of equal counts and never reads a stale DRC report; `build.sh` checks for `zip`; `build-image.sh` refuses a clone of another HAOS version and Wi-Fi options in full mode; `build_showcase.sh` discards frames rendered from other inputs; counts and dates in the texts corrected. |
+| 30 | **Third, focused round on the power-stage change** (three checkers + three verifiers) **- and the decision to stop changing the board**: the split-pour defect is gone, the USB figures were confirmed with a fourth parser, the outputs belong to the committed board; 12 new findings confirmed, all low | What they found on the board is layout polish, not a defect of the prototype: the ground side of the buck is still the scripted fan-out, the VBUS pour has 0.4 mm necks, two fan-out vias lie in QFN lead pads, two silkscreen outlines cross a text. Each further re-spin so far has produced the next finding of the round after it and makes the rendered video stale again, so these are documented with numbers as "before a production spin" instead of being fixed now. The text and script findings (waived-check reasons, via-in-pad note, review counts, fingerprint of the render inputs, two unreachable error messages) are fixed. |
 
 ## 0. Constraints of the environment this was designed in
 
@@ -228,8 +229,10 @@ CM5 (higher power, would need 5 V/5 A and has no advantage for a cloud-LLM voice
   downstream line: hub pin > ESD pad > ESD pad > connector pin; off-path copper <= 0.05 mm (track ends inside pads).
   Independent re-computations (review scripts with their own board parsers, not in the repository): the first
   reviewer's script gives 30.963 / 30.963, 11.253 / 11.242 and 15.215 / 15.215 mm on the committed board, no crossings,
-  no T-junctions, no duplicate USB segments. The second review round checked the board of commit 81bcdf0 (same USB
-  layout, before the power stage was re-placed) with a third parser: 30.986 / 30.986, 11.208 / 11.208, 15.170 / 15.170 mm,
+  no T-junctions, no duplicate USB segments. The second review round wrote a third parser for the board of commit
+  81bcdf0 (30.986 / 30.986 mm upstream there). The router session after the power-stage change re-laid the upstream
+  pair and moved the port 1 D+ meander by 0.5 mm, so the third round ran that script again on the committed board and
+  also wrote a fourth parser: both give 30.963 / 30.963, 11.208 / 11.208, 15.170 / 15.170 mm,
   serpentines not shorted (same-net copper that is more than 1 mm apart along the line stays 0.6 mm apart), smallest
   gap to another net 0.158 mm, D+ / D- not swapped anywhere between hub, ESD parts and connectors.
 
@@ -414,8 +417,11 @@ Still open:
    0.10 mm outer prepreg called out in the fab notes; measure on the first prototypes.
    **Buck layout:** the power stage is placed by hand now (log no. 28) and the input capacitors share one pour with the
    VIN pin, but routing is automatic. The feed from the load switch Q1 to that pour is a single 0.4 mm track of about
-   19 mm with two vias (about 25 mOhm, +35 K at the theoretical 2.2 A peak, +2 K at the typical 0.6 A): widen or pour
-   it, and have a layout engineer look at the hot loop, before a production spin.
+   19 mm with two vias (about 25 mOhm, +35 K at the theoretical 2.2 A peak, +2 K at the typical 0.6 A); the VBUS pour
+   necks down to 0.4 mm at Q1's source pad and at the TVS; on the ground side PGND and C10 share a single via and
+   PGND is not tied to the exposed pad on the top layer; two fan-out vias sit inside QFN lead pads (U1 pin 19, U10
+   pin 7). None of this stops a prototype; all of it is on the list for a production spin (hardware/README.md, "Known
+   limitations" and fab notes).
 6. **Firmware consequences of revision A1:** the radio reset is active high on GPIO24, and RTS / CTS follow the Silicon
    Labs reference assignment (PA07 / PA08) - use an NCP / RCP build with that pin-out.
 7. Nothing here has been powered on. Treat revision A1 as a prototype spin.

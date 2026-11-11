@@ -68,7 +68,7 @@ latest_version() {
 }
 
 need git
-[ -n "${VERSION}" ] || VERSION="$(latest_version)"
+[ -n "${VERSION}" ] || VERSION="$(latest_version || true)"
 [ -n "${VERSION}" ] || { echo "could not determine the latest HAOS version" >&2; exit 1; }
 log "Home Assistant OS version: ${VERSION} (mode: ${MODE})"
 mkdir -p "${OUT}"
@@ -315,7 +315,7 @@ full() {
         (cd "${src}" && make voxhub)
     fi
     local built
-    built="$(ls "${src}"/output/images/haos_rpi4-64-*.img.xz 2>/dev/null | head -n1)"
+    built="$(ls "${src}"/output/images/haos_rpi4-64-*.img.xz 2>/dev/null | head -n1 || true)"
     [ -n "${built}" ] || { echo "build finished but no image was found" >&2; exit 1; }
     cp "${built}" "${OUT}/haos_voxhub-cm4-${VERSION}-full.img.xz"
     (cd "${OUT}" && sha256sum "haos_voxhub-cm4-${VERSION}-full.img.xz" > "haos_voxhub-cm4-${VERSION}-full.img.xz.sha256")

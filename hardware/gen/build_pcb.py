@@ -25,8 +25,9 @@ FIXED = {
     "J6": (38.75, 13.11, 180, "F"),    # stacked USB-A (rear edge)
     "J4": (56.0, 8.7, 180, "F"),       # microSD (rear edge; shield pads end 0.37 mm inside the edge)
     "U1": (13.0, 14.0, 0, "F"), "Q1": (23.5, 9.5, 90, "F"),
-    # LMR33640 power stage, placed by hand (the greedy placer had put the inductor on the VIN side, which cut one bulk
-    # capacitor off from the VIN pour).  U2 is turned so that VIN / PGND (pins 2 / 1, y 22.8) face the PD stage and
+    # LMR33640 power stage, placed by hand as a whole (the earlier fixed entries had VIN / PGND of U2 facing the fixed
+    # inductor position; with the bulk capacitors placed by the greedy placer the switch-node track then cut C8 off
+    # from the VIN pour).  U2 is turned so that VIN / PGND (pins 2 / 1, y 22.8) face the PD stage and
     # SW / BOOT / VCC (pins 8 / 7 / 6, y 28.2) face the inductor.  Input: C10 (220 nF) directly above VIN / PGND, the two
     # 10 uF capacitors above it with their VIN pads side by side.  Boot capacitor C12 under pins 7 / 8, VCC capacitor
     # C11 under pin 6, inductor with its SW pad under pin 8, the four output capacitors below the inductor.
