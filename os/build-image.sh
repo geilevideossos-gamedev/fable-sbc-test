@@ -15,7 +15,7 @@
 #   --version X.Y       HAOS version (default: latest stable release tag)
 #   --out DIR           output directory (default: os/output)
 #   --wifi-ssid NAME --wifi-psk PASS [--wifi-country CC]
-#                       pre-seed a NetworkManager Wi-Fi profile (the board has no Ethernet/HDMI)
+#                       (repack) pre-seed a NetworkManager Wi-Fi profile (the board has no Ethernet/HDMI)
 #   --custom-overlay    (repack) also use os/overlay/voxhub-overlay.dts instead of stock overlays.
 #                       NOTE: HAOS deletes /overlays/* on OS updates -> not OTA-safe.
 #   --keep-work         keep the work directory
@@ -49,6 +49,9 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+if [ "${MODE}" = full ] && [ -n "${WIFI_SSID}${WIFI_PSK}" ]; then
+    echo "--wifi-ssid / --wifi-psk are only supported in repack mode (the full build does not touch the boot partition contents)" >&2; exit 2
+fi
 # HAOS (scripts/enter.sh) and several Buildroot host packages refuse to build as root.  Checked before anything is
 # created, so that a first attempt with sudo does not leave a root-owned source tree behind.
 if [ "${MODE}" = full ] && [ "$(id -u)" = 0 ]; then
@@ -237,7 +240,11 @@ full() {
         log "cloning ${HAOS_REPO} @ ${VERSION}"
         git clone --depth 1 -b "${VERSION}" --recurse-submodules --shallow-submodules "${HAOS_REPO}.git" "${src}"
     fi
-    local ext="${src}/buildroot-external"
+    local ext="${src}/buildroot-external" have
+    # an existing clone is reused: make sure it is the version the image will be named after
+    have="$(git -C "${src}" tag --points-at HEAD)"
+    echo "${have}" | grep -qx "${VERSION}" \
+        || { echo "${src} holds HAOS '${have}', not the requested ${VERSION}: remove it or pass the matching --version" >&2; exit 1; }
 
     log "installing the voxhub board definition into the HAOS tree"
     # board directory: start from the official rpi4-64 board, override meta / config

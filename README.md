@@ -155,7 +155,8 @@ These are estimates, not measurements - verify with `vcgencmd measure_temp` on t
 
 ## How to build everything
 
-Prerequisites: Linux, Docker, Python >= 3.10, Java >= 21 (only for re-running the autorouter).
+Prerequisites: Linux, Docker, Python >= 3.10, `zip`, Java >= 21 (only for re-running the autorouter), `xvfb` for the
+enclosure renders (`sudo apt install zip xvfb`).
 
 ```bash
 # 1. Hardware: schematic -> ERC -> netlist -> placement -> autoroute -> DRC -> fabrication outputs
@@ -227,7 +228,7 @@ Line by line: [`hardware/outputs/bom.csv`](hardware/outputs/bom.csv) and [`bom_s
 |---|---|---|
 | ERC (kicad-cli 9.0.9) | 0 errors, 0 warnings | `hardware/outputs/erc.rpt` |
 | Netlist equals the code model | 151 components / 99 nets; schematic parity 0 issues | `hardware/gen/model_netlist.json`, `hardware/outputs/drc.rpt` |
-| DRC with schematic parity (kicad-cli 9.0.9) | 0 violations, 0 unconnected pads, 0 parity issues; 5 cosmetic checks waived (9 warnings, each explained in `hardware/README.md`) | `hardware/outputs/drc.rpt`, `drc_waived_checks_enabled.rpt` |
+| DRC with schematic parity (kicad-cli 9.0.9) | 0 violations, 0 unconnected pads, 0 parity issues; 5 cosmetic checks waived (10 warnings, each explained in `hardware/README.md`) | `hardware/outputs/drc.rpt`, `drc_waived_checks_enabled.rpt` |
 | USB 2.0 pair matching | pad-to-pad skew 0.00 / 0.00 / 0.00 mm (upstream / port 1 / port 2), limit 3.8 mm; no vias, no stubs; re-computed independently after the first A1 figure for port 2 turned out to be wrong (real: 4.9 mm) | `hardware/outputs/routing_stats.txt`, DECISIONS.md section 6a |
 | Parts vs. datasheets | 26 rows: 25 "verified against datasheet" with source (nine of them read from mirrors of the manufacturer PDF), 1 row of generic passives / standard footprints not individually verified; 7 deviations found and fixed | `DECISIONS.md` section 9 and decision log |
 | PCB render | kicad-cli 3D renders | `hardware/outputs/render_*.png` |

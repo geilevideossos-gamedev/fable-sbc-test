@@ -8,9 +8,9 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 - [x] ERC: 0 errors, 0 warnings (`hardware/outputs/erc.rpt`)
 - [x] Netlist cross-check: 151 components / 99 nets, schematic parity 0 issues
 - [x] Project footprints (CM4 socket, MGM240P, ADAU7002) generated + cross-checked
-- [x] Placement (scripted) and power fan-out (scripted)
+- [x] Placement (scripted; the buck power stage and the USB ESD parts are placed by hand) and power fan-out (scripted)
 - [x] Routing: Freerouting 2.0.1 + scripted patch router / repair loop (new autorouter session after the review fixes)
-- [x] DRC: 0 violations, 0 unconnected, 0 parity issues; 5 waived cosmetic checks documented (`hardware/README.md`)
+- [x] DRC: 0 violations, 0 unconnected, 0 parity issues; 5 waived cosmetic checks (10 warnings) documented (`hardware/README.md`)
 - [x] **USB 2.0 pairs length matched**: flow-through ESD parts (one pad row to the hub, one to the connector), strict
       pad-to-pad routing, serpentines on the shorter line; pad-to-pad skew 0.00 / 0.00 / 0.00 mm (limit 3.8 mm), no vias,
       no stubs - `hardware/outputs/routing_stats.txt`; confirmed by an independent re-computation
@@ -34,7 +34,8 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
       TPS2553DBVR is in stock as the DBVT reel; the 10 uF X7R 1206 only as a 2,000-piece Marketplace item.
       Thin: MGM240PB32VNA3 (71 pieces). Alternates are named in the BOM
 - [~] USB data lines are matched single-ended traces, not coupled pairs; the layout is autorouted and not
-      hand-reviewed (buck: only the 220 nF bypass and the VCC capacitor are placed by hand at the regulator pins)
+      hand-reviewed. Buck: power stage placed by hand, input capacitors in one pour with VIN, but the feed from the
+      load switch to that pour is a single 0.4 mm track (19 mm, two vias) - widen before production
 - [~] Nine data sheets were read from mirrors because the manufacturer's server refused the download (listed in
       DECISIONS.md "Open items")
 - [ ] Build and measure a prototype (nothing has been powered on)
@@ -66,8 +67,9 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
       (Blender 4.5.16 headless, Cycles CPU, 3 h 10 min) and checked frame by frame on a contact sheet
 - [x] Build script hardened after the review: tool check up front, Blender exit code, complete-frame check, colour tags
 - [x] `voxhub_exploded.png` re-rendered from the final board (after the USB / buck layout fixes)
-- [~] `voxhub_showcase.mp4` still shows the board as it was before those fixes (19 small parts moved, tracks changed -
-      not discernible at video scale); the 866 frames that show the PCB are being re-rendered at the time of this commit
+- [~] `voxhub_showcase.mp4` still shows the board as it was before those fixes (53 of 151 footprints moved since,
+      tracks changed - hard to see at video scale); the 866 frames that show the PCB are being re-rendered from the
+      final board at the time of this commit
 
 ## Assistant (`/assistant`)
 - [x] Home Assistant add-on (wake word -> STT -> Claude tool use -> TTS)
@@ -76,9 +78,11 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 - [~] Not built as a Docker image / not run on hardware
 
 ## Review (second session)
-- [x] Independent review of all revision A1 deliverables: 5 reviewers + 5 verifiers, 51 findings, 47 confirmed
-- [x] All confirmed findings fixed or documented (DECISIONS.md log no. 17-25); the USB result was re-verified with the
+- [x] Independent review of all revision A1 deliverables: 5 reviewers + 5 verifiers, 51 findings, 48 confirmed
+- [x] All confirmed findings fixed or documented (DECISIONS.md log no. 17-27); the USB result was re-verified with the
       reviewers' own scripts on the new board
+- [x] Second round on the fixes (4 re-checkers + 4 verifiers): all 48 fixed, USB confirmed a third time, 17 new findings
+      confirmed and fixed - the one that mattered: the buck input capacitor C8 had lost its pour (log no. 28, 29)
 
 ## Documentation
 - [x] DECISIONS.md (decision log of revision A1, datasheet verification table, sourcing decisions, open items)

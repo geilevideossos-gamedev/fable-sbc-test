@@ -3,7 +3,7 @@
 #
 #   hardware/build.sh [all|sch|pcb|route|outputs]
 #
-# Needs: docker (KiCad 9 image), python3, Java >= 21 + freerouting-2.0.1.jar for the "route" step.
+# Needs: docker (KiCad 9 image), python3, zip, Java >= 21 + freerouting-2.0.1.jar for the "route" step.
 #   KICAD_IMAGE   docker image with KiCad 9 (default kicad/kicad:9.0)
 #   FREEROUTING   path to freerouting jar (default ./freerouting-2.0.1.jar, see hardware/README.md)
 #   SKIP_ROUTE=1  re-use the checked-in autorouter session gen/routed/voxhub.ses (reproducible result)
@@ -13,6 +13,7 @@ ROOT="$(dirname "${HW}")"
 IMG="${KICAD_IMAGE:-kicad/kicad:9.0}"
 FR="${FREEROUTING:-${HW}/freerouting-2.0.1.jar}"
 STEP="${1:-all}"
+case "${STEP}" in all|outputs) command -v zip > /dev/null || { echo "missing tool: zip" >&2; exit 1; } ;; esac
 kc() {   # run a command inside the KiCad container, repo mounted at /work
     docker run --rm -u 0 -e HOME=/tmp/kihome -v "${ROOT}:/work" -w /work/hardware "${IMG}" bash -c \
         "mkdir -p /tmp/kihome/.config/kicad/9.0 && cp /usr/share/kicad/template/fp-lib-table /usr/share/kicad/template/sym-lib-table /tmp/kihome/.config/kicad/9.0/ && $*"

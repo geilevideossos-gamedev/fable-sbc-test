@@ -25,14 +25,20 @@ FIXED = {
     "J6": (38.75, 13.11, 180, "F"),    # stacked USB-A (rear edge)
     "J4": (56.0, 8.7, 180, "F"),       # microSD (rear edge; shield pads end 0.37 mm inside the edge)
     "U1": (13.0, 14.0, 0, "F"), "Q1": (23.5, 9.5, 90, "F"),
-    "U2": (8.5, 25.5, 90, "F"), "L1": (9.0, 36.0, 0, "F"),
+    # LMR33640 power stage, placed by hand (the greedy placer had put the inductor on the VIN side, which cut one bulk
+    # capacitor off from the VIN pour).  U2 is turned so that VIN / PGND (pins 2 / 1, y 22.8) face the PD stage and
+    # SW / BOOT / VCC (pins 8 / 7 / 6, y 28.2) face the inductor.  Input: C10 (220 nF) directly above VIN / PGND, the two
+    # 10 uF capacitors above it with their VIN pads side by side.  Boot capacitor C12 under pins 7 / 8, VCC capacitor
+    # C11 under pin 6, inductor with its SW pad under pin 8, the four output capacitors below the inductor.
+    "U2": (8.5, 25.5, 270, "F"), "L1": (7.7, 34.6, 180, "F"),
+    "C10": (9.77, 21.0, 0, "F"), "C8": (6.5, 19.0, 180, "F"), "C9": (11.3, 19.0, 0, "F"),
+    "C12": (9.77, 29.95, 0, "F"), "C11": (7.09, 30.0, 180, "F"),
+    "C14": (5.8, 39.6, 0, "F"), "C15": (10.5, 39.6, 0, "F"), "C16": (5.8, 42.0, 0, "F"), "C17": (10.5, 42.0, 0, "F"),
     # USB ESD parts (USBLC6-2SC6) between hub and connector, turned by 270 degrees: one pad row (4, 5, 6) faces the hub,
     # the other (3, 2, 1) the connector, D+ on the left and D- on the right in both rows - the same order as the hub
     # pins (x 34.0 .. 35.5: port 2 D+, D-, port 1 D+, D-) and the connector pins.  Port 2 (U8) left, port 1 (U7) right:
     # every line runs straight through its ESD part and no line has to cross another one.
     "U4": (33.5, 26.5, 270, "F"), "U7": (36.6, 18.6, 270, "F"), "U8": (32.9, 18.6, 270, "F"),
-    # LMR33640: 220 nF high-frequency bypass directly at VIN (pin 2) / PGND (pin 1), VCC capacitor directly at pin 6
-    "C10": (7.23, 30.0, 180, "F"), "C11": (9.135, 20.25, 90, "F"),
     "U5": (45.8, 4.0, 90, "F"), "U6": (45.8, 10.5, 90, "F"),
     "U3": (68.5, 9.0, 0, "F"),
     "J2": (74.0, 64.96, 0, "F"), "J3": (74.0, 31.04, 0, "F"),

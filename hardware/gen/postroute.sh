@@ -10,16 +10,20 @@ RPT=gen/work/drc_iter.rpt
 BAD="clearance|shorting_items|tracks_crossing|hole_clearance|hole_to_hole|copper_edge_clearance|track_dangling|via_dangling|items_not_allowed|solder_mask_bridge|track_width"
 
 settle() {      # iterate DRC -> repair -> patch until clean; returns 0 when clean
-    local i unc err last="" same=0
+    local i unc err sig seen=""
     for i in $(seq 1 "$1"); do
+        rm -f "$RPT"
         kicad-cli pcb drc --schematic-parity --severity-all --format report -o "$RPT" voxhub.kicad_pcb >/dev/null 2>&1
+        [ -s "$RPT" ] || { echo "  DRC did not run"; return 1; }      # never judge by the report of an earlier round
         unc=$(grep -c "^\[unconnected_items\]" "$RPT")
         err=$(grep -c -E "^\[($BAD)\]" "$RPT")
         echo "  round $i: unconnected=$unc repairable_violations=$err"
         if [ "$unc" = 0 ] && [ "$err" = 0 ]; then return 0; fi
-        # the loop is deterministic: the same counts five times in a row mean it will not get any further
-        if [ "$unc/$err" = "$last" ]; then same=$((same + 1)); else same=0; last="$unc/$err"; fi
-        if [ "$same" -ge 4 ]; then echo "  no progress - giving up on this attempt"; return 1; fi
+        # the loop is deterministic: the very same list of violations a second time means it will not get any further
+        # (equal counts alone do not: the repair often removes one item per round for many rounds and then converges)
+        sig=$(grep -E "^\[|^ +@\(" "$RPT" | sort | cksum | cut -d" " -f1)
+        case " $seen " in *" $sig "*) echo "  no progress - giving up on this attempt"; return 1 ;; esac
+        seen="$seen $sig"
         if [ "$err" != 0 ]; then python3 gen/build_pcb.py repair "$HW" "$RPT" 2>&1 | grep "^repair"; fi
         python3 gen/build_pcb.py patch "$HW" 2>&1 | grep -E "FAILED|^patch"
     done
@@ -46,13 +50,13 @@ for v in 0 1 2 3 4 5; do
     echo "== USB re-route, net order variant $v"
     cp gen/work/base.kicad_pcb voxhub.kicad_pcb
     python3 gen/build_pcb.py patch "$HW" --reroute-usb --variant "$v" 2>&1 | grep -E "FAILED|^patch"
-    if ! settle 8; then echo "  variant $v: not clean, discarded"; continue; fi
+    if ! settle 12; then echo "  variant $v: not clean, discarded"; continue; fi
     # serpentine length matching of the shorter line of each pair; a DRC-driven repair may undo a
     # meander, so tune -> settle is repeated until the pairs stay matched
     ok=1
     for r in 1 2 3; do
         python3 gen/build_pcb.py tune "$HW" 2>&1 | grep "^tune" | sed 's/^/  /'
-        if ! settle 8; then ok=0; break; fi
+        if ! settle 12; then ok=0; break; fi
         measure; s=$(max_skew)
         if awk "BEGIN { exit !($s <= 0.30) }"; then break; fi
     done

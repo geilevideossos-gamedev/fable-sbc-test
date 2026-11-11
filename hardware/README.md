@@ -26,7 +26,7 @@ by hand - change the generator and run `./build.sh`.
 |---|---|
 | `voxhub_schematic.pdf` | schematic, 6 pages |
 | `erc.rpt`, `drc.rpt` | kicad-cli reports: **0 ERC violations, 0 DRC violations, 0 unconnected, 0 parity issues** |
-| `drc_waived_checks_enabled.rpt` | the same DRC with the waived checks switched on (9 warnings, explained below) |
+| `drc_waived_checks_enabled.rpt` | the same DRC with the waived checks switched on (10 warnings, explained below) |
 | `gerbers/` + `voxhub_gerbers.zip` | Gerber X2: F/In1/In2/B copper, mask, paste, silk, Edge.Cuts; Excellon PTH + NPTH drill, drill maps, job file |
 | `voxhub_pos.csv` | pick-and-place (both sides, DNP parts excluded) |
 | `bom.csv` | PCB assembly BOM: MPN, manufacturer, DigiKey PN / status / stock / price at 1 and 100 (live, 2026-11-11), Mouser PN (not live), second source |
@@ -49,6 +49,8 @@ SKIP_ROUTE=1 hardware/build.sh all         # schematic -> ERC -> netlist -> plac
 hardware/build.sh all                      # same, but re-runs the autorouter first (Java >= 21)
 ```
 
+The host needs `docker`, `python3` and `zip` (the Gerber archive is packed on the host; the script checks for it first).
+
 `SKIP_ROUTE=1` re-uses the committed autorouter session and reproduces the committed board exactly (the patch
 router is deterministic). Freerouting 2.0.1 with one thread produced the same session in every run here, but that is not
 guaranteed on another machine or JRE. Two quirks the build works around: it sometimes exits with an empty session file
@@ -68,8 +70,9 @@ How the board is produced:
    touch its own copper, change layer only as a last resort, and is never ripped up by another net) - and a DRC-driven
    repair removes offending copper, until `kicad-cli pcb drc` is clean. Then the USB nets are laid again in up to six
    different net orders; after each, the shorter line of every pair gets serpentine bumps until the pad-to-pad lengths
-   agree. The best variant is kept (worst of: skew, skew with vias counted as 0, copper off the path); the step fails if
-   no variant is DRC-clean with every pair within 3.8 mm.
+   agree. The best variant is kept (worst of: skew, skew with vias counted as 0, copper off the path); if no variant
+   reaches a clean DRC the first routing (without length tuning) is kept. The step fails if the kept board has a pair more
+   than 3.8 mm apart or a pair that cannot be measured.
 6. `build_pcb.py pours`: local copper pours for VBUS, VBUS_SW, the buck switch node, the buck output and USB VBUS.
 
 ## Fabrication notes
@@ -80,7 +83,7 @@ How the board is produced:
 | Layers | 4: F.Cu signal + GND pour / In1.Cu GND plane / In2.Cu +5 V plane / B.Cu signal + GND pour |
 | Copper | 35 um (1 oz) outer, 17.5-35 um inner |
 | Stack-up | **prepreg F.Cu-In1.Cu 0.10 mm** (e.g. JLCPCB JLC04161H-3313 or any "2313/3313 outer prepreg" stack-up). The USB 2.0 data lines are 0.2 mm wide, i.e. about 45 ohm single-ended over the plane -> ~90 ohm differential (loosely coupled). With a 0.2 mm prepreg (7628 stack-up) they would be ~70 ohm - ask for the thin outer prepreg. |
-| Min. track / space | 0.10 mm / 0.12 mm (router targets: 0.15 / 0.13 mm; 0.12 mm tracks only where the patch router needed them) |
+| Min. track / space | 0.10 mm / 0.12 mm (design-rule minimum; router targets 0.15 / 0.13 mm; the narrowest track on the committed board is 0.15 mm - the patch router's 0.12 mm fallback was not needed) |
 | Vias | through, 0.5 mm pad / 0.25 mm drill (signal) and 0.6 / 0.3 mm (power); tented both sides |
 | Min. drill | 0.25 mm; min. hole-to-hole 0.25 mm |
 | Via-in-pad | only in the exposed pads of U1, U2, U4, U10 (thermal/ground vias, 0.3 mm, tented on B; the eight under U2 are part of the KiCad footprint) - no filling required |
@@ -131,13 +134,13 @@ How the board is produced:
 ## DRC: waived checks
 
 `outputs/drc.rpt` is clean with the following five checks set to "ignore" in the project
-(`gen/project_settings.json`). `outputs/drc_waived_checks_enabled.rpt` shows what they would report: 9 warnings, 0 errors.
+(`gen/project_settings.json`). `outputs/drc_waived_checks_enabled.rpt` shows what they would report: 10 warnings, 0 errors.
 
 | Check | Count | Why it is waived |
 |---|---|---|
 | `silk_edge_clearance` | 4 | Library silkscreen of the edge connectors (USB-C, USB-A, microSD) reaches the board edge by design; it is cut off at the outline. |
 | `silk_over_copper` | 2 | Library silkscreen lines over exposed pads; the Gerbers are plotted with silkscreen subtracted from mask openings, so nothing is printed on pads. |
-| `silk_overlap` | 1 | Overlapping silkscreen of neighbouring parts (cosmetic). Reference designators are on the F.Fab layer, not on silk. |
+| `silk_overlap` | 2 | Overlapping silkscreen of neighbouring parts (cosmetic). Reference designators are on the F.Fab layer, not on silk. |
 | `footprint_type_mismatch` | 1 | U2 uses KiCad's `...HSOP-8-1EP..._ThermalVias` footprint: an SMD part whose exposed pad contains plated thermal vias, which KiCad classifies as "through hole". Intentional. |
 | `lib_footprint_mismatch` | 1 | Only J1 (USB-C) is reported: its board copy differs from the library footprint in the layer set of the two NPTH locating-peg pads (library F&B.Cu, board *.Cu). Pad size equals drill size, so no copper is affected. (The 3D model paths rewritten to `hardware/3dmodels` are not what this check reports.) |
 
@@ -147,20 +150,27 @@ thermal relief spokes >= 1.
 
 ## Known limitations (read before ordering)
 
-- **Autorouted.** The layout is electrically complete and rule-clean, but it is not hand-optimised: return paths, loop areas of the
-  buck converter and analogue-quality details were not reviewed by a human layout engineer. Buck power stage: the 220 nF
-  high-frequency bypass C10 and the VCC capacitor C11 have fixed positions directly at the regulator pins (1.8 mm centre to
-  centre); everything else is placed by the automatic placer and tied in with pours and plane vias - bulk input capacitors
-  C8 / C9 3.5 .. 7.4 mm from VIN / PGND, boot capacitor C12 4 .. 6 mm from BOOT / SW. Review the hot loop before a production spin.
+- **Autorouted.** The layout is electrically complete and rule-clean, but it is not hand-optimised: return paths, loop areas
+  and analogue-quality details were not reviewed by a human layout engineer.
+- **Buck converter.** The power stage is placed by hand (`FIXED` in `gen/build_pcb.py`): VIN / PGND of U2 face the PD
+  stage, SW / BOOT / VCC face the inductor. The 220 nF bypass C10 sits 1.8 mm from VIN / PGND, the two 10 uF capacitors
+  C8 / C9 directly above it (4 mm), and all three share one F.Cu pour with the VIN pin; boot capacitor C12 and VCC
+  capacitor C11 are 1.8 mm from their pins; the inductor's switch-node pad is 6.4 mm below the SW pin in one pour with it
+  and C12; the four output capacitors are below the inductor. Routing and pours are still automatic. **Known weak spot:
+  the feed from the load switch Q1 to that input pour** is a single 0.4 mm track of about 19 mm (17 mm of it on B.Cu) with
+  two 0.6 / 0.3 mm vias, because the PD controller sits between Q1 and the regulator: about 25 mOhm, 15 mV at the typical
+  0.6 A, 54 mV and roughly +35 K (IPC-2221) at the theoretical 2.2 A peak. (VBUS from the USB-C pins to Q1, including the
+  TVS and the input capacitors, is one pour.) Fine for a prototype; widen that feed to >= 1 mm or pour it before a
+  production spin.
 - **USB 2.0 pairs are loosely coupled, not true differential pairs** (see stack-up note), but they are length matched and
-  free of stubs. `outputs/routing_stats.txt`: pad-to-pad length (hub pin to connector pin) 30.99 / 30.99 mm upstream,
+  free of stubs. `outputs/routing_stats.txt`: pad-to-pad length (hub pin to connector pin) 30.96 / 30.96 mm upstream,
   11.21 / 11.21 mm port 1, 15.17 / 15.17 mm port 2, i.e. an intra-pair skew of 0.00 mm on all three pairs against the usual
   3.8 mm (150 mil) guideline. All six lines stay on F.Cu, none has a via. Every downstream line runs hub pin -> ESD pad
   (row facing the hub) -> locked link under the USBLC6-2SC6 -> ESD pad (row facing the connector) -> connector pin; the
   copper that is not on that path is at most 0.05 mm (track ends inside pads). The numbers come from a copper graph that
   joins tracks wherever they touch and were confirmed by an independent re-computation (DECISIONS.md section 6a).
   Still verify with a USB 2.0 high-speed device and, ideally, an eye-diagram test on the first prototypes.
-- SD card lines are 57-93 mm long with up to 36 mm mismatch: fine for 50 MHz high-speed mode (about 240 ps against a 20 ns
+- SD card lines are 58-91 mm long with up to 33 mm mismatch: fine for 50 MHz high-speed mode (about 220 ps against a 20 ns
   period); UHS-I SDR104 is not guaranteed.
 - Mechanical dimensions were checked against the manufacturer drawings (DECISIONS.md section 9); two of them (USB-A flange
   lip, speaker terminal position) are scaled from the drawing rather than dimensioned.

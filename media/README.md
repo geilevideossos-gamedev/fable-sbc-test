@@ -12,9 +12,9 @@
 ![exploded view](voxhub_exploded.png)
 
 Status: `voxhub_exploded.png` shows the final board. `voxhub_showcase.mp4` was rendered a few hours earlier, before the
-review moved 19 small parts (two ESD parts, capacitors at the buck regulator, a few resistors and LEDs) and re-routed the
-board; at video scale the difference is not discernible, and the frames that show the PCB are being re-rendered (see
-TODO.md).
+review moved 53 of the 151 footprints (the buck power stage, the two USB ESD parts, small parts around the PD controller
+and the hub) and re-routed the board. The difference is hard to see at video scale; the 866 frames that show the PCB
+are being re-rendered from the final board (see TODO.md).
 
 ## What you see
 
@@ -53,11 +53,12 @@ BLENDER=/path/to/blender-4.5/blender media/build_showcase.sh      # frames go to
 
 Blender 4.2 to 4.5 is required (tested with 4.5.16 LTS; Blender 5 changed the animation API and the script refuses to
 start there). Blender runs headless (`blender -b -P render_showcase.py -- ...`), Cycles on the CPU: 4 samples per pixel +
-OpenImageDenoise, fixed noise seed, 3 bounces, no motion blur. Measured on 4 cores: about 11 s per frame, 3 h 10 min for
-the 1260 frames (the committed video). The script always renders on the CPU (`cycles.device = "CPU"`), so raising
+OpenImageDenoise, fixed noise seed, 3 bounces, no motion blur. Measured on 4 cores: about 9 s per frame on average (7 to 13 s),
+3 h 10 min for the 1260 frames. The script always renders on the CPU (`cycles.device = "CPU"`), so raising
 `SAMPLES` raises the render time proportionally. `render_showcase.py --stills 0,5,10 --scale 25` renders quick checks of
 single moments, `--still <t> out.png` one frame, `--start / --end` a frame range. Finished frames are skipped (a frame
 counts as finished when the PNG ends with its IEND chunk), so an interrupted render can simply be restarted;
-`build_showcase.sh` refuses to encode while a frame is missing.
+`build_showcase.sh` refuses to encode while a frame is missing, and it throws the frames of an earlier render away when
+the board, the enclosure, a part model, the scripts or `SAMPLES` changed since (fingerprint in `frames/.inputs`).
 
 The MP4 is H.264 High, yuv420p, converted with the BT.709 matrix and tagged as such (limited range), `+faststart`.

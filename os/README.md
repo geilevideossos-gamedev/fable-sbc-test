@@ -95,7 +95,10 @@ is installed): U-Boot's device tree compiler enables YAML support when it sees t
 because Buildroot's pkg-config does not know the host's library. The HAOS builder container has no `libyaml-dev`.
 
 The script clones `home-assistant/operating-system` at the latest release tag (with the Buildroot
-submodule) and adds, without modifying any upstream file except one `source` line in `Config.in`:
+submodule) and adds the board definition. The only upstream file this touches is one `source` line in `Config.in`;
+host builds and `VOXHUB_GOPROXY` additionally edit the upstream files named above (`scripts/rauc.sh`, `genimage/*.cfg`,
+`buildroot/package/pkg-golang.mk`) in the cloned tree, so use a fresh clone if you switch to the Docker path afterwards.
+An existing clone is only reused if it is at the requested version. Added:
 
 - `buildroot-external/board/raspberrypi/voxhub/` - copy of `rpi4-64` + our `meta`, `kernel.config`, `config.txt`;
 - `buildroot-external/package/voxhub-overlay/` - builds `voxhub.dtbo`; the shared Raspberry Pi
@@ -105,7 +108,9 @@ submodule) and adds, without modifying any upstream file except one `source` lin
   follows upstream kernel/firmware bumps automatically. A copy generated against HAOS 18.5 is checked in
   as `board/voxhub_defconfig`.
 
-Then `make voxhub` produces `haos_rpi4-64-<ver>.img.xz` (copied to `os/output/haos_voxhub-cm4-<ver>-full.img.xz`).
+Then `make voxhub` produces `haos_rpi4-64-<ver>.img.xz` (copied to `os/output/haos_voxhub-cm4-<ver>-full.img.xz`, with a
+`.sha256` file). The `--wifi-*` options only work in repack mode; for a full-build image copy a NetworkManager profile to
+`CONFIG/network/` on the boot partition yourself (the board has no Ethernet).
 Requirements: 30-40 GB disk, 8 GB RAM, 1-3 hours on a 16-core machine (measured on 4 shared cores: about 6 hours, see below).
 
 ## Verification status
