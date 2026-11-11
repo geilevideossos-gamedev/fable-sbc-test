@@ -282,6 +282,12 @@ full() {
         # needed at the very end (data partition: the Supervisor containers are imported with docker-in-docker)
         need make gcc g++ bc cpio rsync unzip wget curl file perl patch bzip2 xz jq skopeo sudo docker \
              qemu-img pigz zip automake help2man makeinfo flock python3
+        # The HAOS scripts expect the source tree at /build (where the builder container mounts it): the RAUC signing key
+        # and certificate are generated and read as /build/key.pem and /build/cert.pem (scripts/rauc.sh, genimage/*.cfg).
+        # On the host they go to the root of the cloned tree instead, which is the same place.
+        { grep -rlE '/build/(key|cert)\.pem' "${ext}/scripts" "${ext}/genimage" 2>/dev/null || true; } | while read -r f; do
+            sed -i -E "s|/build/(key\|cert)\.pem|${src}/\1.pem|g" "${f}"
+        done
         # the HAOS defconfig points the download dir and ccache at /cache (a volume of the builder container)
         export BR2_DL_DIR="${BR2_DL_DIR:-${OUT}/cache/dl}" BR_CACHE_DIR="${BR_CACHE_DIR:-${OUT}/cache/cc}"
         mkdir -p "${BR2_DL_DIR}" "${BR_CACHE_DIR}"

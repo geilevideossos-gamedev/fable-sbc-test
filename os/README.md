@@ -89,7 +89,8 @@ the modules of its Go packages (tempio, os-agent, ...) with `GOPROXY=direct`, i.
 option the script puts the given module proxy into `buildroot/package/pkg-golang.mk` of the cloned tree instead. The
 modules are still checked against `go.sum`, and the vendored tarball against Buildroot's `.hash` file.
 
-On a host build the script also builds Buildroot's `host-libyaml` first if `/usr/include/yaml.h` exists (i.e. `libyaml-dev`
+On a host build the script also redirects the RAUC signing key and certificate, which the HAOS scripts expect under
+`/build` (the mount point inside the builder container), to the root of the cloned source tree, and it builds Buildroot's `host-libyaml` first if `/usr/include/yaml.h` exists (i.e. `libyaml-dev`
 is installed): U-Boot's device tree compiler enables YAML support when it sees that header and would then fail to link,
 because Buildroot's pkg-config does not know the host's library. The HAOS builder container has no `libyaml-dev`.
 
@@ -117,7 +118,7 @@ Requirements: 30-40 GB disk, 8 GB RAM, 1-3 hours on a 16-core machine (see the m
 | `googlevoicehat-soundcard.dtbo` decompiled | **OK** - `sdmode-gpios = <&gpio 16 0>`, matches the schematic |
 | `voxhub-overlay.dts` compiles (`dtc -@`) and applies to the real `bcm2711-rpi-cm4.dtb` (`fdtoverlay`) | **OK** |
 | `voxhub_defconfig` accepted by Buildroot (`make voxhub_defconfig`) | **OK** - `.config` written, `BR2_PACKAGE_VOXHUB_OVERLAY=y` |
-| Full from-source build | **IN PROGRESS at the time of this commit** (attempt 7 of 2026-11-11) - see the run log below |
+| Full from-source build | **IN PROGRESS at the time of this commit** (attempt 9 of 2026-11-11) - see the run log below |
 | Boot on hardware | not done (no hardware) |
 
 ### Full build: run log of 2026-11-11
@@ -139,7 +140,9 @@ CCACHE_DISABLE=1 VOXHUB_NO_DOCKER=1 VOXHUB_GITHUB_VIA_GIT=1 os/build-image.sh fu
 | 4 | 3 h 00 min, 153 of 218 packages installed, stopped in `libblockdev 3.3.1 Building` | `libtool: error: '.../output/build/util-linux-2.40.4/libuuid.la' is not a valid libtool archive`. **Self-inflicted by a disk-space helper of the sandbox session (not part of this repository)**: to stay inside the disk allowance it emptied the build directories of finished packages, but the staging copies of `libfdisk.la` / `libmount.la` (and four more) point back into those build directories | the four affected build directories (`util-linux`, `host-util-linux`, `gnutls`, `dhcp`) were deleted so that Buildroot rebuilds them; the helper now leaves every directory alone that a libtool archive refers to |
 | 5 | 2 h 19 min more, 190 of 218 packages installed (kernel 6.18 with the `voxhub` fragment and its out-of-tree modules built), stopped in `uboot 2026.04 Building` | `scripts/dtc/yamltree.o: undefined reference to 'yaml_emitter_emit'` ... `make[4]: *** [scripts/Makefile.host:105: scripts/dtc/dtc] Error 1`. **Host contamination:** U-Boot's dtc enables YAML support when `/usr/include/yaml.h` exists on the build host (Buildroot passes `PKG_CONFIG_SYSROOT_DIR=/`), then asks Buildroot's own pkg-config for the library, which only knows Buildroot's host directory. This sandbox image ships `libyaml-dev`; the HAOS builder container does not | on host builds `build-image.sh` now builds Buildroot's `host-libyaml` first when `/usr/include/yaml.h` exists |
 | 6 | 7 min more (U-Boot now builds), 214 of 218 packages installed, stopped in `host-tempio 2026.07.0 Downloading` | `gopkg.in/yaml.v3: unrecognized import path ... https fetch: Get "https://gopkg.in/yaml.v3?go-get=1": net/http: TLS handshake timeout`, then `ERROR 403: Forbidden` for the pre-vendored tarball on GitHub and 404 on Buildroot's mirror. Buildroot vendors Go modules with `GOPROXY=direct`; **gopkg.in cannot be reached from this sandbox** (three plain HTTPS requests timed out as well), while the official module proxy can | new option `VOXHUB_GOPROXY` (see above) |
-| 7 | running at the time of this commit | - | - |
+| 7 | 4 min more: **all 218 packages built and installed** (tempio through the module proxy, the `hassio` data partition with the Supervisor containers, `voxhub-overlay`), stopped in `Finalizing target directory` | `python3.12: can't open file '.../output/build/python3-3.12.15/Lib/compileall.py'`. Self-inflicted again: the disk-space helper of the sandbox session had emptied the python3 build directory in attempt 4, and Buildroot compiles the `.pyc` files from there at the very end | python3 build directory deleted (Buildroot rebuilt it), helper switched off for good |
+| 8 | 5 min more: target finalised, root file system overlays copied, stopped in `post-build.sh` | `req: Can't open "/build/key.pem" for writing, No such file or directory`: the HAOS scripts generate and read the RAUC development signing key under `/build`, the mount point of the source tree inside the builder container (`scripts/rauc.sh`, `genimage/image-raucb-*.cfg`) | on host builds `build-image.sh` rewrites these paths to the root of the cloned tree |
+| 9 | running at the time of this commit | - | - |
 
 None of the stops so far had anything to do with the board definition: the configuration (`make voxhub-config`), the
 toolchain (GCC 13.4 / glibc 2.41), systemd, Docker 29.8.2, containerd and the kernel with the `voxhub` config fragment

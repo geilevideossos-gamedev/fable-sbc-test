@@ -54,8 +54,8 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 - [x] `build-image.sh repack`: flashable `haos_voxhub-cm4-18.5.img.xz` built and verified
 - [x] `build-image.sh full`: non-root check, host-build cache directories, git fallback for GitHub tarballs,
       optional Go module proxy, host-libyaml on hosts with libyaml-dev
-- [~] `build-image.sh full` run: attempt 7 IN PROGRESS at the time of this commit (attempts 1-6: where and why each
-      stopped is in `os/README.md`; 214 of 218 packages incl. kernel and U-Boot were built by attempt 6)
+- [~] `build-image.sh full` run: attempt 9 IN PROGRESS at the time of this commit (attempts 1-8: where and why each
+      stopped is in `os/README.md`; all 218 packages are built, the image assembly steps remain)
 - [ ] Boot test on hardware
 
 ## Showcase (`/media`)
