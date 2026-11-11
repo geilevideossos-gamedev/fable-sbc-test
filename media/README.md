@@ -11,10 +11,13 @@
 
 ![exploded view](voxhub_exploded.png)
 
-Status: `voxhub_exploded.png` shows the final board. `voxhub_showcase.mp4` was rendered a few hours earlier, before the
-review moved 53 of the 151 footprints (the buck power stage, the two USB ESD parts, small parts around the PD controller
-and the hub) and re-routed the board. The difference is hard to see at video scale; the 866 frames that show the PCB
-are being re-rendered from the final board (see TODO.md).
+Status: video and still both show the final board. The video was first rendered before the review moved 53 of the 151
+footprints (the buck power stage, the two USB ESD parts, small parts around the PD controller and the hub) and re-routed
+the board. The 866 frames in which the PCB is visible (frames 150 to 1015) were rendered again from the final board
+(1 h 54 min); the 394 frames of the closed device at the start and at the end are from the first render - the printed
+parts did not change (`voxhub_shell.stl` and `voxhub_base.stl` are byte-identical) and the PCB is inside the closed case;
+five of them rendered again from the final board match the kept ones to within 3 of 255 on single pixels. A run of
+`build_showcase.sh` from scratch renders all 1260 frames.
 
 ## What you see
 

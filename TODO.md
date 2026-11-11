@@ -67,9 +67,9 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
       (Blender 4.5.16 headless, Cycles CPU, 3 h 10 min) and checked frame by frame on a contact sheet
 - [x] Build script hardened after the review: tool check up front, Blender exit code, complete-frame check, colour tags
 - [x] `voxhub_exploded.png` re-rendered from the final board (after the USB / buck layout fixes)
-- [~] `voxhub_showcase.mp4` still shows the board as it was before those fixes (53 of 151 footprints moved since,
-      tracks changed - hard to see at video scale); the 866 frames that show the PCB are being re-rendered from the
-      final board at the time of this commit
+- [x] `voxhub_showcase.mp4` re-rendered from the final board: the 866 frames that show the PCB (150-1015) are new, the
+      394 closed-device frames are kept (printed parts unchanged); probed (1260 frames, 60 fps, 21 s, BT.709), checked on a
+      contact sheet and for a jump at the two joins (none)
 
 ## Assistant (`/assistant`)
 - [x] Home Assistant add-on (wake word -> STT -> Claude tool use -> TTS)
