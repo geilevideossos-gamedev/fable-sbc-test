@@ -48,7 +48,7 @@ describe it completely:
 |---|---|---|
 | USB hub / USB-A | `otg_mode=1` (in `[cm4]`) | xHCI host on the CM4 USB2 pins |
 | Microphones + speaker | `dtoverlay=googlevoicehat-soundcard` | ALSA card `sndrpigooglevoi`, capture + playback, amp enable on GPIO16 |
-| Zigbee radio | `dtoverlay=uart4,ctsrts` | `/dev/ttyAMA1` on GPIO8-11 |
+| Zigbee radio | `dtoverlay=uart4,ctsrts` | `/dev/ttyAMA4` on GPIO8-11 (the kernel of HAOS 18.5 has fixed aliases: `serial4 = &uart4`) |
 | Status LEDs | `dtoverlay=gpio-led,gpio=5,label=voxhub-green` (and GPIO6 blue) | `/sys/class/leds/voxhub-green`, `voxhub-blue` |
 | Mute switch sense | `dtoverlay=gpio-key,gpio=27,keycode=248,...` | input event `KEY_MICMUTE` while muted |
 | PD controller status | `dtparam=i2c_arm=on` | CYPD3177 at 0x08 on `i2c-1` |
@@ -107,7 +107,7 @@ Requirements: 30-40 GB disk, 8 GB RAM, 1-3 hours on a 16-core machine (see the m
 | `googlevoicehat-soundcard.dtbo` decompiled | **OK** - `sdmode-gpios = <&gpio 16 0>`, matches the schematic |
 | `voxhub-overlay.dts` compiles (`dtc -@`) and applies to the real `bcm2711-rpi-cm4.dtb` (`fdtoverlay`) | **OK** |
 | `voxhub_defconfig` accepted by Buildroot (`make voxhub_defconfig`) | **OK** - `.config` written, `BR2_PACKAGE_VOXHUB_OVERLAY=y` |
-| Full from-source build | **IN PROGRESS at the time of this commit** (attempt 5 of 2026-11-11) - see the run log below |
+| Full from-source build | **IN PROGRESS at the time of this commit** (attempt 6 of 2026-11-11) - see the run log below |
 | Boot on hardware | not done (no hardware) |
 
 ### Full build: run log of 2026-11-11
@@ -126,16 +126,17 @@ CCACHE_DISABLE=1 VOXHUB_NO_DOCKER=1 VOXHUB_GITHUB_VIA_GIT=1 os/build-image.sh fu
 | 2 | 231 build steps in 17 min, then `linux-headers` download | `ERROR 403: Forbidden` from the proxy for `https://github.com/raspberrypi/linux/archive/<commit>.tar.gz`. This sandbox refuses every GitHub `/archive/` URL (37 of the 218 sources), while `git fetch` from the same repositories is allowed | new option `VOXHUB_GITHUB_VIA_GIT=1` (see above) |
 | 3 | source prefetch | bug in the new prefetch code (a `grep` without match ended the script under `set -o pipefail`) | fixed |
 | 4 | 3 h 00 min, 153 of 218 packages installed, stopped in `libblockdev 3.3.1 Building` | `libtool: error: '.../output/build/util-linux-2.40.4/libuuid.la' is not a valid libtool archive`. **Self-inflicted by a disk-space helper of the sandbox session (not part of this repository)**: to stay inside the disk allowance it emptied the build directories of finished packages, but the staging copies of `libfdisk.la` / `libmount.la` (and four more) point back into those build directories | the four affected build directories (`util-linux`, `host-util-linux`, `gnutls`, `dhcp`) were deleted so that Buildroot rebuilds them; the helper now leaves every directory alone that a libtool archive refers to |
-| 5 | running at the time of this commit | - | - |
+| 5 | 2 h 19 min more, 190 of 218 packages installed (kernel 6.18 with the `voxhub` fragment and its out-of-tree modules built), stopped in `uboot 2026.04 Building` | `scripts/dtc/yamltree.o: undefined reference to 'yaml_emitter_emit'` ... `make[4]: *** [scripts/Makefile.host:105: scripts/dtc/dtc] Error 1`. **Host contamination:** U-Boot's dtc enables YAML support when `/usr/include/yaml.h` exists on the build host (Buildroot passes `PKG_CONFIG_SYSROOT_DIR=/`), then asks Buildroot's own pkg-config for the library, which only knows Buildroot's host directory. This sandbox image ships `libyaml-dev`; the HAOS builder container does not | on host builds `build-image.sh` now builds Buildroot's `host-libyaml` first when `/usr/include/yaml.h` exists |
+| 6 | running at the time of this commit | - | - |
 
 None of the stops so far had anything to do with the board definition: the configuration (`make voxhub-config`), the
-kernel headers, the toolchain (GCC 13.4 / glibc 2.41), systemd, Docker 29.8.2 and containerd were built for the `voxhub`
-target in attempt 4. Log excerpts are in `full-build-attempt.log`.
+toolchain (GCC 13.4 / glibc 2.41), systemd, Docker 29.8.2, containerd and the kernel with the `voxhub` config fragment
+were built for the `voxhub` target. Log excerpts are in `full-build-attempt.log`.
 
 ## First boot
 
 1. Flash the image, insert the card, plug in a USB-C PD charger (>= 20 W, 9 V capable). Green PWR LED on;
    red PD-FAULT LED means the charger offers no 9-20 V profile.
 2. Wait ~5 minutes on first boot, open `http://homeassistant.local:8123`.
-3. Settings -> System -> Hardware should list the `sndrpigooglevoi` sound card and `/dev/ttyAMA1`.
+3. Settings -> System -> Hardware should list the `sndrpigooglevoi` sound card and `/dev/ttyAMA4`.
 4. Continue with `assistant/README.md`.

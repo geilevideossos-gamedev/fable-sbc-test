@@ -7,7 +7,7 @@ otg_mode=1
 [all]
 # I2S audio: ADAU7002 (2x PDM mics) capture + MAX98357A playback, amp SD_MODE on GPIO16
 dtoverlay=googlevoicehat-soundcard
-# Zigbee/Thread radio (MGM240P) on UART4: TX=GPIO8 RX=GPIO9 CTS=GPIO10 RTS=GPIO11 -> /dev/ttyAMA1
+# Zigbee/Thread radio (MGM240P) on UART4: TX=GPIO8 RX=GPIO9 CTS=GPIO10 RTS=GPIO11 -> /dev/ttyAMA4
 dtoverlay=uart4,ctsrts
 # (radio reset GPIO24 is active high with a pull-down on the board, bootloader strap GPIO25 is pulled up - nothing to configure)
 # Status LEDs (active high, through N-FETs): /sys/class/leds/voxhub-green, voxhub-blue

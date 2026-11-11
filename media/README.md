@@ -11,6 +11,11 @@
 
 ![exploded view](voxhub_exploded.png)
 
+Status: `voxhub_exploded.png` shows the final board. `voxhub_showcase.mp4` was rendered a few hours earlier, before the
+review moved 19 small parts (two ESD parts, capacitors at the buck regulator, a few resistors and LEDs) and re-routed the
+board; at video scale the difference is not discernible, and the frames that show the PCB are being re-rendered (see
+TODO.md).
+
 ## What you see
 
 | Time | Shot |

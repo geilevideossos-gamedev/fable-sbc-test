@@ -1,18 +1,21 @@
-track segments: 1594, vias: 322 (GND 140, +5V 24)
+track segments: 1519, vias: 316 (GND 141, +5V 24)
 USB 2.0 pairs - electrical length pad to pad (hub pin to connector pin, 1.5 mm counted per via):
-USB_UP_P   33.62 mm (2 vias)   USB_UP_N   33.62 mm (2 vias)   skew 0.00 mm
-USB1_P     27.55 mm (2 vias)   USB1_N     28.90 mm (2 vias)   skew 1.35 mm
-USB2_P     25.41 mm (4 vias)   USB2_N     25.41 mm (0 vias)   skew 0.00 mm
-USB 2.0 pairs - all copper of the net (sum of track segments incl. the ESD flow-through links, no vias):
-USB_UP_P   32.48 mm (2 vias)   USB_UP_N   30.62 mm (2 vias)   copper-diff 1.86 mm
-USB1_P     26.55 mm (2 vias)   USB1_N     25.99 mm (2 vias)   copper-diff 0.56 mm
-USB2_P     25.84 mm (4 vias)   USB2_N     25.45 mm (0 vias)   copper-diff 0.39 mm
-worst pair: skew 1.35 mm, copper-diff 1.86 mm (limit 3.8 mm)
-SD_CLK      67.6 mm (2 vias)
-SD_CMD      73.1 mm (2 vias)
-SD_DAT0     88.8 mm (4 vias)
-SD_DAT1     62.5 mm (4 vias)
-SD_DAT2     80.3 mm (2 vias)
-SD_DAT3     68.7 mm (0 vias)
-I2S_BCLK    90.6 mm (4 vias)
-PDM_CLK_M  144.5 mm (4 vias)
+USB_UP_P   30.99 mm (0 vias)   USB_UP_N   30.99 mm (0 vias)   skew 0.00 mm   (vias counted as 0: 0.00 mm)
+USB1_P     11.21 mm (0 vias)   USB1_N     11.21 mm (0 vias)   skew 0.00 mm   (vias counted as 0: 0.00 mm)
+USB2_P     15.17 mm (0 vias)   USB2_N     15.17 mm (0 vias)   skew 0.00 mm   (vias counted as 0: 0.00 mm)
+USB 2.0 lines - pads on the path, and copper of the net that is not on that path (stubs, loops; 0 = pure flow-through):
+USB_UP_P  U4.31 > J3.105                     on-path  30.99 mm   off-path 0.05 mm
+USB_UP_N  U4.30 > J3.103                     on-path  30.99 mm   off-path 0.00 mm
+USB1_P    U4.2 > U7.4 > U7.3 > J6.3          on-path  11.21 mm   off-path 0.05 mm
+USB1_N    U4.1 > U7.6 > U7.1 > J6.2          on-path  11.21 mm   off-path 0.03 mm
+USB2_P    U4.4 > U8.4 > U8.3 > J6.7          on-path  15.17 mm   off-path 0.05 mm
+USB2_N    U4.3 > U8.6 > U8.1 > J6.6          on-path  15.17 mm   off-path 0.05 mm
+worst pair: skew 0.00 mm, 0.00 mm with vias counted as 0 (limit 3.8 mm); off-path copper 0.05 mm
+SD_CLK      64.1 mm (6 vias)
+SD_CMD      56.9 mm (4 vias)
+SD_DAT0     59.0 mm (4 vias)
+SD_DAT1     93.0 mm (2 vias)
+SD_DAT2     68.2 mm (4 vias)
+SD_DAT3     66.3 mm (4 vias)
+I2S_BCLK    85.0 mm (4 vias)
+PDM_CLK_M  143.9 mm (3 vias)

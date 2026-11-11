@@ -41,11 +41,17 @@ while [ $# -gt 0 ]; do
         --wifi-country) WIFI_COUNTRY="$2"; shift ;;
         --custom-overlay) CUSTOM_OVERLAY=1 ;;
         --keep-work) KEEP=1 ;;
-        -h|--help) sed -n '2,28p' "$0"; exit 0 ;;
+        -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
         *) echo "unknown argument: $1" >&2; exit 2 ;;
     esac
     shift
 done
+
+# HAOS (scripts/enter.sh) and several Buildroot host packages refuse to build as root.  Checked before anything is
+# created, so that a first attempt with sudo does not leave a root-owned source tree behind.
+if [ "${MODE}" = full ] && [ "$(id -u)" = 0 ]; then
+    echo "the full build must run as a regular user (with sudo and docker access), not as root" >&2; exit 1
+fi
 
 need() { for t in "$@"; do command -v "$t" >/dev/null || { echo "missing tool: $t" >&2; exit 1; }; done; }
 log() { printf '\033[1m[voxhub-os]\033[0m %s\n' "$*"; }
@@ -61,6 +67,7 @@ need git
 [ -n "${VERSION}" ] || { echo "could not determine the latest HAOS version" >&2; exit 1; }
 log "Home Assistant OS version: ${VERSION} (mode: ${MODE})"
 mkdir -p "${OUT}"
+OUT="$(cd "${OUT}" && pwd)"       # Buildroot runs in another directory: every path derived from OUT must be absolute
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/voxhub-os.XXXXXX")"
 cleanup() { [ "${KEEP}" = 1 ] || rm -rf "${WORK}"; }
 trap cleanup EXIT
@@ -176,7 +183,7 @@ repack() {
 # the GitHub tarball) into a local directory that is handed to Buildroot as BR2_PRIMARY_SITE.
 # Buildroot still verifies each file against its .hash file, so a wrong tarball cannot slip in.
 github_via_git() {      # $1 = HAOS source tree, $2 = mirror directory
-    local src="$1" mirror="$2" info tmp dir file url rest owner repo ref spec want got pfx ok
+    local src="$1" mirror="$2" info tmp dir file url rest owner repo ref spec want got pfx ok failed=""
     need jq curl gzip sha256sum
     info="$(mktemp)"; tmp="$(mktemp -d)"
     make -s -C "${src}/buildroot" O="${src}/output" BR2_EXTERNAL="${src}/buildroot-external" show-info > "${info}"
@@ -192,7 +199,7 @@ github_via_git() {      # $1 = HAOS source tree, $2 = mirror directory
         log "git: ${owner}/${repo} @ ${ref} -> ${dir}/${file}"
         rm -rf "${tmp}/g"; git init -q "${tmp}/g"
         git -C "${tmp}/g" fetch -q --depth 1 "https://github.com/${owner}/${repo}.git" "${spec}" \
-            || { echo "git fetch failed for ${owner}/${repo} ${ref}" >&2; continue; }
+            || { echo "git fetch failed for ${owner}/${repo} ${ref}" >&2; failed="${failed} ${dir}/${file}(fetch)"; continue; }
         mkdir -p "${mirror}/${dir}"
         # expected hash (if the package has one for exactly this file; vendored -go/-cargo tarballs are
         # produced and checked by Buildroot's post-processing step instead)
@@ -202,13 +209,22 @@ github_via_git() {      # $1 = HAOS source tree, $2 = mirror directory
         ok=0
         for pfx in "${repo}-${ref#v}" "${repo}-${ref}"; do      # GitHub drops a leading "v" of the tag
             pfx="${pfx//\//-}"
-            git -C "${tmp}/g" archive --format=tar --prefix="${pfx}/" FETCH_HEAD | gzip -n > "${mirror}/${dir}/${file}"
-            got="$(sha256sum "${mirror}/${dir}/${file}" | cut -d' ' -f1)"
+            # written under a temporary name: an interrupted or mismatching tarball must never look finished
+            git -C "${tmp}/g" archive --format=tar --prefix="${pfx}/" FETCH_HEAD | gzip -n > "${mirror}/${dir}/${file}.part"
+            got="$(sha256sum "${mirror}/${dir}/${file}.part" | cut -d' ' -f1)"
             if [ -z "${want}" ] || [ "${got}" = "${want}" ]; then ok=1; break; fi
         done
-        [ "${ok}" = 1 ] || echo "WARNING: ${file}: sha256 ${got} differs from the expected ${want}" >&2
+        if [ "${ok}" = 1 ]; then
+            mv "${mirror}/${dir}/${file}.part" "${mirror}/${dir}/${file}"
+        else
+            rm -f "${mirror}/${dir}/${file}.part"
+            echo "${file}: sha256 ${got} differs from the expected ${want}" >&2; failed="${failed} ${dir}/${file}(hash)"
+        fi
     done < "${tmp}/list"
     rm -rf "${tmp}" "${info}"
+    if [ -n "${failed}" ]; then     # stop now instead of hours into the build at the first of these packages
+        echo "could not prepare these GitHub sources:${failed}" >&2; exit 1
+    fi
 }
 
 # -------------------------------------------------------------------------------- full
@@ -247,8 +263,6 @@ full() {
     echo 'BR2_PACKAGE_VOXHUB_OVERLAY=y' >> "${ext}/configs/voxhub_defconfig"
     cp "${ext}/configs/voxhub_defconfig" "${HERE}/board/voxhub_defconfig"   # keep a copy for review
 
-    # HAOS (scripts/enter.sh) and several Buildroot host packages refuse to build as root
-    [ "$(id -u)" != 0 ] || { echo "the full build must run as a regular user (with sudo and docker access), not as root" >&2; exit 1; }
     log "building (this takes a long time)"
     if command -v docker >/dev/null && docker info >/dev/null 2>&1 && [ -z "${VOXHUB_NO_DOCKER:-}" ]; then
         (cd "${src}" && ./scripts/enter.sh make voxhub)
@@ -261,11 +275,19 @@ full() {
         # the HAOS defconfig points the download dir and ccache at /cache (a volume of the builder container)
         export BR2_DL_DIR="${BR2_DL_DIR:-${OUT}/cache/dl}" BR_CACHE_DIR="${BR_CACHE_DIR:-${OUT}/cache/cc}"
         mkdir -p "${BR2_DL_DIR}" "${BR_CACHE_DIR}"
+        (cd "${src}" && make voxhub-config)
         if [ -n "${VOXHUB_GITHUB_VIA_GIT:-}" ]; then
             local mirror="${OUT}/cache/github-mirror"; mkdir -p "${mirror}"
-            (cd "${src}" && make voxhub-config)
             github_via_git "${src}" "${mirror}"
             echo "BR2_PRIMARY_SITE=\"file://${mirror}\"" >> "${ext}/configs/voxhub_defconfig"
+        fi
+        # U-Boot's dtc enables YAML output when it finds /usr/include/yaml.h on the build host (Buildroot passes
+        # PKG_CONFIG_SYSROOT_DIR=/) and then asks Buildroot's own pkg-config for the library.  On a host with libyaml-dev
+        # installed the header is found and the library is not ("undefined reference to yaml_emitter_emit").  The HAOS
+        # builder container has no libyaml-dev; on such a host build Buildroot's host-libyaml first so that both exist.
+        if [ -e /usr/include/yaml.h ]; then
+            log "libyaml-dev is installed on this host: building host-libyaml first (U-Boot's dtc would not link otherwise)"
+            make -C "${src}/buildroot" O="${src}/output" BR2_EXTERNAL="${src}/buildroot-external" host-libyaml
         fi
         (cd "${src}" && make voxhub)
     fi

@@ -3,7 +3,8 @@
 Live distributor data (DigiKey part number, lifecycle, stock, unit price at qty 1 and qty 100) is stored in
 sourcing_live.json - checked on 2026-11-11 against the DigiKey product pages.  mouser.com refuses automated
 access (HTTP 503 for every scripted request), so the Mouser columns only carry what search-engine snippets
-showed; they are marked "not live" and must be re-checked by hand before ordering.
+showed, or part numbers built from Mouser's prefix scheme ("mouser_pn_unverified" in the JSON); both are marked
+in the BOM and must be re-checked by hand before ordering.
 
 This file adds what a database cannot know: second sources and the reason for each choice.
 SECOND: MPN -> (second source, note)
@@ -21,9 +22,9 @@ SECOND = {
                    "STOCK RISK: 0 at DigiKey, 2,500 expected 08-Jul-2027, 26 weeks lead time - check Mouser / TI store by hand"),
  "SRP7028A-6R8M": ("Bourns SRP7028AA-6R8M (AEC-Q200): drop-in", "Isat 8 A, Irms 4.5 A, 60 mOhm max"),
  "USB2514B-I/M2": ("USB2514BT-I/M2 (tape and reel): same part. USB2514B/M2 is 0-70 C only (downgrade)", ""),
- "TSX-3225 24.0000MF18X-C0": ("Abracon ABM8-24.000MHZ-B2-T (the previous choice; 20/20 ppm, 0.53 USD @100) or any 24 MHz 3.2x2.5 mm crystal with CL 18 pF, pads 1/3 = crystal",
-                              "replaces the Abracon part: 10 ppm tolerance / 10 ppm stability instead of 20 / 20, same CL (18 pF -> 27 pF load capacitors stay), 45 % cheaper"),
- "TPS2553DBVR": ("TPS2553DBVT: same die on a small reel, 2,503 in stock at DigiKey (296-23990-1-ND, 1.36 / 0.79 USD). Diodes AP2553W6-7 is NRND, AP22653W6-7 is only rated 3.0-5.5 V",
+ "TSX-3225 24.0000MF18X-C0": ("Abracon ABM8-24.000MHZ-B2-T (the previous choice; +-20 ppm tolerance / +-50 ppm stability over -20..70 C, 0.53 USD @100) or any 24 MHz 3.2x2.5 mm crystal with CL 18 pF, pads 1/3 = crystal",
+                              "replaces the Abracon part: +-10 ppm tolerance and +-10 ppm over -20..+75 C per the Epson brief (DigiKey lists +-18 ppm over -40..85 C) instead of +-20 / +-50 ppm, same CL (18 pF -> 27 pF load capacitors stay), 45 % cheaper"),
+ "TPS2553DBVR": ("TPS2553DBVT: the identical device on the 250-piece reel, 2,503 in stock at DigiKey (296-23990-1-ND, 1.36 / 0.79 USD) - order this one if boards are built before the DBVR reel is back. Diodes AP2553W6-7 is NRND, AP22653W6-7 is only rated 3.0-5.5 V",
                  "0 in stock at DigiKey, 3,000 expected mid-December 2026"),
  "61400826021": ("none verified (Same Sky UJ2-ADH-W1-TH has a different footprint)", ""),
  "USB4105-GF-A": ("none verified (GCT USB4105-GF-A-120: same footprint, longer shell stakes)", ""),
@@ -47,15 +48,15 @@ SECOND = {
  "JS202011JCQN": ("C&K JS202011SCQN (gull-wing leads; footprint check needed)", ""),
  "9774015151R": ("none needed", ""),
  "T520B107M006ATE070": ("KEMET T520B157M006ATE070 (150 uF): same footprint", ""),
- "CL05B104KO5NNNC": ("any 0402 100 nF X7R >= 16 V", "10,000 in stock at DigiKey (24 per board)"),
+ "CL05B104KO5NNNC": ("any 0402 100 nF X7R >= 16 V", "10,000 in stock at DigiKey"),
  "CL05B103KB5NNNC": ("any 0402 10 nF X7R 50 V", ""), "CL05C270JB5NNNC": ("any 0402 27 pF C0G", ""), "CL05C220JB5NNNC": ("any 0402 22 pF C0G", "DNP"),
  "C1608X7R1C105K080AC": ("KEMET C0603C105K4RACTU, Yageo CC0603KRX7R7BB105 (both in stock): 1 uF 16 V X7R 0603",
                          "replaces the 0402 X5R part: that one keeps only about 0.3 uF at 5 V (buck VCC) and 0.5 uF at 3.3 V (CYPD3177 VDDD needs >= 0.8 uF)"),
  "C1608X5R1E475K080AC": ("Samsung CL10A475KO8NNNC (16 V; 0 in stock at check time)", "replaces the Samsung part (out of stock); 25 V instead of 16 V"),
  "C1608X5R1H105K080AB": ("Samsung CL10A105KB8NNNC (0 in stock at check time)", "replaces the Samsung part (out of stock), identical ratings"),
  "C0603C104K5RACTU": ("Samsung CL10B104KB8NNNC (0 in stock at check time); any 0603 100 nF X7R 50 V", "replaces the Samsung part (out of stock), identical ratings"),
- "GRM188R71H224KAC4D": ("Yageo CC0603KRX7R9BB224 (in stock), TDK C1608X7R1H224K080AB, Samsung CL10B224KB8NNNC", "new: LMR33640 input bypass must be 220 nF / 50 V / X7R (datasheet)"),
- "CL31B106KBHNNNE": ("Cal-Chip GMC31X7R106K50NT (in stock at DigiKey, 0.40 USD), TDK C3216X7R1H106K160AC (expected Feb 2027)",
+ "GRM188R71H224KAC4D": ("Yageo CC0603KRX7R9BB224, TDK C1608X7R1H224K080AB, Samsung CL10B224KB8NNNC (not looked up live)", "new: LMR33640 input bypass must be 220 nF / 50 V / X7R (datasheet). DigiKey shows no stock figure for this part (17 weeks lead time) - verify before ordering"),
+ "CL31B106KBHNNNE": ("Cal-Chip GMC31X7R106K50NT (DigiKey Marketplace only: 2,000-piece minimum at 0.403 USD), TDK C3216X7R1H106K160AC (expected Feb 2027); for a prototype the X5R part CL31A106KBHNNNE fits the footprint",
                      "X7R instead of X5R as the LMR33640 datasheet requires for CIN. STOCK: 0 at DigiKey at check time - 10 uF / 50 V / X7R / 1206 is short everywhere"),
  "CL31A226KOHNNNE": ("TDK C3216X5R1C226M160AB (31,754 in stock, +-20 %, 0.32 USD @100) or Samsung CL31A226KOCLFNC (194k in stock, only 0.85 mm thick -> check DC bias). Murata GRM31CR61C226ME15L is obsolete",
                      "0 in stock at DigiKey at check time (Mouser snippet: 212k, not live). Not swapped: no in-stock part with equal tolerance AND equal DC-bias behaviour"),

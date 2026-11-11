@@ -14,7 +14,10 @@ def natural(ref):
     return (m.group(1), int(m.group(2))) if m else (ref, 0)
 
 def money(v):
-    return "" if v is None else ("%.4f" % v).rstrip("0").rstrip(".") if v < 0.1 else "%.2f" % v
+    """Unit price with up to four decimals (at least two), so that quantity x unit price reproduces the extended price."""
+    if v is None: return ""
+    s = "%.4f" % v
+    return s[:-2] if s.endswith("00") else s.rstrip("0")
 
 def live(mpn):
     d = sourcing.PARTS_LIVE.get(mpn)
@@ -29,7 +32,10 @@ def mouser(d):
     if d.get("mouser_stock") is not None: bits.append("stock %s" % d["mouser_stock"])
     if d.get("mouser_p1") is not None: bits.append("%s USD @1" % money(d["mouser_p1"]))
     if d.get("mouser_p100") is not None: bits.append("%s USD @100" % money(d["mouser_p100"]))
-    return d.get("mouser_pn") or "", ("; ".join(bits) + " - " if bits else "") + "search snippet, NOT live"
+    tag = "search snippet, NOT live"
+    if d.get("mouser_pn_unverified"):      # the number was never seen on mouser.com
+        tag = ("search snippet, NOT live; " if bits else "NOT live; ") + "PN built from Mouser's prefix scheme or taken from the first session, not seen on mouser.com"
+    return d.get("mouser_pn") or "", ("; ".join(bits) + " - " if bits else "") + tag
 
 def main(model_path, out):
     model = json.load(open(model_path))

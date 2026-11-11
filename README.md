@@ -17,7 +17,8 @@ view, orbit, reassembly, turntable) - rendered with Blender from the STEP files 
 ![exploded view](media/voxhub_exploded.png)
 
 > **Status: revision A1, design complete and checked against the datasheets, not yet built.** ERC and DRC pass, every
-> part was verified against its manufacturer data sheet and looked up live at DigiKey, the OS image builds and the
+> IC, module, connector and electromechanical part was verified against its manufacturer data sheet (generic passives and
+> LEDs use KiCad standard footprints), every BOM line was looked up live at DigiKey, the OS image builds and the
 > add-on's test-suite passes - but no hardware exists yet. Read [DECISIONS.md](DECISIONS.md) (decision log and
 > "Open items") before ordering boards. Progress is tracked in [TODO.md](TODO.md).
 
@@ -100,7 +101,8 @@ Only the transcribed text (plus tool results) leaves the device.
 
 ## Power budget
 
-5 V rail (buck output 5.02 V +-2.6 %), worst case = everything at its maximum simultaneously:
+5 V rail (buck output 5.02 V nominal, 4.86 .. 5.17 V over tolerance: Vref +-1.5 %, two 1 % resistors), worst case =
+everything at its maximum simultaneously:
 
 | Load | Typical | Peak | Basis |
 |---|---|---|---|
@@ -135,7 +137,7 @@ Effective module-level thermal resistance derived from published CM4 measurement
 | All four cores loaded continuously | 6.5 W | 90 C -> **throttles at 80 C** | firmware limits to roughly 5.5 W; only during updates / long local STT |
 
 Conclusion: fine without a fan for the intended workload (LLM in the cloud). For sustained local inference fit the taller
-15 x 15 x 9.5 mm heat sink (there is 9 mm of headroom under the module) or add a 30 mm fan to the base vents.
+15 x 15 x 9.5 mm heat sink (there are 12.9 mm between the SoC and the base plate, so about 3 mm stay free under it) or add a 30 mm fan to the base vents.
 Other parts at peak load: buck IC ~1.1 W (junction about +45 K), inductor 0.7 W, P-FET 0.33 W - all uncritical.
 These are estimates, not measurements - verify with `vcgencmd measure_temp` on the first prototype.
 
@@ -158,7 +160,7 @@ Prerequisites: Linux, Docker, Python >= 3.10, Java >= 21 (only for re-running th
 ```bash
 # 1. Hardware: schematic -> ERC -> netlist -> placement -> autoroute -> DRC -> fabrication outputs
 docker pull kicad/kicad:9.0
-SKIP_ROUTE=1 hardware/build.sh all      # re-uses the checked-in autorouter session (reproduces the committed board, ~20 min)
+SKIP_ROUTE=1 hardware/build.sh all      # re-uses the checked-in autorouter session (reproduces the committed board, ~5 min)
 # to autoroute again: wget -P hardware https://github.com/freerouting/freerouting/releases/download/v2.0.1/freerouting-2.0.1.jar
 #                     hardware/build.sh all
 
@@ -206,29 +208,32 @@ Line by line: [`hardware/outputs/bom.csv`](hardware/outputs/bom.csv) and [`bom_s
 - The compute module is now half of the bill: DigiKey lists the CM4104000 at 95 USD (purchase limit, no backorders);
   the first session's snapshot said 55 USD. A CM4102000 (2 GB) is a drop-in if price matters more than RAM.
 - Swaps that came out of the live check (same footprint, equal or better ratings): Epson instead of Abracon crystal
-  (-0.24 USD at 100), Walsin / Stackpole instead of Yageo for the 10k, 100k and 49.9k resistors (-0.09), in-stock
-  TDK / KEMET / onsemi parts for four lines that were out of stock (+0.30). The datasheet findings add about 0.20 USD
-  (X7R capacitors, one FET). Net effect on the board: about +0.15 USD at 100 pieces, and a BOM that can be ordered.
-- **Out of stock at DigiKey on the day of the check** (all Active): LMR33640ADDAR (26 weeks), TPS2553DBVR (due
-  mid-December, the DBVT reel is in stock), 2N7002,215, CL31A226KOHNNNE (22 uF), CL31B106KBHNNNE (10 uF X7R). Thin:
-  MGM240PB32VNA3 (71). The BOM names alternates for each; the reasons why they were not swapped in automatically are in
+  (-0.24 USD at 100), Walsin / Stackpole instead of Yageo for the 10k, 100k and 49.9k resistors (-0.08), in-stock
+  TDK / KEMET / onsemi parts for four lines that were out of stock (+0.30). The datasheet findings add about 0.12 USD net
+  (X7R capacitors, one FET, minus the removed reset parts). Net effect on the board: about +0.11 USD at 100 pieces.
+- **Out of stock at DigiKey on the day of the check** (all Active): LMR33640ADDAR (26 weeks), 2N7002,215 and
+  CL31A226KOHNNNE (22 uF) - no in-stock drop-in with equal ratings exists; TPS2553DBVR (due mid-December) - the identical
+  device is in stock as the DBVT reel (+0.16 USD each); CL31B106KBHNNNE (10 uF X7R) - an equal part ships only as a
+  2,000-piece Marketplace item. For the 220 nF capacitor C10 (GRM188R71H224KAC4D, Active, 17 weeks lead time) DigiKey
+  shows no stock figure. Thin: MGM240PB32VNA3 (71). The BOM names alternates for each; details in
   [DECISIONS.md, section 10](DECISIONS.md#10-sourcing-live-check-2026-11-11).
-- **Mouser:** mouser.com blocks automated access, so the Mouser column of the BOM holds part numbers and figures from
-  search-engine snippets, marked "NOT live".
+- **Mouser:** mouser.com blocks automated access, so the Mouser column of the BOM is **not live**: 19 part numbers and figures
+  come from search-engine snippets, 18 part numbers are only built from Mouser's prefix scheme or carried over from the
+  first session (each line says which), 21 lines have none.
 
 ## Verification summary
 
 | Check | Result | Evidence |
 |---|---|---|
 | ERC (kicad-cli 9.0.9) | 0 errors, 0 warnings | `hardware/outputs/erc.rpt` |
-| Netlist equals the code model | 151 components / 95 nets; schematic parity 0 issues | `hardware/gen/model_netlist.json`, `hardware/outputs/drc.rpt` |
+| Netlist equals the code model | 151 components / 99 nets; schematic parity 0 issues | `hardware/gen/model_netlist.json`, `hardware/outputs/drc.rpt` |
 | DRC with schematic parity (kicad-cli 9.0.9) | 0 violations, 0 unconnected pads, 0 parity issues; 5 cosmetic checks waived (9 warnings, each explained in `hardware/README.md`) | `hardware/outputs/drc.rpt`, `drc_waived_checks_enabled.rpt` |
-| USB 2.0 pair matching | pad-to-pad skew 0.00 / 1.35 / 0.00 mm (upstream / port 1 / port 2), limit 3.8 mm | `hardware/outputs/routing_stats.txt` |
-| Parts vs. datasheets | every row "verified against datasheet" with source and revision; 7 deviations found and fixed | `DECISIONS.md` section 9 and decision log |
+| USB 2.0 pair matching | pad-to-pad skew 0.00 / 0.00 / 0.00 mm (upstream / port 1 / port 2), limit 3.8 mm; no vias, no stubs; re-computed independently after the first A1 figure for port 2 turned out to be wrong (real: 4.9 mm) | `hardware/outputs/routing_stats.txt`, DECISIONS.md section 6a |
+| Parts vs. datasheets | 26 rows: 25 "verified against datasheet" with source (nine of them read from mirrors of the manufacturer PDF), 1 row of generic passives / standard footprints not individually verified; 7 deviations found and fixed | `DECISIONS.md` section 9 and decision log |
 | PCB render | kicad-cli 3D renders | `hardware/outputs/render_*.png` |
 | Enclosure fit | part dimensions from the manufacturer drawings; 0 mm^3 interference PCB assembly vs. printed parts | `enclosure/voxhub_enclosure.py`, `enclosure/README.md` |
 | Power budget / thermal estimate | above | |
-| Sourcing | every BOM line Active and looked up live at DigiKey (status, stock, price at 1 and 100); Mouser not live | `hardware/outputs/bom.csv`, `hardware/gen/sourcing_live.json` |
+| Sourcing | every BOM line Active and looked up live at DigiKey (status, stock, price at 1 and 100; no stock figure shown for one line, C10); Mouser not live | `hardware/outputs/bom.csv`, `hardware/gen/sourcing_live.json` |
 | OS image | repack image built from HAOS 18.5 and verified; from-source build: see `os/README.md` | `os/README.md` |
 | Assistant | 86 unit tests pass | `assistant/tests/` |
 

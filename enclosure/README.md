@@ -55,8 +55,11 @@ should be clearly visible.
 2. Fit the CM4 on the carrier (4 x M2.5 x 5 into the SMT spacers), stick the heat sink on the SoC, insert the SD card.
 3. Solder 80 mm leads to the speaker, crimp/plug the JST-PH housing; drop the speaker into its ring (cone down in
    print orientation, i.e. facing the grille).
-4. Lay the PCB on the four bosses (component side towards you), make sure the mute slider enters its slot, fasten with
-   4 x 2.5 x 6 mm thread-forming screws. Plug the speaker into J7.
+4. The PCB cannot be lowered straight onto the bosses: the stacked USB-A connector overhangs the board edge by 2.5 mm and
+   its flange reaches 1.9 mm into the rear wall. Hold the PCB component side towards you with the front edge raised,
+   push the rear connectors (USB-A, USB-C, microSD) into their windows first, then swing the front edge down onto the four
+   bosses. Make sure the mute slider enters its slot, fasten with 4 x 2.5 x 6 mm thread-forming screws. Plug the speaker
+   into J7.
 5. Put the foam pad on the base pedestal, close the base, fasten with 4 x 2.5 x 8 mm screws, stick on the feet.
 
 ## Verification

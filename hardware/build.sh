@@ -34,18 +34,31 @@ route() {
     if [ "${SKIP_ROUTE:-0}" = 1 ] && [ -s "${HW}/gen/routed/voxhub.ses" ]; then
         echo "re-using gen/routed/voxhub.ses"
     else
-        (cd "${HW}/gen/work" && java -Djava.awt.headless=true -jar "${FR}" -de voxhub.dsn -do voxhub.ses \
-            --router.job_timeout=00:06:00 -mt 1 --gui.enabled=false -da)
+        # Freerouting 2.0.1 sometimes routes the board and then leaves an EMPTY session file behind (seen twice on a busy
+        # machine, the passes in its log were identical to a good run).  The result is deterministic, so simply try again.
+        # Each run gets its own temp directory: Freerouting keeps a freerouting.json there and re-reads it next time.
+        local frtmp try
+        for try in 1 2 3; do
+            frtmp="$(mktemp -d)"
+            (cd "${HW}/gen/work" && rm -f voxhub.ses && java -Djava.awt.headless=true -Djava.io.tmpdir="${frtmp}" -jar "${FR}" \
+                -de voxhub.dsn -do voxhub.ses --router.job_timeout=00:20:00 -mt 1 --gui.enabled=false -da) || true
+            rm -rf "${frtmp}"
+            if grep -q "(wire" "${HW}/gen/work/voxhub.ses" 2>/dev/null; then break; fi
+            echo "Freerouting wrote no routed session (attempt ${try} of 3)" >&2
+        done
+        grep -q "(wire" "${HW}/gen/work/voxhub.ses" 2>/dev/null || { echo "no autorouter session - giving up" >&2; exit 1; }
         mkdir -p "${HW}/gen/routed" && cp "${HW}/gen/work/voxhub.ses" "${HW}/gen/routed/voxhub.ses"
     fi
+    grep -q "(wire" "${HW}/gen/routed/voxhub.ses" || { echo "gen/routed/voxhub.ses contains no routing" >&2; exit 1; }
     cp "${HW}/gen/routed/voxhub.ses" "${HW}/gen/work/voxhub.ses"
     # always start from a fresh placement so that this step is repeatable
     kc "python3 gen/build_pcb.py place gen/work/voxhub.net /work/hardware && python3 gen/build_pcb.py finish /work/hardware \
         && gen/postroute.sh /work/hardware 30 && python3 gen/build_pcb.py pours /work/hardware"
 }
 outputs() {
-    kc "kicad-cli pcb drc --schematic-parity --severity-all --exit-code-violations --format report -o outputs/drc.rpt voxhub.kicad_pcb; \
-        rm -rf outputs/gerbers && mkdir -p outputs/gerbers \
+    # the final DRC (after the pours) gates everything below: no Gerbers from a board with violations
+    kc "kicad-cli pcb drc --schematic-parity --severity-all --exit-code-violations --format report -o outputs/drc.rpt voxhub.kicad_pcb \
+        && rm -rf outputs/gerbers && mkdir -p outputs/gerbers \
         && kicad-cli pcb export gerbers -o outputs/gerbers/ --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,B.Paste,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts --subtract-soldermask --no-protel-ext voxhub.kicad_pcb \
         && kicad-cli pcb export drill -o outputs/gerbers/ --format excellon --excellon-separate-th --generate-map --map-format gerberx2 --drill-origin absolute voxhub.kicad_pcb \
         && kicad-cli pcb export pos -o outputs/voxhub_pos.csv --format csv --units mm --side both --exclude-dnp voxhub.kicad_pcb \
@@ -55,13 +68,14 @@ outputs() {
         && kicad-cli pcb render -o outputs/render_top.png --side top --width 2000 --height 1500 --quality high voxhub.kicad_pcb \
         && kicad-cli pcb render -o outputs/render_bottom.png --side bottom --width 2000 --height 1500 --quality high voxhub.kicad_pcb \
         && kicad-cli pcb render -o outputs/render_iso.png --rotate '-55,0,25' --zoom 0.9 --width 2000 --height 1500 --quality high voxhub.kicad_pcb"
-    # track / via statistics incl. the USB pair lengths, and the DRC once more with the waived checks switched on
-    kc "python3 gen/build_pcb.py stats /work/hardware 2>/dev/null | grep -v '^$' > outputs/routing_stats.txt; \
+    # track / via statistics incl. the USB pair lengths ("stats" fails if a pair is not matched or cannot be traced),
+    # and the DRC once more with the waived checks switched on (the project file is put back in any case)
+    kc "set -o pipefail; python3 gen/build_pcb.py stats /work/hardware | grep -v '^\$' > outputs/routing_stats.txt; rc=\$?; \
         python3 -c \"import json; d = json.load(open('gen/project_settings.json')); s = d['board']['design_settings']['rule_severities']; \
 [s.__setitem__(k, 'warning') for k in ('silk_edge_clearance', 'silk_over_copper', 'silk_overlap', 'footprint_type_mismatch', 'lib_footprint_mismatch')]; \
 json.dump(d, open('voxhub.kicad_pro', 'w'), indent=2)\" \
-        && kicad-cli pcb drc --schematic-parity --severity-all --format report -o outputs/drc_waived_checks_enabled.rpt voxhub.kicad_pcb; \
-        cp gen/project_settings.json voxhub.kicad_pro"
+        && kicad-cli pcb drc --schematic-parity --severity-all --format report -o outputs/drc_waived_checks_enabled.rpt voxhub.kicad_pcb || rc=1; \
+        cp gen/project_settings.json voxhub.kicad_pro; cat outputs/routing_stats.txt; exit \$rc"
     python3 "${HW}/gen/make_bom.py" "${HW}/gen/model_netlist.json" "${OUT}"
     (cd "${OUT}" && rm -f voxhub_gerbers.zip && zip -q -r voxhub_gerbers.zip gerbers)
 }

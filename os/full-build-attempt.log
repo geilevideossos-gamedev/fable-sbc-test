@@ -101,3 +101,32 @@ make[1]: *** [Makefile:83: _all] Error 2
 make[1]: Leaving directory 'os/output/haos-src/buildroot'
 make: *** [Makefile:56: voxhub] Error 2
 === exit 2 2026-11-11T13:58:42Z ===
+
+##### 2026-11-11 attempt 5: restart after the util-linux / gnutls / dhcp rebuild (start 14:02:06Z, exit 16:21:19Z), 190 of 218 packages installed
+>>> host-util-linux 2.40.4 Installing to host directory
+>>> libdnet 1.18.0 Installing to target
+>>> linux-firmware 20260410 Installing to target
+>>> host-libevent 2.1.13 Installing to host directory
+>>> host-systemd 256.17 Installing to host directory
+>>> rauc 1.13 Installing to target
+>>> host-bzip2 1.0.8 Installing to host directory
+>>> runc 1.4.3 Installing to target
+>>> tzdata 2026e Installing to target
+>>> wpa_supplicant 2.12 Installing to target
+[...]
+>>> uboot 2026.04 Building
+  HOSTLD  scripts/dtc/dtc
+Package yaml-0.1 was not found in the pkg-config search path.
+Perhaps you should add the directory containing `yaml-0.1.pc'
+yamltree.c:(.text+0x178): undefined reference to `yaml_sequence_start_event_initialize'
+/usr/bin/ld: yamltree.c:(.text+0x183): undefined reference to `yaml_emitter_emit'
+/usr/bin/ld: yamltree.c:(.text+0x20d): undefined reference to `yaml_scalar_event_initialize'
+[... 37 more undefined references to libyaml functions ...]
+collect2: error: ld returned 1 exit status
+make[4]: *** [scripts/Makefile.host:105: scripts/dtc/dtc] Error 1
+make[3]: *** [Makefile:2385: scripts_dtc] Error 2
+make[2]: *** [package/pkg-generic.mk:273: os/output/haos-src/output/build/uboot-2026.04/.stamp_built] Error 2
+make[1]: *** [Makefile:83: _all] Error 2
+make[1]: Leaving directory 'os/output/haos-src/buildroot'
+make: *** [Makefile:56: voxhub] Error 2
+=== exit 2 2026-11-11T16:21:19Z ===

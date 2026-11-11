@@ -2,7 +2,7 @@
 
 Every non-obvious choice, with the reasoning behind it. Newest constraints first, then by subsystem.
 "Verified against datasheet" means checked against the manufacturer document named in [section 9](#9-footprint--pin-out-verification-against-the-datasheets);
-anything that could not be verified is called out in [Open items](#open-items--things-a-human-must-re-check).
+anything that could not be verified is called out in [Open items](#open-items---things-a-human-must-re-check).
 
 ## Revision A1 (second session, 2026-11-11): decision log
 
@@ -22,12 +22,21 @@ Every change, with its reason:
 | 8 | **USB pairs: flow-through ESD links, pad-to-pad length measurement, serpentine matching** (details in 6a) | The requested <= 3.8 mm skew. The old number (sum of all track segments) also counted stubs: measured pad to pad, revision A was at 1.2 / 2.5 / 6.1 mm, not 1.2 / 4.6 / 2.4 mm. |
 | 9 | **Enclosure**: USB-C window 12.4 x 6.3 -> 13.4 x 7.5 mm, USB-A window 15.2 x 16.5 -> 15.6 x 17.0 mm, microSD window shifted 0.425 mm, mute dish 16 x 10 x 1.4 mm, 1 mm relief (dia 35.6) in front of the speaker cone, locating ring 40.8 mm, pedestal ring 13..21 mm | Manufacturer drawings (section 9): the USB-C shell ends flush with the PCB edge, so the plug overmould has to enter the wall; the USB-A flange lip reaches 15.95 mm; the speaker needs >= 0.8 mm in front of the diaphragm and has a dia 23 yoke; frame tolerance +-0.3 mm. GAP_TOP, DEPTH, overhang 2.5 mm and the speaker size were confirmed. |
 | 10 | **Part swaps** (same footprint, equal or better ratings, cheaper or in stock) - list in section 10 | Live DigiKey check of every BOM line. |
-| 11 | **LMR33640ADDAR, 22 uF 1206, 2N7002, TPS2553DBVR kept although out of stock at DigiKey** | No in-stock part with equal or better ratings and the same footprint exists (section 10). Flagged in the BOM instead of silently downgrading. |
+| 11 | **Five lines kept although out of stock at DigiKey** | LMR33640ADDAR, CL31A226KOHNNNE (22 uF) and 2N7002,215: no in-stock part with equal or better ratings and the same footprint exists. TPS2553DBVR: the identical device is in stock as the DBVT reel (+0.16 USD), the BOM names it. CL31B106KBHNNNE (10 uF X7R): an equal part is only available as a 2,000-piece Marketplace item. Flagged in the BOM instead of silently downgrading (section 10). |
 | 12 | **Stand-in 3D models rewritten as coloured STEP assemblies** (CM4 with heat sink, stacked USB-A, slide switch, radio module, ...) | KiCad's STEP export drops colours and the old stand-ins were single boxes; the showcase render and the KiCad renders need to tell metal from plastic. Envelopes follow the drawings. |
 | 13 | **OS full build runs on the host as an unprivileged user; github.com "archive" sources are fetched with git** (`VOXHUB_GITHUB_VIA_GIT=1`) | HAOS's `scripts/enter.sh` and Buildroot refuse to run as root; this environment's egress proxy answers 403 to `github.com/<owner>/<repo>/archive/...` while git access to the same public repositories is allowed. Buildroot still checks every tarball against its hash. Details in os/README.md. |
 | 14 | **Showcase animation rendered with Cycles on the CPU at 4 samples + OpenImageDenoise, 21 s** | No GPU in the build machine: EEVEE through software OpenGL needs about 100 s per frame, Cycles about 11 s with these settings (1260 frames in 3 h 10 min). Details in media/README.md. |
 | 15 | **Mouser data is not live** | mouser.com answers every automated request with HTTP 503 (bot protection) and no API key was available; evading the protection was not attempted. The BOM carries DigiKey live data plus clearly marked search-snippet values for Mouser. |
 | 16 | **OS full build restarted after a self-inflicted stop (attempt 5)**; the four affected Buildroot packages are rebuilt, nothing is patched | Attempt 4 stopped after 3 h at `libblockdev` with `libtool: error: '.../build/util-linux-2.40.4/libuuid.la' is not a valid libtool archive`. Cause: the disk-space helper of this session (outside the repository) had emptied the build directories of finished packages, but the staging `libfdisk.la` / `libmount.la` (and `libdns.la`, `libgnutlsxx.la`) refer back into them. Rewriting the `.la` files would have hidden the mistake in a non-standard build tree, so the directories of `util-linux`, `host-util-linux`, `gnutls` and `dhcp` were deleted (Buildroot rebuilds them) and the helper now skips every directory that a libtool archive points to and anything below 150 MB. The run log is in os/README.md. |
+| 17 | **Independent review of all A1 deliverables before calling them done**: five reviewers (USB lengths re-computed with their own parser, schematic / OS / assistant consistency against the data sheets, BOM and sourcing, documentation and enclosure, build scripts), each finding then attacked by a second agent | 51 findings, 47 confirmed, 4 refuted. The confirmed ones are fixed or, where a fix needs hardware or a production decision, documented (rows 18-24, Open items). The reason for doing it: the first A1 commit claimed a USB result that a plain re-computation disproved. |
+| 18 | **USB pairs re-done: ESD parts turned into a flow-through orientation and swapped left / right, strict pad-to-pad router rules, contact-accurate length measurement** (section 6a) | Port 2 was really 4.9 mm off (limit 3.8 mm) although the report said 0.00 mm: the length measurement followed a loop. New result 0.00 / 0.00 / 0.00 mm, 0 vias, no stubs, confirmed by an independent computation. |
+| 19 | **C10 (220 nF) and C11 (1 uF VCC) get fixed positions directly at the LMR33640 pins** (1.8 mm, were 8.4 mm and 6 mm away) | The data sheet demands the 220 nF bypass "as close as possible to the regulator"; the greedy placer had put the larger capacitors first. Review finding. The rest of the power stage is still auto-placed (Open items). |
+| 20 | **New autorouter session; Freerouting is started up to three times** and the session file is checked | Freerouting 2.0.1 twice routed the board and then left an empty session file (busy machine; the passes in its log were identical to a good run). `build.sh` used to copy that empty file over the checked-in session. |
+| 21 | **Radio UART is `/dev/ttyAMA4`, not `ttyAMA1`**; openocd reset recipe changed to push-pull | The kernel HAOS 18.5 pins has fixed serial aliases (`serial4 = &uart4`). With `srst_open_drain` openocd never drives GPIO24 high, so the active-high reset would never be asserted. Review findings; text only, no hardware change. |
+| 22 | **Build scripts fail loudly**: `build.sh outputs` stops on DRC violations and when a USB pair is unmatched or untraceable; `postroute.sh` treats a missing measurement as failed and gives up when the repair loop stops making progress; `os/build-image.sh` checks for root before creating anything, makes `--out` absolute, writes git-made tarballs under a temporary name and aborts before the build when a source could not be fetched or has the wrong hash | Review findings: each of these paths could end "successfully" with a wrong or missing result. |
+| 23 | **BOM honesty fixes**: Mouser part numbers that were only built from Mouser's prefix scheme are marked as such (18 of 37); unit prices keep four decimals so that quantity x price reproduces the extended price; the 220 nF line says that DigiKey shows no stock figure; the Cal-Chip alternate is described as what it is (2,000-piece Marketplace minimum); crystal stability figures corrected | Review findings. Totals did not change. |
+| 24 | **Section 9 completed**: crystal row verified against the Epson-hosted brief, 2N7002 row added (mirror of the Nexperia sheet), generic passives row now says plainly that no manufacturer document was read | Review finding: README claimed "every row verified" while two rows were not. |
+| 25 | **OS host build: Buildroot's `host-libyaml` is built first when the host has `libyaml-dev`** | Attempt 5 of the full build stopped in U-Boot's host dtc: it found the host's `/usr/include/yaml.h` but not the library through Buildroot's pkg-config. Upstream host leak that the HAOS builder container does not have; the script now works around it instead of telling the user to uninstall a package. |
 
 ## 0. Constraints of the environment this was designed in
 
@@ -46,8 +55,8 @@ What was still blocked in the second session (2026-11-11):
 
 | Blocked | Consequence | What was done |
 |---|---|---|
-| mouser.com (HTTP 503 for every automated request), octopart / trustedparts / findchips (403) | no live Mouser stock or prices | DigiKey is live for every line; Mouser part numbers and figures come from search-engine snippets and are marked "NOT live" in the BOM. A Mouser API key would close this. |
-| silabs.com, hirose.com, the Littelfuse-hosted C&K data sheet, analog.com land-pattern document (403 / unreachable) | four documents could not be read from the manufacturer's own server | the manufacturer's PDF was read from a mirror (SparkFun, distributor document servers); revision and mirror URL are listed per part in section 9 |
+| mouser.com (HTTP 503 for every automated request), octopart / trustedparts / findchips (403) | no live Mouser stock or prices | DigiKey is live for every line; Mouser part numbers and figures come from search-engine snippets, 18 of the 37 part numbers are only built from Mouser's prefix scheme or carried over from the first session - both kinds are marked in the BOM ("NOT live" / "not seen on mouser.com"). A Mouser API key would close this. |
+| silabs.com (MGM240P), hirose.com (DF40, DM3AT), littelfuse.com (C&K JS, SMBJ), analog.com (ADAU7002, MAX98357A), st.com (USBLC6-2), nexperia.com (2N7002) - 403 / unreachable | nine documents could not be read from the manufacturer's own server | the manufacturer's PDF was read from a mirror (SparkFun, distributor document servers); revision and mirror URL are listed per part in section 9 |
 | `github.com/<owner>/<repo>/archive/...` tarballs (403 from the egress proxy; git access to the same repositories works) | 37 source packages of the HAOS build cannot be downloaded the normal way | `os/build-image.sh` fetches them with git when `VOXHUB_GITHUB_VIA_GIT=1` (section 7) |
 | no GPU, 4 CPU cores, 30 GB disk | render time and OS build are the bottlenecks | Cycles at 4 samples + denoiser for the animation; build directories of finished Buildroot packages are pruned during the OS build |
 
@@ -74,9 +83,11 @@ CM5 (higher power, would need 5 V/5 A and has no advantage for a cloud-LLM voice
 - **USB-C PD sink: Infineon CYPD3177 (EZ-PD BCR)**. Fully autonomous, configured by resistor straps - no
   firmware and no NVM programming step in production (an STUSB4500 would boot at 5 V until its NVM is
   programmed; FUSB302 needs a host MCU that is not powered yet).
-- **Negotiated voltage: 9 V minimum, 20 V maximum, 2 A minimum.** Peak load on the 5 V rail is ~3.3 A = 16.8 W,
-  i.e. 18.3 W at the connector (see power budget in README). 5 V/3 A (15 W) is not enough, so 5 V is excluded;
-  9 V/2 A = 18 W is the smallest PDO that works, and practically every >= 20 W PD charger offers it.
+- **Negotiated voltage: 9 V minimum, 20 V maximum, 2 A minimum.** The theoretical simultaneous peak on the 5 V
+  rail is ~3.5 A = 17.6 W, i.e. 19.5 W at the connector (power budget in README); realistic operation stays below 12 W.
+  5 V/3 A (15 W) is not enough, so 5 V is excluded; 9 V/2 A = 18 W is the smallest PDO that is accepted - it covers
+  realistic operation and practically every >= 20 W PD charger offers it, but the theoretical peak is 8 % above it
+  (README: use a 27 W charger if both USB ports feed 500 mA devices).
   **PDO selection (verified):** the BCR walks through the source PDOs from the highest voltage down and takes the first
   one inside VBUS_MIN..VBUS_MAX that offers at least ISNK_COARSE + ISNK_FINE (CY4533 kit guide 002-25263 *B, section
   "PDO selection"; datasheet 002-25383 *C section 4.1). A 30 W charger with 20 V / 1.5 A, 15 V / 2 A, 9 V / 3 A therefore
@@ -96,7 +107,7 @@ CM5 (higher power, would need 5 V/5 A and has no advantage for a cloud-LLM voice
   load 4.7 A, well below Isat. EN divider 470k / 100k: on at 7.02 V, off at 6.45 V.
   36 V rating leaves margin over 20 V + TVS clamp. Internally compensated -> few parts.
   Revision A was set to 5.1 V "to absorb drops"; that put the tolerance corners above the CM4's 5.25 V limit (see log no. 2).
-- **3.3 V**: taken from the CM4's own 3.3 V output (600 mA budget, ~375 mA worst case used), exactly as the
+- **3.3 V**: taken from the CM4's own 3.3 V output (600 mA budget, ~520 mA worst case used), exactly as the
   official CM4IO board does. This removes a regulator and all power-sequencing/back-powering questions.
 - TVS SMBJ22A on VBUS, 24 V ESD diodes on CC1/CC2. Known margin: at its full rated surge (16.9 A) the SMBJ22A clamps
   at 35.5 V - below the LMR33640's 38 V, but above the 30 V absolute maximum of the CYPD3177 and the AO3401A. Hot-plug
@@ -137,7 +148,8 @@ CM5 (higher power, would need 5 V/5 A and has no advantage for a cloud-LLM voice
 - **Silicon Labs MGM240PB32VNA3** (EFR32MG24, +20 dBm, built-in antenna, pre-certified). EFR32 NCPs are the
   best-supported coordinators in Home Assistant (ZHA "EZSP", same family as Connect ZBT-2), and the module also
   runs OpenThread RCP firmware.
-- UART4 on GPIO8-11 with RTS/CTS (`dtoverlay=uart4,ctsrts` -> `/dev/ttyAMA1`); pin assignment as in the datasheet's
+- UART4 on GPIO8-11 with RTS/CTS (`dtoverlay=uart4,ctsrts` -> `/dev/ttyAMA4`: the Raspberry Pi kernel that HAOS 18.5
+  pins has fixed serial aliases, `serial4 = &uart4`, and the PL011 driver numbers the port after the alias); pin assignment as in the datasheet's
   NCP reference diagram (fig. 5.1): TX = PA05, RX = PA06, RTS = PA07 (-> GPIO10 / CTS4), CTS = PA08 (<- GPIO11 / RTS4).
 - Reset: GPIO24 drives an open-drain 2N7002 on RESETn (**GPIO24 high = radio held in reset**). The module's reset pin has
   its own pull-up and must only ever be pulled low, so there is no external pull-up and no capacitor on it. The SoC's
@@ -180,22 +192,44 @@ CM5 (higher power, would need 5 V/5 A and has no advantage for a cloud-LLM voice
   nets are re-routed after everything else as 0.2 mm traces (about 45 ohm over a 0.1 mm prepreg -> ~90 ohm uncoupled differential).
   True coupled-pair routing was not attempted: the pin order at the CM4 socket would force a polarity crossover, and a scripted
   pair router with via swaps was out of proportion for a few centimetres of USB 2.0.
-- **USB length matching (revision A1)**, all in `gen/build_pcb.py`:
-  1. *Flow-through ESD links.* Each USBLC6-2SC6 has two pads per line (1+6, 3+4). They are joined by a locked straight track under
-     the package (ST's flow-through layout), and the router is only allowed to connect hub pin and connector pin to **different**
-     ESD pads, pad to pad. The line therefore runs connector -> ESD pad -> link -> other ESD pad -> hub without any stub.
-  2. *Electrical length.* `usb_report()` builds the copper graph of each net and measures the shortest path from the hub pin to the
-     connector pin, counting 1.5 mm per via. The old statistic (sum of all segments) is still printed as "copper-diff".
-  3. *Serpentines.* `tune_usb()` adds 45-degree-mitred meander bumps (0.6 mm pitch = 3 x track width, amplitude 0.3..3 mm) to the
-     shorter line of each pair, only where the copper keeps 0.17 mm to everything else, until the path lengths agree.
-  4. `postroute.sh` tries several net orders; a variant is accepted only if KiCad's DRC is clean again after tuning and both
-     numbers (pad-to-pad skew and copper difference) are below 3.8 mm.
+- **USB length matching (revision A1, redone after the review - log no. 18)**, all in `gen/build_pcb.py`:
+  1. *Placement for a flow-through layout.* The two USBLC6-2SC6 sit between hub and connector, turned so that one pad row
+     (4, 5, 6) faces the hub and the other (3, 2, 1) the connector, D+ on the left and D- on the right in both rows - the
+     same order as the hub pins and the connector pins. Port 2 is on the left, port 1 on the right, like the hub pins.
+     No line has to cross another one or change layer. (The first A1 layout had the parts turned by 90 degrees, pad
+     columns left / right: whichever line was laid first cut the other one off from its pad.)
+  2. *Flow-through ESD links.* The two pads of one line (1+6, 3+4) are joined by a locked straight track under the
+     package (ST's flow-through layout). `ESD_ROLE` fixes which pad each side uses: 6 / 4 for the hub, 1 / 3 for the
+     connector.
+  3. *Router rules for the six data nets* (`patch()`): a line is always laid pad to pad from scratch (left-over copper
+     of an earlier attempt is discarded first, the autorouter's USB tracks are discarded in `finish()`); the hub side
+     first; the line's own copper and its other ESD pad are obstacles, so it can neither cross itself nor run over a
+     pad it does not end on; a lane is kept free next to the ESD pads of the partner line; other tracks are ripped up
+     before a layer change is considered; no other net may rip up USB copper. A join that cannot keep these rules
+     fails, and the variant is discarded, instead of producing a stub.
+  4. *Electrical length.* `usb_report()` builds the copper graph of each net and measures the shortest path from the
+     hub pin to the connector pin, 1.5 mm per via. The graph joins copper wherever it really touches (crossing centre
+     lines, a track over a pad or through a via land, overlapping track ends), not only at track end points. It also
+     reports the skew with vias counted as 0 (the via length is an estimate), the pads the path runs through, and the
+     copper of the net that is not on the path ("off-path": stubs, loops).
+  5. *Serpentines.* `tune_usb()` adds 45-degree-mitred meander bumps (0.6 mm pitch = 3 x track width, amplitude
+     0.3..3 mm) to the shorter line of each pair, only where the copper keeps 0.17 mm to everything else (0.4 mm to
+     its own net), until the path lengths agree.
+  6. `postroute.sh` tries up to six net orders and keeps the best: the score is the worst of skew, skew with vias
+     counted as 0 and off-path copper. A missing measurement counts as failed, and `stats` (called by `build.sh
+     outputs`) exits non-zero above 3.8 mm.
 
-  Result (`hardware/outputs/routing_stats.txt`): upstream 33.62 / 33.62 mm, port 1 27.55 / 28.90 mm, port 2 25.41 / 25.41 mm
-  -> skew 0.00 / 1.35 / 0.00 mm; copper difference 1.86 / 0.56 / 0.39 mm. Port 1 is not matched to zero because the area
-  between hub, ESD device and connector has no room for the last 1.35 mm of meander at the required clearance - still
-  well inside the 3.8 mm guideline (about 9 ps). The price of the stub-free topology is length: the port lines are
-  25-29 mm instead of 16-24 mm, and port 2 has 4 vias on one line and none on the other.
+  Result (`hardware/outputs/routing_stats.txt`): upstream 30.99 / 30.99 mm, port 1 11.21 / 11.21 mm, port 2
+  15.17 / 15.17 mm -> skew 0.00 / 0.00 / 0.00 mm; all six lines on F.Cu without a single via; path of every
+  downstream line: hub pin > ESD pad > ESD pad > connector pin; off-path copper <= 0.05 mm (track ends inside pads).
+  An independent re-computation with a separate parser (review scripts, not in the repository) gives 30.995 / 30.986,
+  11.253 / 11.242 and 15.215 / 15.215 mm, no crossings, no T-junctions, no duplicate USB segments.
+
+  *What was wrong before:* the first A1 board reported 0.00 / 1.35 / 0.00 mm. The measurement only joined copper at
+  track end points; on port 2 the hub-side track of D- crossed the connector-side track of the same net next to an ESD
+  pad, the metric measured the long way round the resulting 4.9 mm loop, and the tuner matched the pair to that wrong
+  length. The real skew of port 2 was 4.9 mm, above the 3.8 mm limit, and three of the four downstream lines had stubs
+  of 1 .. 2.3 mm. The independent review found it by re-computing the lengths from the board file.
 - Two pcbnew scripting pitfalls that cost time and are worth knowing: `BOARD.Save()` rewrites the `.kicad_pro` with default design
   rules (the build restores `gen/project_settings.json` after every save), and KiCad orders tracks by random UUID on save, which made
   the patch router non-deterministic until tracks were sorted canonically.
@@ -241,7 +275,7 @@ manufacturer's own server refused the download, the same manufacturer PDF was re
 | CM4 socket Hirose DF40C-100DS-0.4V(51) | Hirose DF40 catalogue, edition 2013.11, via mirror https://cdn-shop.adafruit.com/product-files/2227/ed_DF40_20140305-337786.pdf (hirose.com not reachable) | **verified against datasheet** - land pattern, 1.5 mm mated height, 1.5 mm spacer. Note: the inward power stubs cross Hirose's "layout prohibited area" between the pad rows exactly as on the official CM4IO board. |
 | CYPD3177-24LQXQ | https://www.infineon.com/assets/row/public/documents/24/49/infineon-cypd3177-24lqxq-datasheet-en.pdf (002-25383 Rev. *C, 2024-09-18); kit guide 002-25263 Rev. *B https://www.infineon.com/assets/row/public/documents/24/44/infineon-cy4533-ez-pd-barrel-connector-replacement-evk-guide-usermanual-en.pdf | **verified against datasheet** - pin-out, QFN-24 land pattern, active-low P-FET driver, FLIP 49.9k, I2C 0x08, unused pins, all four strap dividers = table values, PDO selection algorithm. **Deviation found and fixed:** VDDD decoupling (1 uF X7R 0603 + 2 x 100 nF instead of 1 uF X5R 0402 + 100 nF). Note: the single-FET gate network differs from the two-FET reference circuit - measure VGS at 9 V and 20 V on the prototype. |
 | LMR33640ADDA | https://www.ti.com/lit/ds/symlink/lmr33640.pdf (SNVSB99C, rev. November 2020) | **verified against datasheet** - pin-out, HSOIC-8 PowerPAD land pattern, "A" = 400 kHz / 4 A, EN thresholds (UVLO 7.02 V / 6.45 V), CBOOT, CVCC; L = 6.8 uH and COUT = 4 x 22 uF are the table row for 5 V / 400 kHz. **Deviations found and fixed:** RFBB 24.3k -> 24.9k, CHF 100 nF -> 220 nF X7R, CIN X5R -> X7R (log no. 2, 3). |
-| Bourns SRP7028A-6R8M | https://www.bourns.com/docs/Product-Datasheets/SRP7028A.pdf | **verified against datasheet** - 6.8 uH, Isat 8 A, Irms 4.5 A, DCR 54 typ / 60 max mOhm, footprint. |
+| Bourns SRP7028A-6R8M | https://www.bourns.com/docs/Product-Datasheets/SRP7028A.pdf (REV. 06/24) | **verified against datasheet** - 6.8 uH, Isat 8 A, Irms 4.5 A, DCR 54 typ / 60 max mOhm, footprint. |
 | USB2514B-I/M2 | https://ww1.microchip.com/downloads/aemDocuments/documents/UNG/ProductDocuments/DataSheets/USB251xB-xBi-Data-Sheet-DS00001692.pdf (DS00001692E) | **verified against datasheet** - pin-out, CFG_SEL = 00, NON_REM, port disable by 10k to 3.3 V, PRTPWR / OCS polarity, VBUS_DET, RBIAS 12k 1 %, 24 MHz crystal + load capacitors, filter capacitors. **Deviation found and fixed:** RESET_N (log no. 5). Accepted: the KiCad QFN-36 pads are 0.825 mm long, Microchip recommends 0.90 mm (79 % of the terminal is covered; pitch, exposed pad and numbering match). |
 | TPS2553DBV | https://www.ti.com/lit/ds/symlink/tps2553.pdf (SLVS841G, October 2026) | **verified against datasheet** - pin-out, active-high EN, open-drain FAULT, 2.5-6.5 V input, ILIM equation (20k -> 1.215 / 1.295 / 1.375 A, 49.9k -> 0.49 / 0.52 / 0.55 A). |
 | MAX98357AETE+ | Maxim 19-6779 Rev 7 (original PDF via https://cdn-shop.adafruit.com/product-files/3006/MAX98357A-MAX98357B.pdf), cross-checked with Rev 13 | **verified against datasheet** - TQFN-16 pin-out, SD_MODE at 3.3 V = left channel, GAIN_SLOT open = 9 dB, 2.5-5.5 V, package outline. The separate land-pattern document 90-0031 could not be retrieved. |
@@ -252,45 +286,54 @@ manufacturer's own server refused the download, the same manufacturer PDF was re
 | USB-A Wurth 61400826021 | https://www.we-online.com/components/products/datasheet/61400826021.pdf (Rev. 001.001, 2025-09-11) | **verified against datasheet** - footprint and drills, shell height 15.34 mm, flange 14.5 x 15.5 mm with lips at 0.45 / 15.95 mm, 2.5 mm overhang beyond the PCB edge. |
 | microSD Hirose DM3AT-SF-PEJM5 | Hirose drawing EDC-325165-40-00 for the (40) variant, via mirror https://static.chipdip.ru/lib/504/DOC014504844.pdf (hirose.com not reachable) | **verified against datasheet** - footprint, body 13.85 x 15.95 x 1.68 mm, card positions (locked: 1.6 mm behind the enclosure face). |
 | C&K JS202011JCQN | C&K "JS series" data sheet, edition 22 Sep 2022, via mirror https://static.chipdip.ru/lib/994/DOC043994900.pdf (the current Littelfuse-hosted edition refuses downloads) | **verified against datasheet** - land pattern, body 9.0 x 3.6 x 3.5 (3.6) mm, actuator 1.5 x 1.5 x 2.0 mm, 2 mm travel. The drawing has no body tolerances. |
-| JST B2B-PH-K-S | https://www.jst-mfg.com/product/pdf/eng/ePH.pdf | **verified against datasheet** - footprint, 6.0 mm height. |
+| JST B2B-PH-K-S | https://www.jst-mfg.com/product/pdf/eng/ePH.pdf (catalogue page, carries no revision) | **verified against datasheet** - footprint, 6.0 mm height. |
 | Wurth 9774015151R | https://www.we-online.com/components/products/datasheet/9774015151R.pdf (Rev. 001.002) | **verified against datasheet** - land pattern, 1.5 mm height, M2.5 thread (2.9 mm long). |
 | AO3401A | https://www.aosmd.com/sites/default/files/res/datasheets/AO3401A.pdf (Rev 3.1) | **verified against datasheet** - SOT-23 G / S / D = 1 / 2 / 3, VDS -30 V, VGS +-12 V. |
 | USBLC6-2SC6 | ST USBLC6-2 data sheet Rev 3 (2008) via mirror https://pccomponents.com/datasheets/ST_MI-USBLC62SC6.pdf | **verified against datasheet** (old revision) - pins 1 + 6 and 3 + 4 are one line each, 5 = VBUS, 2 = GND. |
-| SMBJ22A | Littelfuse SMBJ series data sheet (rev. 2020-06-03, mirror on e2e.ti.com) | **verified against datasheet** - 22 V stand-off, 24.4-26.9 V breakdown, 35.5 V clamp at 16.9 A (margin note in section 2). |
+| SMBJ22A | Littelfuse SMBJ series data sheet, rev. 2020-06-03, via mirror https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/196/Littelfuse_5F00_TVS_5F00_Diode_5F00_SMBJ_5F00_Datasheet.pdf_2D00_1108540.pdf (littelfuse.com refuses the download) | **verified against datasheet** - 22 V stand-off, 24.4-26.9 V breakdown, 35.5 V clamp at 16.9 A (margin note in section 2). |
 | MM3Z10V / SZMM3Z10VT1G | https://www.onsemi.com/pdf/datasheet/mm3z2v4t1-d.pdf (Rev. 15) | **verified against datasheet** |
 | Speaker Same Sky CMS-4017-34SP | https://www.sameskydevices.com/product/resource/cms-4017-34sp.pdf (rev 1.02) | **verified against datasheet** - dia 40 +-0.3 x 17.5 +-0.3 mm, yoke dia 23, 4 ohm, 3 W, baffle opening dia 35.6 with >= 0.8 mm in front of the diaphragm. |
 | Heat sink Same Sky HSB03-141406 | https://www.sameskydevices.com/product/resource/hsb03-141406.pdf (rev 1.03) | **verified against datasheet** - 14 x 14 x 6 mm. |
-| Crystal Epson TSX-3225 24.0000MF18X-C0 | Epson TSX-3225 specification (pad assignment only seen in distributor copies of the Epson sheet) | pads 1 / 3 = crystal, 2 / 4 = GND as on the footprint; CL 18 pF. **Not verified against an Epson-hosted document** - compare with the reel label / Epson sheet before assembly. |
-| Passives, LEDs (0402 / 0603 / 1206 / SOD-323 / SMB / reverse-mount 1206) | KiCad standard footprints named after the package | standard IPC land patterns; values and ratings checked on the DigiKey product pages (section 10). |
+| Crystal Epson TSX-3225 24.0000MF18X-C0 | https://download.epsondevice.com/td/pdf/brief/TSX-3225_en.pdf (Epson brief, PDF dated 2026-10-14) | **verified against datasheet** - 3.2 x 2.5 x 0.6 mm, internal connection: #1 / #3 crystal, "#2 and #4 are connected to the cover (Please connect to ground)" as on the footprint; f_tol +-10 ppm, +-10 ppm over -20..+75 C; CL is part of the order code (F18 = 18 pF -> 2 x 27 pF). The recommended land pattern (2.2 mm pitch) matches KiCad's `Crystal_SMD_3225-4Pin`. |
+| 2N7002,215 (Q2, Q3: LED drivers; Q4: radio reset) | Nexperia 2N7002 product data sheet Rev. 7 (8 September 2011), via mirror https://datasheet.chipsmall.com/2N7002-215/143966.pdf (nexperia.com refuses automated downloads; the product page lists a 2018 edition that could not be retrieved) | **verified against datasheet** (old revision) - SOT23 pinning 1 = G, 2 = S, 3 = D as in `design.py`; VDS 60 V, VGS +-30 V; VGS(th) 1.0 / 2.0 / 2.5 V at 0.25 mA (2.75 V max at -55 C), so the 3.3 V GPIO level turns it on with margin for the 75 uA of the 44k RESETn pull-up and the LED currents; RDSon 5.3 ohm max at 4.5 V. |
+| Passives, diodes, LEDs (0402 / 0603 / 1206 chip, EIA-3528 polymer tantalum, SOD-323, SMB, 0603 and reverse-mount 1206 LEDs), 1 x 3 pin header J5 (DNP), Tag-Connect TC2030-NL pads J8, test points, solder jumper | KiCad 9 standard library footprints named after the package - **no manufacturer document was read for these** | **not individually verified:** standard IPC / KiCad land patterns; values, ratings and packages were checked on the DigiKey product pages (section 10); polarity marks (tantalum, diodes, LEDs) follow the KiCad convention pad 1 = cathode / pad 1 = "+" for the tantalum - check on the first article. |
 
 ## 10. Sourcing (live check 2026-11-11)
 
-Every BOM line was looked up on its DigiKey product page (status, stock, price at 1 and 100 pieces); the raw data is in
+Every BOM line was looked up on its DigiKey product page (status, stock, price at 1 and 100 pieces; for one line, the
+220 nF capacitor C10, DigiKey shows status and price but no stock figure); the raw data is in
 `hardware/gen/sourcing_live.json` and ends up in `hardware/outputs/bom.csv`. Rule for swaps: same footprint, every
 rating equal or better, lifecycle Active - and either cheaper or in stock where the old part was not.
 
 | Line | Old part | New part | Reason (USD at 100 pcs, DigiKey) |
 |---|---|---|---|
-| 24 MHz crystal | Abracon ABM8-24.000MHZ-B2-T (0.53) | Epson TSX-3225 24.0000MF18X-C0 (0.30) | cheaper; 10 / 10 ppm instead of 20 / 20 ppm, same 18 pF load, same pads |
-| 10k 1 % 0402 (13 x) | Yageo RC0402FR-0710KL (0.0108) | Walsin WR04X1002FTL (0.0061) | cheaper, identical ratings |
-| 100k 1 % 0402 (13 x) | Yageo RC0402FR-07100KL (0.0108) | Stackpole RMCF0402FT100K (0.0091) | cheaper, identical ratings |
+| 24 MHz crystal | Abracon ABM8-24.000MHZ-B2-T (0.53) | Epson TSX-3225 24.0000MF18X-C0 (0.30) | cheaper; +-10 ppm tolerance and +-10 ppm over -20..+75 C (Epson brief; DigiKey lists +-18 ppm over -40..85 C) instead of +-20 / +-50 ppm, same 18 pF load, same pads |
+| 10k 1 % 0402 (11 x) | Yageo RC0402FR-0710KL (0.0108) | Walsin WR04X1002FTL (0.0061) | cheaper, identical ratings |
+| 100k 1 % 0402 (14 x) | Yageo RC0402FR-07100KL (0.0108) | Stackpole RMCF0402FT100K (0.0091) | cheaper, identical ratings |
 | 49.9k 1 % 0402 | Yageo RC0402FR-0749K9L (0 in stock) | Stackpole RMCF0402FT49K9 (0.0096) | in stock and cheaper |
 | 24.9k 1 % 0402 | (new value, was 24.3k) | Stackpole RMCF0402FT24K9 (0.0091) | value change (log no. 2) |
 | 1 uF 50 V X5R 0603 | Samsung CL10A105KB8NNNC (0 in stock) | TDK C1608X5R1H105K080AB (0.058) | in stock, identical ratings |
 | 100 nF 50 V X7R 0603 | Samsung CL10B104KB8NNNC (0 in stock) | KEMET C0603C104K5RACTU (0.046) | in stock, identical ratings |
 | 4.7 uF X5R 0603 | Samsung CL10A475KO8NNNC 16 V (0 in stock) | TDK C1608X5R1E475K080AC 25 V (0.091) | in stock, higher voltage rating |
 | 1 uF 16 V | Samsung CL05A105KO5NNNC X5R 0402 | TDK C1608X7R1C105K080AC X7R 0603 (0.041) | datasheet finding (log no. 4): footprint changes on purpose |
-| 10 uF 50 V 1206 | Samsung CL31A106KBHNNNE X5R | Samsung CL31B106KBHNNNE X7R (0.168) | datasheet finding (log no. 3); 0 in stock at DigiKey, alternates in the BOM |
-| 220 nF 50 V X7R 0603 | (new) | Murata GRM188R71H224KAC4D (0.052) | datasheet finding (log no. 3) |
+| 10 uF 50 V 1206 | Samsung CL31A106KBHNNNE X5R | Samsung CL31B106KBHNNNE X7R (0.168) | datasheet finding (log no. 3); 0 in stock at DigiKey, see below |
+| 220 nF 50 V X7R 0603 | (new) | Murata GRM188R71H224KAC4D (0.052) | datasheet finding (log no. 3); Active, 17 weeks lead time, **the DigiKey page shows no stock figure** (looked up twice) |
 | 10 V zener SOD-323 | onsemi MM3Z10VT1G (0 in stock) | onsemi SZMM3Z10VT1G (0.109) | same die, AEC-Q101 grade, in stock |
 
-Not swapped although a cheaper or in-stock candidate exists, because a rating would go down:
+Not swapped although a cheaper or in-stock candidate exists - because a rating would go down, or (TPS2553, 10 uF) because
+the in-stock alternative is the same part in another packing unit and only changes the order code:
 
 - **2N7002,215** (0 in stock): 2N7002BK,215 is in stock and 0.3 cent dearer, but VGS is +-20 V instead of +-30 V.
 - **22 uF 16 V X5R 1206, CL31A226KOHNNNE** (0 in stock): the TDK part in stock is +-20 % instead of +-10 %, the Samsung
   part in stock is only 0.85 mm thick (worse DC bias).
 - **TPS2553DBVR** (0 in stock until mid-December): AP22653W6-7 is a third of the price but only rated 3.0-5.5 V and
-  Diodes AP2553W6-7 is NRND. TPS2553DBVT is the same die on a small reel (in stock, +0.16 USD each).
+  Diodes AP2553W6-7 is NRND. **TPS2553DBVT is the identical device on the 250-piece reel (296-23990-1-ND, 2,503 in
+  stock, +0.16 USD each): order that if boards are built before the DBVR reel is back.** The BOM keeps the DBVR order
+  code because it is the cheaper one for production.
+- **10 uF 50 V X7R 1206, CL31B106KBHNNNE** (0 in stock): the only equal-rating part DigiKey can ship is Cal-Chip
+  GMC31X7R106K50NT, a Marketplace item with a 2,000-piece minimum (0.403 USD each, separate shipping) - fine for
+  production, useless for prototypes. TDK C3216X7R1H106K160AC is expected in February 2027. For a prototype the X5R part
+  of revision A (CL31A106KBHNNNE) can be fitted; it loses more capacitance under bias and at temperature.
 - **0603 green LED**: Kingbright APT1608CGCK is 2.7 cents cheaper but has a narrower viewing angle.
 - **LMR33640ADDAR** (0 in stock, 26 weeks): no pin-compatible 4 A / 400 kHz part exists; the 1 MHz version
   LMR33640DDDAR is in stock and would need L1 = 3.3 uH (same footprint) - documented as plan B, not applied.
@@ -316,6 +359,8 @@ Cost per unit (DigiKey, 2026-11-11): see the cost summary in README.md.
 - Encoding: H.264 High, yuv420p, CRF 17, converted with the BT.709 matrix and tagged as BT.709 limited range. The first
   encode used ffmpeg's defaults (BT.601 matrix, no tags), which HD players decode as BT.709 - the board came out a
   darker green than rendered. Found by the review, re-encoded from the same frames.
+- The video in the repository was rendered before the review fixes moved 19 small parts and re-routed the board; the
+  still image was re-rendered from the final board, the PCB frames of the video are re-rendered separately (TODO.md).
 - `build_showcase.sh` checks its tools before the long render, runs Blender with `--python-exit-code` and refuses to
   encode while a frame is missing; a frame only counts as rendered when the PNG is complete (IEND chunk). Blender 5 is
   refused: the script uses the pre-5.0 animation API and was only run with 4.5.16.
@@ -332,23 +377,31 @@ Closed in the second session (kept here so the history is visible):
 4. ~~Mechanical dimensions~~ - Wurth 61400826021, JS202011JCQN and the speaker checked against the drawings, enclosure
    updated (log no. 9).
 5. ~~MGM240P antenna keep-out~~ - identical to the Silicon Labs figure.
-6. ~~USB skew~~ - all pairs matched, see hardware/outputs/routing_stats.txt.
+6. ~~USB skew~~ - all pairs matched to 0.00 mm, stub-free, no vias; verified by an independent re-computation
+   (section 6a, log no. 18). The first A1 result was wrong for port 2 (4.9 mm).
 7. ~~Stock and prices~~ - DigiKey is live. **Mouser is not** (see below).
 
 Still open:
 
 1. **Mouser stock and prices are not live** (bot protection, no API key). Re-check the Mouser column of the BOM by hand.
-2. **Stock risks:** LMR33640ADDAR (0 at DigiKey, 26 weeks), MGM240PB32VNA3 (71 pieces, 30 weeks), CL31B106KBHNNNE and
-   CL31A226KOHNNNE (0 at DigiKey), CM4104000 (576 pieces, 95 USD, purchase limit). Order these first or use the
-   alternates named in the BOM.
+2. **Stock risks.** Five lines were at 0 stock at DigiKey on 2026-11-11: LMR33640ADDAR (26 weeks), CL31A226KOHNNNE
+   (22 uF) and 2N7002,215 have no in-stock drop-in with equal ratings; TPS2553DBVR is available as the DBVT reel;
+   CL31B106KBHNNNE (10 uF X7R) only as a 2,000-piece Marketplace item. No stock figure is shown for the 220 nF
+   capacitor GRM188R71H224KAC4D (17 weeks lead time). Thin: MGM240PB32VNA3 (71 pieces, 30 weeks), CM4104000 (576
+   pieces, 95 USD, purchase limit). Order these first or use the alternates named in the BOM and in section 10.
 3. **Documents read from mirrors** (manufacturer server refused the download): MGM240P Rev. 1.0 (Rev. 1.2 exists),
    Hirose DF40 and DM3AT, C&K JS (2022 edition), ADAU7002, MAX98357A Rev 7 / 13 (Rev 16 exists), USBLC6-2 (2008
-   revision), SMBJ. Pin-outs and land patterns do not change between such revisions, but compare once with the current
-   sheets. The Epson crystal's pad assignment was only seen in distributor copies.
+   revision), SMBJ, 2N7002 (Rev. 7 of 2011; a 2018 edition exists) - nine documents. Pin-outs and land patterns do not
+   change between such revisions, but compare once with the current sheets. Generic passives, diodes, LEDs, the pin
+   header and the Tag-Connect pads use KiCad standard footprints and were not checked against a manufacturer document
+   (last row of section 9).
 4. **Dimensions scaled from drawings, not dimensioned:** USB-A flange lip (0.45 / 15.95 mm), speaker terminal position
    and yoke edge; the C&K drawing gives no body tolerance. A test print is still the first step.
 5. **USB 2.0 data lines are matched single-ended 0.2 mm traces, not coupled pairs.** The 90 ohm target depends on the
    0.10 mm outer prepreg called out in the fab notes; measure on the first prototypes.
+   **Buck layout:** the 220 nF bypass and the VCC capacitor are at the regulator pins (1.8 mm), but the rest of the power
+   stage is placed by the automatic placer: bulk input capacitors 3.5 .. 7.4 mm from VIN / PGND, boot capacitor 4 .. 6 mm
+   from BOOT / SW. Have a layout engineer look at the hot loop before a production spin.
 6. **Firmware consequences of revision A1:** the radio reset is active high on GPIO24, and RTS / CTS follow the Silicon
    Labs reference assignment (PA07 / PA08) - use an NCP / RCP build with that pin-out.
 7. Nothing here has been powered on. Treat revision A1 as a prototype spin.

@@ -10,20 +10,29 @@ RPT=gen/work/drc_iter.rpt
 BAD="clearance|shorting_items|tracks_crossing|hole_clearance|hole_to_hole|copper_edge_clearance|track_dangling|via_dangling|items_not_allowed|solder_mask_bridge|track_width"
 
 settle() {      # iterate DRC -> repair -> patch until clean; returns 0 when clean
-    local i unc err
+    local i unc err last="" same=0
     for i in $(seq 1 "$1"); do
         kicad-cli pcb drc --schematic-parity --severity-all --format report -o "$RPT" voxhub.kicad_pcb >/dev/null 2>&1
         unc=$(grep -c "^\[unconnected_items\]" "$RPT")
         err=$(grep -c -E "^\[($BAD)\]" "$RPT")
         echo "  round $i: unconnected=$unc repairable_violations=$err"
         if [ "$unc" = 0 ] && [ "$err" = 0 ]; then return 0; fi
+        # the loop is deterministic: the same counts five times in a row mean it will not get any further
+        if [ "$unc/$err" = "$last" ]; then same=$((same + 1)); else same=0; last="$unc/$err"; fi
+        if [ "$same" -ge 4 ]; then echo "  no progress - giving up on this attempt"; return 1; fi
         if [ "$err" != 0 ]; then python3 gen/build_pcb.py repair "$HW" "$RPT" 2>&1 | grep "^repair"; fi
         python3 gen/build_pcb.py patch "$HW" 2>&1 | grep -E "FAILED|^patch"
     done
     return 1
 }
-max_skew()   { python3 gen/build_pcb.py stats "$HW" 2>/dev/null | grep -v "^worst" | grep -o "skew [0-9.]*" | awk '{ if ($2 > m) m = $2 } END { print m + 0 }'; }
-max_cudiff() { python3 gen/build_pcb.py stats "$HW" 2>/dev/null | grep -o "copper-diff [0-9.]*" | awk '{ if ($2 > m) m = $2 } END { print m + 0 }'; }
+# worst pad-to-pad skew of the three pairs (with 1.5 mm per via, and with vias counted as 0) and the worst copper that is
+# not on a pad-to-pad path (stubs, loops) of the six lines.  A missing or non-numeric measurement counts as 999, never as 0.
+usb_stat() { echo "$STATS" | grep -v "^worst" | grep -o "$1 [0-9.na]*" | sed "s/^$1 //" \
+             | awk -v want="$2" '{ n++; if ($1 !~ /^[0-9.]+$/) bad = 1; else if ($1 + 0 > m) m = $1 + 0 } END { print (bad || n != want) ? 999 : m + 0 }'; }
+measure()     { STATS=$(python3 gen/build_pcb.py stats "$HW" 2>/dev/null); }
+max_skew()    { usb_stat "skew" 3; }
+max_skew0()   { usb_stat "as 0:" 3; }
+max_offpath() { usb_stat "off-path" 6; }
 
 if [ "${USB_ONLY:-0}" = 1 ] && [ -s gen/work/base.kicad_pcb ]; then
     echo "== USB_ONLY: re-using gen/work/base.kicad_pcb"
@@ -32,33 +41,38 @@ else
     settle "$MAX" || { echo "could not reach a clean board"; exit 1; }
     cp voxhub.kicad_pcb gen/work/base.kicad_pcb
 fi
-best=""; bestscore=999
+best=""; bestscore=999; bestskew=999
 for v in 0 1 2 3 4 5; do
     echo "== USB re-route, net order variant $v"
     cp gen/work/base.kicad_pcb voxhub.kicad_pcb
     python3 gen/build_pcb.py patch "$HW" --reroute-usb --variant "$v" 2>&1 | grep -E "FAILED|^patch"
-    if ! settle 12; then echo "  variant $v: not clean, discarded"; continue; fi
+    if ! settle 8; then echo "  variant $v: not clean, discarded"; continue; fi
     # serpentine length matching of the shorter line of each pair; a DRC-driven repair may undo a
     # meander, so tune -> settle is repeated until the pairs stay matched
     ok=1
     for r in 1 2 3; do
         python3 gen/build_pcb.py tune "$HW" 2>&1 | grep "^tune" | sed 's/^/  /'
-        if ! settle 12; then ok=0; break; fi
-        s=$(max_skew)
+        if ! settle 8; then ok=0; break; fi
+        measure; s=$(max_skew)
         if awk "BEGIN { exit !($s <= 0.30) }"; then break; fi
     done
     if [ "$ok" = 0 ]; then echo "  variant $v: not clean after length matching, discarded"; continue; fi
-    s=$(max_skew); c=$(max_cudiff)
-    score=$(awk "BEGIN { print ($s > $c) ? $s : $c }")
-    echo "  variant $v: clean, worst USB pair skew $s mm (pad to pad), copper difference $c mm"
-    if awk "BEGIN { exit !($score < $bestscore) }"; then bestscore=$score; best=$v; cp voxhub.kicad_pcb gen/work/best.kicad_pcb; fi
-    if awk "BEGIN { exit !($score <= 2.0) }"; then break; fi      # comfortably inside the 3.8 mm guideline
+    measure; s=$(max_skew); s0=$(max_skew0); c=$(max_offpath)
+    # the length of a via is an estimate, so a variant is judged by the worse of "1.5 mm per via" and "vias count 0"
+    # (equal via counts on both lines of a pair make the two agree), and by copper off the path
+    score=$(awk "BEGIN { m = $s; if ($s0 > m) m = $s0; if ($c > m) m = $c; print m }")
+    echo "  variant $v: clean, worst USB pair skew $s mm (pad to pad), $s0 mm with vias counted as 0, off-path copper $c mm"
+    if awk "BEGIN { exit !($score < $bestscore) }"; then
+        bestscore=$score; bestskew=$(awk "BEGIN { print ($s > $s0) ? $s : $s0 }"); best=$v; cp voxhub.kicad_pcb gen/work/best.kicad_pcb
+    fi
+    if awk "BEGIN { exit !($score <= 0.5) }"; then break; fi      # matched whatever a via counts, and free of stubs
 done
 if [ -n "$best" ]; then
-    cp gen/work/best.kicad_pcb voxhub.kicad_pcb; echo "== kept USB variant $best (worst of skew / copper difference: $bestscore mm)"
+    cp gen/work/best.kicad_pcb voxhub.kicad_pcb; echo "== kept USB variant $best (worst skew $bestskew mm, score $bestscore mm)"
 else
-    cp gen/work/base.kicad_pcb voxhub.kicad_pcb; echo "== no clean USB re-route found, keeping the autorouter's USB tracks"
+    cp gen/work/base.kicad_pcb voxhub.kicad_pcb; measure; bestskew=$(awk "BEGIN { a = $(max_skew); b = $(max_skew0); print (a > b) ? a : b }")
+    echo "== no USB re-route variant reached a clean DRC, keeping the base routing (worst skew $bestskew mm)"
 fi
 cp gen/project_settings.json voxhub.kicad_pro
-if awk "BEGIN { exit !($bestscore > 3.8) }"; then echo "USB pair skew above 3.8 mm"; exit 1; fi
+if awk "BEGIN { exit !($bestskew > 3.8) }"; then echo "USB pair skew above 3.8 mm (or not measurable)"; exit 1; fi
 echo "clean"

@@ -235,7 +235,8 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "810-C1608X5R1E475K",
-   "mouser_source": "part number from a search snippet (not live)",
+   "mouser_pn_unverified": true,
+   "mouser_source": "PN expected by Mouser's TDK prefix convention (810-), not seen on mouser.com",
    "mouser_stock": null,
    "note": "Stock fix. +$0.22/board at qty 100 (5 pcs). Other in-stock options: Taiyo Yuden EMK107ABJ475KA-T (16 V, t max 0.90 mm, 587-2786-1-ND, 162,016 in stock, $0.26 / $0.0960); Murata GRM188R61E475KE11D (25 V, 490-7203-1-ND, 384,876 in stock, $0.26 / $0.0945). Murata GRM188R61C475KAAJD is non-stock at DigiKey."
   },
@@ -547,6 +548,20 @@
    "mouser_stock": null,
    "note": "Availability fix only (NOT cheaper: +0.5 cent/board): ships from DigiKey's own warehouse with the rest of the order. Stackpole RMCF0402FT24K3 ($0.0091 @100) is 0 in stock (4,781 expected 07-Jan-2027); Walsin WR04X2432FTL is not stocked at DigiKey. Keeping the Yageo part via the Marketplace listing is also workable."
   },
+  "GMC31X7R106K50NT": {
+   "digikey_p1": null,
+   "digikey_p100": null,
+   "digikey_pn": "2571-GMC31X7R106K50NTTR-ND",
+   "digikey_status": "Active",
+   "digikey_stock": 2684000,
+   "digikey_url": "https://www.digikey.com/en/products/detail/cal-chip-electronics-inc/GMC31X7R106K50NT/12324805",
+   "mouser_p1": null,
+   "mouser_p100": null,
+   "mouser_pn": null,
+   "mouser_source": null,
+   "mouser_stock": null,
+   "note": "alternate for CL31B106KBHNNNE, not a BOM line: DigiKey Marketplace item, tape and reel only, minimum 2,000 pieces at 0.403 USD, ships from Cal-Chip with separate shipping"
+  },
   "GRM155R61C105KA12D": {
    "digikey_p1": 0.11,
    "digikey_p100": 0.0182,
@@ -567,13 +582,13 @@
    "digikey_pn": "490-12546-1-ND",
    "digikey_status": "Active",
    "digikey_stock": null,
-   "digikey_url": "https://www.digikey.com/en/products/result?keywords=GRM188R71H224KAC4D",
+   "digikey_url": "https://www.digikey.com/en/products/result?keywords=490-12546-1-ND",
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": null,
    "mouser_source": null,
    "mouser_stock": null,
-   "note": "stock figure not shown on the DigiKey page at check time"
+   "note": "DigiKey shows status Active, price and a 17 week manufacturer lead time but no stock figure for this part (looked up twice on 2026-11-11) - verify stock before ordering"
   },
   "HSB03-141406": {
    "digikey_p1": 0.82,
@@ -599,6 +614,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "726-IM69D130V01XTSA1",
+   "mouser_pn_unverified": true,
    "mouser_source": "PN from the previous (non-live) repo snapshot. search snippet of mouser.com cached page (WebSearch), not live: only the Norwegian page appeared: 2,566 in stock, 14,000 on order expected 12/25/2025 (stale), NOK prices only (kr 18.71 @1) - no USD price",
    "mouser_stock": 2566,
    "note": "OK. 69 dB SNR, -36 dB +/-1 dB, 1.62-3.6 V, bottom port, 4x3x1.3 mm. Mfr lead time 30 wk. Exact-footprint rule; IM69D120 would lower the acoustic overload point -> keep."
@@ -613,6 +629,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "611-JS202011JCQN",
+   "mouser_pn_unverified": true,
    "mouser_source": "PN by Mouser's 611- prefix for C&K (not verified). Search snippets (not live, regional pages): EU site 7,515 in stock from EUR 0.73 @1; AU site 25,481 in stock; no US/USD snippet found - stock/price recorded as null; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. DPDT, 300 mA / 6 VDC, J-lead SMT, -40..85 C; mfr lead time 14 wk. Qty-1 price is $0.95 (BOM snapshot ~0.70). No same-footprint cheaper part: JS202011SCQN is gull-wing (different footprint). Keep."
@@ -627,6 +644,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "595-LMR33640ADDAR",
+   "mouser_pn_unverified": true,
    "mouser_source": "part number by Mouser's TI prefix convention (not live)",
    "mouser_stock": null,
    "note": "0 in stock, 2,500 expected 08-Jul-2027, 26 weeks lead time"
@@ -711,6 +729,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-070RL",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK (0 ohm jumper, DigiKey tolerance field = 'Jumper'). Already cheapest tier - keep."
@@ -725,6 +744,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-07100KL",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK (stock healthy). Optional cost swap: 13 pcs/board, see swap (saves 2.2 cent/board)."
@@ -753,6 +773,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-0712KL",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. 1 % 1/16 W +-100 ppm/K -55..155 C thick film; mfr lead time 24 wk. Cheaper series exist (Stackpole RMCF $0.0091, Walsin WR04X ~$0.006 @100) but the saving is < 1 cent per board for this line - keep."
@@ -767,6 +788,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-07150KL",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. 1 % 1/16 W +-100 ppm/K -55..155 C thick film; mfr lead time 24 wk. Cheaper series exist (Stackpole RMCF $0.0091, Walsin WR04X ~$0.006 @100) but the saving is < 1 cent per board for this line - keep."
@@ -781,6 +803,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-071KL",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. Stackpole RMCF would save only 0.5 cent/board; Walsin WR04X1001FTL ($0.0062 @100) is out of stock at DigiKey (10,000 expected 12-Nov-2026) - keep."
@@ -795,6 +818,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-0720KL",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. 1 % 1/16 W +-100 ppm/K -55..155 C thick film; mfr lead time 24 wk. Cheaper series exist (Stackpole RMCF $0.0091, Walsin WR04X ~$0.006 @100) but the saving is < 1 cent per board for this line - keep."
@@ -809,6 +833,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-0724K3L",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "PROBLEM (availability): DigiKey PN is YAG3071CT-ND, NOT the 311-<value>LRCT-ND pattern in the BOM. The page shows no DigiKey-warehouse stock; it is a Marketplace listing (440,000 ship from WEC, i.e. separate shipment). Optional swap to a DigiKey-stocked part proposed."
@@ -823,6 +848,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-072K2L",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK, but stock is thin for a jellybean value (6,075 at DigiKey; fine for small builds). No swap: saving < 1 cent."
@@ -837,6 +863,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-072K4L",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. 1 % 1/16 W +-100 ppm/K -55..155 C thick film; mfr lead time 24 wk. Cheaper series exist (Stackpole RMCF $0.0091, Walsin WR04X ~$0.006 @100) but the saving is < 1 cent per board for this line - keep."
@@ -851,6 +878,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-07330RL",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. 1 % 1/16 W +-100 ppm/K -55..155 C thick film; mfr lead time 24 wk. Cheaper series exist (Stackpole RMCF $0.0091, Walsin WR04X ~$0.006 @100) but the saving is < 1 cent per board for this line - keep."
@@ -865,6 +893,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-0733RL",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. 1 % 1/16 W +-100 ppm/K -55..155 C thick film; mfr lead time 24 wk. Cheaper series exist (Stackpole RMCF $0.0091, Walsin WR04X ~$0.006 @100) but the saving is < 1 cent per board for this line - keep."
@@ -879,6 +908,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-07470KL",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. 1 % 1/16 W +-100 ppm/K -55..155 C thick film; mfr lead time 24 wk. Cheaper series exist (Stackpole RMCF $0.0091, Walsin WR04X ~$0.006 @100) but the saving is < 1 cent per board for this line - keep."
@@ -893,6 +923,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-07470RL",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. 1 % 1/16 W +-100 ppm/K -55..155 C thick film; mfr lead time 24 wk. Cheaper series exist (Stackpole RMCF $0.0091, Walsin WR04X ~$0.006 @100) but the saving is < 1 cent per board for this line - keep."
@@ -921,6 +952,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-075K1L",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. 1 % 1/16 W +-100 ppm/K -55..155 C thick film; mfr lead time 24 wk. Cheaper series exist (Stackpole RMCF $0.0091, Walsin WR04X ~$0.006 @100) but the saving is < 1 cent per board for this line - keep."
@@ -935,6 +967,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "603-RC0402FR-07680RL",
+   "mouser_pn_unverified": true,
    "mouser_source": "not retrievable live. PN is prefix-derived (Mouser's 603-<MPN> scheme for Yageo; the 10k and 49.9k numbers came back in mouser.com search results), not individually verified; mouser.com returned HTTP 503 to WebFetch (1 attempt, not retried); findchips.com lists no Mouser rows; oemsecrets/octopart/trustedparts returned 403",
    "mouser_stock": null,
    "note": "OK. 1 % 1/16 W +-100 ppm/K -55..155 C thick film; mfr lead time 24 wk. Cheaper series exist (Stackpole RMCF $0.0091, Walsin WR04X ~$0.006 @100) but the saving is < 1 cent per board for this line - keep."
@@ -1019,6 +1052,7 @@
    "mouser_p1": null,
    "mouser_p100": null,
    "mouser_pn": "576-SMBJ22A",
+   "mouser_pn_unverified": true,
    "mouser_source": "PN from the previous (non-live) repo snapshot; WebSearch on mouser.com returned no listing for it - not retrievable",
    "mouser_stock": null,
    "note": "OK (3,431 in stock, mfr lead time 35 wk). 22 V standoff, 24.4 V min breakdown, 35.5 V clamp @ 16.9 A, 600 W, unidirectional, Tj -65..150 C. Cheaper same-rating parts exist but fail a hard rule or the stock test: YAGEO SMBJ22A/TR13 ($0.40 / $0.1551, 7,404 in stock, saves $0.04) and Diodes SMBJ22A-13-F ($0.56 / $0.2201, 788 in stock) are rated Tj -55..150 C (narrower than -65..150 C); SMC Diode Solutions SMBJ22A is not stocked (42,000 MOQ). No swap proposed."
