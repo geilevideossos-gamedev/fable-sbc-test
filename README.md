@@ -234,7 +234,7 @@ Line by line: [`hardware/outputs/bom.csv`](hardware/outputs/bom.csv) and [`bom_s
 | Enclosure fit | part dimensions from the manufacturer drawings; 0 mm^3 interference PCB assembly vs. printed parts | `enclosure/voxhub_enclosure.py`, `enclosure/README.md` |
 | Power budget / thermal estimate | above | |
 | Sourcing | every BOM line Active and looked up live at DigiKey (status, stock, price at 1 and 100; no stock figure shown for one line, C10); Mouser not live | `hardware/outputs/bom.csv`, `hardware/gen/sourcing_live.json` |
-| OS image | repack image built from HAOS 18.5 and verified; from-source build: see `os/README.md` | `os/README.md` |
+| OS image | repack image built from HAOS 18.5 and verified; from-source build (`build-image.sh full`) ran to the end on the ninth attempt, image inspected; not booted (no hardware) | `os/README.md` |
 | Assistant | 86 unit tests pass | `assistant/tests/` |
 
 ## License

@@ -13,7 +13,7 @@ os/
 ├── board/voxhub/kernel.config     kernel config fragment (driver guard)
 ├── board/voxhub_defconfig         Buildroot defconfig as generated from rpi4_64_defconfig (HAOS 18.5)
 ├── package/voxhub-overlay/        Buildroot package that builds voxhub.dtbo with host-dtc
-└── full-build-attempt.log         log of the from-source build attempt in the sandbox
+└── full-build-attempt.log         log excerpts of the from-source build attempts (9 on 2026-11-11, the last one complete)
 ```
 
 ## Quick start (recommended): repack the latest official release
@@ -106,7 +106,7 @@ submodule) and adds, without modifying any upstream file except one `source` lin
   as `board/voxhub_defconfig`.
 
 Then `make voxhub` produces `haos_rpi4-64-<ver>.img.xz` (copied to `os/output/haos_voxhub-cm4-<ver>-full.img.xz`).
-Requirements: 30-40 GB disk, 8 GB RAM, 1-3 hours on a 16-core machine (see the measured numbers below for 4 cores).
+Requirements: 30-40 GB disk, 8 GB RAM, 1-3 hours on a 16-core machine (measured on 4 shared cores: about 6 hours, see below).
 
 ## Verification status
 
@@ -118,7 +118,8 @@ Requirements: 30-40 GB disk, 8 GB RAM, 1-3 hours on a 16-core machine (see the m
 | `googlevoicehat-soundcard.dtbo` decompiled | **OK** - `sdmode-gpios = <&gpio 16 0>`, matches the schematic |
 | `voxhub-overlay.dts` compiles (`dtc -@`) and applies to the real `bcm2711-rpi-cm4.dtb` (`fdtoverlay`) | **OK** |
 | `voxhub_defconfig` accepted by Buildroot (`make voxhub_defconfig`) | **OK** - `.config` written, `BR2_PACKAGE_VOXHUB_OVERLAY=y` |
-| Full from-source build | **IN PROGRESS at the time of this commit** (attempt 9 of 2026-11-11) - see the run log below |
+| Full from-source build (`build-image.sh full`, host build) | **OK** on the ninth attempt (2026-11-11): `haos_voxhub-cm4-18.5-full.img.xz`, 317 MiB (911 MiB unpacked), plus the OTA bundle `haos_rpi4-64-18.5.raucb` (185 MiB). What stopped attempts 1-8 is in the run log below |
+| Full-build image inspected | **OK** - GPT with the 8 HAOS partitions; boot partition: `bcm2711-rpi-cm4.dtb` only, `u-boot.bin`, `config.txt` with the VoxHub block (`dtoverlay=voxhub`, `otg_mode=1`), `overlays/voxhub.dtbo` built by the `voxhub-overlay` package - it applies to the DTB of the same image (`fdtoverlay`) and gives the mute switch, both LEDs, UART4 (`serial4`) and the sound card nodes; root file system (EROFS): `VERSION="18.5 (VoxHub CM4 (RaspberryPi 4 64bit))"`, `VARIANT_ID=rpi4-64`, kernel 6.18.59-haos-raspi with `snd-soc-bcm2835-i2s`, `snd-soc-rpi-simple-soundcard`, `snd-soc-googlevoicehat-codec`, `snd-soc-max98357a`, `snd-soc-adau7002`, `gpio_keys`, `i2c-bcm2835` as modules and `leds-gpio`, `amba-pl011`, `xhci-hcd`, `dwc2` built in; RAUC `compatible=haos-rpi4-64`; data partition with the Supervisor 2026.11.0, CLI, DNS, audio, multicast, observer and landing-page containers |
 | Boot on hardware | not done (no hardware) |
 
 ### Full build: run log of 2026-11-11
@@ -142,11 +143,22 @@ CCACHE_DISABLE=1 VOXHUB_NO_DOCKER=1 VOXHUB_GITHUB_VIA_GIT=1 os/build-image.sh fu
 | 6 | 7 min more (U-Boot now builds), 214 of 218 packages installed, stopped in `host-tempio 2026.07.0 Downloading` | `gopkg.in/yaml.v3: unrecognized import path ... https fetch: Get "https://gopkg.in/yaml.v3?go-get=1": net/http: TLS handshake timeout`, then `ERROR 403: Forbidden` for the pre-vendored tarball on GitHub and 404 on Buildroot's mirror. Buildroot vendors Go modules with `GOPROXY=direct`; **gopkg.in cannot be reached from this sandbox** (three plain HTTPS requests timed out as well), while the official module proxy can | new option `VOXHUB_GOPROXY` (see above) |
 | 7 | 4 min more: **all 218 packages built and installed** (tempio through the module proxy, the `hassio` data partition with the Supervisor containers, `voxhub-overlay`), stopped in `Finalizing target directory` | `python3.12: can't open file '.../output/build/python3-3.12.15/Lib/compileall.py'`. Self-inflicted again: the disk-space helper of the sandbox session had emptied the python3 build directory in attempt 4, and Buildroot compiles the `.pyc` files from there at the very end | python3 build directory deleted (Buildroot rebuilt it), helper switched off for good |
 | 8 | 5 min more: target finalised, root file system overlays copied, stopped in `post-build.sh` | `req: Can't open "/build/key.pem" for writing, No such file or directory`: the HAOS scripts generate and read the RAUC development signing key under `/build`, the mount point of the source tree inside the builder container (`scripts/rauc.sh`, `genimage/image-raucb-*.cfg`) | on host builds `build-image.sh` rewrites these paths to the root of the cloned tree |
-| 9 | running at the time of this commit | - | - |
+| 9 | 5.5 min more: `post-build.sh`, root file system (EROFS), `post-image.sh`, disk image and OTA bundle - **`[voxhub-os] done: os/output/haos_voxhub-cm4-18.5-full.img.xz`, exit 0** | - | - |
 
-None of the stops so far had anything to do with the board definition: the configuration (`make voxhub-config`), the
-toolchain (GCC 13.4 / glibc 2.41), systemd, Docker 29.8.2, containerd and the kernel with the `voxhub` config fragment
-were built for the `voxhub` target. Log excerpts are in `full-build-attempt.log`.
+None of the eight stops had anything to do with the board definition. Two were network policy of the sandbox (GitHub
+tarball URLs, gopkg.in), two were mistakes of the build session itself (the disk-space helper), one a bug in the new
+prefetch code, and three are things every **host** build of HAOS runs into because the upstream scripts assume the builder
+container: `/cache`, `/build/key.pem`, and a host with `libyaml-dev`. `build-image.sh` now handles all of these, so the
+command above runs through in one go on such a machine; attempts 6 to 9 took 4 to 7 minutes each because Buildroot
+continues where it stopped. Log excerpts are in `full-build-attempt.log`.
+
+Measured: about 6 hours of wall-clock time over all attempts on 4 cores that were shared with a CPU render for most of
+the time (the build ran at low priority), 218 packages, 7 container images. Disk: 13 GB build tree + 3.8 GB download
+cache at the end, with 15.7 GB of finished build directories deleted along the way - plan for about 35 GB.
+
+Not done here: the Docker path (`scripts/enter.sh` of HAOS, used when Docker is available and `VOXHUB_NO_DOCKER` is not
+set) was not run, because the sandbox session runs as root inside a container; it is HAOS's own unmodified flow. And the
+image has not been booted - there is no hardware.
 
 ## First boot
 

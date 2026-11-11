@@ -311,6 +311,7 @@ full() {
     built="$(ls "${src}"/output/images/haos_rpi4-64-*.img.xz 2>/dev/null | head -n1)"
     [ -n "${built}" ] || { echo "build finished but no image was found" >&2; exit 1; }
     cp "${built}" "${OUT}/haos_voxhub-cm4-${VERSION}-full.img.xz"
+    (cd "${OUT}" && sha256sum "haos_voxhub-cm4-${VERSION}-full.img.xz" > "haos_voxhub-cm4-${VERSION}-full.img.xz.sha256")
     log "done: ${OUT}/haos_voxhub-cm4-${VERSION}-full.img.xz"
 }
 

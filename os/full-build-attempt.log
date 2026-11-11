@@ -149,3 +149,39 @@ make[2]: *** [package/pkg-generic.mk:179: os/output/haos-src/output/build/host-t
 make[1]: *** [Makefile:83: _all] Error 2
 make: *** [Makefile:56: voxhub] Error 2
 === exit 2 2026-11-11T16:37:40Z ===
+
+##### 2026-11-11 attempt 7: Go module proxy (start 16:39:39Z, exit 16:43:31Z) - all 218 packages built, stop in target-finalize
+>>> host-tempio 2026.07.0 Building
+>>> host-tempio 2026.07.0 Installing to host directory
+>>> voxhub-overlay 1.0 Building
+>>> voxhub-overlay 1.0 Installing to images directory
+>>>   Finalizing host directory
+>>>   Finalizing target directory
+make[2]: *** [Makefile:759: target-finalize] Error 2
+make[1]: *** [Makefile:83: _all] Error 2
+make: *** [Makefile:56: voxhub] Error 2
+=== exit 2 2026-11-11T16:43:31Z ===
+
+##### 2026-11-11 attempt 8: python3 rebuilt (start 16:44:40Z, exit 16:49:20Z) - stop in post-build.sh
+>>> python3 3.12.15 Installing to target
+>>>   Finalizing host directory
+>>>   Finalizing target directory
+>>>   Copying overlay os/output/haos-src/buildroot-external/rootfs-overlay
+>>>   Copying overlay os/output/haos-src/buildroot-external/board/raspberrypi/rootfs-overlay
+>>>   Executing post-build script os/output/haos-src/buildroot-external/scripts/post-build.sh
+Generating a self-signed certificate for development
+req: Can't open "/build/key.pem" for writing, No such file or directory
+make[2]: *** [Makefile:787: target-finalize] Error 1
+make[1]: *** [Makefile:83: _all] Error 2
+make: *** [Makefile:56: voxhub] Error 2
+=== exit 2 2026-11-11T16:49:20Z ===
+
+##### 2026-11-11 attempt 9: signing key paths redirected (start 16:50:35Z, exit 16:56:04Z) - COMPLETE
+>>>   Executing post-build script os/output/haos-src/buildroot-external/scripts/post-build.sh
+>>>   Generating root filesystems common tables
+>>>   Generating filesystem image rootfs.erofs
+>>>   Executing post-image script os/output/haos-src/buildroot-external/scripts/post-image.sh
+[voxhub-os] libyaml-dev is installed on this host: building host-libyaml first (U-Boot's dtc would not link otherwise)
+[voxhub-os] done: os/output/haos_voxhub-cm4-18.5-full.img.xz
+=== exit 0 2026-11-11T16:56:04Z ===
+sha256 81800897ea20893f8d794a55b1f032a91a5a070e502bd67a4b6deac9966df3dd  haos_voxhub-cm4-18.5-full.img.xz (332434544 bytes)

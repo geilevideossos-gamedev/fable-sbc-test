@@ -38,6 +38,7 @@ Every change, with its reason:
 | 24 | **Section 9 completed**: crystal row verified against the Epson-hosted brief, 2N7002 row added (mirror of the Nexperia sheet), generic passives row now says plainly that no manufacturer document was read | Review finding: README claimed "every row verified" while two rows were not. |
 | 25 | **OS host build: Buildroot's `host-libyaml` is built first when the host has `libyaml-dev`** | Attempt 5 of the full build stopped in U-Boot's host dtc: it found the host's `/usr/include/yaml.h` but not the library through Buildroot's pkg-config. Upstream host leak that the HAOS builder container does not have; the script now works around it instead of telling the user to uninstall a package. |
 | 26 | **`VOXHUB_GOPROXY`: optional Go module proxy for the OS build** | Attempt 6 stopped at the last Go package: Buildroot fetches Go modules from their own hosts (`GOPROXY=direct`) and gopkg.in is not reachable from this environment. The option rewrites that one setting in the cloned Buildroot tree; integrity checks (go.sum, Buildroot's tarball hash) are unchanged. Opt-in, like the git fallback for GitHub tarballs. |
+| 27 | **OS host build: the RAUC signing key paths of the HAOS scripts are redirected from `/build` to the cloned tree**; the disk-space helper of the session is switched off | Attempt 8 stopped in `post-build.sh` (`Can't open "/build/key.pem"`): `/build` only exists inside the HAOS builder container. Attempt 7 had stopped one step earlier because the helper had emptied the python3 build directory that Buildroot needs for the final `.pyc` compilation - the second self-inflicted stop, so the helper went. **Attempt 9 completed**: image and OTA bundle built and inspected (os/README.md). |
 
 ## 0. Constraints of the environment this was designed in
 
@@ -251,7 +252,9 @@ CM5 (higher power, would need 5 V/5 A and has no advantage for a cloud-LLM voice
   container) and can fetch GitHub "archive" sources with git (`VOXHUB_GITHUB_VIA_GIT=1`): every such tarball that
   Buildroot's own mirror does not have is produced with `git fetch --depth 1` + `git archive | gzip -n`, which is
   byte-identical to GitHub's tarball, and handed to Buildroot as `BR2_PRIMARY_SITE`. Buildroot's hash check stays in force.
-  How far the build got in this environment is documented in os/README.md.
+  It can also use a Go module proxy (`VOXHUB_GOPROXY`), builds `host-libyaml` first on hosts with `libyaml-dev` and
+  redirects the `/build/key.pem` paths of the HAOS scripts on host builds. With these the full build ran to the end in
+  this environment (ninth attempt); the run log with every stop and its cause is in os/README.md.
 - The radio's reset line is active high since revision A1 (GPIO24 high = reset); nothing in the OS configuration
   drives it, the flashing instructions in hardware/README.md were updated.
 

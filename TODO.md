@@ -54,8 +54,10 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 - [x] `build-image.sh repack`: flashable `haos_voxhub-cm4-18.5.img.xz` built and verified
 - [x] `build-image.sh full`: non-root check, host-build cache directories, git fallback for GitHub tarballs,
       optional Go module proxy, host-libyaml on hosts with libyaml-dev
-- [~] `build-image.sh full` run: attempt 9 IN PROGRESS at the time of this commit (attempts 1-8: where and why each
-      stopped is in `os/README.md`; all 218 packages are built, the image assembly steps remain)
+- [x] **`build-image.sh full` ran to the end** (host build, ninth attempt): `haos_voxhub-cm4-18.5-full.img.xz` (317 MiB)
+      and the OTA bundle built; image inspected (partitions, `voxhub.dtbo` applies, kernel modules, containers).
+      Where and why attempts 1-8 stopped is in `os/README.md`
+- [~] the Docker path of the full build (HAOS builder container) was not run in the sandbox
 - [ ] Boot test on hardware
 
 ## Showcase (`/media`)
