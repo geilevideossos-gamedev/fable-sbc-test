@@ -296,12 +296,12 @@ def place(netlist, outdir):
         tx.SetTextAngle(pcbnew.EDA_ANGLE(rot, pcbnew.DEGREES_T))
         if layer == pcbnew.B_SilkS: tx.SetMirrored(True)
         board.Add(tx)
-    text("VoxHub CM4  rev A", 22.0, 41.0, pcbnew.F_SilkS, 1.2)
+    text("VoxHub CM4  rev A1", 22.0, 41.0, pcbnew.F_SilkS, 1.2)
     text("github.com/geilevideossos-gamedev/fable-sbc-test", 22.0, 43.2, pcbnew.F_SilkS, 0.6)
     text("SPK", 8.6, 58.5, pcbnew.F_SilkS, 0.8, 90)
     text("GND TX RX", 80.0, 18.6, pcbnew.F_SilkS, 0.7)
     text("USB-C PD 9-20V", 13.0, 9.2, pcbnew.F_SilkS, 0.6)
-    text("VoxHub CM4 rev A - this side faces the top cover", 60.0, 50.0, pcbnew.B_SilkS, 1.0)
+    text("VoxHub CM4 rev A1 - this side faces the top cover", 60.0, 50.0, pcbnew.B_SilkS, 1.0)
     text("MUTE", 33.5, 57.0, pcbnew.B_SilkS, 0.8)
     # ---- mechanical drawing layer (exported to DXF): holes, ports, connector envelopes -----
     mech = [("feature", "ref", "x_mm", "y_mm", "detail")]
@@ -546,8 +546,10 @@ def add_rule_areas(board):
     f = pcbnew.ToMM
     # MGM240P antenna clearance: no copper on any layer (footprint-local x -4.4..4.4, y -7.5..-2.7, module rotated 180)
     poly_zone(board, rect(19.6, 69.2, 28.4, 74.0), ALL_CU, keepout=True, name="KO_ZIGBEE_ANT")
-    # CM4 on-board WiFi/BT antenna corner: no copper on any layer (>= 6.5 x 11 mm per CM4 datasheet)
-    poly_zone(board, rect(90.0, 35.0, 100.0, 47.0), ALL_CU, keepout=True, name="KO_CM4_ANT")
+    # CM4 on-board WiFi/BT antenna: CM4 datasheet fig. 4 "Wireless Cutout" = 6.5 x 11 mm on the short edge at the
+    # pin 99/199 end, 10.5..21.5 mm from the long edge of the pin 1-100 connector -> board x 92.5..99.0, y 46.5..57.5.
+    # "minimum 6.5 x 11 mm, ideally at least 8 x 15 mm": no copper on any layer in 9 x 15 mm, out to the board edge.
+    poly_zone(board, rect(91.0, 44.5, 100.0, 59.5), ALL_CU, keepout=True, name="KO_CM4_ANT")
     # keep routed copper 0.35 mm away from the board edge (pads of edge connectors are still allowed)
     e = 0.35
     for i, r_ in enumerate((rect(0, 0, W, e), rect(0, H - e, W, H), rect(0, 0, e, H), rect(W - e, 0, W, H))):
@@ -591,6 +593,7 @@ def finish(outdir):
             tr.SetWidth(MM(0.1))
         if tr.IsLocked() and tr.GetNetname() not in PLANE_NETS:
             tr.SetLocked(False)
+    add_esd_links(board, tracks)
     print("dangling items removed:", cleanup(board, tracks))
     if not [z for z in board.Zones() if not z.GetIsRuleArea()]:
         add_planes(board)
@@ -775,6 +778,29 @@ def patch(outdir, report=None, max_jobs=400, reroute=()):
         ap = A["pts"]
         # goals: the points of B closest to A (bounded), sources: all points of A
         bp = sorted(Bc["pts"], key=lambda b: min(math.hypot(a[0] - b[0], a[1] - b[1]) for a in ap[:60]))[:40]
+        if net in usb:
+            # USB data lines are chained pad to pad: connector pin -> ESD pad -> (flow-through link) -> other ESD pad
+            # -> hub pin.  Ending a track somewhere on an existing one, or wiring hub and connector to the same pad,
+            # would leave a stub and falsify the length matching.
+            def is_esd(p_): return p_["name"].split(".")[0] in ESD_LINKS
+            def padpts(pl):
+                return [(p_["x"], p_["y"], l_) for p_ in pl for l_ in (("F", "B") if p_["lay"] == "*" else (p_["lay"],))]
+            goal_pads = Bc["pads"]
+            if not any(is_esd(p_) for p_ in A["pads"]):
+                with_esd = [c for c in comps[1:] if any(is_esd(p_) for p_ in c["pads"])]
+                if with_esd:
+                    Bc = min(with_esd, key=cdist)
+                    esd = [p_ for p_ in Bc["pads"] if is_esd(p_)]
+                    def used(p_):          # a routed (not locked) track of this net already ends on the pad
+                        for o in items:
+                            if o["net"] != net or o["kind"] != "seg" or o["fixed"]: continue
+                            for (ex, ey) in ((o["x1"], o["y1"]), (o["x2"], o["y2"])):
+                                if p_["bb"][0] - 0.02 <= ex <= p_["bb"][2] + 0.02 and p_["bb"][1] - 0.02 <= ey <= p_["bb"][3] + 0.02: return True
+                        return False
+                    goal_pads = [p_ for p_ in esd if not used(p_)] or esd
+            if padpts(A["pads"]) and padpts(goal_pads):
+                ap = padpts(A["pads"])
+                bp = sorted(padpts(goal_pads), key=lambda b: min(math.hypot(a[0] - b[0], a[1] - b[1]) for a in ap))
         power = net in NETCLASSES["Power"][2]
         done = False
         # (track width, clearance used for the search); the last entry is the tightest the board rules allow
@@ -1118,6 +1144,316 @@ def repair(outdir, report):
     board.Save(board.GetFileName()); write_project(outdir)
     print("repair: removed %d offending items + %d dangling; unconnected now: %d" % (n, rm, board.GetConnectivity().GetUnconnectedCount(True)))
 
+# ---------------------------------------------------------------------------------------
+# USB 2.0 pairs: electrical (pad-to-pad) length, flow-through ESD links, serpentine length matching
+# ---------------------------------------------------------------------------------------
+VIA_LEN = 1.5          # path length counted for one F.Cu <-> B.Cu via (1.6 mm board minus the outer copper)
+# (positive net, negative net, pin that drives/receives at the hub, far-end connector)
+USB_PAIRS = (("USB_UP_P", "USB_UP_N", "U4", "J3"), ("USB1_P", "USB1_N", "U4", "J6"), ("USB2_P", "USB2_N", "U4", "J6"))
+ESD_LINKS = {"U7": (("1", "6"), ("3", "4")), "U8": (("1", "6"), ("3", "4"))}     # USBLC6-2SC6: both pads of one I/O
+USB_SKEW_LIMIT = 3.8   # mm (150 mil), the usual USB 2.0 high-speed intra-pair guideline
+TUNE_TOL = 0.25        # mm: pairs closer than this are left alone
+MEANDER = dict(s=0.6, c=0.15, a_min=0.30, a_max=3.0, margin=0.40, clr=0.17, clr_same=0.40)
+
+def add_esd_links(board, tracks):
+    """USBLC6-2SC6 has two pads per data line (1+6, 3+4).  Join them with a locked straight track under the
+    package (ST's flow-through layout) so that the line passes *through* the protection device instead of
+    reaching the second pad over a separate, long stub."""
+    n = 0
+    for ref, pairs in sorted(ESD_LINKS.items()):
+        fp = board.FindFootprintByReference(ref)
+        if fp is None: continue
+        pad = {p.GetNumber(): p for p in fp.Pads()}
+        for a, b in pairs:
+            pa, pb = pad[a], pad[b]
+            if pa.GetNetname() != pb.GetNetname() or not pa.GetNetname(): continue
+            qa, qb = pa.GetPosition(), pb.GetPosition()
+            dup = False
+            for tr in tracks:
+                if tr is not None and tr.Type() != pcbnew.PCB_VIA_T and tr.IsLocked() and tr.GetNetname() == pa.GetNetname():
+                    e1, e2 = tr.GetStart(), tr.GetEnd()
+                    if {(e1.x, e1.y), (e2.x, e2.y)} == {(qa.x, qa.y), (qb.x, qb.y)}: dup = True
+            if dup: continue
+            t = pcbnew.PCB_TRACK(board); t.SetStart(qa); t.SetEnd(qb); t.SetWidth(MM(0.2)); t.SetLayer(pcbnew.F_Cu)
+            t.SetNetCode(pa.GetNetCode()); t.SetLocked(True); board.Add(t); tracks.append(t); n += 1
+    print("ESD flow-through links added:", n)
+
+def _net_graph(net, pads, items):
+    """Copper graph of one net.  Nodes: track end points / junctions (x, y, layer) and pads ("pad", name).
+    Edges: (other node, length, tag) with tag = ("seg", track index, t1, t2) for a piece of a track."""
+    T = 0.02
+    segs = [o for o in items if o["net"] == net and o["kind"] == "seg" and o["lay"] in ("F", "B")]
+    vias = [o for o in items if o["net"] == net and o["kind"] == "via"]
+    adj = {}
+    def edge(a, b, w, tag=None):
+        if a == b: return
+        adj.setdefault(a, []).append((b, w, tag)); adj.setdefault(b, []).append((a, w, tag))
+    def key(x, y, lay): return (round(x, 3), round(y, 3), lay)
+    pts = {"F": [], "B": []}
+    for o in segs:
+        pts[o["lay"]] += [(o["x1"], o["y1"]), (o["x2"], o["y2"])]
+    for v in vias:
+        edge(key(v["x"], v["y"], "F"), key(v["x"], v["y"], "B"), VIA_LEN, ("via", v["i"]))
+        for lay in "FB":
+            for (px, py) in pts[lay]:           # track ends inside the via pad
+                d = math.hypot(px - v["x"], py - v["y"])
+                if 1e-4 < d <= v["r"] + T: edge(key(px, py, lay), key(v["x"], v["y"], lay), d)
+            pts[lay].append((v["x"], v["y"]))
+    for o in segs:
+        dx, dy = o["x2"] - o["x1"], o["y2"] - o["y1"]; L = math.hypot(dx, dy)
+        if L < 1e-6:
+            edge(key(o["x1"], o["y1"], o["lay"]), key(o["x2"], o["y2"], o["lay"]), 0.0); continue
+        on = {0.0: (o["x1"], o["y1"]), L: (o["x2"], o["y2"])}
+        for (px, py) in pts[o["lay"]]:
+            t = ((px - o["x1"]) * dx + (py - o["y1"]) * dy) / L
+            if T < t < L - T:
+                qx, qy = o["x1"] + dx * t / L, o["y1"] + dy * t / L
+                d = math.hypot(px - qx, py - qy)
+                if d <= o["hw"] + T:
+                    on[t] = (qx, qy); edge(key(px, py, o["lay"]), key(qx, qy, o["lay"]), d)
+            elif math.hypot(px - o["x1"], py - o["y1"]) <= T: edge(key(px, py, o["lay"]), key(o["x1"], o["y1"], o["lay"]), 0.0)
+            elif math.hypot(px - o["x2"], py - o["y2"]) <= T: edge(key(px, py, o["lay"]), key(o["x2"], o["y2"], o["lay"]), 0.0)
+        ts = sorted(on)
+        for t1, t2 in zip(ts, ts[1:]):
+            edge(key(*on[t1], o["lay"]), key(*on[t2], o["lay"]), t2 - t1, ("seg", o["i"], t1, t2))
+    for p in pads:
+        if p["net"] != net or p["npth"]: continue
+        for lay in (("F", "B") if p["lay"] == "*" else (p["lay"],)):
+            for (px, py) in pts[lay]:
+                if p["bb"][0] - T <= px <= p["bb"][2] + T and p["bb"][1] - T <= py <= p["bb"][3] + T:
+                    edge(("pad", p["name"]), key(px, py, lay), math.hypot(px - p["x"], py - p["y"]))
+    return adj
+
+def _net_path(net, pads, items, ref_a, ref_b):
+    """Shortest copper path between the pad of `net` on ref_a and the one on ref_b.
+    Returns (length incl. vias, number of vias, [edge tags]) or None."""
+    import heapq
+    adj = _net_graph(net, pads, items)
+    def pad_of(ref):
+        c = sorted(k for k in adj if k[0] == "pad" and k[1].split(".")[0] == ref)
+        return c[0] if c else None
+    a, b = pad_of(ref_a), pad_of(ref_b)
+    if a is None or b is None: return None
+    dist = {a: 0.0}; prev = {}; pq = [(0.0, 0, a)]; cnt = 1; seen = set()
+    while pq:
+        d, _, u = heapq.heappop(pq)
+        if u in seen: continue
+        seen.add(u)
+        if u == b: break
+        for (v, w, tag) in adj.get(u, ()):
+            nd = d + w
+            if nd < dist.get(v, 1e18):
+                dist[v] = nd; prev[v] = (u, tag); heapq.heappush(pq, (nd, cnt, v)); cnt += 1
+    if b not in seen: return None
+    tags = []; u = b
+    while u != a:
+        u, tag = prev[u]
+        if tag: tags.append(tag)
+    return dist[b], sum(1 for t in tags if t[0] == "via"), tags
+
+def usb_report(board, tracks=None):
+    """Per USB pair: pad-to-pad electrical length of both lines, their difference (skew), and the plain
+    sum of all track segments of each net (the number earlier revisions reported; it also counts stubs)."""
+    tracks = tracks if tracks is not None else sorted_tracks(board)
+    pads, items = _geom(board, tracks)
+    rep = []
+    for (pn, nn, ra, rb) in USB_PAIRS:
+        row = dict(nets=(pn, nn))
+        for k, net in (("p", pn), ("n", nn)):
+            r = _net_path(net, pads, items, ra, rb)
+            cu = sum(math.hypot(o["x2"] - o["x1"], o["y2"] - o["y1"]) for o in items if o["net"] == net and o["kind"] == "seg")
+            row[k] = dict(path=r[0] if r else float("nan"), vias=r[1] if r else 0, tags=r[2] if r else [], copper=cu,
+                          nvias=sum(1 for o in items if o["net"] == net and o["kind"] == "via"))
+        row["skew"] = abs(row["p"]["path"] - row["n"]["path"])
+        row["copper_skew"] = abs(row["p"]["copper"] - row["n"]["copper"])
+        rep.append(row)
+    return rep, pads, items
+
+def _merge_collinear(board, tracks, nets):
+    """The patch router leaves straight runs as chains of short collinear segments.  Merge every chain whose inner
+    points are plain 2-way joints (no via, pad, or third track) into one track.  Returns the number of merges."""
+    f = pcbnew.ToMM
+    n_merged = 0
+    again = True
+    while again:
+        again = False
+        ends = {}          # (net, layer, x, y) -> [track index]
+        for i, tr in enumerate(tracks):
+            if tr is None or tr.GetNetname() not in nets: continue
+            if tr.Type() == pcbnew.PCB_VIA_T:
+                q = tr.GetPosition()
+                for lay in (pcbnew.F_Cu, pcbnew.B_Cu): ends.setdefault((tr.GetNetname(), lay, q.x, q.y), []).append(-1)
+                continue
+            for q in (tr.GetStart(), tr.GetEnd()):
+                ends.setdefault((tr.GetNetname(), tr.GetLayer(), q.x, q.y), []).append(i)
+        padpos = set()
+        for fp in board.GetFootprints():
+            for p in fp.Pads():
+                if p.GetNetname() in nets:
+                    q = p.GetPosition(); padpos.add((p.GetNetname(), q.x, q.y))
+        for key, lst in sorted(ends.items()):
+            if len(lst) != 2 or -1 in lst or lst[0] == lst[1] or (key[0], key[2], key[3]) in padpos: continue
+            a, b = tracks[lst[0]], tracks[lst[1]]
+            if a is None or b is None or a.IsLocked() or b.IsLocked() or a.GetWidth() != b.GetWidth(): continue
+            j = pcbnew.VECTOR2I(key[2], key[3])
+            pa = a.GetEnd() if (a.GetStart().x, a.GetStart().y) == (key[2], key[3]) else a.GetStart()
+            pb = b.GetEnd() if (b.GetStart().x, b.GetStart().y) == (key[2], key[3]) else b.GetStart()
+            v1 = (j.x - pa.x, j.y - pa.y); v2 = (pb.x - j.x, pb.y - j.y)
+            l1, l2 = math.hypot(*v1), math.hypot(*v2)
+            if l1 == 0 or l2 == 0: continue
+            cross = (v1[0] * v2[1] - v1[1] * v2[0]) / (l1 * l2); dot = (v1[0] * v2[0] + v1[1] * v2[1]) / (l1 * l2)
+            # the joint may be off the straight line pa-pb by at most 2 um
+            dev = abs(v1[0] * (pb.y - pa.y) - v1[1] * (pb.x - pa.x)) / max(1.0, math.hypot(pb.x - pa.x, pb.y - pa.y))
+            if dot <= 0 or dev > 2000: continue
+            a.SetStart(pa); a.SetEnd(pb)
+            board.Remove(b); _KEEP.append(b); tracks[lst[1]] = None
+            n_merged += 1; again = True
+            break
+    return n_merged
+
+def tune_usb(outdir):
+    """Serpentine length matching: add 45-degree-mitred meander bumps to the shorter line of every USB pair
+    until the pad-to-pad lengths agree.  Bumps are only placed where the copper keeps its clearance."""
+    import numpy as np
+    M = MEANDER; s_, c_, hw = M["s"], M["c"], 0.1
+    K = (8 - 4 * math.sqrt(2)) * c_                    # a bump of amplitude a adds 2a - K
+    board = pcbnew.LoadBoard(os.path.join(outdir, "voxhub.kicad_pcb"))
+    tracks = sorted_tracks(board); _KEEP.append(tracks)
+    kos = board_keepouts(board)
+    changed = _merge_collinear(board, tracks, set(NETCLASSES["USB"][2])) > 0
+    for pi in range(len(USB_PAIRS)):
+        rep, pads, items = usb_report(board, tracks)
+        row = rep[pi]
+        if row["skew"] != row["skew"]:
+            print("tune: %s/%s not fully routed - skipped" % row["nets"]); continue
+        short = "p" if row["p"]["path"] < row["n"]["path"] else "n"
+        net = row["nets"][0 if short == "p" else 1]
+        need = row["skew"]
+        if need <= TUNE_TOL:
+            print("tune: %-8s/%-8s skew %.2f mm - ok" % (row["nets"] + (need,))); continue
+        # on-path intervals per track
+        iv = {}
+        for tag in row[short]["tags"]:
+            if tag[0] == "seg": iv.setdefault(tag[1], []).append((tag[2], tag[3]))
+        byi = {o["i"]: o for o in items}
+        slots = []        # (A_max, track index, side, t_start)
+        for ti, ivs in sorted(iv.items()):
+            o = byi[ti]
+            ivs.sort(); merged = [list(ivs[0])]
+            for a_, b_ in ivs[1:]:
+                if a_ <= merged[-1][1] + 1e-6: merged[-1][1] = max(merged[-1][1], b_)
+                else: merged.append([a_, b_])
+            dx, dy = o["x2"] - o["x1"], o["y2"] - o["y1"]; L = math.hypot(dx, dy)
+            if L < 1e-6 or tracks[ti].IsLocked(): continue
+            ux, uy = dx / L, dy / L
+            li = o["lay"]
+            # obstacles near this track on its layer: (ax, ay, bx, by, required centre-line distance)
+            obs = []
+            rng = M["a_max"] + 1.0
+            bx0, by0, bx1, by1 = min(o["x1"], o["x2"]) - rng, min(o["y1"], o["y2"]) - rng, max(o["x1"], o["x2"]) + rng, max(o["y1"], o["y2"]) + rng
+            for q in items:
+                if q["i"] == ti: continue
+                same = q["net"] == net
+                if q["kind"] == "via":
+                    if not (bx0 <= q["x"] <= bx1 and by0 <= q["y"] <= by1): continue
+                    obs.append((q["x"], q["y"], q["x"], q["y"], q["r"] + hw + (M["clr_same"] if same else max(M["clr"], 0.2))))
+                else:
+                    if q["lay"] != li: continue
+                    if max(q["x1"], q["x2"]) < bx0 or min(q["x1"], q["x2"]) > bx1 or max(q["y1"], q["y2"]) < by0 or min(q["y1"], q["y2"]) > by1: continue
+                    obs.append((q["x1"], q["y1"], q["x2"], q["y2"], q["hw"] + hw + (M["clr_same"] if same else M["clr"])))
+            rects = []     # (x0, y0, x1, y1) grown by the required distance
+            for p in pads:
+                if p["lay"] not in ("*", li): continue
+                g = hw + (0.3 if p["npth"] else max(M["clr"], 0.2))
+                bb = p["bb"]
+                if bb[2] + g < bx0 or bb[0] - g > bx1 or bb[3] + g < by0 or bb[1] - g > by1: continue
+                rects.append((bb[0] - g, bb[1] - g, bb[2] + g, bb[3] + g))
+            for k in kos:
+                rects.append((k[0] - hw - 0.05, k[1] - hw - 0.05, k[2] + hw + 0.05, k[3] + hw + 0.05))
+            OB = np.array(obs, float).reshape(-1, 5)
+            def blocked(X, Y):
+                bad = (X < 0.5) | (X > W - 0.5) | (Y < 0.5) | (Y > H - 0.5)
+                for (rx0, ry0, rx1, ry1) in rects:
+                    bad |= (X > rx0) & (X < rx1) & (Y > ry0) & (Y < ry1)
+                if len(OB):
+                    ax, ay, bx, by, rq = (OB[:, k][None, None, :] for k in range(5))
+                    ddx, ddy = bx - ax, by - ay; L2 = ddx * ddx + ddy * ddy
+                    tt = np.where(L2 > 0, np.clip(((X[..., None] - ax) * ddx + (Y[..., None] - ay) * ddy) / np.where(L2 > 0, L2, 1), 0, 1), 0)
+                    dist = np.hypot(X[..., None] - (ax + tt * ddx), Y[..., None] - (ay + tt * ddy))
+                    bad |= (dist < rq).any(axis=2)
+                return bad
+            step = 0.05
+            dvals = np.arange(0.10, M["a_max"] + 1e-9, step)
+            for (ta, tb) in merged:
+                lo, hi = ta + M["margin"] + c_, tb - M["margin"] - c_ - s_
+                if hi < lo: continue
+                n = int((hi - lo) / (2 * s_)) + 1
+                off = lo + ((hi - lo) - (n - 1) * 2 * s_) / 2          # centre the bump train on the interval
+                best = None
+                for side in (1, -1):
+                    nx_, ny_ = -uy * side, ux * side
+                    caps = []
+                    for j in range(n):
+                        t0 = off + j * 2 * s_
+                        tv = np.arange(t0 - c_, t0 + s_ + c_ + 1e-9, step)
+                        TT, DD = np.meshgrid(tv, dvals, indexing="ij")
+                        X = o["x1"] + ux * TT + nx_ * DD; Y = o["y1"] + uy * TT + ny_ * DD
+                        rowbad = blocked(X, Y).any(axis=0)
+                        k = int(np.argmax(rowbad)) if rowbad.any() else len(dvals)
+                        amax = dvals[k - 1] if k > 0 else 0.0
+                        caps.append((float(amax), ti, side, t0))
+                    tot = sum(max(0.0, 2 * a - K) for a, _, _, _ in caps if a >= M["a_min"])
+                    if best is None or tot > best[0]: best = (tot, caps)
+                slots += [c for c in best[1] if c[0] >= M["a_min"]]
+        slots.sort(key=lambda c: (-c[0], c[1], c[3]))
+        chosen = None
+        for k in range(1, len(slots) + 1):
+            sel = slots[:k]
+            if sum(2 * a - K for a, _, _, _ in sel) + 1e-9 < need: continue
+            lo_, hi_ = M["a_min"], sel[0][0]
+            if sum(2 * min(a, lo_) - K for a, _, _, _ in sel) > need + 1e-9:
+                continue                                    # even the smallest bumps would overshoot
+            for _ in range(60):
+                mid = (lo_ + hi_) / 2
+                if sum(2 * min(a, mid) - K for a, _, _, _ in sel) < need: lo_ = mid
+                else: hi_ = mid
+            chosen = [(min(a, hi_), ti, side, t0) for a, ti, side, t0 in sel]
+            break
+        if chosen is None:
+            cap = sum(2 * a - K for a, _, _, _ in slots)
+            if not slots:
+                print("tune: %s needs +%.2f mm but no meander fits - left as is" % (net, need)); continue
+            print("tune: %s needs +%.2f mm, only %.2f mm of meander fits - partial compensation" % (net, need, cap))
+            chosen = slots                                  # use everything that fits
+        code = board.GetNetcodeFromNetname(net)
+        per = {}
+        for a, ti, side, t0 in chosen: per.setdefault(ti, []).append((t0, a, side))
+        added = 0.0
+        for ti, bumps in sorted(per.items()):
+            o = byi[ti]; dx, dy = o["x2"] - o["x1"], o["y2"] - o["y1"]; L = math.hypot(dx, dy); ux, uy = dx / L, dy / L
+            pl = [(0.0, 0.0)]
+            for t0, a, side in sorted(bumps):
+                d = a * side; cc = c_ * side
+                pl += [(t0 - c_, 0.0), (t0, cc), (t0, d - cc), (t0 + c_, d), (t0 + s_ - c_, d), (t0 + s_, d - cc), (t0 + s_, cc), (t0 + s_ + c_, 0.0)]
+                added += 2 * a - K
+            pl.append((L, 0.0))
+            xy = [(o["x1"] + ux * t - uy * d, o["y1"] + uy * t + ux * d) for t, d in pl]
+            old = tracks[ti]; lay = old.GetLayer(); wdt = old.GetWidth()
+            board.Remove(old); _KEEP.append(old); tracks[ti] = None
+            for (xa, ya), (xb, yb) in zip(xy, xy[1:]):
+                if math.hypot(xb - xa, yb - ya) < 1e-6: continue
+                t = pcbnew.PCB_TRACK(board); t.SetStart(P(xa, ya)); t.SetEnd(P(xb, yb)); t.SetWidth(wdt); t.SetLayer(lay)
+                t.SetNetCode(code); board.Add(t); tracks.append(t)
+        changed = True
+        print("tune: %-8s +%.2f mm in %d meander bump(s) (amplitude %.2f..%.2f mm) to match %s" % (
+            net, added, len(chosen), min(c[0] for c in chosen), max(c[0] for c in chosen), row["nets"][1 if short == "p" else 0]))
+    if changed:
+        pcbnew.ZONE_FILLER(board).Fill(board.Zones()); board.BuildConnectivity()
+        board.Save(board.GetFileName()); write_project(outdir)
+    rep, _, _ = usb_report(board, sorted_tracks(board))
+    for row in rep:
+        print("tune: %-8s/%-8s path %.2f / %.2f mm, skew %.2f mm" % (row["nets"] + (row["p"]["path"], row["n"]["path"], row["skew"])))
+
 # net classes for the autorouter (the same numbers are in voxhub.kicad_pro for KiCad's DRC)
 NETCLASSES = {
     "Power": (400, 150, ["VBUS", "VBUS_SW", "BUCK_SW", "USB1_VBUS", "USB2_VBUS", "SD_VDD", "SPK_P", "SPK_N"]),
@@ -1178,6 +1514,8 @@ if __name__ == "__main__":
             orders = [u, [u[1], u[0], u[3], u[2], u[5], u[4]], u[2:] + u[:2], list(reversed(u)), [u[4], u[5], u[2], u[3], u[0], u[1]], [u[3], u[2], u[5], u[4], u[1], u[0]]]
             rr = tuple(orders[variant % len(orders)])
         patch(sys.argv[2], reroute=rr)
+    elif sys.argv[1] == "tune":
+        tune_usb(sys.argv[2])
     elif sys.argv[1] == "stats":
         b = pcbnew.LoadBoard(os.path.join(sys.argv[2], "voxhub.kicad_pcb"))
         L, V = {}, {}
@@ -1187,9 +1525,17 @@ if __name__ == "__main__":
             if tr.Type() == pcbnew.PCB_VIA_T: V[n_] = V.get(n_, 0) + 1; nvia += 1
             else: L[n_] = L.get(n_, 0.0) + pcbnew.ToMM(tr.GetLength()); ntr += 1
         print("track segments: %d, vias: %d (GND %d, +5V %d)" % (ntr, nvia, V.get("GND", 0), V.get("+5V", 0)))
-        for a_, c_ in (("USB_UP_P", "USB_UP_N"), ("USB1_P", "USB1_N"), ("USB2_P", "USB2_N")):
+        print("USB 2.0 pairs - electrical length pad to pad (hub pin to connector pin, %.1f mm counted per via):" % VIA_LEN)
+        rep, _, _ = usb_report(b)
+        for row in rep:
             print("%-9s %6.2f mm (%d vias)   %-9s %6.2f mm (%d vias)   skew %.2f mm" % (
-                a_, L.get(a_, 0), V.get(a_, 0), c_, L.get(c_, 0), V.get(c_, 0), abs(L.get(a_, 0) - L.get(c_, 0))))
+                row["nets"][0], row["p"]["path"], row["p"]["vias"], row["nets"][1], row["n"]["path"], row["n"]["vias"], row["skew"]))
+        print("USB 2.0 pairs - all copper of the net (sum of track segments incl. the ESD flow-through links, no vias):")
+        for row in rep:
+            print("%-9s %6.2f mm (%d vias)   %-9s %6.2f mm (%d vias)   copper-diff %.2f mm" % (
+                row["nets"][0], row["p"]["copper"], row["p"]["nvias"], row["nets"][1], row["n"]["copper"], row["n"]["nvias"], row["copper_skew"]))
+        print("worst pair: skew %.2f mm, copper-diff %.2f mm (limit %.1f mm)" % (
+            max(r_["skew"] for r_ in rep), max(r_["copper_skew"] for r_ in rep), USB_SKEW_LIMIT))
         for n_ in ("SD_CLK", "SD_CMD", "SD_DAT0", "SD_DAT1", "SD_DAT2", "SD_DAT3", "I2S_BCLK", "PDM_CLK_M"):
             print("%-9s %6.1f mm (%d vias)" % (n_, L.get(n_, 0), V.get(n_, 0)))
     else:

@@ -1,4 +1,4 @@
-# Hardware: VoxHub CM4 carrier, revision A
+# Hardware: VoxHub CM4 carrier, revision A1
 
 KiCad 9 project, **generated entirely from code** (`gen/`). Do not edit the `.kicad_sch` / `.kicad_pcb` files
 by hand - change the generator and run `./build.sh`.
@@ -12,10 +12,10 @@ by hand - change the generator and run `./build.sh`.
 | `3dmodels/` | STEP models used by the footprints (KiCad library copies + simple stand-ins) |
 | `gen/design.py` | **the circuit**: every part, value and net |
 | `gen/kisch.py`, `gen/sexpr.py` | schematic writer |
-| `gen/parts.py`, `gen/sourcing.py`, `gen/make_bom.py` | part catalogue, sourcing data, BOM generator |
-| `gen/make_footprints.py`, `gen/make_3dmodels.py` | project footprints and stand-in models |
-| `gen/build_pcb.py` | placement, power fan-out, DSN export, import, patch router, repair, pours |
-| `gen/postroute.sh` | iterate DRC -> repair -> patch until clean, then USB pair re-route |
+| `gen/parts.py`, `gen/sourcing.py`, `gen/sourcing_live.json`, `gen/make_bom.py` | part catalogue, second sources, live distributor data (DigiKey, 2026-11-11), BOM generator |
+| `gen/make_footprints.py`, `gen/make_3dmodels.py` | project footprints and coloured stand-in models |
+| `gen/build_pcb.py` | placement, power fan-out, DSN export, import, patch router, repair, USB length matching, pours |
+| `gen/postroute.sh` | iterate DRC -> repair -> patch until clean, then USB pair re-route + serpentine matching |
 | `gen/routed/voxhub.ses` | autorouter session (Freerouting 2.0.1) the committed board was built from |
 | `gen/placement.json` | final part positions (also drives the enclosure model) |
 | `outputs/` | everything a fab / assembler needs (below) |
@@ -26,17 +26,17 @@ by hand - change the generator and run `./build.sh`.
 |---|---|
 | `voxhub_schematic.pdf` | schematic, 6 pages |
 | `erc.rpt`, `drc.rpt` | kicad-cli reports: **0 ERC violations, 0 DRC violations, 0 unconnected, 0 parity issues** |
-| `drc_waived_checks_enabled.rpt` | the same DRC with the waived checks switched on (10 warnings, explained below) |
+| `drc_waived_checks_enabled.rpt` | the same DRC with the waived checks switched on (9 warnings, explained below) |
 | `gerbers/` + `voxhub_gerbers.zip` | Gerber X2: F/In1/In2/B copper, mask, paste, silk, Edge.Cuts; Excellon PTH + NPTH drill, drill maps, job file |
 | `voxhub_pos.csv` | pick-and-place (both sides, DNP parts excluded) |
-| `bom.csv` | PCB assembly BOM: MPN, manufacturer, distributor PN, qty, unit price, lifecycle, second source |
+| `bom.csv` | PCB assembly BOM: MPN, manufacturer, DigiKey PN / status / stock / price at 1 and 100 (live, 2026-11-11), Mouser PN (not live), second source |
 | `bom_system.csv` | module, speaker, heat sink, screws, SD card ... |
 | `voxhub_outline.dxf` | mechanical outline: board edge, mounting holes, CM4 holes/outline, microphone ports, LED slots, connector envelopes, courtyards |
 | `mechanical_positions.csv` | the same positions as numbers |
 | `voxhub_pcb.step` | 3D model of the assembled board |
 | `pcb_layers/voxhub.pdf` | layer plots |
 | `render_top.png`, `render_bottom.png`, `render_iso.png` | kicad-cli 3D renders |
-| `routing_stats.txt` | track / via counts, USB pair lengths and skew |
+| `routing_stats.txt` | track / via counts, USB pair lengths (pad to pad) and skew, SD / I2S / PDM lengths |
 
 ![top](outputs/render_top.png)
 
@@ -61,7 +61,9 @@ How the board is produced:
 4. `build_pcb.py finish`: import, widen necked tracks to 0.1 mm, GND and +5V planes, GND pours on both outer layers.
 5. `postroute.sh`: the patch router (A* on a 0.05 mm grid with rip-up) joins whatever is still open and a DRC-driven repair
    removes offending copper, until `kicad-cli pcb drc` is clean; then the six USB data nets are ripped up and re-routed as
-   short 0.2 mm traces (several net orders are tried, the best-matched clean result is kept).
+   0.2 mm traces, pad to pad through the ESD devices (locked flow-through links join the two pads of each line), and the
+   shorter line of each pair gets serpentine bumps until the pad-to-pad lengths agree. Several net orders are tried; a
+   result is kept only if the DRC is clean again and both skew numbers are below 3.8 mm.
 6. `build_pcb.py pours`: local copper pours for VBUS, VBUS_SW, the buck switch node, the buck output and USB VBUS.
 
 ## Fabrication notes
@@ -80,7 +82,7 @@ How the board is produced:
 | Finish | **ENIG** (0.4 mm pitch WLCSP and mezzanine connectors) |
 | Mask / silk | any colour; silkscreen is clipped by the mask openings (Gerbers are plotted with `--subtract-soldermask`) |
 | Copper to board edge | >= 0.35 mm for routed copper (edge connectors' own pads excepted) |
-| Keep-outs | no copper on any layer under the MGM240P antenna (19.6..28.4 x 69.2..74) and under the CM4 antenna corner (90..100 x 35..47) |
+| Keep-outs | no copper on any layer under the MGM240P antenna (19.6..28.4 x 69.2..74, Silicon Labs datasheet) and under the CM4 antenna (91..100 x 44.5..59.5: the 6.5 x 11 mm "Wireless Cutout" of CM4 datasheet fig. 4 enlarged to the recommended 8 x 15 mm and out to the board edge) |
 | Impedance control | not required if the stack-up above is used; otherwise specify 90 ohm differential for nets `USB*` on F.Cu/B.Cu |
 | Panel | fiducials FID1-3 are on the board; add rails + tooling holes as your assembler requires (edge connectors overhang the rear edge by up to 2.5 mm) |
 
@@ -88,7 +90,7 @@ How the board is produced:
 
 - **Side F (component side, "top" in the files)**: all SMT parts. **Side B**: only SW1 (mute slide switch) - place in a second
   pass or hand-solder (6 gull-wing pads).
-- THT parts: J6 (stacked USB-A), J7 (JST-PH) - selective/hand solder from side B. J5 (debug header) is **DNP**; C12 (feed-forward
+- THT parts: J6 (stacked USB-A), J7 (JST-PH) - selective/hand solder from side B. J5 (debug header) is **DNP**; C13 (feed-forward
   capacitor) is **DNP**.
 - U9 ADAU7002: WLCSP-8, 0.4 mm pitch, NSMD pads 0.22 mm. Use a 0.10 mm stencil, type 4 paste; X-ray or electrical test.
 - U11 MGM240P and J2/J3 (0.4 mm mezzanine sockets): reflow only, no hand soldering. J2/J3 must be placed with the pick-and-place
@@ -104,26 +106,29 @@ How the board is produced:
 
 ### Programming and test (per board)
 
-1. Without CM4: apply a 9 V-capable PD source. Expect VBUS = 9 V (TP1), VBUS_SW = 9 V (TP2), +5V = 5.10 V +-2 % (TP3),
+1. Without CM4: apply a 9 V-capable PD source. Expect VBUS = 9 V (TP1), VBUS_SW = 9 V (TP2), +5V = 5.02 V +-2.6 % (TP3),
    green PWR LED on, red PD-FAULT LED off. With a 5 V-only source: TP2 = 0 V, red LED on, no 5 V.
 2. Fit the CM4 (+3V3 on TP4 = 3.3 V), boot the test image, check: both USB-A ports enumerate a high-speed device,
    `arecord`/`aplay` loopback through the googlevoicehat card, both microphones (left/right channel), mute switch (red LED on,
    capture goes silent), green/blue LEDs via `/sys/class/leds`, `i2cdetect -y 1` shows 0x08.
 3. Flash the radio: the MGM240P ships with a serial bootloader only. Program the EmberZNet NCP (or OpenThread RCP) firmware
-   through the Tag-Connect pads J8, or in-system from the CM4 (SWDIO = GPIO22, SWCLK = GPIO23, nRESET = GPIO24; openocd
-   `bcm2835gpio` or `linuxgpiod` driver). UART: 115200 baud on `/dev/ttyAMA1`, TX = PA05, RX = PA06, optional RTS/CTS = PA08/PA07,
-   bootloader strap = PC00 (GPIO25, active low).
+   through the Tag-Connect pads J8, or in-system from the CM4 (SWDIO = GPIO22, SWCLK = GPIO23; openocd `bcm2835gpio` or
+   `linuxgpiod` driver). **Reset is active high on the CM4 side:** GPIO24 high pulls the module's RESETn low through Q4
+   (open drain); leave GPIO24 low or floating to run. In openocd that is `reset_config srst_only srst_open_drain` with the
+   srst GPIO declared active high (or toggle GPIO24 from the flashing script); J8 pin 3 is the module's RESETn itself.
+   UART: 115200 baud on `/dev/ttyAMA1`, TX = PA05, RX = PA06, RTS = PA07, CTS = PA08 (the Silicon Labs reference
+   assignment, datasheet fig. 5.1), bootloader strap = PC00 (GPIO25, active low).
 
 ## DRC: waived checks
 
 `outputs/drc.rpt` is clean with the following five checks set to "ignore" in the project
-(`gen/project_settings.json`). `outputs/drc_waived_checks_enabled.rpt` shows what they would report: 10 warnings, 0 errors.
+(`gen/project_settings.json`). `outputs/drc_waived_checks_enabled.rpt` shows what they would report: 9 warnings, 0 errors.
 
 | Check | Count | Why it is waived |
 |---|---|---|
 | `silk_edge_clearance` | 4 | Library silkscreen of the edge connectors (USB-C, USB-A, microSD) reaches the board edge by design; it is cut off at the outline. |
 | `silk_over_copper` | 2 | Library silkscreen lines over exposed pads; the Gerbers are plotted with silkscreen subtracted from mask openings, so nothing is printed on pads. |
-| `silk_overlap` | 2 | Overlapping silkscreen of neighbouring parts (cosmetic). Reference designators are on the F.Fab layer, not on silk. |
+| `silk_overlap` | 1 | Overlapping silkscreen of neighbouring parts (cosmetic). Reference designators are on the F.Fab layer, not on silk. |
 | `footprint_type_mismatch` | 1 | U2 uses KiCad's `...HSOP-8-1EP..._ThermalVias` footprint: an SMD part whose exposed pad contains plated thermal vias, which KiCad classifies as "through hole". Intentional. |
 | `lib_footprint_mismatch` | 1 | The board copies of the footprints point their 3D models to `hardware/3dmodels` instead of the KiCad installation, so they differ from the library by design (the KiCad Docker image ships without 3D models). |
 
@@ -136,11 +141,17 @@ thermal relief spokes >= 1.
 - **Autorouted.** The layout is electrically complete and rule-clean, but it is not hand-optimised: return paths, loop areas of the
   buck converter and analogue-quality details were not reviewed by a human layout engineer. The buck's input/output capacitors and
   inductor are adjacent to the IC and tied together with pours and plane vias, which covers the essentials.
-- **USB 2.0 pairs are loosely coupled, not true differential pairs** (see stack-up note). Lengths and skew are listed in
-  `outputs/routing_stats.txt`: 16-32 mm long, intra-pair skew 1.2 mm (upstream), 4.6 mm (port 1) and 2.4 mm (port 2), i.e. at most
-  ~30 ps against a 2083 ps bit time. The usual layout guideline is <= 3.8 mm (150 mil), which port 1 misses slightly. Expect them to
-  work at high speed, but verify with a USB 2.0 high-speed device and, ideally, an eye-diagram test on the first prototypes.
-- SD card lines are 58-72 mm long with up to 13 mm mismatch: fine for 50 MHz high-speed mode; UHS-I SDR104 is not guaranteed.
-- Mechanical dimensions of three parts (USB-A overhang, slide switch height, speaker) and the CM4 antenna corner are assumptions -
-  see DECISIONS.md "Open items".
+- **USB 2.0 pairs are loosely coupled, not true differential pairs** (see stack-up note), but they are length matched.
+  `outputs/routing_stats.txt`: pad-to-pad length (hub pin to connector pin, 1.5 mm counted per via) 33.62 / 33.62 mm upstream,
+  27.55 / 28.90 mm port 1, 25.41 / 25.41 mm port 2, i.e. an intra-pair skew of 0.00 / 1.35 / 0.00 mm against the usual
+  3.8 mm (150 mil) guideline; the sum of all copper per net differs by at most 1.86 mm. The lines run through both pads of
+  the USBLC6-2SC6 (flow-through), so there are no stubs. Not ideal and left as is: the two lines of port 2 use a different
+  number of vias (4 and 0), which the length figure accounts for but which is still an asymmetry. Verify with a USB 2.0
+  high-speed device and, ideally, an eye-diagram test on the first prototypes.
+- SD card lines are 62-89 mm long with up to 26 mm mismatch: fine for 50 MHz high-speed mode (175 ps against a 20 ns
+  period); UHS-I SDR104 is not guaranteed.
+- Mechanical dimensions were checked against the manufacturer drawings (DECISIONS.md section 9); two of them (USB-A flange
+  lip, speaker terminal position) are scaled from the drawing rather than dimensioned.
+- Three lines of the BOM were out of stock at DigiKey on the day of the check and have no drop-in with equal ratings
+  (LMR33640ADDAR, the 22 uF 1206 capacitor, 2N7002) - see the cost summary in the top-level README.
 - No hardware has been built or measured.

@@ -55,6 +55,13 @@ outputs() {
         && kicad-cli pcb render -o outputs/render_top.png --side top --width 2000 --height 1500 --quality high voxhub.kicad_pcb \
         && kicad-cli pcb render -o outputs/render_bottom.png --side bottom --width 2000 --height 1500 --quality high voxhub.kicad_pcb \
         && kicad-cli pcb render -o outputs/render_iso.png --rotate '-55,0,25' --zoom 0.9 --width 2000 --height 1500 --quality high voxhub.kicad_pcb"
+    # track / via statistics incl. the USB pair lengths, and the DRC once more with the waived checks switched on
+    kc "python3 gen/build_pcb.py stats /work/hardware 2>/dev/null | grep -v '^$' > outputs/routing_stats.txt; \
+        python3 -c \"import json; d = json.load(open('gen/project_settings.json')); s = d['board']['design_settings']['rule_severities']; \
+[s.__setitem__(k, 'warning') for k in ('silk_edge_clearance', 'silk_over_copper', 'silk_overlap', 'footprint_type_mismatch', 'lib_footprint_mismatch')]; \
+json.dump(d, open('voxhub.kicad_pro', 'w'), indent=2)\" \
+        && kicad-cli pcb drc --schematic-parity --severity-all --format report -o outputs/drc_waived_checks_enabled.rpt voxhub.kicad_pcb; \
+        cp gen/project_settings.json voxhub.kicad_pro"
     python3 "${HW}/gen/make_bom.py" "${HW}/gen/model_netlist.json" "${OUT}"
     (cd "${OUT}" && rm -f voxhub_gerbers.zip && zip -q -r voxhub_gerbers.zip gerbers)
 }

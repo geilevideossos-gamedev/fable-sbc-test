@@ -1,13 +1,13 @@
-Item,Qty,Function,Description,Manufacturer,MPN,Distributor,Distributor PN,Alt. distributor PN (Mouser),Unit price USD (qty 1),Ext. price USD,Lifecycle,Second source,Sourcing note
-1,1,Compute module,"Raspberry Pi CM4 Lite, 4 GB, wireless",Raspberry Pi,CM4104000,DigiKey,n/v (DigiKey order code SC0671),358-CM4104000,55.00,55.00,Active (production until >= Jan 2034),CM4102000 (2 GB) / CM4108000 (8 GB): drop-in,"DigiKey stock snapshots 246-1,810; Mouser 0 at check time"
-2,1,Speaker,"Speaker 40 mm, 4 ohm, 3 W, 17.5 mm deep, solder tabs",Same Sky,CMS-4017-34SP,DigiKey,2223-CMS-4017-34SP-ND,n/v,4.99,4.99,Active,"PUI Audio AS04004PR-R (40 mm, 4 ohm, 3 W, 18.3 mm deep)","DigiKey ~1k, Mouser ~950"
-3,1,Speaker lead,JST PH 2-pin housing (plus 2 crimps SPH-002T-P0.5S and 2 x 80 mm AWG26 wire),JST,PHR-2,DigiKey,455-1165-ND,n/v,0.10,0.10,Active,pre-crimped JST PH 2-pin lead,DigiKey 750k+
-4,1,Heat sink,Heat sink 14 x 14 x 6 mm for the BCM2711 (add 14 x 14 mm thermal tape),Same Sky,HSB03-141406,DigiKey,n/v (DigiKey product 14567064),n/v,1.12,1.12,Active,"ATS-52150B-C1-R0 (15 x 15 x 7.5 mm, tape included)",DigiKey 2k-3.5k; 36 C/W natural convection
-5,1,microSD card,"microSD card >= 32 GB, A2 class (flash os/output/haos_voxhub-cm4-*.img.xz)",SanDisk,SDSQXAF-032G-GN6MA,DigiKey,n/v,n/v,~9.00,9.00,Active,any A1/A2 microSD >= 32 GB,consumer item
-6,4,Screws CM4,Screw M2.5 x 5 mm pan head (CM4 to SMT spacers),generic,M2.5x5 DIN 7985,DigiKey,n/v,n/v,~0.10,0.40,generic,any equivalent,hardware-store item
-7,4,Screws PCB,Thread-forming screw for plastic 2.5 x 6 mm (PCB to shell bosses),generic,2.5x6 PT / WN1412,DigiKey,n/v,n/v,~0.10,0.40,generic,any equivalent,hardware-store item
-8,4,Screws base,Thread-forming screw for plastic 2.5 x 8 mm (base to shell posts),generic,2.5x8 PT / WN1412,DigiKey,n/v,n/v,~0.10,0.40,generic,any equivalent,hardware-store item
-9,1,Foam pad,Closed-cell foam pad 20 x 20 x 3 mm (speaker clamp) + 2 foam rings 5/2 x 0.5 mm (mic gaskets),generic,EVA / Poron,DigiKey,n/v,n/v,~0.10,0.10,generic,any equivalent,hardware-store item
-10,4,Feet,Self-adhesive rubber foot 8 mm,generic,3M SJ5003 class,DigiKey,n/v,n/v,~0.10,0.40,generic,any equivalent,hardware-store item
+Item,Qty,Function,Description,Manufacturer,MPN,DigiKey PN,DigiKey status,DigiKey stock,Unit USD @1,Unit USD @100,Ext. USD @1,Ext. USD @100,Mouser PN,Mouser data,Second source,Sourcing note (checked 2026-11-11)
+1,1,Compute module,"Raspberry Pi CM4 Lite, 4 GB, wireless",Raspberry Pi,CM4104000,2648-SC0671-ND,Active,576,95.00,95.00,95.00,95.00,358-SC0671,"search snippet, NOT live",CM4102000 (2 GB) / CM4108000 (8 GB): drop-in,"DigiKey price 95 USD on 2026-11-11 (memory prices; it was about 55 USD a year earlier), purchase limit, no backorders. Production until >= Jan 2034"
+2,1,Speaker,"Speaker 40 mm, 4 ohm, 3 W, 17.5 mm deep, solder tabs",Same Sky,CMS-4017-34SP,2223-CMS-4017-34SP-ND,Active,935,7.91,4.73,7.91,4.73,,not retrievable (mouser.com blocks automated access),"PUI Audio AS04004PR-R (40 mm, 4 ohm, 3 W, 18.3 mm deep - check the pedestal height)",
+3,1,Speaker lead,JST PH 2-pin housing (plus 2 crimps SPH-002T-P0.5S and 2 x 80 mm AWG26 wire),JST,PHR-2,455-1165-ND,Active,553790,0.10,0.0455,0.10,0.05,,not retrievable (mouser.com blocks automated access),pre-crimped JST PH 2-pin lead,
+4,1,Heat sink,Heat sink 14 x 14 x 6 mm for the BCM2711 (add 14 x 14 mm thermal tape),Same Sky,HSB03-141406,2223-HSB03-141406-ND,Active,5202,0.82,0.67,0.82,0.67,490-HSB03-141406,"stock 5047; 0.82 USD @1 - search snippet, NOT live","ATS-52150B-C1-R0 (15 x 15 x 7.5 mm, tape included)",36 C/W natural convection
+5,1,microSD card,"microSD card >= 32 GB, A1 class or better (flash os/output/haos_voxhub-cm4-*.img.xz)",SanDisk,SDSQXAF-032G-GN6MA,,not a distributor item,,~9.00,~9.00,9.00,9.00,,,any A1/A2 microSD >= 32 GB,"consumer item, not carried by DigiKey; about 9 USD retail (estimate)"
+6,4,Screws CM4,Screw M2.5 x 5 mm pan head (CM4 to SMT spacers),generic,M2.5x5 DIN 7985,,not a distributor item,,~0.10,~0.10,0.40,0.40,,,any equivalent,"hardware-store item, price is an estimate"
+7,4,Screws PCB,Thread-forming screw for plastic 2.5 x 6 mm (PCB to shell bosses),generic,2.5x6 PT / WN1412,,not a distributor item,,~0.10,~0.10,0.40,0.40,,,any equivalent,"hardware-store item, price is an estimate"
+8,4,Screws base,Thread-forming screw for plastic 2.5 x 8 mm (base to shell posts),generic,2.5x8 PT / WN1412,,not a distributor item,,~0.10,~0.10,0.40,0.40,,,any equivalent,"hardware-store item, price is an estimate"
+9,1,Foam pad,Closed-cell foam pad 20 x 20 x 3 mm (speaker clamp) + 2 foam rings 5/2 x 0.5 mm (mic gaskets),generic,EVA / Poron,,not a distributor item,,~0.10,~0.10,0.10,0.10,,,any equivalent,"hardware-store item, price is an estimate"
+10,4,Feet,Self-adhesive rubber foot 8 mm,generic,3M SJ5003 class,,not a distributor item,,~0.10,~0.10,0.40,0.40,,,any equivalent,"hardware-store item, price is an estimate"
 
-,,,System parts total,,,,,,,71.91
+,,,System parts total per unit,,,,,,,,114.53,111.15

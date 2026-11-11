@@ -31,16 +31,20 @@ PCB_W, PCB_H, PCB_T = 100.0, 74.0, 1.6      # must match hardware/gen/build_pcb.
 WALL = 2.0                                   # side wall thickness
 TOP_T = 2.0                                  # top plate thickness
 BASE_T = 2.4                                 # base plate thickness
-GAP_TOP = 4.0                                # PCB bare side -> inside of top plate (fits SW1 body 3.5 mm)
-DEPTH = 18.0                                 # PCB component side -> inside of base (USB-A stack is 15.7 mm)
+GAP_TOP = 4.0                                # PCB bare side -> inside of top plate (SW1 body is 3.5..3.6 mm high, C&K JS drawing)
+DEPTH = 18.0                                 # PCB component side -> inside of base (USB-A shell 15.34, flange lip 15.95 mm)
 EDGE_GAP = 0.6                               # PCB edge -> inner wall (rear, front)
 SPK_BAY = 46.0                               # extra interior width on the left for the speaker
 POST_BAY = 7.6                               # extra interior width on the right for the base screw posts
 CORNER_R = 5.0                               # outer vertical corner radius
 FIT = 0.25                                   # general printing clearance
 
-# speaker: Same Sky CMS-4017-34SP class, 40 mm round frame, 17.5 mm deep, 4 ohm 3 W
+# speaker: Same Sky CMS-4017-34SP (datasheet drawing): frame dia 40 +-0.3, depth 17.5 +-0.3, yoke dia 23,
+# baffle opening dia 35.6 with at least 0.8 mm free in front of the diaphragm, 4 ohm 3 W, 25 g
 SPK_D, SPK_DEPTH = 40.0, 17.5
+SPK_FIT = 0.8                                # diametral clearance of the locating ring (frame tolerance 0.3 + 2 x 0.25)
+SPK_BAFFLE_D, SPK_RELIEF = 35.6, 1.0         # pocket in front of the cone ("at least 0.8 for diaphragm moving")
+SPK_YOKE_D = 23.0
 SPK_GRILLE_D = 34.0
 FOAM = 1.5                                   # compressed foam pad between speaker magnet and pedestal
 
@@ -79,11 +83,16 @@ POSTS = [(X0 + POST_D / 2 + 0.2, Y0 + POST_D / 2 + 0.2), (X0 + POST_D / 2 + 0.2,
          (X1 - POST_D / 2 - 0.2, Y0 + POST_D / 2 + 0.2), (X1 - POST_D / 2 - 0.2, Y1 - POST_D / 2 - 0.2)]
 
 # rear-wall windows: (x centre, width, z top, z bottom)  - connector bodies hang below the PCB
-USBC_X, USBA_X, SD_X = at("J1")[0], at("J6")[0] - 3.5, at("J4")[0]
+# all window sizes below are derived from the manufacturer drawings (see DECISIONS.md section 9)
+USBC_X, USBA_X, SD_X = at("J1")[0], at("J6")[0] - 3.5, at("J4")[0] + 0.425   # card centre line is 0.425 mm off the DM3AT body centre
 WINDOWS = [
-    (USBC_X, 12.4, Z_PCB_BOT + 1.3, Z_PCB_BOT - 5.0),     # USB-C: 8.94 x 3.31 shell + plug overmould clearance
-    (USBA_X, 15.2, Z_PCB_BOT + 0.3, Z_PCB_BOT - 16.2),    # stacked USB-A: 14.5 x 15.7
-    (SD_X, 14.0, Z_PCB_BOT + 0.2, Z_PCB_BOT - 7.0),       # microSD: card 11 x 1 mm, sits ~2 mm behind the outer surface -> finger notch below it
+    # USB-C (GCT USB4105 rev B4): the shell ends flush with the PCB edge, i.e. 2.6 mm inside the wall, so the plug
+    # overmould (12.35 x 6.5 mm per the Type-C spec, centred 1.6 mm below the PCB) has to enter the window
+    (USBC_X, 13.4, Z_PCB_BOT + 2.0, Z_PCB_BOT - 5.5),
+    # stacked USB-A (Wurth 61400826021 rev 001.001): front flange 14.5 +-0.2 x 15.5 +-0.2, lips at 0.45 and 15.95 mm
+    (USBA_X, 15.6, Z_PCB_BOT + 0.3, Z_PCB_BOT - 16.7),
+    # microSD (Hirose DM3AT): card 11 x 1 mm; the locked card ends 1.6 mm behind the outer surface -> finger notch below it
+    (SD_X, 14.0, Z_PCB_BOT + 0.2, Z_PCB_BOT - 7.0),
 ]
 
 def box(x0, y0, z0, x1, y1, z1):
@@ -119,12 +128,16 @@ def make_shell():
     # mute slider: slot through the top + finger dish on the outside
     sx, sy = SW
     s = s.cut(box(sx - 3.2, sy - 1.3, Z_TOP_IN - 0.1, sx + 3.2, sy + 1.3, Z_TOP_OUT + 0.1))
-    dish = (cq.Workplane("XY").slot2D(15.0, 8.0).extrude(1.2).translate((sx, sy, Z_TOP_OUT - 1.2)))
+    # JS202011JCQN: actuator 1.5 x 1.5 mm, 2 mm travel, top 5.5..5.6 mm above the PCB = 0.4..0.5 mm below the outer
+    # face; the dish floor is 1.4 mm down, so the slider stands 0.9..1.0 mm proud of it and cannot be moved by accident
+    dish = (cq.Workplane("XY").slot2D(16.0, 10.0).extrude(1.4).translate((sx, sy, Z_TOP_OUT - 1.4)))
     s = s.cut(dish)
     # speaker: locating ring + hexagonal grille
-    ring = cyl(SPK_X, SPK_Y, Z_TOP_IN - 3.0, Z_TOP_IN + 0.01, SPK_D + 2 * FIT + 3.2).cut(
-        cyl(SPK_X, SPK_Y, Z_TOP_IN - 3.1, Z_TOP_IN + 0.1, SPK_D + 2 * FIT))
+    ring = cyl(SPK_X, SPK_Y, Z_TOP_IN - 3.0, Z_TOP_IN + 0.01, SPK_D + SPK_FIT + 3.2).cut(
+        cyl(SPK_X, SPK_Y, Z_TOP_IN - 3.1, Z_TOP_IN + 0.1, SPK_D + SPK_FIT))
     s = s.union(ring)
+    # free space for the moving diaphragm in front of the cone (speaker datasheet mounting notice)
+    s = s.cut(cyl(SPK_X, SPK_Y, Z_TOP_IN - 0.01, Z_TOP_IN + SPK_RELIEF, SPK_BAFFLE_D))
     pitch, hole = 3.4, 2.2
     pts = []
     for i in range(-8, 9):
@@ -132,7 +145,7 @@ def make_shell():
             px, py = i * pitch + (j % 2) * pitch / 2, j * pitch * 0.866
             if math.hypot(px, py) <= SPK_GRILLE_D / 2 - hole / 2:
                 pts.append((SPK_X + px, SPK_Y + py))
-    grille = cq.Workplane("XY").pushPoints(pts).circle(hole / 2).extrude(TOP_T + 0.4).translate((0, 0, Z_TOP_IN - 0.2))
+    grille = cq.Workplane("XY").pushPoints(pts).circle(hole / 2).extrude(TOP_T + 0.4).translate((0, 0, Z_TOP_IN - 0.2))   # 1 mm of plate left
     s = s.cut(grille)
     # rear wall windows
     for xc, w, zt, zb in WINDOWS:
@@ -156,7 +169,8 @@ def make_base():
     z_spk_back = Z_TOP_IN - SPK_DEPTH
     ped_top = z_spk_back - FOAM
     if ped_top > Z_FLOOR + 0.5:
-        b = b.union(cyl(SPK_X, SPK_Y, Z_FLOOR - 0.01, ped_top, 24.0).cut(cyl(SPK_X, SPK_Y, Z_FLOOR, ped_top + 0.1, 19.0)))
+        # ring 13..21 mm: bears on the flat back of the dia 23 yoke (flat part about dia 21)
+        b = b.union(cyl(SPK_X, SPK_Y, Z_FLOOR - 0.01, ped_top, 21.0).cut(cyl(SPK_X, SPK_Y, Z_FLOOR, ped_top + 0.1, 13.0)))
     # vents under the CM4 / heat sink and under the power stage
     for i in range(9):
         x = 48.0 + i * 5.6
@@ -176,11 +190,13 @@ def make_base():
 # ----------------------------------------------------------------------------- PCB assembly stand-in
 # (reference, body size x, y, height, footprint-local centre offset) - simplified keep-in solids
 BODIES = {
-    "J1": (8.94, 7.35, 3.31, (0, 0.0)), "J6": (14.5, 17.0, 15.7, (3.5, 7.11)), "J4": (13.85, 15.95, 1.68, (0, 0.25)),
-    "L1": (7.3, 6.6, 2.8, (0, 0)), "U11": (12.9, 15.0, 2.2, (0, 0)), "J7": (5.9, 4.5, 6.0, (1.0, -0.5)),
+    "J1": (8.94, 7.35, 3.31, (0, 0.0)), "J6": (14.5, 17.0, 16.0, (3.5, 7.11)), "J4": (13.85, 15.95, 1.68, (0, 0.15)),
+    "L1": (7.3, 6.6, 2.8, (0, 0)), "U11": (12.9, 15.0, 2.2, (0, 0)), "J7": (5.9, 4.5, 6.0, (1.0, 0.55)),
     "J5": (2.54, 7.62, 8.5, (0, 2.54)), "U4": (6, 6, 0.9, (0, 0)), "U2": (4.9, 6.0, 1.7, (0, 0)), "U1": (4, 4, 0.6, (0, 0)),
 }
-CM4 = dict(x0=44.0, y0=28.0, w=55.0, h=40.0, stack=1.5, pcb=1.2, comp=2.4, hs=(14.0, 14.0, 6.0), soc=(71.5, 48.0))
+# CM4 datasheet fig. 4: 55 x 40 mm, PCB 1.2 mm, SoC 2.378 +-0.11 mm high, SoC centre 31.99 / 16.98 mm from the module
+# edges, 1.5 mm stacking height on DF40C-100DS-0.4V; heat sink Same Sky HSB03-141406 = 14 x 14 x 6 mm
+CM4 = dict(x0=44.0, y0=28.0, w=55.0, h=40.0, stack=1.5, pcb=1.2, comp=2.5, hs=(14.0, 14.0, 6.0), soc=(67.0, 45.0))
 
 def make_pcb_assembly():
     pcb = box(0, 0, -PCB_T, PCB_W, PCB_H, 0).edges("|Z").fillet(3.0)
@@ -201,11 +217,15 @@ def make_pcb_assembly():
     hx, hy, hh = c["hs"]
     parts = parts.union(box(c["soc"][0] - hx / 2, c["soc"][1] - hy / 2, z - c["pcb"] - c["comp"] - hh,
                             c["soc"][0] + hx / 2, c["soc"][1] + hy / 2, z - c["pcb"] - c["comp"]))
-    # mute switch on the top-facing side: body 9 x 3.6 x 3.5, slider 2 x 1.5 x 2
+    # mute switch on the top-facing side (C&K JS202011JCQN): body 9 x 3.6 x 3.6, actuator 1.5 x 1.5 x 2 with 2 mm
+    # travel -> swept volume 3.5 x 1.5 mm, top 5.6 mm above the PCB
     sx, sy = SW
-    parts = parts.union(box(sx - 4.5, sy - 1.8, 0, sx + 4.5, sy + 1.8, 3.5)).union(box(sx - 2.0, sy - 0.75, 3.5, sx, sy + 0.75, 5.5))
+    parts = parts.union(box(sx - 4.5, sy - 1.8, 0, sx + 4.5, sy + 1.8, 3.6)).union(box(sx - 1.75, sy - 0.75, 3.6, sx + 1.75, sy + 0.75, 5.6))
     # speaker (frame + magnet)
-    spk = cyl(SPK_X, SPK_Y, Z_TOP_IN - 4.0, Z_TOP_IN, SPK_D).union(cyl(SPK_X, SPK_Y, Z_TOP_IN - SPK_DEPTH, Z_TOP_IN - 4.0, 26.0))
+    # speaker: flange 1.7, basket to 11.3, yoke dia 23 to 17.5 mm (max. material: frame dia 40.3)
+    spk = (cyl(SPK_X, SPK_Y, Z_TOP_IN - 1.7, Z_TOP_IN, SPK_D + 0.3)
+           .union(cq.Workplane("XY").circle(19.0).workplane(offset=-9.6).circle(SPK_YOKE_D / 2 + 3.0).loft(combine=True).translate((SPK_X, SPK_Y, Z_TOP_IN - 1.7)))
+           .union(cyl(SPK_X, SPK_Y, Z_TOP_IN - SPK_DEPTH, Z_TOP_IN - 11.3, SPK_YOKE_D)))
     return pcb, parts, spk
 
 def summary():

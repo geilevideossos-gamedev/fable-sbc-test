@@ -8,7 +8,8 @@
 #                     Docker. The result keeps receiving official OTA updates.
 #   full              Clone the official HAOS build system at the latest release tag, add the
 #                     "voxhub" board definition from os/board + os/package and build from source
-#                     (needs Docker or a Buildroot-capable host, ~30 GB disk, 1-3 h).
+#                     (regular user with sudo + Docker, or VOXHUB_NO_DOCKER=1 on a Buildroot-capable
+#                     host; ~30 GB disk; 1-3 h on a fast machine, much longer on 4 cores).
 #
 # Options:
 #   --version X.Y       HAOS version (default: latest stable release tag)
@@ -18,6 +19,10 @@
 #   --custom-overlay    (repack) also use os/overlay/voxhub-overlay.dts instead of stock overlays.
 #                       NOTE: HAOS deletes /overlays/* on OS updates -> not OTA-safe.
 #   --keep-work         keep the work directory
+#
+# Environment (full mode): VOXHUB_NO_DOCKER=1       build on the host instead of in the HAOS builder container
+#                          VOXHUB_GITHUB_VIA_GIT=1  fetch github.com "archive" sources with git (for networks
+#                                                   that block those tarball URLs); host builds only
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -36,7 +41,7 @@ while [ $# -gt 0 ]; do
         --wifi-country) WIFI_COUNTRY="$2"; shift ;;
         --custom-overlay) CUSTOM_OVERLAY=1 ;;
         --keep-work) KEEP=1 ;;
-        -h|--help) sed -n '2,24p' "$0"; exit 0 ;;
+        -h|--help) sed -n '2,28p' "$0"; exit 0 ;;
         *) echo "unknown argument: $1" >&2; exit 2 ;;
     esac
     shift
@@ -163,6 +168,49 @@ repack() {
     log "flash with: xz -dc ${final} | sudo dd of=/dev/sdX bs=4M conv=fsync   (or Raspberry Pi Imager / balenaEtcher)"
 }
 
+# ---------------------------------------------------------------- github archives via git
+# Some networks (corporate proxies, CI sandboxes) refuse https://github.com/<owner>/<repo>/archive/...
+# tarball downloads although plain git access to the same public repositories works.  With
+# VOXHUB_GITHUB_VIA_GIT=1 every such source that Buildroot's own mirror (sources.buildroot.net) does not
+# carry is fetched with a shallow "git fetch" and packed with "git archive | gzip -n" (byte-identical to
+# the GitHub tarball) into a local directory that is handed to Buildroot as BR2_PRIMARY_SITE.
+# Buildroot still verifies each file against its .hash file, so a wrong tarball cannot slip in.
+github_via_git() {      # $1 = HAOS source tree, $2 = mirror directory
+    local src="$1" mirror="$2" info tmp dir file url rest owner repo ref spec want got pfx ok
+    need jq curl gzip sha256sum
+    info="$(mktemp)"; tmp="$(mktemp -d)"
+    make -s -C "${src}/buildroot" O="${src}/output" BR2_EXTERNAL="${src}/buildroot-external" show-info > "${info}"
+    jq -r '[.[] | (.dl_dir // .name) as $d | (.downloads // [])[]
+            | (.uris[] | select(test("github\\.com/[^/]+/[^/]+/archive"))) as $u
+            | [$d, .source, ($u | sub("^[^+]*\\+"; ""))] | @tsv] | unique[]' "${info}" > "${tmp}/list"
+    while IFS=$'\t' read -r dir file url; do
+        if [ -s "${BR2_DL_DIR}/${dir}/${file}" ] || [ -s "${mirror}/${dir}/${file}" ]; then continue; fi
+        if curl -sfIL -o /dev/null "https://sources.buildroot.net/${dir}/${file}"; then continue; fi   # backup mirror has it
+        rest="${url#https://github.com/}"; owner="${rest%%/*}"; rest="${rest#*/}"; repo="${rest%%/*}"
+        ref="${rest#*/archive}"; ref="${ref#/}"; [ -n "${ref}" ] || ref="${file%.tar.gz}"
+        if [[ "${ref}" =~ ^[0-9a-f]{40}$ ]]; then spec="${ref}"; else spec="refs/tags/${ref}"; fi
+        log "git: ${owner}/${repo} @ ${ref} -> ${dir}/${file}"
+        rm -rf "${tmp}/g"; git init -q "${tmp}/g"
+        git -C "${tmp}/g" fetch -q --depth 1 "https://github.com/${owner}/${repo}.git" "${spec}" \
+            || { echo "git fetch failed for ${owner}/${repo} ${ref}" >&2; continue; }
+        mkdir -p "${mirror}/${dir}"
+        # expected hash (if the package has one for exactly this file; vendored -go/-cargo tarballs are
+        # produced and checked by Buildroot's post-processing step instead)
+        want="$(grep -rhs --include='*.hash' -F "  ${file}" "${src}/buildroot" "${src}/buildroot-external" \
+                | awk -v f="${file}" '$1 == "sha256" && $3 == f { print $2; exit }' || true)"
+        case "${file}" in *-go[0-9]*.tar.gz|*-cargo[0-9]*.tar.gz) want="" ;; esac
+        ok=0
+        for pfx in "${repo}-${ref#v}" "${repo}-${ref}"; do      # GitHub drops a leading "v" of the tag
+            pfx="${pfx//\//-}"
+            git -C "${tmp}/g" archive --format=tar --prefix="${pfx}/" FETCH_HEAD | gzip -n > "${mirror}/${dir}/${file}"
+            got="$(sha256sum "${mirror}/${dir}/${file}" | cut -d' ' -f1)"
+            if [ -z "${want}" ] || [ "${got}" = "${want}" ]; then ok=1; break; fi
+        done
+        [ "${ok}" = 1 ] || echo "WARNING: ${file}: sha256 ${got} differs from the expected ${want}" >&2
+    done < "${tmp}/list"
+    rm -rf "${tmp}" "${info}"
+}
+
 # -------------------------------------------------------------------------------- full
 full() {
     need git make
@@ -199,11 +247,26 @@ full() {
     echo 'BR2_PACKAGE_VOXHUB_OVERLAY=y' >> "${ext}/configs/voxhub_defconfig"
     cp "${ext}/configs/voxhub_defconfig" "${HERE}/board/voxhub_defconfig"   # keep a copy for review
 
+    # HAOS (scripts/enter.sh) and several Buildroot host packages refuse to build as root
+    [ "$(id -u)" != 0 ] || { echo "the full build must run as a regular user (with sudo and docker access), not as root" >&2; exit 1; }
     log "building (this takes a long time)"
     if command -v docker >/dev/null && docker info >/dev/null 2>&1 && [ -z "${VOXHUB_NO_DOCKER:-}" ]; then
         (cd "${src}" && ./scripts/enter.sh make voxhub)
     else
-        log "Docker not available - building directly on the host"
+        log "building directly on the host (VOXHUB_NO_DOCKER set or Docker not usable)"
+        # the tools the HAOS builder container provides; docker + sudo + loop devices are still
+        # needed at the very end (data partition: the Supervisor containers are imported with docker-in-docker)
+        need make gcc g++ bc cpio rsync unzip wget curl file perl patch bzip2 xz jq skopeo sudo docker \
+             qemu-img pigz zip automake help2man makeinfo flock python3
+        # the HAOS defconfig points the download dir and ccache at /cache (a volume of the builder container)
+        export BR2_DL_DIR="${BR2_DL_DIR:-${OUT}/cache/dl}" BR_CACHE_DIR="${BR_CACHE_DIR:-${OUT}/cache/cc}"
+        mkdir -p "${BR2_DL_DIR}" "${BR_CACHE_DIR}"
+        if [ -n "${VOXHUB_GITHUB_VIA_GIT:-}" ]; then
+            local mirror="${OUT}/cache/github-mirror"; mkdir -p "${mirror}"
+            (cd "${src}" && make voxhub-config)
+            github_via_git "${src}" "${mirror}"
+            echo "BR2_PRIMARY_SITE=\"file://${mirror}\"" >> "${ext}/configs/voxhub_defconfig"
+        fi
         (cd "${src}" && make voxhub)
     fi
     local built

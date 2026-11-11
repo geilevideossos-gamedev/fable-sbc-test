@@ -62,9 +62,26 @@ this if you manage updates yourself.
 ## From source: official HAOS build system + `voxhub` board
 
 ```bash
-./os/build-image.sh full            # Docker available: uses HAOS scripts/enter.sh
-VOXHUB_NO_DOCKER=1 ./os/build-image.sh full   # build directly on a Debian/Ubuntu host
+./os/build-image.sh full                      # regular user + Docker: uses the HAOS builder container (scripts/enter.sh)
+VOXHUB_NO_DOCKER=1 ./os/build-image.sh full   # build directly on a Debian / Ubuntu host
+VOXHUB_NO_DOCKER=1 VOXHUB_GITHUB_VIA_GIT=1 ./os/build-image.sh full   # ... on a network that blocks GitHub tarball URLs
 ```
+
+The full build must run as a **regular user** with sudo and Docker access - HAOS's `enter.sh` and several Buildroot
+host packages refuse to run as root, and the script checks for it. Host builds need the tools of the HAOS builder
+image (`make gcc g++ bc cpio rsync unzip wget curl file perl patch bzip2 xz jq skopeo sudo docker qemu-img pigz zip
+automake help2man makeinfo flock python3`; the script lists what is missing), plus Docker and loop devices for the very
+last step (the Supervisor containers are imported into the data partition with docker-in-docker).
+
+On a host build the script points Buildroot's download directory and ccache to `os/output/cache/` (the HAOS defconfig
+uses `/cache`, which only exists inside the builder container).
+
+`VOXHUB_GITHUB_VIA_GIT=1` is for networks whose proxy refuses `https://github.com/<owner>/<repo>/archive/...`
+downloads while git access to the same public repositories works. Before the build starts, the script asks Buildroot
+for the complete download list (`make show-info`), and for every GitHub "archive" source that Buildroot's own mirror
+(sources.buildroot.net) does not carry it runs `git fetch --depth 1` and `git archive | gzip -n` into
+`os/output/cache/github-mirror/`, which is then used as `BR2_PRIMARY_SITE`. Buildroot verifies each of these files
+against its `.hash` file like any other download (the git-made tarballs are byte-identical to GitHub's).
 
 The script clones `home-assistant/operating-system` at the latest release tag (with the Buildroot
 submodule) and adds, without modifying any upstream file except one `source` line in `Config.in`:
@@ -78,7 +95,7 @@ submodule) and adds, without modifying any upstream file except one `source` lin
   as `board/voxhub_defconfig`.
 
 Then `make voxhub` produces `haos_rpi4-64-<ver>.img.xz` (copied to `os/output/haos_voxhub-cm4-<ver>-full.img.xz`).
-Requirements: ~30 GB disk, 8 GB RAM, 1-3 hours.
+Requirements: 30-40 GB disk, 8 GB RAM, 1-3 hours on a 16-core machine (see the measured numbers below for 4 cores).
 
 ## Verification status
 

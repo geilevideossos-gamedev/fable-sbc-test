@@ -2,8 +2,8 @@
  "C1": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10A105KB8NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
+   "MPN": "C1608X5R1H105K080AB",
+   "Manufacturer": "TDK",
    "PartDescription": "CAP CER 1uF 50V X5R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -21,11 +21,30 @@
  "C10": {
   "dnp": false,
   "fields": {
-   "MPN": "CL05A105KO5NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 1uF 16V X5R 0402"
+   "MPN": "GRM188R71H224KAC4D",
+   "Manufacturer": "Murata",
+   "PartDescription": "CAP CER 220nF 50V X7R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "VBUS_SW",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C10",
+  "sheet": "power",
+  "value": "220nF"
+ },
+ "C11": {
+  "dnp": false,
+  "fields": {
+   "MPN": "C1608X7R1C105K080AC",
+   "Manufacturer": "TDK",
+   "PartDescription": "CAP CER 1uF 16V X7R 0603"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -33,11 +52,11 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "C10",
+  "ref": "C11",
   "sheet": "power",
   "value": "1uF"
  },
- "C11": {
+ "C12": {
   "dnp": false,
   "fields": {
    "MPN": "CL05B104KO5NNNC",
@@ -52,11 +71,11 @@
    "2": "BUCK_SW"
   },
   "pos": null,
-  "ref": "C11",
+  "ref": "C12",
   "sheet": "power",
   "value": "100nF"
  },
- "C12": {
+ "C13": {
   "dnp": true,
   "fields": {
    "MPN": "CL05C220JB5NNNC",
@@ -71,28 +90,9 @@
    "2": "BUCK_FB"
   },
   "pos": null,
-  "ref": "C12",
-  "sheet": "power",
-  "value": "22pF"
- },
- "C13": {
-  "dnp": false,
-  "fields": {
-   "MPN": "CL31A226KOHNNNE",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 22uF 16V X5R 1206"
-  },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
-  "in_bom": true,
-  "near": "U2",
-  "pins": {
-   "1": "+5V",
-   "2": "GND"
-  },
-  "pos": null,
   "ref": "C13",
   "sheet": "power",
-  "value": "22uF"
+  "value": "22pF"
  },
  "C14": {
   "dnp": false,
@@ -154,6 +154,25 @@
  "C17": {
   "dnp": false,
   "fields": {
+   "MPN": "CL31A226KOHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C17",
+  "sheet": "power",
+  "value": "22uF"
+ },
+ "C18": {
+  "dnp": false,
+  "fields": {
    "MPN": "CL05B104KO5NNNC",
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
@@ -166,11 +185,11 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "C17",
+  "ref": "C18",
   "sheet": "power",
   "value": "100nF"
  },
- "C18": {
+ "C19": {
   "dnp": false,
   "fields": {
    "MPN": "CL05B104KO5NNNC",
@@ -185,34 +204,15 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "C18",
-  "sheet": "cm4",
-  "value": "100nF"
- },
- "C19": {
-  "dnp": false,
-  "fields": {
-   "MPN": "CL10A475KO8NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 4.7uF 16V X5R 0603"
-  },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
-  "in_bom": true,
-  "near": "J4",
-  "pins": {
-   "1": "SD_VDD",
-   "2": "GND"
-  },
-  "pos": null,
   "ref": "C19",
   "sheet": "cm4",
-  "value": "4.7uF"
+  "value": "100nF"
  },
  "C2": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10B104KB8NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
+   "MPN": "C0603C104K5RACTU",
+   "Manufacturer": "KEMET",
    "PartDescription": "CAP CER 100nF 50V X7R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -230,6 +230,25 @@
  "C20": {
   "dnp": false,
   "fields": {
+   "MPN": "C1608X5R1E475K080AC",
+   "Manufacturer": "TDK",
+   "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "near": "J4",
+  "pins": {
+   "1": "SD_VDD",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C20",
+  "sheet": "cm4",
+  "value": "4.7uF"
+ },
+ "C21": {
+  "dnp": false,
+  "fields": {
    "MPN": "CL05B104KO5NNNC",
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
@@ -242,28 +261,9 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "C20",
-  "sheet": "cm4",
-  "value": "100nF"
- },
- "C21": {
-  "dnp": false,
-  "fields": {
-   "MPN": "CL31A226KOHNNNE",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 22uF 16V X5R 1206"
-  },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
-  "in_bom": true,
-  "near": "CM4CAP",
-  "pins": {
-   "1": "+5V",
-   "2": "GND"
-  },
-  "pos": null,
   "ref": "C21",
   "sheet": "cm4",
-  "value": "22uF"
+  "value": "100nF"
  },
  "C22": {
   "dnp": false,
@@ -287,6 +287,25 @@
  "C23": {
   "dnp": false,
   "fields": {
+   "MPN": "CL31A226KOHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "CM4CAP",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C23",
+  "sheet": "cm4",
+  "value": "22uF"
+ },
+ "C24": {
+  "dnp": false,
+  "fields": {
    "MPN": "CL05B104KO5NNNC",
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
@@ -299,11 +318,11 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "C23",
+  "ref": "C24",
   "sheet": "cm4",
   "value": "100nF"
  },
- "C24": {
+ "C25": {
   "dnp": false,
   "fields": {
    "MPN": "CL05B104KO5NNNC",
@@ -318,11 +337,11 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "C24",
+  "ref": "C25",
   "sheet": "cm4",
   "value": "100nF"
  },
- "C25": {
+ "C26": {
   "dnp": false,
   "fields": {
    "MPN": "CL05C270JB5NNNC",
@@ -337,11 +356,11 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "C25",
+  "ref": "C26",
   "sheet": "usb",
   "value": "27pF"
  },
- "C26": {
+ "C27": {
   "dnp": false,
   "fields": {
    "MPN": "CL05C270JB5NNNC",
@@ -356,28 +375,9 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "C26",
-  "sheet": "usb",
-  "value": "27pF"
- },
- "C27": {
-  "dnp": false,
-  "fields": {
-   "MPN": "CL05B104KO5NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 100nF 16V X7R 0402"
-  },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
-  "in_bom": true,
-  "near": "U4",
-  "pins": {
-   "1": "HUB_PLLFILT",
-   "2": "GND"
-  },
-  "pos": null,
   "ref": "C27",
   "sheet": "usb",
-  "value": "100nF"
+  "value": "27pF"
  },
  "C28": {
   "dnp": false,
@@ -390,7 +390,7 @@
   "in_bom": true,
   "near": "U4",
   "pins": {
-   "1": "HUB_CRFILT",
+   "1": "HUB_PLLFILT",
    "2": "GND"
   },
   "pos": null,
@@ -409,7 +409,7 @@
   "in_bom": true,
   "near": "U4",
   "pins": {
-   "1": "HUB_RST_N",
+   "1": "HUB_CRFILT",
    "2": "GND"
   },
   "pos": null,
@@ -420,11 +420,11 @@
  "C3": {
   "dnp": false,
   "fields": {
-   "MPN": "CL05A105KO5NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 1uF 16V X5R 0402"
+   "MPN": "C1608X7R1C105K080AC",
+   "Manufacturer": "TDK",
+   "PartDescription": "CAP CER 1uF 16V X7R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -553,9 +553,9 @@
  "C36": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10A475KO8NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 4.7uF 16V X5R 0603"
+   "MPN": "C1608X5R1E475K080AC",
+   "Manufacturer": "TDK",
+   "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
@@ -572,9 +572,9 @@
  "C37": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10A475KO8NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 4.7uF 16V X5R 0603"
+   "MPN": "C1608X5R1E475K080AC",
+   "Manufacturer": "TDK",
+   "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
@@ -648,9 +648,9 @@
  "C40": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10A475KO8NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 4.7uF 16V X5R 0603"
+   "MPN": "C1608X5R1E475K080AC",
+   "Manufacturer": "TDK",
+   "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
@@ -819,9 +819,9 @@
  "C49": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10A475KO8NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 4.7uF 16V X5R 0603"
+   "MPN": "C1608X5R1E475K080AC",
+   "Manufacturer": "TDK",
+   "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
@@ -838,11 +838,11 @@
  "C5": {
   "dnp": false,
   "fields": {
-   "MPN": "CL05A105KO5NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 1uF 16V X5R 0402"
+   "MPN": "C1608X7R1C105K080AC",
+   "Manufacturer": "TDK",
+   "PartDescription": "CAP CER 1uF 16V X7R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -873,7 +873,7 @@
   "sheet": "zigbee",
   "value": "100nF"
  },
- "C51": {
+ "C6": {
   "dnp": false,
   "fields": {
    "MPN": "CL05B104KO5NNNC",
@@ -882,17 +882,17 @@
   },
   "footprint": "Capacitor_SMD:C_0402_1005Metric",
   "in_bom": true,
-  "near": "U11",
+  "near": "U1",
   "pins": {
-   "1": "ZB_NRST",
+   "1": "PD_VDDD",
    "2": "GND"
   },
   "pos": null,
-  "ref": "C51",
-  "sheet": "zigbee",
+  "ref": "C6",
+  "sheet": "power",
   "value": "100nF"
  },
- "C6": {
+ "C7": {
   "dnp": false,
   "fields": {
    "MPN": "CL05B103KB5NNNC",
@@ -907,35 +907,16 @@
    "2": "PD_GATE"
   },
   "pos": null,
-  "ref": "C6",
-  "sheet": "power",
-  "value": "10nF"
- },
- "C7": {
-  "dnp": false,
-  "fields": {
-   "MPN": "CL31A106KBHNNNE",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 10uF 50V X5R 1206"
-  },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
-  "in_bom": true,
-  "near": "U2",
-  "pins": {
-   "1": "VBUS_SW",
-   "2": "GND"
-  },
-  "pos": null,
   "ref": "C7",
   "sheet": "power",
-  "value": "10uF"
+  "value": "10nF"
  },
  "C8": {
   "dnp": false,
   "fields": {
-   "MPN": "CL31A106KBHNNNE",
+   "MPN": "CL31B106KBHNNNE",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 10uF 50V X5R 1206"
+   "PartDescription": "CAP CER 10uF 50V X7R 1206"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
   "in_bom": true,
@@ -952,11 +933,11 @@
  "C9": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10B104KB8NNNC",
+   "MPN": "CL31B106KBHNNNE",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 100nF 50V X7R 0603"
+   "PartDescription": "CAP CER 10uF 50V X7R 1206"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -966,7 +947,7 @@
   "pos": null,
   "ref": "C9",
   "sheet": "power",
-  "value": "100nF"
+  "value": "10uF"
  },
  "D1": {
   "dnp": false,
@@ -1066,9 +1047,9 @@
  "D5": {
   "dnp": false,
   "fields": {
-   "MPN": "MM3Z10VT1G",
+   "MPN": "SZMM3Z10VT1G",
    "Manufacturer": "onsemi",
-   "PartDescription": "Zener 10V 300mW SOD-323"
+   "PartDescription": "Zener 10V 300mW SOD-323 (AEC-Q101)"
   },
   "footprint": "Diode_SMD:D_SOD-323",
   "in_bom": true,
@@ -1397,6 +1378,7 @@
   "near": "J2",
   "pins": {
    "1": "GND",
+   "100": "HUB_RST_N",
    "13": "GND",
    "14": "GND",
    "2": "GND",
@@ -1418,7 +1400,7 @@
    "42": "GND",
    "43": "GND",
    "44": "UART4_CTS",
-   "45": "ZB_NRST",
+   "45": "ZB_RST",
    "46": "ZB_SWDIO",
    "47": "ZB_SWCLK",
    "48": "MUTE_SENSE",
@@ -1767,6 +1749,26 @@
   "sheet": "cm4",
   "value": "2N7002"
  },
+ "Q4": {
+  "dnp": false,
+  "fields": {
+   "MPN": "2N7002,215",
+   "Manufacturer": "Nexperia",
+   "PartDescription": "MOSFET N-CH 60V 300mA SOT-23"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "near": "U11",
+  "pins": {
+   "1": "ZB_RST",
+   "2": "GND",
+   "3": "ZB_NRST"
+  },
+  "pos": null,
+  "ref": "Q4",
+  "sheet": "zigbee",
+  "value": "2N7002"
+ },
  "R1": {
   "dnp": false,
   "fields": {
@@ -1827,8 +1829,8 @@
  "R12": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1846,8 +1848,8 @@
  "R13": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1865,9 +1867,9 @@
  "R14": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0724K3L",
-   "Manufacturer": "Yageo",
-   "PartDescription": "RES 24.3k 1% 1/16W 0402"
+   "MPN": "RMCF0402FT24K9",
+   "Manufacturer": "Stackpole Electronics",
+   "PartDescription": "RES 24.9k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
   "in_bom": true,
@@ -1879,7 +1881,7 @@
   "pos": null,
   "ref": "R14",
   "sheet": "power",
-  "value": "24.3k"
+  "value": "24.9k"
  },
  "R15": {
   "dnp": false,
@@ -1903,8 +1905,8 @@
  "R16": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0749K9L",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT49K9",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 49.9k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1922,8 +1924,8 @@
  "R17": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
+   "MPN": "WR04X1002FTL",
+   "Manufacturer": "Walsin Technology",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1960,8 +1962,8 @@
  "R19": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
+   "MPN": "WR04X1002FTL",
+   "Manufacturer": "Walsin Technology",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2017,8 +2019,8 @@
  "R21": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
+   "MPN": "WR04X1002FTL",
+   "Manufacturer": "Walsin Technology",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2055,8 +2057,8 @@
  "R23": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
+   "MPN": "WR04X1002FTL",
+   "Manufacturer": "Walsin Technology",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2074,8 +2076,8 @@
  "R24": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2093,8 +2095,8 @@
  "R25": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2150,27 +2152,8 @@
  "R28": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
-   "PartDescription": "RES 10k 1% 1/16W 0402"
-  },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
-  "in_bom": true,
-  "near": "U4",
-  "pins": {
-   "1": "+3V3",
-   "2": "HUB_RST_N"
-  },
-  "pos": null,
-  "ref": "R28",
-  "sheet": "usb",
-  "value": "10k"
- },
- "R29": {
-  "dnp": false,
-  "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2179,6 +2162,25 @@
   "pins": {
    "1": "+3V3",
    "2": "HUB_VBUSDET"
+  },
+  "pos": null,
+  "ref": "R28",
+  "sheet": "usb",
+  "value": "100k"
+ },
+ "R29": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_CFG0",
+   "2": "GND"
   },
   "pos": null,
   "ref": "R29",
@@ -2207,27 +2209,8 @@
  "R30": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
-   "PartDescription": "RES 100k 1% 1/16W 0402"
-  },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
-  "in_bom": true,
-  "near": "U4",
-  "pins": {
-   "1": "HUB_CFG0",
-   "2": "GND"
-  },
-  "pos": null,
-  "ref": "R30",
-  "sheet": "usb",
-  "value": "100k"
- },
- "R31": {
-  "dnp": false,
-  "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2238,15 +2221,15 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "R31",
+  "ref": "R30",
   "sheet": "usb",
   "value": "100k"
  },
- "R32": {
+ "R31": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2257,15 +2240,15 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "R32",
+  "ref": "R31",
   "sheet": "usb",
   "value": "100k"
  },
- "R33": {
+ "R32": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2276,15 +2259,15 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "R33",
+  "ref": "R32",
   "sheet": "usb",
   "value": "100k"
  },
- "R34": {
+ "R33": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
+   "MPN": "WR04X1002FTL",
+   "Manufacturer": "Walsin Technology",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2295,15 +2278,15 @@
    "2": "HUB_DIS3M"
   },
   "pos": null,
-  "ref": "R34",
+  "ref": "R33",
   "sheet": "usb",
   "value": "10k"
  },
- "R35": {
+ "R34": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
+   "MPN": "WR04X1002FTL",
+   "Manufacturer": "Walsin Technology",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2314,15 +2297,15 @@
    "2": "HUB_DIS3P"
   },
   "pos": null,
-  "ref": "R35",
+  "ref": "R34",
   "sheet": "usb",
   "value": "10k"
  },
- "R36": {
+ "R35": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
+   "MPN": "WR04X1002FTL",
+   "Manufacturer": "Walsin Technology",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2333,15 +2316,15 @@
    "2": "HUB_DIS4M"
   },
   "pos": null,
-  "ref": "R36",
+  "ref": "R35",
   "sheet": "usb",
   "value": "10k"
  },
- "R37": {
+ "R36": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
+   "MPN": "WR04X1002FTL",
+   "Manufacturer": "Walsin Technology",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2352,11 +2335,11 @@
    "2": "HUB_DIS4P"
   },
   "pos": null,
-  "ref": "R37",
+  "ref": "R36",
   "sheet": "usb",
   "value": "10k"
  },
- "R38": {
+ "R37": {
   "dnp": false,
   "fields": {
    "MPN": "RC0402FR-0720KL",
@@ -2371,15 +2354,15 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "R38",
+  "ref": "R37",
   "sheet": "usb",
   "value": "20k"
  },
- "R39": {
+ "R38": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
+   "MPN": "WR04X1002FTL",
+   "Manufacturer": "Walsin Technology",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2390,9 +2373,28 @@
    "2": "USB_OC1_N"
   },
   "pos": null,
-  "ref": "R39",
+  "ref": "R38",
   "sheet": "usb",
   "value": "10k"
+ },
+ "R39": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0720KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 20k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U6",
+  "pins": {
+   "1": "USB2_ILIM",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R39",
+  "sheet": "usb",
+  "value": "20k"
  },
  "R4": {
   "dnp": false,
@@ -2416,27 +2418,8 @@
  "R40": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0720KL",
-   "Manufacturer": "Yageo",
-   "PartDescription": "RES 20k 1% 1/16W 0402"
-  },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
-  "in_bom": true,
-  "near": "U6",
-  "pins": {
-   "1": "USB2_ILIM",
-   "2": "GND"
-  },
-  "pos": null,
-  "ref": "R40",
-  "sheet": "usb",
-  "value": "20k"
- },
- "R41": {
-  "dnp": false,
-  "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
+   "MPN": "WR04X1002FTL",
+   "Manufacturer": "Walsin Technology",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2447,11 +2430,11 @@
    "2": "USB_OC2_N"
   },
   "pos": null,
-  "ref": "R41",
+  "ref": "R40",
   "sheet": "usb",
   "value": "10k"
  },
- "R42": {
+ "R41": {
   "dnp": false,
   "fields": {
    "MPN": "RC0402FR-0733RL",
@@ -2466,15 +2449,15 @@
    "2": "PDM_CLK_M"
   },
   "pos": null,
-  "ref": "R42",
+  "ref": "R41",
   "sheet": "audio",
   "value": "33"
  },
- "R43": {
+ "R42": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2485,15 +2468,15 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "R43",
+  "ref": "R42",
   "sheet": "audio",
   "value": "100k"
  },
- "R44": {
+ "R43": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2504,15 +2487,15 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "R44",
+  "ref": "R43",
   "sheet": "audio",
   "value": "100k"
  },
- "R45": {
+ "R44": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2523,34 +2506,15 @@
    "2": "GND"
   },
   "pos": null,
-  "ref": "R45",
+  "ref": "R44",
   "sheet": "audio",
   "value": "100k"
  },
- "R46": {
+ "R45": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
-   "PartDescription": "RES 10k 1% 1/16W 0402"
-  },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
-  "in_bom": true,
-  "near": "U11",
-  "pins": {
-   "1": "+3V3",
-   "2": "ZB_NRST"
-  },
-  "pos": null,
-  "ref": "R46",
-  "sheet": "zigbee",
-  "value": "10k"
- },
- "R47": {
-  "dnp": false,
-  "fields": {
-   "MPN": "RC0402FR-0710KL",
-   "Manufacturer": "Yageo",
+   "MPN": "WR04X1002FTL",
+   "Manufacturer": "Walsin Technology",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2561,9 +2525,28 @@
    "2": "ZB_BOOT"
   },
   "pos": null,
-  "ref": "R47",
+  "ref": "R45",
   "sheet": "zigbee",
   "value": "10k"
+ },
+ "R46": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U11",
+  "pins": {
+   "1": "ZB_RST",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R46",
+  "sheet": "zigbee",
+  "value": "100k"
  },
  "R5": {
   "dnp": false,
@@ -2625,8 +2608,8 @@
  "R8": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0749K9L",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT49K9",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 49.9k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2644,8 +2627,8 @@
  "R9": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07100KL",
-   "Manufacturer": "Yageo",
+   "MPN": "RMCF0402FT100K",
+   "Manufacturer": "Stackpole Electronics",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2853,8 +2836,8 @@
    "13": "UART4_TX",
    "14": "GND",
    "15": "+3V3",
-   "16": "UART4_RTS",
-   "17": "UART4_CTS",
+   "16": "UART4_CTS",
+   "17": "UART4_RTS",
    "22": "ZB_BOOT",
    "23": "GND",
    "31": "ZB_NRST",
@@ -3087,9 +3070,9 @@
  "Y1": {
   "dnp": false,
   "fields": {
-   "MPN": "ABM8-24.000MHZ-B2-T",
-   "Manufacturer": "Abracon",
-   "PartDescription": "XTAL 24MHz 18pF 20ppm 3.2x2.5mm"
+   "MPN": "TSX-3225 24.0000MF18X-C0",
+   "Manufacturer": "Epson",
+   "PartDescription": "XTAL 24MHz 18pF 10ppm 3.2x2.5mm"
   },
   "footprint": "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm",
   "in_bom": true,
