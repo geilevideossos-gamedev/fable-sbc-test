@@ -107,29 +107,30 @@ Requirements: 30-40 GB disk, 8 GB RAM, 1-3 hours on a 16-core machine (see the m
 | `googlevoicehat-soundcard.dtbo` decompiled | **OK** - `sdmode-gpios = <&gpio 16 0>`, matches the schematic |
 | `voxhub-overlay.dts` compiles (`dtc -@`) and applies to the real `bcm2711-rpi-cm4.dtb` (`fdtoverlay`) | **OK** |
 | `voxhub_defconfig` accepted by Buildroot (`make voxhub_defconfig`) | **OK** - `.config` written, `BR2_PACKAGE_VOXHUB_OVERLAY=y` |
-| Full from-source build | **FAILED in the sandbox, as expected** - see below |
+| Full from-source build | **IN PROGRESS at the time of this commit** (attempt 5 of 2026-11-11) - see the run log below |
 | Boot on hardware | not done (no hardware) |
 
-### Where and why the full build fails here
+### Full build: run log of 2026-11-11
 
-The build was started on the sandbox host (`VOXHUB_NO_DOCKER=1`; the HAOS builder container cannot be
-built because `deb.debian.org` is blocked). It passes configuration and the first host package, then stops
-at the **first source tarball download**:
+Machine: cloud sandbox, 4 cores, 15 GB RAM, about 40 GB disk allowance, outbound HTTPS through a filtering proxy.
+Command (as the unprivileged user `builder`, HAOS 18.5, 218 Buildroot packages):
 
-```
->>> host-pkgconf 2.3.0 Downloading
-wget ... 'https://distfiles.ariadne.space/pkgconf/pkgconf-2.3.0.tar.xz'
-Proxy tunneling failed: Forbidden   Unable to establish SSL connection.
-wget ... 'https://sources.buildroot.net/pkgconf/pkgconf-2.3.0.tar.xz'
-Proxy tunneling failed: Forbidden   Unable to establish SSL connection.
-make[1]: *** [package/pkg-generic.mk:179: .../host-pkgconf-2.3.0/.stamp_downloaded] Error 1
+```bash
+CCACHE_DISABLE=1 VOXHUB_NO_DOCKER=1 VOXHUB_GITHUB_VIA_GIT=1 os/build-image.sh full --version 18.5
 ```
 
-Cause: the sandbox's egress proxy only allows a small set of hosts; neither the upstream tarball hosts
-(ariadne.space, kernel.org, gnu.org, ...) nor Buildroot's mirror `sources.buildroot.net` are reachable.
-Nothing in the board definition is involved. The full log tail is in `full-build-attempt.log`.
-On a machine with normal internet access the same command proceeds; it has **not** been run to completion,
-so treat the from-source path as unverified beyond the configuration stage.
+| Attempt | Got as far as | Stopped by | What was changed |
+|---|---|---|---|
+| first session (2026-11-10) | `host-pkgconf 2.3.0 Downloading` | the proxy of that session refused every tarball host (`Proxy tunneling failed: Forbidden`) | nothing - network policy |
+| 1 | Buildroot configuration | `mkdir: cannot create directory '/cache'`: the HAOS defconfig keeps downloads and ccache in `/cache`, which only exists inside the HAOS builder container; `scripts/enter.sh` also refuses to run as root | `build-image.sh` exports `BR2_DL_DIR` / `BR_CACHE_DIR` (`os/output/cache/`) on host builds and checks for a non-root user |
+| 2 | 231 build steps in 17 min, then `linux-headers` download | `ERROR 403: Forbidden` from the proxy for `https://github.com/raspberrypi/linux/archive/<commit>.tar.gz`. This sandbox refuses every GitHub `/archive/` URL (37 of the 218 sources), while `git fetch` from the same repositories is allowed | new option `VOXHUB_GITHUB_VIA_GIT=1` (see above) |
+| 3 | source prefetch | bug in the new prefetch code (a `grep` without match ended the script under `set -o pipefail`) | fixed |
+| 4 | 3 h 00 min, 153 of 218 packages installed, stopped in `libblockdev 3.3.1 Building` | `libtool: error: '.../output/build/util-linux-2.40.4/libuuid.la' is not a valid libtool archive`. **Self-inflicted by a disk-space helper of the sandbox session (not part of this repository)**: to stay inside the disk allowance it emptied the build directories of finished packages, but the staging copies of `libfdisk.la` / `libmount.la` (and four more) point back into those build directories | the four affected build directories (`util-linux`, `host-util-linux`, `gnutls`, `dhcp`) were deleted so that Buildroot rebuilds them; the helper now leaves every directory alone that a libtool archive refers to |
+| 5 | running at the time of this commit | - | - |
+
+None of the stops so far had anything to do with the board definition: the configuration (`make voxhub-config`), the
+kernel headers, the toolchain (GCC 13.4 / glibc 2.41), systemd, Docker 29.8.2 and containerd were built for the `voxhub`
+target in attempt 4. Log excerpts are in `full-build-attempt.log`.
 
 ## First boot
 
