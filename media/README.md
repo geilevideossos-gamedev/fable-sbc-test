@@ -41,12 +41,18 @@ The board itself is a plain slab in STEP. Its copper, solder mask and silkscreen
 
 ```bash
 pip install cadquery pymupdf pillow numpy
+sudo apt install ffmpeg
 docker pull kicad/kicad:9.0
 BLENDER=/path/to/blender-4.5/blender media/build_showcase.sh      # frames go to media/work (not tracked)
 ```
 
-Blender runs headless (`blender -b -P render_showcase.py -- ...`), Cycles on the CPU: 4 samples per pixel +
-OpenImageDenoise, fixed noise seed, 3 bounces, no motion blur. That is about 15 s per frame on 4 cores (5 to 6 hours
-for the 1260 frames); with a GPU raise `SAMPLES`. `render_showcase.py --stills 0,5,10 --scale 25` renders quick checks
-of single moments, `--still <t> out.png` one frame, `--start / --end` a frame range (existing frames are skipped, so
-an interrupted render can simply be restarted).
+Blender 4.2 to 4.5 is required (tested with 4.5.16 LTS; Blender 5 changed the animation API and the script refuses to
+start there). Blender runs headless (`blender -b -P render_showcase.py -- ...`), Cycles on the CPU: 4 samples per pixel +
+OpenImageDenoise, fixed noise seed, 3 bounces, no motion blur. Measured on 4 cores: about 11 s per frame, 3 h 10 min for
+the 1260 frames (the committed video). The script always renders on the CPU (`cycles.device = "CPU"`), so raising
+`SAMPLES` raises the render time proportionally. `render_showcase.py --stills 0,5,10 --scale 25` renders quick checks of
+single moments, `--still <t> out.png` one frame, `--start / --end` a frame range. Finished frames are skipped (a frame
+counts as finished when the PNG ends with its IEND chunk), so an interrupted render can simply be restarted;
+`build_showcase.sh` refuses to encode while a frame is missing.
+
+The MP4 is H.264 High, yuv420p, converted with the BT.709 matrix and tagged as such (limited range), `+faststart`.

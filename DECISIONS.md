@@ -25,7 +25,7 @@ Every change, with its reason:
 | 11 | **LMR33640ADDAR, 22 uF 1206, 2N7002, TPS2553DBVR kept although out of stock at DigiKey** | No in-stock part with equal or better ratings and the same footprint exists (section 10). Flagged in the BOM instead of silently downgrading. |
 | 12 | **Stand-in 3D models rewritten as coloured STEP assemblies** (CM4 with heat sink, stacked USB-A, slide switch, radio module, ...) | KiCad's STEP export drops colours and the old stand-ins were single boxes; the showcase render and the KiCad renders need to tell metal from plastic. Envelopes follow the drawings. |
 | 13 | **OS full build runs on the host as an unprivileged user; github.com "archive" sources are fetched with git** (`VOXHUB_GITHUB_VIA_GIT=1`) | HAOS's `scripts/enter.sh` and Buildroot refuse to run as root; this environment's egress proxy answers 403 to `github.com/<owner>/<repo>/archive/...` while git access to the same public repositories is allowed. Buildroot still checks every tarball against its hash. Details in os/README.md. |
-| 14 | **Showcase animation rendered with Cycles on the CPU at 4 samples + OpenImageDenoise, 21 s** | No GPU in the build machine: EEVEE through software OpenGL needs about 100 s per frame, Cycles about 15 s with these settings. Details in media/README.md. |
+| 14 | **Showcase animation rendered with Cycles on the CPU at 4 samples + OpenImageDenoise, 21 s** | No GPU in the build machine: EEVEE through software OpenGL needs about 100 s per frame, Cycles about 11 s with these settings (1260 frames in 3 h 10 min). Details in media/README.md. |
 | 15 | **Mouser data is not live** | mouser.com answers every automated request with HTTP 503 (bot protection) and no API key was available; evading the protection was not attempted. The BOM carries DigiKey live data plus clearly marked search-snippet values for Mouser. |
 | 16 | **OS full build restarted after a self-inflicted stop (attempt 5)**; the four affected Buildroot packages are rebuilt, nothing is patched | Attempt 4 stopped after 3 h at `libblockdev` with `libtool: error: '.../build/util-linux-2.40.4/libuuid.la' is not a valid libtool archive`. Cause: the disk-space helper of this session (outside the repository) had emptied the build directories of finished packages, but the staging `libfdisk.la` / `libmount.la` (and `libdns.la`, `libgnutlsxx.la`) refer back into them. Rewriting the `.la` files would have hidden the mistake in a non-standard build tree, so the directories of `util-linux`, `host-util-linux`, `gnutls` and `dhcp` were deleted (Buildroot rebuilds them) and the helper now skips every directory that a libtool archive points to and anything below 150 MB. The run log is in os/README.md. |
 
@@ -313,6 +313,12 @@ Cost per unit (DigiKey, 2026-11-11): see the cost summary in README.md.
   first; without a GPU it runs through Mesa's software rasteriser and needs about 100 s per frame.
 - The title is a text object parented to the camera (rendered, not composited), so the Blender script alone
   reproduces the video frame by frame.
+- Encoding: H.264 High, yuv420p, CRF 17, converted with the BT.709 matrix and tagged as BT.709 limited range. The first
+  encode used ffmpeg's defaults (BT.601 matrix, no tags), which HD players decode as BT.709 - the board came out a
+  darker green than rendered. Found by the review, re-encoded from the same frames.
+- `build_showcase.sh` checks its tools before the long render, runs Blender with `--python-exit-code` and refuses to
+  encode while a frame is missing; a frame only counts as rendered when the PNG is complete (IEND chunk). Blender 5 is
+  refused: the script uses the pre-5.0 animation API and was only run with 4.5.16.
 
 ## Open items - things a human must re-check
 

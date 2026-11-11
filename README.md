@@ -176,8 +176,8 @@ os/build-image.sh repack --wifi-ssid "MyWifi" --wifi-psk "secret"
 pip install -r assistant/requirements-dev.txt
 (cd assistant && python3 -m pytest -q)
 
-# 5. Showcase animation (Blender >= 4.2, headless; about 5 hours on 4 CPU cores)
-pip install cadquery pymupdf pillow numpy
+# 5. Showcase animation (Blender 4.2 - 4.5, headless; a little over 3 hours on 4 CPU cores)
+pip install cadquery pymupdf pillow numpy && sudo apt install ffmpeg
 BLENDER=/path/to/blender media/build_showcase.sh
 ```
 

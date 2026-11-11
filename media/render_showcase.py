@@ -20,6 +20,9 @@ Timeline (60 fps, 21 s = 1260 frames):
     16.8 - 21.0 s   turntable shot of the closed device, "VoxHub" title fades in
 """
 import bpy, bmesh, sys, os, math, glob, re, colorsys
+
+if bpy.app.version >= (5, 0, 0):        # key() below uses action.fcurves, which Blender 5 removed (slotted actions)
+    sys.exit("render_showcase.py needs Blender 4.2 - 4.5 (tested with 4.5.16)")
 from mathutils import Vector, Matrix
 
 FPS = 60
@@ -504,10 +507,19 @@ elif STILL:
     r.filepath = os.path.abspath(path)
     bpy.ops.render.render(write_still=True)
 else:
+    def png_complete(path):
+        """Blender writes a frame in place, so a killed render can leave a truncated file: only a PNG that ends with
+        its IEND chunk counts as done."""
+        try:
+            with open(path, "rb") as fh:
+                fh.seek(-12, 2)
+                return fh.read(12) == b"\x00\x00\x00\x00IEND\xaeB`\x82"
+        except OSError:
+            return False
     os.makedirs(OUT, exist_ok=True)
     for f in range(START, END + 1, STEP):
         path = os.path.join(OUT, "f%05d.png" % f)
-        if os.path.exists(path) and os.path.getsize(path) > 1000:
+        if png_complete(path):
             continue                                        # resume support
         scene.frame_set(f)
         r.filepath = path

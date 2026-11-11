@@ -4,18 +4,21 @@
 #   media/build_showcase.sh [work dir]          (default: media/work, not tracked by git)
 #
 # Needs: python3 with cadquery + pymupdf + pillow + numpy, Docker with kicad/kicad:9.0 (board textures),
-#        Blender >= 4.2 (BLENDER=/path/to/blender), ffmpeg.
+#        Blender 4.2 - 4.5 (BLENDER=/path/to/blender; 5.x has a different animation API and is refused), ffmpeg.
 # Environment: SAMPLES (default 4, Cycles samples per pixel before denoising), THREADS, FRAMES="start end"
 #
 # Steps: 1. STEP -> GLB (board with all parts, enclosure assembly, every part model)
 #        2. board surface textures from the KiCad layer plots
 #        3. Blender (headless, Cycles on the CPU): 1260 frames 1920x1080 + one still of the exploded view
-#        4. ffmpeg: H.264, 60 fps
+#        4. ffmpeg: H.264, 60 fps, BT.709
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; ROOT="$(dirname "${HERE}")"
 WORK="$(mkdir -p "${1:-${HERE}/work}" && cd "${1:-${HERE}/work}" && pwd)"
 BLENDER="${BLENDER:-blender}"; SAMPLES="${SAMPLES:-4}"; THREADS="${THREADS:-0}"
 read -r F0 F1 <<< "${FRAMES:-1 1260}"
+for t in python3 docker ffmpeg "${BLENDER}"; do      # ffmpeg is only needed after hours of rendering: check everything first
+    command -v "${t}" > /dev/null || { echo "missing tool: ${t}" >&2; exit 1; }
+done
 
 echo "== 1/4 STEP -> GLB"
 mkdir -p "${WORK}/models" "${WORK}/tex" "${WORK}/frames"
@@ -27,11 +30,18 @@ done
 echo "== 2/4 board textures"
 python3 "${HERE}/make_pcb_texture.py" "${ROOT}" "${WORK}/tex" 32
 echo "== 3/4 render (frames ${F0}..${F1}, ${SAMPLES} samples)"
-"${BLENDER}" -b -P "${HERE}/render_showcase.py" -- --work "${WORK}" --out "${WORK}/frames" --start "${F0}" --end "${F1}" \
-    --samples "${SAMPLES}" --threads "${THREADS}" | grep --line-buffered "showcase:"
-"${BLENDER}" -b -P "${HERE}/render_showcase.py" -- --work "${WORK}" --still 10.4 "${HERE}/voxhub_exploded.png" --samples 96 \
-    --threads "${THREADS}" | grep "showcase:" || true
+# --python-exit-code: without it Blender returns 0 even if the script raised
+"${BLENDER}" -b --python-exit-code 1 -P "${HERE}/render_showcase.py" -- --work "${WORK}" --out "${WORK}/frames" \
+    --start "${F0}" --end "${F1}" --samples "${SAMPLES}" --threads "${THREADS}" | grep --line-buffered "showcase:"
+"${BLENDER}" -b --python-exit-code 1 -P "${HERE}/render_showcase.py" -- --work "${WORK}" --still 10.4 "${HERE}/voxhub_exploded.png" \
+    --samples 96 --threads "${THREADS}" | grep "showcase:"
 echo "== 4/4 encode"
-ffmpeg -y -loglevel error -framerate 60 -start_number 1 -i "${WORK}/frames/f%05d.png" -c:v libx264 -preset slow -crf 17 \
-    -pix_fmt yuv420p -movflags +faststart -r 60 "${HERE}/voxhub_showcase.mp4"
+for f in $(seq "${F0}" "${F1}"); do
+    [ -s "${WORK}/frames/$(printf 'f%05d.png' "${f}")" ] || { echo "missing frame ${f}" >&2; exit 1; }
+done
+# the PNGs are sRGB; convert with the BT.709 matrix and tag the stream, otherwise players guess (and HD players guess 709
+# for data that swscale wrote as 601 by default - the board would come out too dark a green)
+ffmpeg -y -loglevel error -framerate 60 -start_number "${F0}" -i "${WORK}/frames/f%05d.png" -c:v libx264 -preset slow -crf 17 \
+    -vf scale=out_color_matrix=bt709:out_range=tv -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 \
+    -movflags +faststart -r 60 "${HERE}/voxhub_showcase.mp4"
 ls -la "${HERE}/voxhub_showcase.mp4" "${HERE}/voxhub_exploded.png"

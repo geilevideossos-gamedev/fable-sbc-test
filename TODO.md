@@ -51,7 +51,9 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 
 ## Showcase (`/media`)
 - [x] STEP -> GLB conversion, board textures from KiCad plots, Blender scene / animation script
-- [~] `voxhub_showcase.mp4` (1920 x 1080, 60 fps, 21 s) + `voxhub_exploded.png`: RENDERING at the time of this commit
+- [x] `voxhub_showcase.mp4` (H.264, 1920 x 1080, 60 fps, 21 s, 1260 frames, BT.709) + `voxhub_exploded.png` rendered
+      (Blender 4.5.16 headless, Cycles CPU, 3 h 10 min) and checked frame by frame on a contact sheet
+- [x] Build script hardened after the review: tool check up front, Blender exit code, complete-frame check, colour tags
 
 ## Assistant (`/assistant`)
 - [x] Home Assistant add-on (wake word -> STT -> Claude tool use -> TTS)
