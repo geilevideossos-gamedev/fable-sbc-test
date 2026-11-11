@@ -1,0 +1,23 @@
+feature,ref,x_mm,y_mm,detail
+LED light slot,D7,34.000,71.200,"1.8 x 2.4 mm slot, reverse-mount LED shines to the side opposite the components"
+LED light slot,D8,38.600,71.200,"1.8 x 2.4 mm slot, reverse-mount LED shines to the side opposite the components"
+LED light slot,D9,43.200,71.200,"1.8 x 2.4 mm slot, reverse-mount LED shines to the side opposite the components"
+PCB mounting hole,H1,3.500,3.500,2.7 mm NPTH (M2.5)
+PCB mounting hole,H2,96.500,3.500,2.7 mm NPTH (M2.5)
+PCB mounting hole,H3,3.500,70.500,2.7 mm NPTH (M2.5)
+PCB mounting hole,H4,97.000,70.800,2.7 mm NPTH (M2.5)
+CM4 spacer,H5,95.500,64.500,"M2.5 SMT spacer, 1.5 mm high, hole 3.7 mm"
+CM4 spacer,H6,95.500,31.500,"M2.5 SMT spacer, 1.5 mm high, hole 3.7 mm"
+CM4 spacer,H7,47.500,64.500,"M2.5 SMT spacer, 1.5 mm high, hole 3.7 mm"
+CM4 spacer,H8,47.500,31.500,"M2.5 SMT spacer, 1.5 mm high, hole 3.7 mm"
+connector/part envelope,J1,13.000,3.670,"courtyard 7.66,-0.53 .. 18.34,8.45; side F"
+connector/part envelope,J4,56.000,8.700,"courtyard 48.09,-0.20 .. 63.84,17.55; side F"
+connector/part envelope,J5,80.000,21.500,"courtyard 78.21,19.70 .. 86.88,23.30; side F"
+connector/part envelope,J6,38.750,13.110,"courtyard 26.66,-3.02 .. 43.84,15.48; side F"
+connector/part envelope,J7,4.200,58.500,"courtyard 1.97,54.03 .. 7.53,60.97; side F"
+microphone port,MK1,10.180,70.200,"0.8 mm hole through PCB, sound enters from the side opposite the components"
+microphone port,MK2,92.680,10.000,"0.8 mm hole through PCB, sound enters from the side opposite the components"
+connector/part envelope,SW1,33.500,54.000,"courtyard 28.72,51.72 .. 38.28,56.28; side B"
+connector/part envelope,U11,24.000,66.500,"courtyard 16.88,58.33 .. 31.12,74.28; side F"
+CM4 module outline,J2/J3,71.500,48.000,"55 x 40 mm, x 44..99, y 28..68, 1.5 mm above the PCB"
+board outline,-,0.000,0.000,"100 x 74 mm, origin = rear-left corner seen from the component side, 3 mm corner radius; KiCad page offset 100/60 mm"

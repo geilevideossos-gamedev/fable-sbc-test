@@ -1,0 +1,3108 @@
+{
+ "C1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL10A105KB8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 1uF 50V X5R 0603"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "VBUS",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C1",
+  "sheet": "power",
+  "value": "1uF"
+ },
+ "C10": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05A105KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 1uF 16V X5R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "BUCK_VCC",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C10",
+  "sheet": "power",
+  "value": "1uF"
+ },
+ "C11": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "BUCK_BOOT",
+   "2": "BUCK_SW"
+  },
+  "pos": null,
+  "ref": "C11",
+  "sheet": "power",
+  "value": "100nF"
+ },
+ "C12": {
+  "dnp": true,
+  "fields": {
+   "MPN": "CL05C220JB5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 22pF 50V C0G 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "+5V",
+   "2": "BUCK_FB"
+  },
+  "pos": null,
+  "ref": "C12",
+  "sheet": "power",
+  "value": "22pF"
+ },
+ "C13": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL31A226KOHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C13",
+  "sheet": "power",
+  "value": "22uF"
+ },
+ "C14": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL31A226KOHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C14",
+  "sheet": "power",
+  "value": "22uF"
+ },
+ "C15": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL31A226KOHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C15",
+  "sheet": "power",
+  "value": "22uF"
+ },
+ "C16": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL31A226KOHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C16",
+  "sheet": "power",
+  "value": "22uF"
+ },
+ "C17": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C17",
+  "sheet": "power",
+  "value": "100nF"
+ },
+ "C18": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U3",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C18",
+  "sheet": "cm4",
+  "value": "100nF"
+ },
+ "C19": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL10A475KO8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 4.7uF 16V X5R 0603"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "near": "J4",
+  "pins": {
+   "1": "SD_VDD",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C19",
+  "sheet": "cm4",
+  "value": "4.7uF"
+ },
+ "C2": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL10B104KB8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 50V X7R 0603"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "VBUS",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C2",
+  "sheet": "power",
+  "value": "100nF"
+ },
+ "C20": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "J4",
+  "pins": {
+   "1": "SD_VDD",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C20",
+  "sheet": "cm4",
+  "value": "100nF"
+ },
+ "C21": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL31A226KOHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "CM4CAP",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C21",
+  "sheet": "cm4",
+  "value": "22uF"
+ },
+ "C22": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL31A226KOHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "CM4CAP",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C22",
+  "sheet": "cm4",
+  "value": "22uF"
+ },
+ "C23": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "CM4CAP",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C23",
+  "sheet": "cm4",
+  "value": "100nF"
+ },
+ "C24": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "CM4CAP",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C24",
+  "sheet": "cm4",
+  "value": "100nF"
+ },
+ "C25": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05C270JB5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 27pF 50V C0G 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_XI",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C25",
+  "sheet": "usb",
+  "value": "27pF"
+ },
+ "C26": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05C270JB5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 27pF 50V C0G 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_XO",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C26",
+  "sheet": "usb",
+  "value": "27pF"
+ },
+ "C27": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_PLLFILT",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C27",
+  "sheet": "usb",
+  "value": "100nF"
+ },
+ "C28": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_CRFILT",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C28",
+  "sheet": "usb",
+  "value": "100nF"
+ },
+ "C29": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_RST_N",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C29",
+  "sheet": "usb",
+  "value": "100nF"
+ },
+ "C3": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05A105KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 1uF 16V X5R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_VDDD",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C3",
+  "sheet": "power",
+  "value": "1uF"
+ },
+ "C30": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C30",
+  "sheet": "usb",
+  "value": "100nF"
+ },
+ "C31": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C31",
+  "sheet": "usb",
+  "value": "100nF"
+ },
+ "C32": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C32",
+  "sheet": "usb",
+  "value": "100nF"
+ },
+ "C33": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C33",
+  "sheet": "usb",
+  "value": "100nF"
+ },
+ "C34": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C34",
+  "sheet": "usb",
+  "value": "100nF"
+ },
+ "C35": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C35",
+  "sheet": "usb",
+  "value": "100nF"
+ },
+ "C36": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL10A475KO8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 4.7uF 16V X5R 0603"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C36",
+  "sheet": "usb",
+  "value": "4.7uF"
+ },
+ "C37": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL10A475KO8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 4.7uF 16V X5R 0603"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "near": "U5",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C37",
+  "sheet": "usb",
+  "value": "4.7uF"
+ },
+ "C38": {
+  "dnp": false,
+  "fields": {
+   "MPN": "T520B107M006ATE070",
+   "Manufacturer": "KEMET",
+   "PartDescription": "CAP POLYMER TANT 100uF 6.3V 70mOhm 3528"
+  },
+  "footprint": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
+  "in_bom": true,
+  "near": "U5",
+  "pins": {
+   "1": "USB1_VBUS",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C38",
+  "sheet": "usb",
+  "value": "100uF"
+ },
+ "C39": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U5",
+  "pins": {
+   "1": "USB1_VBUS",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C39",
+  "sheet": "usb",
+  "value": "100nF"
+ },
+ "C4": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_VDDD",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C4",
+  "sheet": "power",
+  "value": "100nF"
+ },
+ "C40": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL10A475KO8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 4.7uF 16V X5R 0603"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "near": "U6",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C40",
+  "sheet": "usb",
+  "value": "4.7uF"
+ },
+ "C41": {
+  "dnp": false,
+  "fields": {
+   "MPN": "T520B107M006ATE070",
+   "Manufacturer": "KEMET",
+   "PartDescription": "CAP POLYMER TANT 100uF 6.3V 70mOhm 3528"
+  },
+  "footprint": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
+  "in_bom": true,
+  "near": "U6",
+  "pins": {
+   "1": "USB2_VBUS",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C41",
+  "sheet": "usb",
+  "value": "100uF"
+ },
+ "C42": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U6",
+  "pins": {
+   "1": "USB2_VBUS",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C42",
+  "sheet": "usb",
+  "value": "100nF"
+ },
+ "C43": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "MK1",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C43",
+  "sheet": "audio",
+  "value": "100nF"
+ },
+ "C44": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "MK2",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C44",
+  "sheet": "audio",
+  "value": "100nF"
+ },
+ "C45": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U9",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C45",
+  "sheet": "audio",
+  "value": "100nF"
+ },
+ "C46": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL31A226KOHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "U10",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C46",
+  "sheet": "audio",
+  "value": "22uF"
+ },
+ "C47": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL31A226KOHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "U10",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C47",
+  "sheet": "audio",
+  "value": "22uF"
+ },
+ "C48": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U10",
+  "pins": {
+   "1": "+5V",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C48",
+  "sheet": "audio",
+  "value": "100nF"
+ },
+ "C49": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL10A475KO8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 4.7uF 16V X5R 0603"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "near": "U11",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C49",
+  "sheet": "zigbee",
+  "value": "4.7uF"
+ },
+ "C5": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05A105KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 1uF 16V X5R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_VCCD",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C5",
+  "sheet": "power",
+  "value": "1uF"
+ },
+ "C50": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U11",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C50",
+  "sheet": "zigbee",
+  "value": "100nF"
+ },
+ "C51": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B104KO5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "U11",
+  "pins": {
+   "1": "ZB_NRST",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C51",
+  "sheet": "zigbee",
+  "value": "100nF"
+ },
+ "C6": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL05B103KB5NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 10nF 50V X7R 0402"
+  },
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "in_bom": true,
+  "near": "Q1",
+  "pins": {
+   "1": "VBUS",
+   "2": "PD_GATE"
+  },
+  "pos": null,
+  "ref": "C6",
+  "sheet": "power",
+  "value": "10nF"
+ },
+ "C7": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL31A106KBHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 10uF 50V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "VBUS_SW",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C7",
+  "sheet": "power",
+  "value": "10uF"
+ },
+ "C8": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL31A106KBHNNNE",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 10uF 50V X5R 1206"
+  },
+  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "VBUS_SW",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C8",
+  "sheet": "power",
+  "value": "10uF"
+ },
+ "C9": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CL10B104KB8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 100nF 50V X7R 0603"
+  },
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "VBUS_SW",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "C9",
+  "sheet": "power",
+  "value": "100nF"
+ },
+ "D1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "SMBJ22A",
+   "Manufacturer": "Littelfuse",
+   "PartDescription": "TVS 22V 600W unidirectional SMB"
+  },
+  "footprint": "Diode_SMD:D_SMB",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "VBUS",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "D1",
+  "sheet": "power",
+  "value": "SMBJ22A"
+ },
+ "D10": {
+  "dnp": false,
+  "fields": {
+   "MPN": "150060VS75000",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "LED green 0603"
+  },
+  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
+  "near": "CM4CAP",
+  "pins": {
+   "1": "ACT_LED_K",
+   "2": "ACT_LED_A"
+  },
+  "pos": null,
+  "ref": "D10",
+  "sheet": "cm4",
+  "value": "ACT (green)"
+ },
+ "D2": {
+  "dnp": false,
+  "fields": {
+   "MPN": "SD24C-01FTG",
+   "Manufacturer": "Littelfuse",
+   "PartDescription": "ESD diode 24V bidirectional SOD-323"
+  },
+  "footprint": "Diode_SMD:D_SOD-323",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "GND",
+   "2": "CC1"
+  },
+  "pos": null,
+  "ref": "D2",
+  "sheet": "power",
+  "value": "SD24C"
+ },
+ "D3": {
+  "dnp": false,
+  "fields": {
+   "MPN": "SD24C-01FTG",
+   "Manufacturer": "Littelfuse",
+   "PartDescription": "ESD diode 24V bidirectional SOD-323"
+  },
+  "footprint": "Diode_SMD:D_SOD-323",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "GND",
+   "2": "CC2"
+  },
+  "pos": null,
+  "ref": "D3",
+  "sheet": "power",
+  "value": "SD24C"
+ },
+ "D4": {
+  "dnp": false,
+  "fields": {
+   "MPN": "150060RS75000",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "LED red 0603"
+  },
+  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "GND",
+   "2": "PD_FAULT_LED"
+  },
+  "pos": null,
+  "ref": "D4",
+  "sheet": "power",
+  "value": "PD FAULT (red)"
+ },
+ "D5": {
+  "dnp": false,
+  "fields": {
+   "MPN": "MM3Z10VT1G",
+   "Manufacturer": "onsemi",
+   "PartDescription": "Zener 10V 300mW SOD-323"
+  },
+  "footprint": "Diode_SMD:D_SOD-323",
+  "in_bom": true,
+  "near": "Q1",
+  "pins": {
+   "1": "VBUS",
+   "2": "PD_GATE"
+  },
+  "pos": null,
+  "ref": "D5",
+  "sheet": "power",
+  "value": "10V"
+ },
+ "D6": {
+  "dnp": false,
+  "fields": {
+   "MPN": "150060VS75000",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "LED green 0603"
+  },
+  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "GND",
+   "2": "PWR_LED_A"
+  },
+  "pos": null,
+  "ref": "D6",
+  "sheet": "power",
+  "value": "PWR (green)"
+ },
+ "D7": {
+  "dnp": false,
+  "fields": {
+   "MPN": "156120GS75000",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "LED green 1206 reverse mount"
+  },
+  "footprint": "LED_SMD:LED_1206_3216Metric_ReverseMount_Hole1.8x2.4mm",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "LED0_K",
+   "2": "LED0_A"
+  },
+  "pos": [
+   34.0,
+   71.2,
+   90,
+   "F"
+  ],
+  "ref": "D7",
+  "sheet": "cm4",
+  "value": "GREEN"
+ },
+ "D8": {
+  "dnp": false,
+  "fields": {
+   "MPN": "156120BS75000",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "LED blue 1206 reverse mount"
+  },
+  "footprint": "LED_SMD:LED_1206_3216Metric_ReverseMount_Hole1.8x2.4mm",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "LED1_K",
+   "2": "LED1_A"
+  },
+  "pos": [
+   38.6,
+   71.2,
+   90,
+   "F"
+  ],
+  "ref": "D8",
+  "sheet": "cm4",
+  "value": "BLUE"
+ },
+ "D9": {
+  "dnp": false,
+  "fields": {
+   "MPN": "156120RS75000",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "LED red 1206 reverse mount"
+  },
+  "footprint": "LED_SMD:LED_1206_3216Metric_ReverseMount_Hole1.8x2.4mm",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "GND",
+   "2": "MUTE_LED_A"
+  },
+  "pos": [
+   43.2,
+   71.2,
+   90,
+   "F"
+  ],
+  "ref": "D9",
+  "sheet": "cm4",
+  "value": "RED (muted)"
+ },
+ "FID1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "Fiducial"
+  },
+  "footprint": "Fiducial:Fiducial_1mm_Mask2mm",
+  "in_bom": false,
+  "near": null,
+  "pins": {},
+  "pos": null,
+  "ref": "FID1",
+  "sheet": "root",
+  "value": "Fiducial"
+ },
+ "FID2": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "Fiducial"
+  },
+  "footprint": "Fiducial:Fiducial_1mm_Mask2mm",
+  "in_bom": false,
+  "near": null,
+  "pins": {},
+  "pos": null,
+  "ref": "FID2",
+  "sheet": "root",
+  "value": "Fiducial"
+ },
+ "FID3": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "Fiducial"
+  },
+  "footprint": "Fiducial:Fiducial_1mm_Mask2mm",
+  "in_bom": false,
+  "near": null,
+  "pins": {},
+  "pos": null,
+  "ref": "FID3",
+  "sheet": "root",
+  "value": "Fiducial"
+ },
+ "H1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "PCB mounting hole"
+  },
+  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "in_bom": false,
+  "near": null,
+  "pins": {},
+  "pos": null,
+  "ref": "H1",
+  "sheet": "root",
+  "value": "M2.5 board mount"
+ },
+ "H2": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "PCB mounting hole"
+  },
+  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "in_bom": false,
+  "near": null,
+  "pins": {},
+  "pos": null,
+  "ref": "H2",
+  "sheet": "root",
+  "value": "M2.5 board mount"
+ },
+ "H3": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "PCB mounting hole"
+  },
+  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "in_bom": false,
+  "near": null,
+  "pins": {},
+  "pos": null,
+  "ref": "H3",
+  "sheet": "root",
+  "value": "M2.5 board mount"
+ },
+ "H4": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "PCB mounting hole"
+  },
+  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "in_bom": false,
+  "near": null,
+  "pins": {},
+  "pos": null,
+  "ref": "H4",
+  "sheet": "root",
+  "value": "M2.5 board mount"
+ },
+ "H5": {
+  "dnp": false,
+  "fields": {
+   "MPN": "9774015151R",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "SMT spacer M2.5 internal thread, 1.5mm"
+  },
+  "footprint": "Mounting_Wuerth:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
+  "in_bom": true,
+  "near": null,
+  "pins": {
+   "1": "GND"
+  },
+  "pos": null,
+  "ref": "H5",
+  "sheet": "root",
+  "value": "CM4 spacer M2.5x1.5"
+ },
+ "H6": {
+  "dnp": false,
+  "fields": {
+   "MPN": "9774015151R",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "SMT spacer M2.5 internal thread, 1.5mm"
+  },
+  "footprint": "Mounting_Wuerth:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
+  "in_bom": true,
+  "near": null,
+  "pins": {
+   "1": "GND"
+  },
+  "pos": null,
+  "ref": "H6",
+  "sheet": "root",
+  "value": "CM4 spacer M2.5x1.5"
+ },
+ "H7": {
+  "dnp": false,
+  "fields": {
+   "MPN": "9774015151R",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "SMT spacer M2.5 internal thread, 1.5mm"
+  },
+  "footprint": "Mounting_Wuerth:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
+  "in_bom": true,
+  "near": null,
+  "pins": {
+   "1": "GND"
+  },
+  "pos": null,
+  "ref": "H7",
+  "sheet": "root",
+  "value": "CM4 spacer M2.5x1.5"
+ },
+ "H8": {
+  "dnp": false,
+  "fields": {
+   "MPN": "9774015151R",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "SMT spacer M2.5 internal thread, 1.5mm"
+  },
+  "footprint": "Mounting_Wuerth:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
+  "in_bom": true,
+  "near": null,
+  "pins": {
+   "1": "GND"
+  },
+  "pos": null,
+  "ref": "H8",
+  "sheet": "root",
+  "value": "CM4 spacer M2.5x1.5"
+ },
+ "J1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "USB4105-GF-A",
+   "Manufacturer": "GCT",
+   "PartDescription": "USB-C receptacle 16-pin USB 2.0, top mount"
+  },
+  "footprint": "Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "A1": "GND",
+   "A12": "GND",
+   "A4": "VBUS",
+   "A5": "CC1",
+   "A9": "VBUS",
+   "B1": "GND",
+   "B12": "GND",
+   "B4": "VBUS",
+   "B5": "CC2",
+   "B9": "VBUS",
+   "S1": "GND"
+  },
+  "pos": null,
+  "ref": "J1",
+  "sheet": "power",
+  "value": "USB4105-GF-A"
+ },
+ "J2": {
+  "dnp": false,
+  "fields": {
+   "MPN": "DF40C-100DS-0.4V(51)",
+   "Manufacturer": "Hirose",
+   "PartDescription": "CONN mezzanine 100pos 0.4mm receptacle (CM4 socket)"
+  },
+  "footprint": "voxhub:CM4_J1_DF40C-100DS",
+  "in_bom": true,
+  "near": "J2",
+  "pins": {
+   "1": "GND",
+   "13": "GND",
+   "14": "GND",
+   "2": "GND",
+   "21": "ACT_LED_K",
+   "22": "GND",
+   "23": "GND",
+   "25": "I2S_DOUT",
+   "26": "I2S_LRCLK",
+   "27": "I2S_DIN",
+   "29": "AMP_SD",
+   "30": "LED_B_EN",
+   "32": "GND",
+   "33": "GND",
+   "34": "LED_G_EN",
+   "38": "UART4_RTS",
+   "39": "UART4_TX",
+   "40": "UART4_RX",
+   "41": "ZB_BOOT",
+   "42": "GND",
+   "43": "GND",
+   "44": "UART4_CTS",
+   "45": "ZB_NRST",
+   "46": "ZB_SWDIO",
+   "47": "ZB_SWCLK",
+   "48": "MUTE_SENSE",
+   "49": "I2S_BCLK",
+   "51": "DBG_RX",
+   "52": "GND",
+   "53": "GND",
+   "55": "DBG_TX",
+   "56": "I2C_SCL",
+   "57": "SD_CLK",
+   "58": "I2C_SDA",
+   "59": "GND",
+   "60": "GND",
+   "61": "SD_DAT3",
+   "62": "SD_CMD",
+   "63": "SD_DAT0",
+   "65": "GND",
+   "66": "GND",
+   "67": "SD_DAT1",
+   "69": "SD_DAT2",
+   "7": "GND",
+   "71": "GND",
+   "74": "GND",
+   "75": "SD_PWR_ON",
+   "77": "+5V",
+   "78": "+3V3",
+   "79": "+5V",
+   "8": "GND",
+   "81": "+5V",
+   "83": "+5V",
+   "84": "+3V3",
+   "85": "+5V",
+   "86": "+3V3",
+   "87": "+5V",
+   "93": "NRPIBOOT",
+   "98": "GND"
+  },
+  "pos": null,
+  "ref": "J2",
+  "sheet": "cm4",
+  "value": "DF40C-100DS-0.4V(51)"
+ },
+ "J3": {
+  "dnp": false,
+  "fields": {
+   "MPN": "DF40C-100DS-0.4V(51)",
+   "Manufacturer": "Hirose",
+   "PartDescription": "CONN mezzanine 100pos 0.4mm receptacle (CM4 socket)"
+  },
+  "footprint": "voxhub:CM4_J2_DF40C-100DS",
+  "in_bom": true,
+  "near": "J2",
+  "pins": {
+   "101": "GND",
+   "103": "USB_UP_N",
+   "105": "USB_UP_P",
+   "107": "GND",
+   "108": "GND",
+   "113": "GND",
+   "114": "GND",
+   "119": "GND",
+   "120": "GND",
+   "125": "GND",
+   "126": "GND",
+   "131": "GND",
+   "132": "GND",
+   "137": "GND",
+   "138": "GND",
+   "144": "GND",
+   "150": "GND",
+   "155": "GND",
+   "156": "GND",
+   "161": "GND",
+   "162": "GND",
+   "167": "GND",
+   "168": "GND",
+   "173": "GND",
+   "174": "GND",
+   "179": "GND",
+   "180": "GND",
+   "185": "GND",
+   "186": "GND",
+   "191": "GND",
+   "192": "GND",
+   "197": "GND",
+   "198": "GND"
+  },
+  "pos": null,
+  "ref": "J3",
+  "sheet": "cm4",
+  "value": "DF40C-100DS-0.4V(51)"
+ },
+ "J4": {
+  "dnp": false,
+  "fields": {
+   "MPN": "DM3AT-SF-PEJM5",
+   "Manufacturer": "Hirose",
+   "PartDescription": "microSD push-push socket"
+  },
+  "footprint": "Connector_Card:microSD_HC_Hirose_DM3AT-SF-PEJM5",
+  "in_bom": true,
+  "near": "U3",
+  "pins": {
+   "1": "SD_DAT2",
+   "11": "GND",
+   "2": "SD_DAT3",
+   "3": "SD_CMD",
+   "4": "SD_VDD",
+   "5": "SD_CLK",
+   "6": "GND",
+   "7": "SD_DAT0",
+   "8": "SD_DAT1"
+  },
+  "pos": null,
+  "ref": "J4",
+  "sheet": "cm4",
+  "value": "DM3AT-SF-PEJM5"
+ },
+ "J5": {
+  "dnp": true,
+  "fields": {
+   "MPN": "61300311121",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "Pin header 1x3 2.54mm (DNP)"
+  },
+  "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+  "in_bom": true,
+  "near": "CM4CAP",
+  "pins": {
+   "1": "GND",
+   "2": "DBG_TX",
+   "3": "DBG_RX"
+  },
+  "pos": null,
+  "ref": "J5",
+  "sheet": "cm4",
+  "value": "DEBUG UART"
+ },
+ "J6": {
+  "dnp": false,
+  "fields": {
+   "MPN": "61400826021",
+   "Manufacturer": "Wurth Elektronik",
+   "PartDescription": "USB-A dual stacked receptacle THT"
+  },
+  "footprint": "Connector_USB:USB_A_Wuerth_61400826021_Horizontal_Stacked",
+  "in_bom": true,
+  "near": "U6",
+  "pins": {
+   "1": "USB1_VBUS",
+   "2": "USB1_N",
+   "3": "USB1_P",
+   "4": "GND",
+   "5": "USB2_VBUS",
+   "6": "USB2_N",
+   "7": "USB2_P",
+   "8": "GND",
+   "9": "GND"
+  },
+  "pos": null,
+  "ref": "J6",
+  "sheet": "usb",
+  "value": "61400826021"
+ },
+ "J7": {
+  "dnp": false,
+  "fields": {
+   "MPN": "B2B-PH-K-S(LF)(SN)",
+   "Manufacturer": "JST",
+   "PartDescription": "CONN header PH 2pos 2mm vertical THT"
+  },
+  "footprint": "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical",
+  "in_bom": true,
+  "near": "U10",
+  "pins": {
+   "1": "SPK_P",
+   "2": "SPK_N"
+  },
+  "pos": null,
+  "ref": "J7",
+  "sheet": "audio",
+  "value": "SPEAKER 4R"
+ },
+ "J8": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "Tag-Connect footprint (no part)"
+  },
+  "footprint": "Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical",
+  "in_bom": false,
+  "near": "U11",
+  "pins": {
+   "1": "+3V3",
+   "2": "ZB_SWDIO",
+   "3": "ZB_NRST",
+   "4": "ZB_SWCLK",
+   "5": "GND",
+   "6": "ZB_SWO"
+  },
+  "pos": null,
+  "ref": "J8",
+  "sheet": "zigbee",
+  "value": "TC2030-NL (SWD)"
+ },
+ "JP1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "Solder jumper (no part)"
+  },
+  "footprint": "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
+  "in_bom": false,
+  "near": "CM4CAP",
+  "pins": {
+   "1": "NRPIBOOT",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "JP1",
+  "sheet": "cm4",
+  "value": "RPIBOOT"
+ },
+ "L1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "SRP7028A-6R8M",
+   "Manufacturer": "Bourns",
+   "PartDescription": "IND 6.8uH 4.5A(rms) 8A(sat) 60mOhm shielded 7.3x6.6mm"
+  },
+  "footprint": "Inductor_SMD:L_Bourns_SRP7028A_7.3x6.6mm",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "BUCK_SW",
+   "2": "+5V"
+  },
+  "pos": null,
+  "ref": "L1",
+  "sheet": "power",
+  "value": "6.8uH"
+ },
+ "MK1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "IM69D130V01XTSA1",
+   "Manufacturer": "Infineon",
+   "PartDescription": "MEMS microphone PDM 69dB SNR bottom port LLGA-5"
+  },
+  "footprint": "Sensor_Audio:Infineon_PG-LLGA-5-1",
+  "in_bom": true,
+  "near": "MK1",
+  "pins": {
+   "1": "PDM_DAT",
+   "2": "+3V3",
+   "3": "PDM_CLK_M",
+   "4": "GND",
+   "5": "GND"
+  },
+  "pos": null,
+  "ref": "MK1",
+  "sheet": "audio",
+  "value": "IM69D130"
+ },
+ "MK2": {
+  "dnp": false,
+  "fields": {
+   "MPN": "IM69D130V01XTSA1",
+   "Manufacturer": "Infineon",
+   "PartDescription": "MEMS microphone PDM 69dB SNR bottom port LLGA-5"
+  },
+  "footprint": "Sensor_Audio:Infineon_PG-LLGA-5-1",
+  "in_bom": true,
+  "near": "MK2",
+  "pins": {
+   "1": "PDM_DAT",
+   "2": "+3V3",
+   "3": "PDM_CLK_M",
+   "4": "+3V3",
+   "5": "GND"
+  },
+  "pos": null,
+  "ref": "MK2",
+  "sheet": "audio",
+  "value": "IM69D130"
+ },
+ "Q1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "AO3401A",
+   "Manufacturer": "Alpha & Omega Semiconductor",
+   "PartDescription": "MOSFET P-CH 30V 4A SOT-23"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "near": "Q1",
+  "pins": {
+   "1": "PD_GATE",
+   "2": "VBUS",
+   "3": "VBUS_SW"
+  },
+  "pos": null,
+  "ref": "Q1",
+  "sheet": "power",
+  "value": "AO3401A"
+ },
+ "Q2": {
+  "dnp": false,
+  "fields": {
+   "MPN": "2N7002,215",
+   "Manufacturer": "Nexperia",
+   "PartDescription": "MOSFET N-CH 60V 300mA SOT-23"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "LED_G_EN",
+   "2": "GND",
+   "3": "LED0_K"
+  },
+  "pos": null,
+  "ref": "Q2",
+  "sheet": "cm4",
+  "value": "2N7002"
+ },
+ "Q3": {
+  "dnp": false,
+  "fields": {
+   "MPN": "2N7002,215",
+   "Manufacturer": "Nexperia",
+   "PartDescription": "MOSFET N-CH 60V 300mA SOT-23"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "LED_B_EN",
+   "2": "GND",
+   "3": "LED1_K"
+  },
+  "pos": null,
+  "ref": "Q3",
+  "sheet": "cm4",
+  "value": "2N7002"
+ },
+ "R1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-075K1L",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 5.1k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_VDDD",
+   "2": "PD_VMIN"
+  },
+  "pos": null,
+  "ref": "R1",
+  "sheet": "power",
+  "value": "5.1k"
+ },
+ "R10": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07150KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 150k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "Q1",
+  "pins": {
+   "1": "PD_GATE",
+   "2": "PD_FET_EN"
+  },
+  "pos": null,
+  "ref": "R10",
+  "sheet": "power",
+  "value": "150k"
+ },
+ "R11": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07470KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 470k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "VBUS_SW",
+   "2": "BUCK_EN"
+  },
+  "pos": null,
+  "ref": "R11",
+  "sheet": "power",
+  "value": "470k"
+ },
+ "R12": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "BUCK_EN",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R12",
+  "sheet": "power",
+  "value": "100k"
+ },
+ "R13": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "+5V",
+   "2": "BUCK_FB"
+  },
+  "pos": null,
+  "ref": "R13",
+  "sheet": "power",
+  "value": "100k"
+ },
+ "R14": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0724K3L",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 24.3k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "BUCK_FB",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R14",
+  "sheet": "power",
+  "value": "24.3k"
+ },
+ "R15": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-072K2L",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 2.2k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "+5V",
+   "2": "PWR_LED_A"
+  },
+  "pos": null,
+  "ref": "R15",
+  "sheet": "power",
+  "value": "2.2k"
+ },
+ "R16": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0749K9L",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 49.9k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U3",
+  "pins": {
+   "1": "SD_ILIM",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R16",
+  "sheet": "cm4",
+  "value": "49.9k"
+ },
+ "R17": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U3",
+  "pins": {
+   "1": "+3V3",
+   "2": "SD_PWR_ON"
+  },
+  "pos": null,
+  "ref": "R17",
+  "sheet": "cm4",
+  "value": "10k"
+ },
+ "R18": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07680RL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 680 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "+5V",
+   "2": "LED0_A"
+  },
+  "pos": null,
+  "ref": "R18",
+  "sheet": "cm4",
+  "value": "680"
+ },
+ "R19": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "LED_G_EN",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R19",
+  "sheet": "cm4",
+  "value": "10k"
+ },
+ "R2": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-071KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 1k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_VMIN",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R2",
+  "sheet": "power",
+  "value": "1k"
+ },
+ "R20": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07470RL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 470 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "+5V",
+   "2": "LED1_A"
+  },
+  "pos": null,
+  "ref": "R20",
+  "sheet": "cm4",
+  "value": "470"
+ },
+ "R21": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "LED_B_EN",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R21",
+  "sheet": "cm4",
+  "value": "10k"
+ },
+ "R22": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07330RL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 330 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "MIC_MUTE",
+   "2": "MUTE_LED_A"
+  },
+  "pos": null,
+  "ref": "R22",
+  "sheet": "cm4",
+  "value": "330"
+ },
+ "R23": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "MIC_MUTE",
+   "2": "MUTE_SENSE"
+  },
+  "pos": null,
+  "ref": "R23",
+  "sheet": "cm4",
+  "value": "10k"
+ },
+ "R24": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "MUTE_SENSE",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R24",
+  "sheet": "cm4",
+  "value": "100k"
+ },
+ "R25": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "1": "I2S_DIN",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R25",
+  "sheet": "cm4",
+  "value": "100k"
+ },
+ "R26": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-071KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 1k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "CM4CAP",
+  "pins": {
+   "1": "+3V3",
+   "2": "ACT_LED_A"
+  },
+  "pos": null,
+  "ref": "R26",
+  "sheet": "cm4",
+  "value": "1k"
+ },
+ "R27": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0712KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 12k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_RBIAS",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R27",
+  "sheet": "usb",
+  "value": "12k"
+ },
+ "R28": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "HUB_RST_N"
+  },
+  "pos": null,
+  "ref": "R28",
+  "sheet": "usb",
+  "value": "10k"
+ },
+ "R29": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "HUB_VBUSDET"
+  },
+  "pos": null,
+  "ref": "R29",
+  "sheet": "usb",
+  "value": "100k"
+ },
+ "R3": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-070RL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 0 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_VDDD",
+   "2": "PD_VMAX"
+  },
+  "pos": null,
+  "ref": "R3",
+  "sheet": "power",
+  "value": "0"
+ },
+ "R30": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_CFG0",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R30",
+  "sheet": "usb",
+  "value": "100k"
+ },
+ "R31": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_CFG1",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R31",
+  "sheet": "usb",
+  "value": "100k"
+ },
+ "R32": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_NONREM0",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R32",
+  "sheet": "usb",
+  "value": "100k"
+ },
+ "R33": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_NONREM1",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R33",
+  "sheet": "usb",
+  "value": "100k"
+ },
+ "R34": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "HUB_DIS3M"
+  },
+  "pos": null,
+  "ref": "R34",
+  "sheet": "usb",
+  "value": "10k"
+ },
+ "R35": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "HUB_DIS3P"
+  },
+  "pos": null,
+  "ref": "R35",
+  "sheet": "usb",
+  "value": "10k"
+ },
+ "R36": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "HUB_DIS4M"
+  },
+  "pos": null,
+  "ref": "R36",
+  "sheet": "usb",
+  "value": "10k"
+ },
+ "R37": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "+3V3",
+   "2": "HUB_DIS4P"
+  },
+  "pos": null,
+  "ref": "R37",
+  "sheet": "usb",
+  "value": "10k"
+ },
+ "R38": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0720KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 20k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U5",
+  "pins": {
+   "1": "USB1_ILIM",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R38",
+  "sheet": "usb",
+  "value": "20k"
+ },
+ "R39": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U5",
+  "pins": {
+   "1": "+3V3",
+   "2": "USB_OC1_N"
+  },
+  "pos": null,
+  "ref": "R39",
+  "sheet": "usb",
+  "value": "10k"
+ },
+ "R4": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-075K1L",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 5.1k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_VDDD",
+   "2": "PD_ICOARSE"
+  },
+  "pos": null,
+  "ref": "R4",
+  "sheet": "power",
+  "value": "5.1k"
+ },
+ "R40": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0720KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 20k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U6",
+  "pins": {
+   "1": "USB2_ILIM",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R40",
+  "sheet": "usb",
+  "value": "20k"
+ },
+ "R41": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U6",
+  "pins": {
+   "1": "+3V3",
+   "2": "USB_OC2_N"
+  },
+  "pos": null,
+  "ref": "R41",
+  "sheet": "usb",
+  "value": "10k"
+ },
+ "R42": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0733RL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 33 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U9",
+  "pins": {
+   "1": "PDM_CLK",
+   "2": "PDM_CLK_M"
+  },
+  "pos": null,
+  "ref": "R42",
+  "sheet": "audio",
+  "value": "33"
+ },
+ "R43": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U9",
+  "pins": {
+   "1": "MIC_SDATA",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R43",
+  "sheet": "audio",
+  "value": "100k"
+ },
+ "R44": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U9",
+  "pins": {
+   "1": "PDM_DAT",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R44",
+  "sheet": "audio",
+  "value": "100k"
+ },
+ "R45": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U10",
+  "pins": {
+   "1": "AMP_SD",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R45",
+  "sheet": "audio",
+  "value": "100k"
+ },
+ "R46": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U11",
+  "pins": {
+   "1": "+3V3",
+   "2": "ZB_NRST"
+  },
+  "pos": null,
+  "ref": "R46",
+  "sheet": "zigbee",
+  "value": "10k"
+ },
+ "R47": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0710KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 10k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U11",
+  "pins": {
+   "1": "+3V3",
+   "2": "ZB_BOOT"
+  },
+  "pos": null,
+  "ref": "R47",
+  "sheet": "zigbee",
+  "value": "10k"
+ },
+ "R5": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-072K4L",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 2.4k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_ICOARSE",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R5",
+  "sheet": "power",
+  "value": "2.4k"
+ },
+ "R6": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-070RL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 0 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_IFINE",
+   "2": "GND"
+  },
+  "pos": null,
+  "ref": "R6",
+  "sheet": "power",
+  "value": "0"
+ },
+ "R7": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-071KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 1k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_FAULT",
+   "2": "PD_FAULT_LED"
+  },
+  "pos": null,
+  "ref": "R7",
+  "sheet": "power",
+  "value": "1k"
+ },
+ "R8": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-0749K9L",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 49.9k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_VDDD",
+   "2": "PD_FLIP"
+  },
+  "pos": null,
+  "ref": "R8",
+  "sheet": "power",
+  "value": "49.9k"
+ },
+ "R9": {
+  "dnp": false,
+  "fields": {
+   "MPN": "RC0402FR-07100KL",
+   "Manufacturer": "Yageo",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "Q1",
+  "pins": {
+   "1": "VBUS",
+   "2": "PD_GATE"
+  },
+  "pos": null,
+  "ref": "R9",
+  "sheet": "power",
+  "value": "100k"
+ },
+ "SW1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "JS202011JCQN",
+   "Manufacturer": "C&K",
+   "PartDescription": "Slide switch DPDT SMT vertical actuator"
+  },
+  "footprint": "Button_Switch_SMD:SW_DPDT_CK_JS202011JCQN",
+  "in_bom": true,
+  "near": "UI",
+  "pins": {
+   "2": "+3V3",
+   "3": "MIC_MUTE",
+   "4": "MIC_SDATA",
+   "5": "I2S_DIN",
+   "6": "GND"
+  },
+  "pos": null,
+  "ref": "SW1",
+  "sheet": "cm4",
+  "value": "JS202011JCQN (MUTE)"
+ },
+ "TP1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "Test pad (no part)"
+  },
+  "footprint": "TestPoint:TestPoint_Pad_D1.5mm",
+  "in_bom": false,
+  "near": "TPZONE",
+  "pins": {
+   "1": "VBUS"
+  },
+  "pos": null,
+  "ref": "TP1",
+  "sheet": "power",
+  "value": "VBUS"
+ },
+ "TP2": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "Test pad (no part)"
+  },
+  "footprint": "TestPoint:TestPoint_Pad_D1.5mm",
+  "in_bom": false,
+  "near": "TPZONE",
+  "pins": {
+   "1": "VBUS_SW"
+  },
+  "pos": null,
+  "ref": "TP2",
+  "sheet": "power",
+  "value": "VBUS_SW"
+ },
+ "TP3": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "Test pad (no part)"
+  },
+  "footprint": "TestPoint:TestPoint_Pad_D1.5mm",
+  "in_bom": false,
+  "near": "TPZONE",
+  "pins": {
+   "1": "+5V"
+  },
+  "pos": null,
+  "ref": "TP3",
+  "sheet": "power",
+  "value": "+5V"
+ },
+ "TP4": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "Test pad (no part)"
+  },
+  "footprint": "TestPoint:TestPoint_Pad_D1.5mm",
+  "in_bom": false,
+  "near": "TPZONE",
+  "pins": {
+   "1": "+3V3"
+  },
+  "pos": null,
+  "ref": "TP4",
+  "sheet": "power",
+  "value": "+3V3"
+ },
+ "TP5": {
+  "dnp": false,
+  "fields": {
+   "MPN": "",
+   "Manufacturer": "",
+   "PartDescription": "Test pad (no part)"
+  },
+  "footprint": "TestPoint:TestPoint_Pad_D1.5mm",
+  "in_bom": false,
+  "near": "TPZONE",
+  "pins": {
+   "1": "GND"
+  },
+  "pos": null,
+  "ref": "TP5",
+  "sheet": "power",
+  "value": "GND"
+ },
+ "U1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "CYPD3177-24LQXQT",
+   "Manufacturer": "Infineon",
+   "PartDescription": "USB-C PD sink controller (EZ-PD BCR) QFN-24"
+  },
+  "footprint": "Package_DFN_QFN:QFN-24-1EP_4x4mm_P0.5mm_EP2.75x2.75mm",
+  "in_bom": true,
+  "near": "U1",
+  "pins": {
+   "1": "PD_VMIN",
+   "10": "PD_FLIP",
+   "11": "VBUS_SW",
+   "12": "I2C_SDA",
+   "13": "I2C_SCL",
+   "14": "CC2",
+   "15": "CC1",
+   "18": "VBUS",
+   "19": "GND",
+   "2": "PD_VMAX",
+   "22": "GND",
+   "23": "PD_VDDD",
+   "24": "PD_VCCD",
+   "25": "GND",
+   "3": "PD_FET_EN",
+   "5": "PD_ICOARSE",
+   "6": "PD_IFINE",
+   "9": "PD_FAULT"
+  },
+  "pos": null,
+  "ref": "U1",
+  "sheet": "power",
+  "value": "CYPD3177-24LQXQT"
+ },
+ "U10": {
+  "dnp": false,
+  "fields": {
+   "MPN": "MAX98357AETE+T",
+   "Manufacturer": "Analog Devices",
+   "PartDescription": "I2S class-D mono amplifier 3.2W TQFN-16"
+  },
+  "footprint": "Package_DFN_QFN:TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm",
+  "in_bom": true,
+  "near": "U10",
+  "pins": {
+   "1": "I2S_DOUT",
+   "10": "SPK_N",
+   "11": "GND",
+   "14": "I2S_LRCLK",
+   "15": "GND",
+   "16": "I2S_BCLK",
+   "17": "GND",
+   "3": "GND",
+   "4": "AMP_SD",
+   "7": "+5V",
+   "8": "+5V",
+   "9": "SPK_P"
+  },
+  "pos": null,
+  "ref": "U10",
+  "sheet": "audio",
+  "value": "MAX98357AETE+T"
+ },
+ "U11": {
+  "dnp": false,
+  "fields": {
+   "MPN": "MGM240PB32VNA3",
+   "Manufacturer": "Silicon Labs",
+   "PartDescription": "EFR32MG24 Zigbee/Thread module +20dBm, built-in antenna"
+  },
+  "footprint": "voxhub:SiliconLabs_MGM240P",
+  "in_bom": true,
+  "near": "U11",
+  "pins": {
+   "1": "GND",
+   "10": "ZB_SWO",
+   "12": "UART4_RX",
+   "13": "UART4_TX",
+   "14": "GND",
+   "15": "+3V3",
+   "16": "UART4_RTS",
+   "17": "UART4_CTS",
+   "22": "ZB_BOOT",
+   "23": "GND",
+   "31": "ZB_NRST",
+   "32": "GND",
+   "34": "GND",
+   "35": "GND",
+   "36": "GND",
+   "8": "ZB_SWCLK",
+   "9": "ZB_SWDIO"
+  },
+  "pos": null,
+  "ref": "U11",
+  "sheet": "zigbee",
+  "value": "MGM240PB32VNA3"
+ },
+ "U2": {
+  "dnp": false,
+  "fields": {
+   "MPN": "LMR33640ADDAR",
+   "Manufacturer": "Texas Instruments",
+   "PartDescription": "Buck 3.8-36V 4A 400kHz HSOIC-8"
+  },
+  "footprint": "Package_SO:Texas_HSOP-8-1EP_3.9x4.9mm_P1.27mm_ThermalVias",
+  "in_bom": true,
+  "near": "U2",
+  "pins": {
+   "1": "GND",
+   "2": "VBUS_SW",
+   "3": "BUCK_EN",
+   "5": "BUCK_FB",
+   "6": "BUCK_VCC",
+   "7": "BUCK_BOOT",
+   "8": "BUCK_SW",
+   "9": "GND"
+  },
+  "pos": null,
+  "ref": "U2",
+  "sheet": "power",
+  "value": "LMR33640ADDAR"
+ },
+ "U3": {
+  "dnp": false,
+  "fields": {
+   "MPN": "TPS2553DBVR",
+   "Manufacturer": "Texas Instruments",
+   "PartDescription": "Current-limited power switch, adj. 0.075-1.7A, EN active high, SOT-23-6"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "in_bom": true,
+  "near": "U3",
+  "pins": {
+   "1": "+3V3",
+   "2": "GND",
+   "3": "SD_PWR_ON",
+   "5": "SD_ILIM",
+   "6": "SD_VDD"
+  },
+  "pos": null,
+  "ref": "U3",
+  "sheet": "cm4",
+  "value": "TPS2553DBVR"
+ },
+ "U4": {
+  "dnp": false,
+  "fields": {
+   "MPN": "USB2514B-I/M2",
+   "Manufacturer": "Microchip",
+   "PartDescription": "USB 2.0 hi-speed 4-port hub QFN-36"
+  },
+  "footprint": "Package_DFN_QFN:QFN-36-1EP_6x6mm_P0.5mm_EP3.7x3.7mm",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "USB1_N",
+   "10": "+3V3",
+   "11": "GND",
+   "12": "USB_PWR1",
+   "13": "USB_OC1_N",
+   "14": "HUB_CRFILT",
+   "15": "+3V3",
+   "16": "USB_PWR2",
+   "17": "USB_OC2_N",
+   "2": "USB1_P",
+   "22": "HUB_NONREM1",
+   "23": "+3V3",
+   "24": "HUB_CFG0",
+   "25": "HUB_CFG1",
+   "26": "HUB_RST_N",
+   "27": "HUB_VBUSDET",
+   "28": "HUB_NONREM0",
+   "29": "+3V3",
+   "3": "USB2_N",
+   "30": "USB_UP_N",
+   "31": "USB_UP_P",
+   "32": "HUB_XO",
+   "33": "HUB_XI",
+   "34": "HUB_PLLFILT",
+   "35": "HUB_RBIAS",
+   "36": "+3V3",
+   "37": "GND",
+   "4": "USB2_P",
+   "5": "+3V3",
+   "6": "HUB_DIS3M",
+   "7": "HUB_DIS3P",
+   "8": "HUB_DIS4M",
+   "9": "HUB_DIS4P"
+  },
+  "pos": null,
+  "ref": "U4",
+  "sheet": "usb",
+  "value": "USB2514B-I/M2"
+ },
+ "U5": {
+  "dnp": false,
+  "fields": {
+   "MPN": "TPS2553DBVR",
+   "Manufacturer": "Texas Instruments",
+   "PartDescription": "Current-limited power switch, adj. 0.075-1.7A, EN active high, SOT-23-6"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "in_bom": true,
+  "near": "U5",
+  "pins": {
+   "1": "+5V",
+   "2": "GND",
+   "3": "USB_PWR1",
+   "4": "USB_OC1_N",
+   "5": "USB1_ILIM",
+   "6": "USB1_VBUS"
+  },
+  "pos": null,
+  "ref": "U5",
+  "sheet": "usb",
+  "value": "TPS2553DBVR"
+ },
+ "U6": {
+  "dnp": false,
+  "fields": {
+   "MPN": "TPS2553DBVR",
+   "Manufacturer": "Texas Instruments",
+   "PartDescription": "Current-limited power switch, adj. 0.075-1.7A, EN active high, SOT-23-6"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "in_bom": true,
+  "near": "U6",
+  "pins": {
+   "1": "+5V",
+   "2": "GND",
+   "3": "USB_PWR2",
+   "4": "USB_OC2_N",
+   "5": "USB2_ILIM",
+   "6": "USB2_VBUS"
+  },
+  "pos": null,
+  "ref": "U6",
+  "sheet": "usb",
+  "value": "TPS2553DBVR"
+ },
+ "U7": {
+  "dnp": false,
+  "fields": {
+   "MPN": "USBLC6-2SC6",
+   "Manufacturer": "STMicroelectronics",
+   "PartDescription": "USB ESD protection SOT-23-6"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "in_bom": true,
+  "near": "U5",
+  "pins": {
+   "1": "USB1_N",
+   "2": "GND",
+   "3": "USB1_P",
+   "4": "USB1_P",
+   "5": "USB1_VBUS",
+   "6": "USB1_N"
+  },
+  "pos": null,
+  "ref": "U7",
+  "sheet": "usb",
+  "value": "USBLC6-2SC6"
+ },
+ "U8": {
+  "dnp": false,
+  "fields": {
+   "MPN": "USBLC6-2SC6",
+   "Manufacturer": "STMicroelectronics",
+   "PartDescription": "USB ESD protection SOT-23-6"
+  },
+  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "in_bom": true,
+  "near": "U6",
+  "pins": {
+   "1": "USB2_N",
+   "2": "GND",
+   "3": "USB2_P",
+   "4": "USB2_P",
+   "5": "USB2_VBUS",
+   "6": "USB2_N"
+  },
+  "pos": null,
+  "ref": "U8",
+  "sheet": "usb",
+  "value": "USBLC6-2SC6"
+ },
+ "U9": {
+  "dnp": false,
+  "fields": {
+   "MPN": "ADAU7002ACBZ-R7",
+   "Manufacturer": "Analog Devices",
+   "PartDescription": "Stereo PDM to I2S converter WLCSP-8"
+  },
+  "footprint": "voxhub:ADAU7002_WLCSP-8_0.76x1.56mm_P0.4mm",
+  "in_bom": true,
+  "near": "U9",
+  "pins": {
+   "A1": "PDM_DAT",
+   "A2": "PDM_CLK",
+   "B1": "MIC_SDATA",
+   "B2": "I2S_BCLK",
+   "C1": "GND",
+   "C2": "I2S_LRCLK",
+   "D1": "+3V3",
+   "D2": "+3V3"
+  },
+  "pos": null,
+  "ref": "U9",
+  "sheet": "audio",
+  "value": "ADAU7002ACBZ-R7"
+ },
+ "Y1": {
+  "dnp": false,
+  "fields": {
+   "MPN": "ABM8-24.000MHZ-B2-T",
+   "Manufacturer": "Abracon",
+   "PartDescription": "XTAL 24MHz 18pF 20ppm 3.2x2.5mm"
+  },
+  "footprint": "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm",
+  "in_bom": true,
+  "near": "U4",
+  "pins": {
+   "1": "HUB_XI",
+   "2": "GND",
+   "3": "HUB_XO",
+   "4": "GND"
+  },
+  "pos": null,
+  "ref": "Y1",
+  "sheet": "usb",
+  "value": "24MHz"
+ }
+}

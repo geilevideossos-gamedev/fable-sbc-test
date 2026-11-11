@@ -1,0 +1,134 @@
+// SPDX-License-Identifier: GPL-2.0
+// Device tree overlay for the VoxHub CM4 carrier (rev A).
+//
+// Functionally equivalent to the stock-overlay combination in config/config-voxhub.txt,
+// but as one overlay with proper names (LED function/colour, EV_SW mute switch, named
+// radio control lines).  Built into the image by the "full" build; the default repack
+// image uses the stock overlays instead so that it survives HAOS OTA updates.
+/dts-v1/;
+/plugin/;
+
+/* numeric constants are used so that plain dtc (no cpp / kernel headers) can build this:
+ * GPIO_ACTIVE_HIGH = 0, EV_SW = 5, SW_MUTE_DEVICE = 0x0e, LED_COLOR_ID_GREEN = 2, LED_COLOR_ID_BLUE = 3 */
+
+/ {
+	compatible = "brcm,bcm2711";
+
+	/* ---- I2S: ADAU7002 (PDM mics -> I2S) + MAX98357A, same wiring as the Google voiceHAT ---- */
+	fragment@0 {
+		target = <&i2s_clk_producer>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment@1 {
+		target = <&gpio>;
+		__overlay__ {
+			voxhub_amp_pins: voxhub_amp_pins {
+				brcm,pins = <16>;
+				brcm,function = <1>;	/* output */
+				brcm,pull = <0>;
+			};
+			voxhub_led_pins: voxhub_led_pins {
+				brcm,pins = <5 6>;
+				brcm,function = <1>;
+				brcm,pull = <0>;
+			};
+			voxhub_mute_pins: voxhub_mute_pins {
+				brcm,pins = <27>;
+				brcm,function = <0>;	/* input */
+				brcm,pull = <0>;	/* external 100k pull-down */
+			};
+		};
+	};
+
+	fragment@2 {
+		target-path = "/";
+		__overlay__ {
+			voxhub_codec: voicehat-codec {
+				#sound-dai-cells = <0>;
+				compatible = "google,voicehat";
+				pinctrl-names = "default";
+				pinctrl-0 = <&voxhub_amp_pins>;
+				sdmode-gpios = <&gpio 16 0>;
+				status = "okay";
+			};
+
+			voxhub-leds {
+				compatible = "gpio-leds";
+				pinctrl-names = "default";
+				pinctrl-0 = <&voxhub_led_pins>;
+
+				led-green {
+					label = "voxhub-green";
+					color = <2>;
+					function = "status";
+					gpios = <&gpio 5 0>;
+					default-state = "off";
+				};
+				led-blue {
+					label = "voxhub-blue";
+					color = <3>;
+					function = "indicator";
+					gpios = <&gpio 6 0>;
+					default-state = "off";
+				};
+			};
+
+			voxhub-switches {
+				compatible = "gpio-keys";
+				label = "voxhub-mute";
+				pinctrl-names = "default";
+				pinctrl-0 = <&voxhub_mute_pins>;
+
+				mic-mute {
+					label = "Microphone hardware mute";
+					gpios = <&gpio 27 0>;
+					linux,input-type = <5>;
+					linux,code = <0x0e>;
+				};
+			};
+		};
+	};
+
+	fragment@3 {
+		target = <&sound>;
+		__overlay__ {
+			compatible = "googlevoicehat,googlevoicehat-soundcard";
+			i2s-controller = <&i2s_clk_producer>;
+			status = "okay";
+		};
+	};
+
+	/* ---- Zigbee/Thread radio on UART4 with RTS/CTS ---- */
+	fragment@4 {
+		target = <&uart4>;
+		__overlay__ {
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart4_pins>;
+			status = "okay";
+		};
+	};
+
+	fragment@5 {
+		target = <&uart4_pins>;
+		__overlay__ {
+			brcm,pins = <8 9 10 11>;
+			brcm,function = <3>;	/* ALT4 */
+			brcm,pull = <0 2 2 0>;
+		};
+	};
+
+	/* Radio reset (GPIO24) and bootloader strap (GPIO25) have 10k pull-ups on the board and are
+	 * left as inputs; a flasher may drive them from user space (libgpiod). */
+
+	/* ---- I2C1: USB-PD controller (CYPD3177 HPI @ 0x08), read-only status ---- */
+	fragment@6 {
+		target = <&i2c1>;
+		__overlay__ {
+			status = "okay";
+			clock-frequency = <100000>;
+		};
+	};
+};

@@ -1,0 +1,12 @@
+track segments: 1828, vias: 333 (GND 143, +5V 24)
+USB_UP_P   32.04 mm (2 vias)   USB_UP_N   30.87 mm (2 vias)   skew 1.17 mm
+USB1_P     15.81 mm (3 vias)   USB1_N     20.36 mm (3 vias)   skew 4.55 mm
+USB2_P     23.79 mm (2 vias)   USB2_N     21.43 mm (2 vias)   skew 2.36 mm
+SD_CLK      68.7 mm (2 vias)
+SD_CMD      68.0 mm (2 vias)
+SD_DAT0     65.1 mm (4 vias)
+SD_DAT1     58.4 mm (4 vias)
+SD_DAT2     71.7 mm (0 vias)
+SD_DAT3     69.2 mm (0 vias)
+I2S_BCLK    87.3 mm (5 vias)
+PDM_CLK_M  139.7 mm (4 vias)

@@ -1,0 +1,109 @@
+name: VoxHub Assistant
+version: "0.1.0"
+slug: voxhub_assistant
+description: Claude-based voice assistant for the VoxHub CM4 (wake word, Whisper, Claude with Home Assistant tools, Piper)
+url: https://github.com/geilevideossos-gamedev/fable-sbc-test/tree/main/assistant
+arch:
+  - aarch64
+  - amd64
+init: false
+startup: application
+boot: auto
+stage: experimental
+# Audio through the Supervisor's PulseAudio (PULSE_SERVER is injected).
+audio: true
+# Home Assistant Core API through http://supervisor/core/api with SUPERVISOR_TOKEN.
+homeassistant_api: true
+# Read custom wake word models from /share.
+map:
+  - share:ro
+# Only needed for the VoxHub status LEDs (/sys/class/leds) and the mute switch
+# (/dev/input). It takes effect only when "Protection mode" is switched off for this
+# add-on; with protection mode on, the add-on runs fine without LED feedback.
+full_access: true
+options:
+  anthropic_api_key: ""
+  model: claude-haiku-5-5
+  effort: low
+  assistant_name: Jarvis
+  language: en
+  wake_word_engine: wyoming
+  wake_word: hey_jarvis
+  wake_word_uri: tcp://core-openwakeword:10400
+  stt_uri: tcp://core-whisper:10300
+  tts_uri: tcp://core-piper:10200
+  tts_voice: ""
+  volume: 0.7
+  mic_gain: 1.0
+  wake_sound: true
+  follow_up: false
+  allowed_service_domains:
+    - light
+    - switch
+    - fan
+    - cover
+    - climate
+    - media_player
+    - scene
+    - script
+    - input_boolean
+    - input_number
+    - input_select
+    - vacuum
+    - humidifier
+  denied_service_domains:
+    - lock
+    - alarm_control_panel
+    - homeassistant
+    - hassio
+    - shell_command
+    - python_script
+    - pyscript
+    - backup
+    - recorder
+    - system_log
+    - persistent_notification
+  leds: true
+  mute_switch: true
+  log_level: info
+schema:
+  anthropic_api_key: password
+  model: list(claude-haiku-5-5|claude-sonnet-5-5|claude-opus-5-5)
+  custom_model: str?
+  effort: list(low|medium|high|xhigh|max)
+  max_tokens: int(256,32000)?
+  request_timeout: float(5,300)?
+  assistant_name: str
+  language: str
+  system_prompt_extra: str?
+  conversation_timeout: float(0,86400)?
+  max_history_turns: int(0,50)?
+  wake_word_engine: list(wyoming|local)
+  wake_word: str
+  wake_word_uri: str
+  wake_word_threshold: float(0.05,1)?
+  wake_sound: bool
+  stt_uri: str
+  tts_uri: str
+  tts_voice: str?
+  input_device: str?
+  output_device: str?
+  mic_command: str?
+  speaker_command: str?
+  mic_gain: float(0.1,64)
+  volume: float(0,1)
+  silence_seconds: float(0.2,5)?
+  max_utterance_seconds: float(2,60)?
+  no_speech_timeout: float(1,60)?
+  vad_sensitivity: float(1.1,20)?
+  follow_up: bool
+  follow_up_seconds: float(1,30)?
+  exposed_domains:
+    - str?
+  allowed_service_domains:
+    - str
+  denied_service_domains:
+    - str
+  leds: bool
+  mute_switch: bool
+  log_level: list(debug|info|warning|error)

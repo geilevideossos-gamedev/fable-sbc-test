@@ -1,0 +1,4 @@
+anthropic>=2.0,<3
+wyoming>=1.6,<2
+aiohttp>=3.10,<4
+numpy>=1.26,<3

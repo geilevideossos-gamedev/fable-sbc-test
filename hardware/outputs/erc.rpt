@@ -1,0 +1,16 @@
+ERC report (2026-11-10T15:11:23+0000, Encoding UTF8)
+Report includes: Errors, Warnings, Exclusions
+
+***** Sheet /
+
+***** Sheet /Power: USB-C PD sink, 5 V buck/
+
+***** Sheet /Compute Module 4 socket, microSD, user interface/
+
+***** Sheet /USB 2.0 hub and USB-A host ports/
+
+***** Sheet /Audio: PDM microphones, PDM-to-I2S, class-D speaker amplifier/
+
+***** Sheet /Zigbee / Thread radio (MGM240P, EFR32MG24)/
+
+ ** ERC messages: 0  Errors 0  Warnings 0

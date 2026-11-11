@@ -1,0 +1,32 @@
+  GEN     os/output/haos-src/output/Makefile
+#
+# configuration written to os/output/haos-src/output/.config
+#
+make[1]: Leaving directory 'os/output/haos-src/buildroot'
+=== Building voxhub ===
+make -C os/output/haos-src/buildroot O=os/output/haos-src/output BR2_EXTERNAL=os/output/haos-src/buildroot-external
+make[1]: Entering directory 'os/output/haos-src/buildroot'
+/usr/bin/make -j1  O=os/output/haos-src/output HOSTCC="/usr/bin/gcc" HOSTCXX="/usr/bin/g++" syncconfig
+  GEN     os/output/haos-src/output/Makefile
+>>> host-skeleton  Extracting
+>>> host-skeleton  Patching
+>>> host-skeleton  Configuring
+>>> host-skeleton  Building
+>>> host-skeleton  Installing to host directory
+# check-package DoNotInstallToHostdirUsr
+>>> host-pkgconf 2.3.0 Downloading
+wget -nd -t 3 --connect-timeout=10 -O 'os/output/haos-src/output/build/.pkgconf-2.3.0.tar.xz.hyHEhB/output' 'https://distfiles.ariadne.space/pkgconf/pkgconf-2.3.0.tar.xz' 
+--2026-11-10 13:01:02--  https://distfiles.ariadne.space/pkgconf/pkgconf-2.3.0.tar.xz
+Connecting to 127.0.0.1:40929... connected.
+Proxy tunneling failed: ForbiddenUnable to establish SSL connection.
+wget -nd -t 3 --connect-timeout=10 -O 'os/output/haos-src/output/build/.pkgconf-2.3.0.tar.xz.hAUGUq/output' 'https://sources.buildroot.net/pkgconf/pkgconf-2.3.0.tar.xz' 
+--2026-11-10 13:01:02--  https://sources.buildroot.net/pkgconf/pkgconf-2.3.0.tar.xz
+Connecting to 127.0.0.1:40929... connected.
+Proxy tunneling failed: ForbiddenUnable to establish SSL connection.
+wget -nd -t 3 --connect-timeout=10 -O 'os/output/haos-src/output/build/.pkgconf-2.3.0.tar.xz.v8fTYK/output' 'https://sources.buildroot.net/pkgconf-2.3.0.tar.xz' 
+--2026-11-10 13:01:03--  https://sources.buildroot.net/pkgconf-2.3.0.tar.xz
+Connecting to 127.0.0.1:40929... connected.
+Proxy tunneling failed: ForbiddenUnable to establish SSL connection.
+make[1]: *** [package/pkg-generic.mk:179: os/output/haos-src/output/build/host-pkgconf-2.3.0/.stamp_downloaded] Error 1
+make[1]: Leaving directory 'os/output/haos-src/buildroot'
+make: *** [Makefile:56: voxhub] Error 2

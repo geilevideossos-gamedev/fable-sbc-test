@@ -1,0 +1,14 @@
+# VoxHub CM4 carrier. BOARD_ID stays "rpi4-64" on purpose: the hardware is a
+# Raspberry Pi CM4 and remains compatible with the official rpi4-64 RAUC update
+# bundles (compatible string "haos-rpi4-64"), so OTA updates keep working.
+BOARD_ID=rpi4-64
+BOARD_NAME="VoxHub CM4 (RaspberryPi 4 64bit)"
+CHASSIS=embedded
+BOOTLOADER=uboot
+KERNEL_FILE=Image
+PARTITION_TABLE_TYPE=hybrid
+BOOT_SIZE=32M
+BOOT_SPL=false
+BOOT_ENV_SIZE=0x4000
+SUPERVISOR_MACHINE=raspberrypi4-64
+SUPERVISOR_ARCH=aarch64

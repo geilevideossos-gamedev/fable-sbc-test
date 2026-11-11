@@ -1,0 +1,22 @@
+# Development tooling only (tests + lint). The add-on itself is built from
+# voxhub_assistant/Dockerfile and voxhub_assistant/requirements.txt.
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["voxhub_assistant/app"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+src = ["voxhub_assistant/app", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "ASYNC"]
+ignore = [
+    "UP041",     # asyncio.TimeoutError is kept explicit for readability
+    "ASYNC109",  # plain `timeout` parameters are fine for these small helpers
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["voxhub_assistant", "conftest", "test_pipeline"]
