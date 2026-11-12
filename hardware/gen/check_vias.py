@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
 import sys
 import pcbnew
-from shapely.geometry import Point, box
+from shapely.geometry import Point, Polygon
 
 MM = 1e-6
 
 
+def shape(poly):
+    out = None
+    for i in range(poly.OutlineCount()):
+        o = poly.Outline(i)
+        holes = [[(h.CPoint(k).x * MM, h.CPoint(k).y * MM) for k in range(h.PointCount())] for h in (poly.Hole(i, j) for j in range(poly.HoleCount(i)))]
+        g = Polygon([(o.CPoint(k).x * MM, o.CPoint(k).y * MM) for k in range(o.PointCount())], holes).buffer(0)
+        out = g if out is None else out.union(g)
+    return out if out is not None else Polygon()
+
+
+EXPOSED_PADS = {"U1": "25", "U2": "9", "U4": "37", "U10": "17"}
+
+
 def exposed(pad):
-    fp = pad.GetParentFootprint()
-    if not fp.GetReference().startswith("U"):
-        return False
-    nums = [int(p.GetNumber()) for p in fp.Pads() if p.GetNumber().isdigit()]
-    return bool(nums) and pad.GetNumber() == str(max(nums))
+    return EXPOSED_PADS.get(pad.GetParentFootprint().GetReference()) == pad.GetNumber()
 
 
 def main(path, report):
@@ -21,8 +30,9 @@ def main(path, report):
         for p in fp.Pads():
             if p.GetAttribute() != pcbnew.PAD_ATTRIB_SMD:
                 continue
-            b = p.GetBoundingBox()
-            pads.append((p, fp.GetReference(), box(b.GetLeft() * MM, b.GetTop() * MM, b.GetRight() * MM, b.GetBottom() * MM)))
+            for lay in (pcbnew.F_Cu, pcbnew.B_Cu):
+                if p.IsOnLayer(lay):
+                    pads.append((p, fp.GetReference(), lay, shape(p.GetEffectivePolygon(lay, pcbnew.ERROR_INSIDE))))
     n_via = n_ep = 0
     bad = []
     for t in board.GetTracks():
@@ -32,8 +42,8 @@ def main(path, report):
         c = t.GetPosition()
         for lay in (pcbnew.F_Cu, pcbnew.B_Cu):
             land = Point(c.x * MM, c.y * MM).buffer(t.GetWidth(lay) * MM / 2)
-            for p, ref, g in pads:
-                if not p.IsOnLayer(lay) or not g.intersects(land) or g.intersection(land).area < 1e-4:
+            for p, ref, play, g in pads:
+                if play != lay or not g.intersects(land) or g.intersection(land).area < 1e-4:
                     continue
                 if exposed(p):
                     n_ep += 1

@@ -63,6 +63,7 @@ NOGO_F = [(43.6, 27.6, 99.4, 68.4),          # under the CM4 module
 HOLES = [(3.5, 3.5), (96.5, 3.5), (3.5, 70.5), (97.0, 70.8)]
 
 SILK_MIN_W = 0.15
+CORNER_R = 3.0
 
 def trim_silk(board):
     f = pcbnew.ToMM
@@ -544,6 +545,36 @@ def prune_escapes(board, tracks):
                     board.Remove(tracks[i]); _KEEP.append(tracks[i]); tracks[i] = None; pruned += 1
     return pruned
 
+def neck_at_pads(board, tracks):
+    f = pcbnew.ToMM
+    pads = [p for fp in sorted_fps(board) for p in fp.Pads() if p.GetAttribute() == pcbnew.PAD_ATTRIB_SMD and p.GetNetname()]
+    n = 0
+    for i, tr in enumerate(list(tracks)):
+        if tr is None or tr.Type() == pcbnew.PCB_VIA_T or tr.IsLocked():
+            continue
+        for p in pads:
+            if p.GetNetname() != tr.GetNetname() or not p.IsOnLayer(tr.GetLayer()):
+                continue
+            s = p.GetSize(pcbnew.F_Cu); pw = min(s.x, s.y)
+            if tr.GetWidth() <= pw + MM(0.005):
+                continue
+            for end, other in ((tr.GetEnd(), tr.GetStart()), (tr.GetStart(), tr.GetEnd())):
+                if not p.HitTest(end):
+                    continue
+                L = f(tr.GetLength()); reach = f(max(s.x, s.y)) / 2 + 0.3
+                if L > reach + 0.05:
+                    k = reach / L
+                    mid = pcbnew.VECTOR2I(int(end.x + (other.x - end.x) * k), int(end.y + (other.y - end.y) * k))
+                    nt = pcbnew.PCB_TRACK(board); nt.SetLayer(tr.GetLayer()); nt.SetNetCode(tr.GetNetCode())
+                    nt.SetStart(mid); nt.SetEnd(end); nt.SetWidth(pw); board.Add(nt); tracks.append(nt)
+                    if end == tr.GetEnd(): tr.SetEnd(mid)
+                    else: tr.SetStart(mid)
+                else:
+                    tr.SetWidth(pw)
+                n += 1
+                break
+    return n
+
 def tidy_fanout(board, tracks):
     f = pcbnew.ToMM
     def xy(v): return (f(v.x) - OX, f(v.y) - OY)
@@ -567,7 +598,8 @@ def tidy_fanout(board, tracks):
                         k = (r - RING_OVERLAP) / d
                         put(P(cx + (x - cx) * k, cy + (y - cy) * k)); moved += 1
     pruned = prune_escapes(board, tracks)
-    print("fan-out tidied: %d ring stubs moved into their pad, %d unused escape tails removed" % (moved, pruned))
+    necked = neck_at_pads(board, tracks)
+    print("fan-out tidied: %d ring stubs moved into their pad, %d unused escape tails removed, %d track ends necked to the pad width" % (moved, pruned, necked))
     return [t for t in tracks if t is not None]
 
 def _pt_rect(px, py, r):
@@ -846,6 +878,16 @@ def add_rule_areas(board):
     e = 0.45
     for i, r_ in enumerate((rect(0, 0, W, e), rect(0, H - e, W, H), rect(0, 0, e, H), rect(W - e, 0, W, H))):
         poly_zone(board, r_, ALL_CU, keepout=True, name="KO_EDGE%d" % i)
+    u4 = [fp for fp in sorted_fps(board) if fp.GetReference() == "U4"]
+    if u4:
+        q = u4[0].GetPosition(); hx, hy = f(q.x) - OX, f(q.y) - OY
+        for i, (x1, y1, x2, y2) in enumerate(((-2.52, -1.25, -1.86, 2.52), (-1.86, 1.86, -0.15, 2.52))):
+            poly_zone(board, rect(hx + x1, hy + y1, hx + x2, hy + y2), (pcbnew.F_Cu,), keepout=True, name="KO_U4_CHANNEL%d" % i)
+    rc = CORNER_R
+    for i, (cx, cy, sx, sy) in enumerate(((rc, rc, -1, -1), (W - rc, rc, 1, -1), (W - rc, H - rc, 1, 1), (rc, H - rc, -1, 1))):
+        arc = [(cx + sx * (rc - e) * math.cos(math.radians(a)), cy + sy * (rc - e) * math.sin(math.radians(a))) for a in range(0, 91, 10)]
+        poly_zone(board, [(cx + sx * rc, cy), (cx + sx * rc, cy + sy * rc), (cx, cy + sy * rc)] + arc[::-1],
+                  ALL_CU, keepout=True, name="KO_CORNER%d" % i)
     for fp in sorted_fps(board):
         ref = fp.GetReference()
         q = fp.GetPosition(); x, y = f(q.x) - OX, f(q.y) - OY

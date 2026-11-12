@@ -1,4 +1,4 @@
-track segments: 1408, vias: 293 (GND 124, +5V 26)
+track segments: 1384, vias: 286 (GND 124, +5V 26)
 USB 2.0 pairs - electrical length pad to pad (hub pin to connector pin, 1.5 mm counted per via):
 USB_UP_P   31.79 mm (0 vias)   USB_UP_N   31.79 mm (0 vias)   skew 0.00 mm   (vias counted as 0: 0.00 mm)
 USB1_P     10.76 mm (0 vias)   USB1_N     10.76 mm (0 vias)   skew 0.00 mm   (vias counted as 0: 0.00 mm)
@@ -11,11 +11,11 @@ USB1_N    U4.1 > U7.6 > U7.1 > J6.2          on-path  10.76 mm   off-path 0.00 m
 USB2_P    U4.4 > U8.4 > U8.3 > J6.7          on-path  16.21 mm   off-path 0.00 mm
 USB2_N    U4.3 > U8.6 > U8.1 > J6.6          on-path  16.21 mm   off-path 0.00 mm
 worst pair: skew 0.00 mm, 0.00 mm with vias counted as 0 (limit 3.8 mm); off-path copper 0.00 mm
-SD_CLK      69.4 mm (4 vias)
-SD_CMD      58.7 mm (2 vias)
-SD_DAT0     64.3 mm (4 vias)
-SD_DAT1     62.1 mm (4 vias)
-SD_DAT2     69.1 mm (4 vias)
-SD_DAT3     69.1 mm (4 vias)
-I2S_BCLK    82.1 mm (4 vias)
-PDM_CLK_M  137.8 mm (3 vias)
+SD_CLK      70.7 mm (4 vias)
+SD_CMD      60.0 mm (2 vias)
+SD_DAT0     87.8 mm (4 vias)
+SD_DAT1     63.8 mm (4 vias)
+SD_DAT2     93.1 mm (4 vias)
+SD_DAT3    110.7 mm (2 vias)
+I2S_BCLK    91.5 mm (3 vias)
+PDM_CLK_M  137.4 mm (4 vias)

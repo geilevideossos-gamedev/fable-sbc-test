@@ -62,9 +62,11 @@ def main(out=None):
     lines += ["",
               "with the Er %.1f that JLCPCB's stack-up table states for this prepreg (the calculator's default is %.1f):" % (er2, BASE["Er1"]),
               "  pair %.2f ohm, two single lines %.2f ohm" % (z_pair(w, s, h, er2), 2 * z_single(se, h, er2))]
-    corners = [(z_pair(w + dw, s - dw, h * k), 2 * z_single(se + dw, h * k)) for dw in (-0.02, 0.02) for k in (0.9, 1.1)]
+    corners = [(z_pair(w + dw, s - dw, h * k, er), 2 * z_single(se + dw, h * k, er)) for dw in (-0.02, 0.02) for k in (0.9, 1.1)
+               for er in (None, er2)]
     lo = (min(c[0] for c in corners), min(c[1] for c in corners)); hi = (max(c[0] for c in corners), max(c[1] for c in corners))
-    lines += ["corners for a track width tolerance of +-0.02 mm and a prepreg thickness tolerance of +-10 % (assumed, not stated by JLCPCB):",
+    lines += ["corners for a track width tolerance of +-0.02 mm, a prepreg thickness tolerance of +-10 % (assumed, not stated by",
+              "JLCPCB) and either dielectric constant (%.1f or %.1f):" % (BASE["Er1"], er2),
               "  pair %.1f .. %.1f ohm, two single lines %.1f .. %.1f ohm" % (lo[0], hi[0], lo[1], hi[1])]
     ok = abs(zp - 90) <= 4.5 and abs(2 * zs - 90) <= 4.5 and lo[0] >= 76.5 and lo[1] >= 76.5 and hi[0] <= 103.5 and hi[1] <= 103.5
     lines.append("result: %s" % ("nominal within +-5 % of 90 ohm, corners inside the USB 2.0 window" if ok else "OUTSIDE the target"))

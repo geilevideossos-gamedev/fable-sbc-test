@@ -34,7 +34,8 @@ Layout
       `gen/check_vias.py`), no 20 V test pads, copper 0.45 mm from the edge
 - [x] Independent review of the changed areas, round 1: six reviewers, no high finding, 10 medium and 30 low, all
       fixed or accepted with a reason (DECISIONS.md A2-36 to A2-48)
-- [ ] Review round 2 (last round): re-check of the fixes
+- [x] Review round 2 (last round): all fixes confirmed by the reviewers' own measurements; no high or medium finding;
+      the new low findings fixed or accepted with a reason (DECISIONS.md A2-49 to A2-54)
 
 JLCPCB order package (`/fab`)
 - [x] `fab/jlcpcb/gerbers.zip`, `bom_jlcpcb.csv` (one row per LCSC number), `cpl_jlcpcb.csv`; rotations fitted to JLCPCB's

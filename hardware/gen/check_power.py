@@ -106,7 +106,8 @@ def main(pcb, out=None):
     lines.append("Narrowest front-layer copper on the high-current paths (probe width that still passes from pad to pad)")
     lines.append("need mm = the width the path was designed with; a path fails when the copper found is narrower than that.")
     lines.append("I(10K), I(20K) = IPC-2221 current of an outer-layer track of the neck width for 10 K / 20 K rise, for comparison with")
-    lines.append("the load: every neck below 1.2 mm is the pad of a connector contact or of a regulator pin and shorter than 0.7 mm.")
+    lines.append("the load. Necks below 1.2 mm: the pads of the connector contacts and regulator pins (shorter than 0.7 mm), the 0.6 mm")
+    lines.append("tracks from the USB-C contacts to the VBUS bar (1.4 mm long) and the 0.8 mm port supply tracks (6 to 11 mm long).")
     lines.append("%-10s %-8s %-8s %9s %9s %9s %11s %11s  %s" % ("net", "from", "to", "neck mm", "need mm", "load A", "I(10K) A", "I(20K) A", "path"))
     for net, a, b, need, load, text in PATHS:
         pa, pb = find_pad(board, a, net), find_pad(board, b, net)

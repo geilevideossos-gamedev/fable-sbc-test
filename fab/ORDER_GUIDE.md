@@ -46,9 +46,9 @@ Facts about the board that the form will ask for or show:
 |---|---|
 | Size | 100 x 74 mm, corners rounded |
 | Layers | 4 |
-| Small holes | 301 holes of 0.30 mm: 293 vias (pads 0.5 mm and 0.6 mm) and 8 thermal holes in one exposed pad. Five of the vias lie inside the exposed pads of U1, U4 and U10; no other via lies in or touches a pad (`hardware/outputs/via_in_pad.txt`) |
+| Small holes | 294 holes of 0.30 mm: 286 vias (pads 0.5 mm and 0.6 mm) and 8 thermal holes in one exposed pad. Five of the vias lie inside the exposed pads of U1, U4 and U10; no other via lies in or touches a pad (`hardware/outputs/via_in_pad.txt`) |
 | Other holes | plated: 4 slots 0.6 mm wide, 2 x 0.75 mm, 8 x 0.92 mm, 3 x 1.0 mm, 4 x 2.3 mm; not plated: 2 x 0.65 mm, 2 x 0.8 mm (microphone sound ports), 3 x 0.99 mm, 4 x 2.7 mm, 4 x 3.7 mm |
-| Copper to the board edge | 0.45 mm on all four layers along the straight edges (JLCPCB asks for 0.4 mm at an edge where a rail is scored off). Closer only at the four rounded corners (0.2 mm) and at two shield pads of the microSD socket on the rear edge (0.37 mm) |
+| Copper to the board edge | 0.45 mm on all four layers, along the straight edges and around the four rounded corners (JLCPCB asks for 0.4 mm at an edge where a rail is scored off). Closer only at two shield pads of the microSD socket on the rear edge (0.37 mm) |
 | Silkscreen | polarity marks and a few texts only; every line is 0.15 mm or wider, text is 1.0 mm high or more. There are **no reference designators** (R1, U4 ...) printed on the board; they exist only in the CPL file |
 
 ---
@@ -150,7 +150,7 @@ Then go down the page. The tables follow the page order.
 | **Impedance Control** (appears after the stack-up is chosen) | **No requirement** | Naming the stack-up already makes JLCPCB build the exact layer structure of its own impedance calculator, in which the board's USB 2.0 pair (0.14 mm tracks, 0.16 mm gap) is 89.96 ohm; USB 2.0 accepts 76.5 to 103.5 ohm and the three USB runs are only 11 to 32 mm long. The paid choice "±10% (±5Ω if value≤50Ω)" (+33.08 USD, and it forces **Confirm Production file**) would add a guaranteed and tested impedance: JLCPCB's engineers adjust the track widths and need a table of the impedance tracks inside the Gerber archive - it does not give a different board |
 | **Via Covering** | **Epoxy Filled & Capped** | The board has thermal vias inside the exposed pads of U1, U2, U4 and U10 (5 vias and 8 thermal holes; no other via touches a pad). The free choice "Plugged" does not close vias that sit inside pads; they stay open and can draw solder away from the part during soldering, and nobody can rework these prototypes. Filled and capped vias are flat and closed. +17.58 USD on the form (live; 17.55 for the 110 x 74 mm panel). Runner-up: **Plugged** at 0 USD |
 | **Via Plating Method** | nothing to click. The page sets **Horizontal Electroless Copper Plating** by itself when "Epoxy Filled & Capped" is chosen and greys out the other two | +3.41 USD (live); it belongs to the filled vias |
-| **Min via hole size/diameter** | **0.3mm/(0.4/0.45mm)** | all 301 small holes are 0.30 mm; this is the tier without surcharge. Do not click the smaller sizes even for a test: they switch on "FR4 TG155" (+3.49 USD) and "4-Wire Kelvin Test" (+17.03 USD), and both stay on when you go back |
+| **Min via hole size/diameter** | **0.3mm/(0.4/0.45mm)** | all 294 small holes are 0.30 mm; this is the tier without surcharge. Do not click the smaller sizes even for a test: they switch on "FR4 TG155" (+3.49 USD) and "4-Wire Kelvin Test" (+17.03 USD), and both stay on when you go back |
 | **Board Outline Tolerance** | **±0.2mm(Regular)** | default; "±0.1mm(Precision)" is greyed out as soon as PCB Assembly is on |
 | **Confirm Production file** | **Yes**. A dialog opens ("please confirm within 48 hours ... Otherwise, your order will be automatically confirmed"). Tick **Do not confirm automatically**, then **Confirm** | +1.05 USD. You see JLCPCB's production data before the boards are made, and production waits for you (section 7) |
 | **Mark on PCB** | **Remove Mark** | no order number is printed on the board; 0 USD; it is the default |
@@ -401,7 +401,7 @@ All other parts (resistors, ceramic capacitors, the inductor L1) have no polarit
 ### 6.1 PCB Remark (section 3.4)
 
 ```
-1. Via Covering = Epoxy Filled & Capped: please fill and cap ALL 0.30 mm holes (301 holes: 293 vias and 8 thermal holes that are drawn as pads inside one exposed pad). 13 of them are via-in-pad inside the exposed pads of four ICs - fill and cap these as well.
+1. Via Covering = Epoxy Filled & Capped: please fill and cap ALL 0.30 mm holes (294 holes: 286 vias and 8 thermal holes that are drawn as pads inside one exposed pad). 13 of them are via-in-pad inside the exposed pads of four ICs - fill and cap these as well.
 2. All holes of 0.60 mm and larger are component or mounting holes and must stay open.
 3. The two non-plated 0.80 mm holes at X110.18 Y-130.20 and X192.68 Y-70.00 (Gerber coordinates, mm) are sound ports of MEMS microphones: keep them open, no solder mask ink, no resin.
 4. Edge rails for the assembly: please add them to the two 74 mm edges (panel 110 x 74 mm), NOT to the two 100 mm edges. Connectors overhang one 100 mm edge and a module ends flush with the other. Copper keeps 0.45 mm from both 74 mm edges.
