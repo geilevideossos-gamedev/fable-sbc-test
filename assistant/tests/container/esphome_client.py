@@ -5,6 +5,7 @@ from pathlib import Path
 from aioesphomeapi import APIClient, SwitchInfo
 
 LEDS = Path(sys.argv[2])
+NAME = sys.argv[3] if len(sys.argv) > 3 else "VoxHub Test"
 
 
 def leds():
@@ -30,7 +31,7 @@ async def main():
     await client.connect(login=True)
     info = await client.device_info()
     described = f"device info: {info.friendly_name} / {info.model} {info.project_version}"
-    check(described, info.friendly_name == "VoxHub Test")
+    check(described, info.friendly_name == NAME)
     check("voice assistant features announced", bool(info.voice_assistant_feature_flags))
     entities, _ = await client.list_entities_services()
     names = sorted(entity.name for entity in entities)
