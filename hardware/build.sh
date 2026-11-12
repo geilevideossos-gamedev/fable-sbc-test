@@ -92,7 +92,8 @@ outputs() {
 json.dump(d, open('voxhub.kicad_pro', 'w'), indent=2)\" \
         && kicad-cli pcb drc --schematic-parity --severity-all --format report -o outputs/drc_waived_checks_enabled.rpt voxhub.kicad_pcb || rc=1; \
         cp gen/project_settings.json voxhub.kicad_pro; cat outputs/routing_stats.txt; exit \$rc"
-    kc "python3 gen/check_power.py voxhub.kicad_pcb outputs/power_paths.txt && python3 gen/check_df40.py voxhub.kicad_pcb outputs/df40_strips.txt"
+    kc "python3 gen/check_power.py voxhub.kicad_pcb outputs/power_paths.txt && python3 gen/check_df40.py voxhub.kicad_pcb outputs/df40_strips.txt \
+        && python3 gen/check_vias.py voxhub.kicad_pcb outputs/via_in_pad.txt"
     python3 "${HW}/gen/make_bom.py" "${HW}/gen/model_netlist.json" "${OUT}"
     (cd "${OUT}" && rm -f voxhub_gerbers.zip && zip -q -r voxhub_gerbers.zip gerbers)
     mkdir -p "${ROOT}/fab/jlcpcb"

@@ -24,7 +24,7 @@ from A1 and why in the A2 log of [`../DECISIONS.md`](../DECISIONS.md).
 | `gen/prewire.py` | **hand-designed copper**: PD input, load switch, buck stage, USB port supplies, all six USB data lines; stack-up and USB geometry |
 | `gen/build_pcb.py` | placement, silkscreen legends, pre-wired copper, power fan-out, keep-outs, DSN export, import, patch router, repair, USB length measurement |
 | `gen/postroute.sh` | iterate DRC -> repair -> patch until clean |
-| `gen/check_power.py`, `gen/check_df40.py` | build gates: narrowest copper of the high-current paths; foreign copper in the CM4 socket strips |
+| `gen/check_power.py`, `gen/check_df40.py`, `gen/check_vias.py` | build gates: narrowest copper of the high-current paths; foreign copper in the CM4 socket strips; vias in or touching a pad |
 | `gen/jlc_impedance.py` | asks JLCPCB's impedance calculator for the USB geometry |
 | `gen/make_jlc.py` | JLCPCB BOM, CPL and placement report |
 | `gen/routed/voxhub.ses` | autorouter session (Freerouting 2.0.1) the committed board was built from |
@@ -37,9 +37,10 @@ from A1 and why in the A2 log of [`../DECISIONS.md`](../DECISIONS.md).
 |---|---|
 | `voxhub_schematic.pdf` | schematic, 6 pages |
 | `erc.rpt`, `drc.rpt` | kicad-cli reports: **0 ERC violations, 0 DRC violations, 0 unconnected, 0 parity issues** |
-| `drc_waived_checks_enabled.rpt` | the same DRC with the two waived checks switched on (4 warnings, explained below) |
+| `drc_waived_checks_enabled.rpt` | the same DRC with the two waived checks switched on (5 warnings, explained below) |
 | `power_paths.txt` | narrowest copper of every high-current path against its requirement |
 | `df40_strips.txt` | copper inside Hirose's restricted strips of the CM4 sockets (own net / other net) |
+| `via_in_pad.txt` | vias whose land overlaps an SMD pad (allowed only inside the exposed pad of an IC) |
 | `usb_impedance.txt` | USB track geometry in JLCPCB's impedance calculator |
 | `routing_stats.txt` | track / via counts; USB lines: pad-to-pad length and skew, the pads each line runs through, copper that is not on that path; SD / I2S / PDM lengths |
 | `gerbers/` + `voxhub_gerbers.zip` | Gerbers with Protel extensions: F / In1 / In2 / B copper, mask, paste, silk, Edge.Cuts; Excellon PTH + NPTH drill, drill maps, job file (`../fab/jlcpcb/gerbers.zip` is the same set without maps and job file) |
@@ -90,6 +91,7 @@ Scripts that are run by hand:
 | `python3 gen/jlc_impedance.py outputs/usb_impedance.txt` | USB geometry of `prewire.py` in JLCPCB's impedance calculator |
 | `python3 gen/check_power.py voxhub.kicad_pcb outputs/power_paths.txt` | current-path widths (run by `build.sh outputs`) |
 | `python3 gen/check_df40.py voxhub.kicad_pcb outputs/df40_strips.txt` | CM4 socket strips (run by `build.sh outputs`) |
+| `python3 gen/check_vias.py voxhub.kicad_pcb outputs/via_in_pad.txt` | vias against pads (run by `build.sh outputs`) |
 | `python3 gen/make_jlc.py voxhub.kicad_pcb gen/sourcing_jlc.json gen/jlc_footprints.json ../fab/jlcpcb` | JLCPCB BOM, CPL, placement report (run by `build.sh outputs`) |
 
 How the board is produced:
@@ -106,8 +108,9 @@ How the board is produced:
 5. `postroute.sh`: the patch router (A* on a 0.05 mm grid with rip-up) joins whatever is still open and a DRC-driven
    repair removes offending copper, until `kicad-cli pcb drc` is clean. Locked copper is never touched.
 6. `build.sh outputs`: the DRC gates everything; Gerbers, drill, STEP, renders; `stats` fails if a USB pair is more than
-   3.8 mm apart or cannot be measured; `check_power.py` and `check_df40.py` fail on a narrow current path or on foreign
-   copper in the socket strips; BOM; `make_jlc.py` fails if a rotation fit does not match.
+   3.8 mm apart or cannot be measured; `check_power.py`, `check_df40.py` and `check_vias.py` fail on a narrow current
+   path, on foreign copper in the socket strips or on a via that touches a lead pad; BOM; `make_jlc.py` fails if a
+   rotation fit does not match.
 
 ## Fabrication notes
 
@@ -117,18 +120,18 @@ How the board is produced:
 | Layers | 4: F.Cu signal + GND pour / In1.Cu GND plane / In2.Cu +5 V plane / B.Cu signal + GND pour |
 | Stack-up | **JLCPCB JLC04161H-3313**: 35 um copper / 0.0994 mm prepreg 3313 / 17.5 um copper / 1.265 mm core / 17.5 um copper / 0.0994 mm prepreg / 35 um copper (written into the board file) |
 | USB 2.0 lines | upstream pair 0.14 mm wide, 0.16 mm gap: 89.96 ohm differential in JLCPCB's calculator; downstream lines 0.185 mm: 45.2 ohm each (`outputs/usb_impedance.txt`). With the 7628 default stack-up the same copper would be far off |
-| Min. track / space | on the board: 0.12 mm track (patch-router fallback), 0.14 mm USB pair, 0.15 mm signals; net-class clearance 0.12 / 0.15 mm. Board rules = JLCPCB limits: 0.09 / 0.09 mm |
+| Min. track / space | on the board: 0.12 mm track (patch-router fallback), 0.14 mm USB pair, 0.15 mm signals; net-class clearance 0.12 / 0.15 mm, 0.20 mm for the nets that carry the charger voltage (VBUS, VBUS_SW, PD_GATE, PD_FET_EN). Board rules = JLCPCB limits: 0.09 / 0.09 mm |
 | Vias | through, 0.5 mm pad / 0.3 mm drill (signal) and 0.6 / 0.3 mm (power) - JLCPCB's free "0.3 mm / 0.45 mm" class |
-| Via covering | covered by solder mask on both sides in the Gerbers. Order "Epoxy Filled & Capped" (recommended) or the free "Plugged" |
-| Via-in-pad | only in exposed pads: U1, U2 (eight, part of the KiCad footprint), U4, U10. No via lies in or touches a lead pad |
+| Via covering | covered by solder mask on both sides in the Gerbers. Order "Epoxy Filled & Capped": the thermal vias inside the exposed pads would otherwise stay open |
+| Via-in-pad | only in exposed pads: U1, U2 (eight, part of the KiCad footprint), U4, U10. No via lies in or touches any other pad (`outputs/via_in_pad.txt`) |
 | Plated slots | 4 x 0.6 mm wide (1.4 and 1.7 mm long), shell stakes of the USB-C connector J1 |
 | Non-plated holes | 2 x 0.8 mm (microphone ports), 2 x 0.65 mm (J1 locating pegs), 3 x 0.99 mm (Tag-Connect J8), 4 x 2.7 mm (mounting), 4 x 3.7 mm (SMT spacers). No non-plated slots |
 | Finish | **ENIG** (0.22 mm pads of the 0.4 mm pitch WLCSP, 0.4 mm pitch mezzanine connectors) |
 | Mask / silk | green / white; silkscreen is clipped by the mask openings (`--subtract-soldermask`); smallest text 1.0 mm |
-| Copper to board edge | >= 0.35 mm for routed copper (edge connectors' own pads excepted); JLCPCB limit 0.2 mm |
+| Copper to board edge | >= 0.45 mm for tracks, vias and pours (edge connectors' own pads excepted); JLCPCB limits: 0.2 mm at a routed edge, 0.4 mm at a V-cut edge |
 | Keep-outs | no copper on any layer under the antenna of the radio module (11.75..31.25 x 68.0..74.0) and under the CM4 antenna (91..100 x 44.5..59.5: the 6.5 x 11 mm "Wireless Cutout" of CM4 datasheet fig. 4 enlarged to the recommended 8 x 15 mm and out to the board edge); no foreign copper on the component side in the strips 0.75..1.19 mm from the centre line of each CM4 socket |
 | Impedance control | not ordered: the stack-up is specified and the geometry comes from JLCPCB's calculator |
-| Panel | fiducials FID1-3 are on the board; JLCPCB adds edge rails and its own fiducials. J6 overhangs the rear edge by 2.5 mm, J1 ends flush with it, the radio module ends flush with the front edge |
+| Panel | fiducials FID1-3 are on the board; JLCPCB adds edge rails and its own fiducials. Ask for the rails on the two 74 mm edges: J6 overhangs the rear 100 mm edge by 2.5 mm, J1 ends flush with it, the radio module ends flush with the front edge and small parts sit 1 to 2 mm from it |
 
 ## Assembly notes
 
@@ -145,7 +148,8 @@ How the board is produced:
 - Polarised parts: C38, C41 (polymer tantalum), D1 (TVS, cathode to VBUS), D5 (Zener, cathode to VBUS), LEDs - all
   checked pad by pad against JLCPCB's footprints in `../fab/jlcpcb/placement_report.csv`.
 - JP1 (solder jumper, open by default): only for USB boot of a CM4 with eMMC; never needed with the Lite module.
-- Test points on side F: TP1 VBUS, TP2 VBUS_SW, TP3 +5V, TP4 +3V3, TP5 GND (around x 84, y 12 mm from the rear-left corner).
+- Test pads on side F, labelled on the silkscreen: +5V, +3V3, GND (around x 84, y 10 mm from the rear-left corner). There is
+  no test pad for the charger voltage on purpose: VBUS is measured on the cathode pad of D1, VBUS_SW on C8 / C9.
 - Pick-and-place for JLCPCB: `../fab/jlcpcb/cpl_jlcpcb.csv` (JLCPCB's rotation convention and footprint centres).
   `outputs/voxhub_pos.csv` is the plain KiCad export for any other assembler.
 
@@ -162,7 +166,7 @@ stricter. `voxhub.kicad_dru` adds what the board setup cannot express:
 | Rule | Limit |
 |---|---|
 | component hole to component hole | 0.45 mm |
-| component hole to copper of another net | 0.28 mm |
+| component hole to copper of another net | 0.28 mm (0.30 mm on inner layers) |
 | annular ring of component holes | 0.15 mm |
 | non-plated hole | >= 0.5 mm |
 | pad to pad of different nets | 0.15 mm |
@@ -170,12 +174,12 @@ stricter. `voxhub.kicad_dru` adds what the board setup cannot express:
 | (board setup) silkscreen line / text height / distance to pads | 0.15 mm / 1.0 mm / 0.15 mm |
 
 Every check is an error except two that compare the board with KiCad's library and are switched off;
-`outputs/drc_waived_checks_enabled.rpt` shows what they would report (4 warnings):
+`outputs/drc_waived_checks_enabled.rpt` shows what they would report (5 warnings):
 
 | Check | Count | Why it is waived |
 |---|---|---|
 | `footprint_type_mismatch` | 1 | U2 uses KiCad's `...HSOP-8-1EP..._ThermalVias` footprint: an SMD part whose exposed pad contains plated thermal vias, which KiCad classifies as "through hole". Intentional |
-| `lib_footprint_mismatch` | 3 | J1, J4 and J6: the board copies differ from the library footprints only in silkscreen that the generator trims at the board edge (and, for J1, in the layer set of the two NPTH locating-peg pads). No copper is affected |
+| `lib_footprint_mismatch` | 4 | J1, J4 and J6: the board copies differ from the library footprints only in silkscreen that the generator trims at the board edge (and, for J1, in the layer set of the two NPTH locating-peg pads); C13 is not populated and has no paste apertures. No copper is affected |
 
 ## Known limitations (read before ordering)
 
@@ -185,8 +189,8 @@ Every check is an error except two that compare the board with KiCad's library a
   impedance test. Verify with a USB 2.0 high-speed device on both ports.
 - **The downstream USB lines are two uncoupled 45 ohm lines per port, not a coupled pair** (10.8 and 16.2 mm long; the
   2.0 mm connector pin pitch and the flow-through ESD parts leave no room for a coupled section worth having). The
-  upstream pair is coupled over its whole length. All six lines: no vias, no stubs, skew 0.00 mm.
-- SD card lines are 59-98 mm long with up to 39 mm mismatch: fine for 50 MHz high-speed mode (about 260 ps against a
+  upstream pair is coupled for 90 % of its length (28.6 of 31.8 mm). All six lines: no vias, no stubs, skew 0.00 mm.
+- SD card lines are 59-69 mm long with up to 11 mm mismatch: fine for 50 MHz high-speed mode (about 70 ps against a
   20 ns period); UHS-I SDR104 is not guaranteed.
 - Three BOM lines are below 200 pieces at JLCPCB (ADAU7002ACBZ-R7, 61400826021, RF-BM-2652P2) - see the order guide.
 - The speaker (Adafruit 3351) has no dimensioned drawing; the enclosure pocket follows the shop dimensions.

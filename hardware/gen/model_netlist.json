@@ -1945,9 +1945,9 @@
  "R18": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1001TCE",
+   "MPN": "0402WGF5101TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 1k 1% 1/16W 0402"
+   "PartDescription": "RES 5.1k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
   "in_bom": true,
@@ -1959,7 +1959,7 @@
   "pos": null,
   "ref": "R18",
   "sheet": "cm4",
-  "value": "1k"
+  "value": "5.1k"
  },
  "R19": {
   "dnp": false,
@@ -2002,9 +2002,9 @@
  "R20": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1001TCE",
+   "MPN": "0402WGF2201TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 1k 1% 1/16W 0402"
+   "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
   "in_bom": true,
@@ -2016,7 +2016,7 @@
   "pos": null,
   "ref": "R20",
   "sheet": "cm4",
-  "value": "1k"
+  "value": "2.2k"
  },
  "R21": {
   "dnp": false,
@@ -2040,9 +2040,9 @@
  "R22": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF3300TCE",
+   "MPN": "0402WGF1500TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 330 1% 1/16W 0402"
+   "PartDescription": "RES 150 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
   "in_bom": true,
@@ -2054,7 +2054,7 @@
   "pos": null,
   "ref": "R22",
   "sheet": "cm4",
-  "value": "330"
+  "value": "150"
  },
  "R23": {
   "dnp": false,
@@ -2697,50 +2697,14 @@
   "in_bom": false,
   "near": "TPZONE",
   "pins": {
-   "1": "VBUS"
+   "1": "+5V"
   },
   "pos": null,
   "ref": "TP1",
   "sheet": "power",
-  "value": "VBUS"
- },
- "TP2": {
-  "dnp": false,
-  "fields": {
-   "MPN": "",
-   "Manufacturer": "",
-   "PartDescription": "Test pad (no part)"
-  },
-  "footprint": "TestPoint:TestPoint_Pad_D1.5mm",
-  "in_bom": false,
-  "near": "TPZONE",
-  "pins": {
-   "1": "VBUS_SW"
-  },
-  "pos": null,
-  "ref": "TP2",
-  "sheet": "power",
-  "value": "VBUS_SW"
- },
- "TP3": {
-  "dnp": false,
-  "fields": {
-   "MPN": "",
-   "Manufacturer": "",
-   "PartDescription": "Test pad (no part)"
-  },
-  "footprint": "TestPoint:TestPoint_Pad_D1.5mm",
-  "in_bom": false,
-  "near": "TPZONE",
-  "pins": {
-   "1": "+5V"
-  },
-  "pos": null,
-  "ref": "TP3",
-  "sheet": "power",
   "value": "+5V"
  },
- "TP4": {
+ "TP2": {
   "dnp": false,
   "fields": {
    "MPN": "",
@@ -2754,11 +2718,11 @@
    "1": "+3V3"
   },
   "pos": null,
-  "ref": "TP4",
+  "ref": "TP2",
   "sheet": "power",
   "value": "+3V3"
  },
- "TP5": {
+ "TP3": {
   "dnp": false,
   "fields": {
    "MPN": "",
@@ -2772,7 +2736,7 @@
    "1": "GND"
   },
   "pos": null,
-  "ref": "TP5",
+  "ref": "TP3",
   "sheet": "power",
   "value": "GND"
  },

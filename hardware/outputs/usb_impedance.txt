@@ -6,4 +6,9 @@ single track  0.185 mm wide                 ->  45.21 ohm (two uncoupled lines: 
 
 calculator's own width for 90 ohm differential at a 0.160 mm gap: 0.1393 mm (it stops at 90.16 ohm)
 calculator's own width for 45 ohm single ended:                0.1857 mm (it stops at 45.12 ohm)
-result: within +-5 % of 90 ohm
+
+with the Er 4.1 that JLCPCB's stack-up table states for this prepreg (the calculator's default is 4.3):
+  pair 91.49 ohm, two single lines 92.17 ohm
+corners for a track width tolerance of +-0.02 mm and a prepreg thickness tolerance of +-10 % (assumed, not stated by JLCPCB):
+  pair 79.3 .. 101.3 ohm, two single lines 80.3 .. 101.1 ohm
+result: nominal within +-5 % of 90 ohm, corners inside the USB 2.0 window

@@ -22,7 +22,7 @@ DIGIKEY = {
  "0402CG220J500NT": "CL05C220JB5NNNC", "T520B107M006ATE040": "T520B107M006ATE070", "SLO0630H6R8MTT": "SRP7028A-6R8M",
  "MM3Z10VT1G": "SZMM3Z10VT1G",
  "0402WGF0000TCE": "RC0402FR-070RL", "0402WGF330JTCE": "RC0402FR-0733RL", "0402WGF3300TCE": "RC0402FR-07330RL",
- "0402WGF1001TCE": "RC0402FR-071KL",
+ "0402WGF1001TCE": "RC0402FR-071KL", "0402WGF1500TCE": "RC0402FR-07150RL",
  "0402WGF2201TCE": "RC0402FR-072K2L", "0402WGF2401TCE": "RC0402FR-072K4L", "0402WGF5101TCE": "RC0402FR-075K1L",
  "0402WGF1002TCE": "WR04X1002FTL", "0402WGF1202TCE": "RC0402FR-0712KL", "0402WGF2002TCE": "RC0402FR-0720KL",
  "0402WGF2492TCE": "RMCF0402FT24K9", "0402WGF4992TCE": "RMCF0402FT49K9", "0402WGF1003TCE": "RMCF0402FT100K",
@@ -93,9 +93,10 @@ def digikey(mpn):
 EXTRA_CHECKED = "2026-11-12"
 EXTRA = [
  dict(function="Compute module", qty=1, buy=1, description="Raspberry Pi Compute Module 4 Lite, 4 GB RAM, wireless, no eMMC", maker="Raspberry Pi", mpn="CM4104000",
-      shop="Reichelt.at", article="RPI CM4W 4GBLITE", eur=103.16, pack="1",
+      shop="Reichelt.at", article="RPI CM4W 4GBLITE", eur=105.83, pack="1",
       url="https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_compute_modul_4_4gb_ram_lite_wlan-290539",
-      second="Semaf Wien 102.00, Welectron 103.00, DigiKey SC0671; CM4102000 (2 GB) is the cheaper drop-in", note="the board has no Ethernet: only wireless variants work"),
+      second="Semaf Wien 102.00 (free shipping), Welectron 103.00, DigiKey SC0671; CM4102000 (2 GB) is the cheaper drop-in",
+      note="the board has no Ethernet: only wireless variants work (not RPI CM4 4GBLITE = CM4004000)"),
  dict(function="Speaker", qty=1, buy=1, description="Enclosed speaker 3 W 4 ohm, 70 x 30 x 17 mm, JST-PH 2-pin plug on a 57 cm lead", maker="Adafruit", mpn="3351",
       shop="BerryBase.at", article="ADA3351", eur=5.50, pack="1", url="https://www.berrybase.at/mono-gehaeuselautsprecher-3w-4-ohm",
       second="none without re-drawing the speaker pocket of the enclosure", note="plugs into J7, no soldering"),

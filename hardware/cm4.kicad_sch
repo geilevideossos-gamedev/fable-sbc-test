@@ -6868,7 +6868,7 @@
 		(dnp no)
 		(uuid "f3645787-7aca-5665-ad63-bc5746ab791c")
 		(property "Reference" "R18" (at 265.43 132.32 0) (effects (font (size 1.27 1.27))))
-		(property "Value" "1k" (at 265.43 137.22 0) (effects (font (size 1.27 1.27))))
+		(property "Value" "5.1k" (at 265.43 137.22 0) (effects (font (size 1.27 1.27))))
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
 			(at 265.43 134.62 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
@@ -6885,11 +6885,11 @@
 			(at 265.43 134.62 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
-		(property "MPN" "0402WGF1001TCE"
+		(property "MPN" "0402WGF5101TCE"
 			(at 265.43 134.62 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
-		(property "PartDescription" "RES 1k 1% 1/16W 0402"
+		(property "PartDescription" "RES 5.1k 1% 1/16W 0402"
 			(at 265.43 134.62 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
@@ -7278,7 +7278,7 @@
 		(dnp no)
 		(uuid "573c750c-45b6-5dc8-9025-0d56e5d7ddf2")
 		(property "Reference" "R20" (at 320.04 132.32 0) (effects (font (size 1.27 1.27))))
-		(property "Value" "1k" (at 320.04 137.22 0) (effects (font (size 1.27 1.27))))
+		(property "Value" "2.2k" (at 320.04 137.22 0) (effects (font (size 1.27 1.27))))
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
 			(at 320.04 134.62 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
@@ -7295,11 +7295,11 @@
 			(at 320.04 134.62 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
-		(property "MPN" "0402WGF1001TCE"
+		(property "MPN" "0402WGF2201TCE"
 			(at 320.04 134.62 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
-		(property "PartDescription" "RES 1k 1% 1/16W 0402"
+		(property "PartDescription" "RES 2.2k 1% 1/16W 0402"
 			(at 320.04 134.62 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
@@ -7919,7 +7919,7 @@
 		(dnp no)
 		(uuid "bb8d952c-0b0d-55bb-9c98-90aef752b40d")
 		(property "Reference" "R22" (at 369.57 183.12 0) (effects (font (size 1.27 1.27))))
-		(property "Value" "330" (at 369.57 188.02 0) (effects (font (size 1.27 1.27))))
+		(property "Value" "150" (at 369.57 188.02 0) (effects (font (size 1.27 1.27))))
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
 			(at 369.57 185.42 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
@@ -7936,11 +7936,11 @@
 			(at 369.57 185.42 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
-		(property "MPN" "0402WGF3300TCE"
+		(property "MPN" "0402WGF1500TCE"
 			(at 369.57 185.42 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)
-		(property "PartDescription" "RES 330 1% 1/16W 0402"
+		(property "PartDescription" "RES 150 1% 1/16W 0402"
 			(at 369.57 185.42 0)
 			(effects (font (size 1.27 1.27)) (hide yes))
 		)

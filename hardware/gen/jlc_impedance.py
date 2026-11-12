@@ -23,12 +23,14 @@ def call(mark, arg):
             err = e; time.sleep(2 * (attempt + 1))
     raise RuntimeError("JLCPCB calculator: %s" % err)
 
-def z_pair(w, s, h):
+def z_pair(w, s, h, er=None):
     a = dict(BASE, H1=round(h * MIL, 4), W1=round(w * MIL, 4), W2=round(w * MIL - 0.5, 4), S1=round(s * MIL, 4), C3=1)
+    if er: a["Er1"] = er
     return call("DiffEdgeCoupledCoatedMicrostrip1B", a)["dImpedance"]
 
-def z_single(w, h):
+def z_single(w, h, er=None):
     a = dict(BASE, H1=round(h * MIL, 4), W1=round(w * MIL, 4), W2=round(w * MIL - 0.5, 4))
+    if er: a["Er1"] = er
     return call("CoatedMicrostrip1B", a)["dImpedance"]
 
 def w_pair(z, s, h):
@@ -56,8 +58,16 @@ def main(out=None):
              "",
              "calculator's own width for 90 ohm differential at a %.3f mm gap: %.4f mm (it stops at %.2f ohm)" % (s, wp, zwp),
              "calculator's own width for 45 ohm single ended:                %.4f mm (it stops at %.2f ohm)" % (ws, zws)]
-    ok = abs(zp - 90) <= 4.5 and abs(2 * zs - 90) <= 4.5
-    lines.append("result: %s" % ("within +-5 % of 90 ohm" if ok else "OUTSIDE +-5 % of 90 ohm"))
+    er2 = st["prepreg"][2]
+    lines += ["",
+              "with the Er %.1f that JLCPCB's stack-up table states for this prepreg (the calculator's default is %.1f):" % (er2, BASE["Er1"]),
+              "  pair %.2f ohm, two single lines %.2f ohm" % (z_pair(w, s, h, er2), 2 * z_single(se, h, er2))]
+    corners = [(z_pair(w + dw, s - dw, h * k), 2 * z_single(se + dw, h * k)) for dw in (-0.02, 0.02) for k in (0.9, 1.1)]
+    lo = (min(c[0] for c in corners), min(c[1] for c in corners)); hi = (max(c[0] for c in corners), max(c[1] for c in corners))
+    lines += ["corners for a track width tolerance of +-0.02 mm and a prepreg thickness tolerance of +-10 % (assumed, not stated by JLCPCB):",
+              "  pair %.1f .. %.1f ohm, two single lines %.1f .. %.1f ohm" % (lo[0], hi[0], lo[1], hi[1])]
+    ok = abs(zp - 90) <= 4.5 and abs(2 * zs - 90) <= 4.5 and lo[0] >= 76.5 and lo[1] >= 76.5 and hi[0] <= 103.5 and hi[1] <= 103.5
+    lines.append("result: %s" % ("nominal within +-5 % of 90 ohm, corners inside the USB 2.0 window" if ok else "OUTSIDE the target"))
     txt = "\n".join(lines) + "\n"
     if out:
         open(out, "w").write(txt)

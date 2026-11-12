@@ -30,7 +30,7 @@ FIXED = {
     "Q1": (8.9, 13.3, 270, "F"), "D1": (4.2, 12.25, 270, "F"),
     "R9": (11.1, 11.6, 270, "F"), "C7": (12.15, 11.6, 270, "F"), "D5": (13.7, 12.15, 270, "F"), "R10": (11.7, 14.1, 0, "F"),
     "C2": (15.5, 11.7, 270, "F"), "C1": (17.1, 11.7, 270, "F"),
-    "C3": (15.3, 17.25, 180, "F"), "C5": (15.3, 18.75, 180, "F"), "C4": (15.85, 16.0, 180, "F"), "C6": (15.85, 15.0, 180, "F"),
+    "C3": (15.3, 17.25, 180, "F"), "C5": (15.3, 18.75, 180, "F"), "C4": (15.85, 16.0, 180, "F"), "C6": (15.85, 14.96, 180, "F"),
     "U2": (8.5, 25.5, 270, "F"), "L1": (7.7, 34.6, 180, "F"),
     "C10": (9.77, 21.0, 0, "F"), "C8": (6.5, 19.0, 180, "F"), "C9": (11.3, 19.0, 0, "F"),
     "C12": (9.77, 29.95, 0, "F"), "C11": (7.09, 30.0, 180, "F"),
@@ -40,8 +40,9 @@ FIXED = {
     # pins (x 34.0 .. 35.5: port 2 D+, D-, port 1 D+, D-) and the connector pins.  Port 2 (U8) left, port 1 (U7) right:
     # every line runs straight through its ESD part and no line has to cross another one.
     "U4": (33.5, 26.5, 270, "F"), "U7": (35.25, 18.6, 270, "F"), "U8": (31.75, 17.8, 270, "F"),
-    "Y1": (40.2, 24.9, 180, "F"), "C26": (43.3, 24.05, 0, "F"), "C27": (37.6, 23.6, 90, "F"),
-    "U5": (45.8, 10.5, 90, "F"), "U6": (45.8, 4.0, 90, "F"),
+    "Y1": (42.4, 25.0, 180, "F"), "C26": (45.55, 24.15, 0, "F"), "C27": (45.55, 26.3, 0, "F"),
+    "C30": (28.85, 24.5, 180, "F"), "C34": (38.15, 28.2, 0, "F"), "C35": (37.7, 23.3, 90, "F"),
+    "C50": (32.0, 46.77, 0, "F"), "C49": (31.85, 44.2, 90, "F"), "U5": (45.8, 10.5, 90, "F"), "U6": (45.8, 4.0, 90, "F"),
     "U3": (68.5, 9.0, 0, "F"),
     "J2": (74.0, 64.96, 0, "F"), "J3": (74.0, 31.04, 0, "F"),
     "H5": (95.5, 64.5, 0, "F"), "H6": (95.5, 31.5, 0, "F"), "H7": (47.5, 64.5, 0, "F"), "H8": (47.5, 31.5, 0, "F"),
@@ -56,13 +57,16 @@ FIXED = {
 ANCHOR_PTS = {"TPZONE": (84.0, 12.0), "UI": (38.0, 66.0), "CM4CAP": (80.0, 71.0)}
 # keep-out rectangles for the automatic placer (x1, y1, x2, y2)
 ZB_ANT_KO = (11.75, 68.0, 31.25, 74.0)
+ZB_ANT_KO2 = (21.0, 64.0, 31.25, 68.0)
 NOGO_F = [(43.6, 27.6, 99.4, 68.4),          # under the CM4 module
-          ZB_ANT_KO]
+          ZB_ANT_KO, ZB_ANT_KO2]
 HOLES = [(3.5, 3.5), (96.5, 3.5), (3.5, 70.5), (97.0, 70.8)]
+
+SILK_MIN_W = 0.15
 
 def trim_silk(board):
     f = pcbnew.ToMM
-    n = 0
+    n = nw = 0
     for fp in sorted_fps(board):
         for g in list(fp.GraphicalItems()):
             if g.GetLayer() not in (pcbnew.F_SilkS, pcbnew.B_SilkS):
@@ -70,7 +74,12 @@ def trim_silk(board):
             b = g.GetBoundingBox()
             if f(b.GetLeft()) - OX < 0.3 or f(b.GetTop()) - OY < 0.3 or f(b.GetRight()) - OX > W - 0.3 or f(b.GetBottom()) - OY > H - 0.3:
                 fp.Remove(g); _KEEP.append(g); n += 1
-    print("silkscreen items cut off at the board edge:", n)
+            elif 0 < g.GetWidth() < MM(SILK_MIN_W):
+                g.SetWidth(MM(SILK_MIN_W)); nw += 1
+        if fp.IsDNP():
+            for pad in fp.Pads():
+                ls = pad.GetLayerSet(); ls.RemoveLayer(pcbnew.F_Paste); ls.RemoveLayer(pcbnew.B_Paste); pad.SetLayerSet(ls)
+    print("silkscreen items cut off at the board edge: %d, widened to %.2f mm: %d" % (n, SILK_MIN_W, nw))
 
 class Legends:
     STEP = 0.25
@@ -268,10 +277,13 @@ def place(netlist, outdir):
         if not m.get("in_bom", True):
             attrs |= pcbnew.FP_EXCLUDE_FROM_BOM | pcbnew.FP_EXCLUDE_FROM_POS_FILES
         fp.SetAttributes(attrs)
+        ep = max((q.GetNumber() for q in fp.Pads() if q.GetNumber().isdigit()), key=int, default="") if ref.startswith("U") else ""
         for pad in fp.Pads():
             n = c["pins"].get(pad.GetNumber())
             if n and pad.GetNumber():
                 pad.SetNet(net(n))
+            if ep and pad.GetNumber() in SOLID_PADS.get(ref, (ep,)) and n == "GND":
+                pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
         # 3D models: use the copies / stand-ins shipped in hardware/3dmodels (the KiCad docker image has none)
         mdls = [m_ for m_ in fp.Models()]
         fp.Models().clear()
@@ -436,6 +448,10 @@ def place(netlist, outdir):
     legends.put("VoxHub CM4 rev A2 - this side faces the top cover", pcbnew.B_SilkS, 1.0, (60.0, 50.0))
     legends.put("github.com/geilevideossos-gamedev/fable-sbc-test", pcbnew.B_SilkS, 1.0, (60.0, 53.0))
     legends.put("MUTE", pcbnew.B_SilkS, 1.0, (33.5, 57.4))
+    tps = sorted((pcbnew.ToMM(fps[r].GetPosition().x) - OX, pcbnew.ToMM(fps[r].GetPosition().y) - OY, r) for r in fps if r.startswith("TP"))
+    for x, y, ref in tps:
+        side = -1 if x < tps[-1][0] - 0.1 else 1
+        legends.put(fps[ref].GetValue().replace("+", ""), pcbnew.F_SilkS, 1.0, (x + side * 3.2, y), reach=8.0)
     for mk in ("MK1", "MK2"):
         q = fps[mk].GetPosition()
         legends.put("MIC - NO WASH", pcbnew.B_SilkS, 1.0, (pcbnew.ToMM(q.x) - OX, pcbnew.ToMM(q.y) - OY + (-4.2 if mk == "MK1" else 4.2)), reach=14.0)
@@ -491,6 +507,67 @@ def place(netlist, outdir):
 # deal with signals; the stubs/vias are locked and exported as fixed wiring.
 # ---------------------------------------------------------------------------------------
 PLANE_NETS = ("GND", "+5V")
+SOLID_PADS = {"U2": ("9", "1")}
+RING_PADS = {"H5": "1", "H6": "1", "H7": "1", "H8": "1", "MK1": "5", "MK2": "5"}
+RING_START, RING_OVERLAP = 0.05, 0.15
+U9_ESCAPE = {"A1": [(-0.7, -0.6), (-1.2, -1.1)], "B1": [(-1.2, -0.2)], "C1": [(-1.5, 0.2)], "D1": [(-0.7, 0.6), (-1.2, 1.1)],
+             "A2": [(0.7, -0.6), (1.2, -1.1)], "B2": [(1.0, -0.2)], "C2": [(1.5, 0.2)], "D2": [(0.7, 0.6), (1.2, 1.1)]}
+
+def prune_escapes(board, tracks):
+    f = pcbnew.ToMM
+    def xy(v): return (f(v.x) - OX, f(v.y) - OY)
+    def near(a, b, tol=0.02): return abs(a[0] - b[0]) < tol and abs(a[1] - b[1]) < tol
+    pruned = 0
+    for fp in sorted_fps(board):
+        if fp.GetReference() != "U9":
+            continue
+        ux, uy = xy(fp.GetPosition())
+        for pad in fp.Pads():
+            e = U9_ESCAPE.get(pad.GetNumber())
+            if not e or pad.GetNetname() in PLANE_NETS:
+                continue
+            net = pad.GetNetname()
+            pts = [xy(pad.GetPosition())] + [(ux + ex, uy + ey) for ex, ey in e]
+            for k in range(len(pts) - 1, 0, -1):
+                a, b = pts[k - 1], pts[k]
+                seg = [i for i, tr in enumerate(tracks) if tr is not None and tr.Type() != pcbnew.PCB_VIA_T and tr.GetNetname() == net
+                       and ((near(xy(tr.GetStart()), a) and near(xy(tr.GetEnd()), b)) or (near(xy(tr.GetStart()), b) and near(xy(tr.GetEnd()), a)))]
+                if not seg:
+                    continue
+                used = any(tr is not None and i not in seg and tr.GetNetname() == net and
+                           (near(xy(tr.GetPosition()), b) if tr.Type() == pcbnew.PCB_VIA_T else (near(xy(tr.GetStart()), b) or near(xy(tr.GetEnd()), b)))
+                           for i, tr in enumerate(tracks))
+                if used:
+                    break
+                for i in seg:
+                    board.Remove(tracks[i]); _KEEP.append(tracks[i]); tracks[i] = None; pruned += 1
+    return pruned
+
+def tidy_fanout(board, tracks):
+    f = pcbnew.ToMM
+    def xy(v): return (f(v.x) - OX, f(v.y) - OY)
+    def near(a, b, tol=0.002): return abs(a[0] - b[0]) < tol and abs(a[1] - b[1]) < tol
+    moved = 0
+    for fp in sorted_fps(board):
+        ref = fp.GetReference()
+        if ref in RING_PADS:
+            cand = [q for q in fp.Pads() if q.GetNumber() == RING_PADS[ref] and q.IsOnLayer(pcbnew.F_Cu)]
+            pad = max(cand, key=lambda q: q.GetBoundingBox().GetWidth())
+            b = pad.GetBoundingBox()
+            cx, cy = f(b.GetCenter().x) - OX, f(b.GetCenter().y) - OY
+            r = f(b.GetWidth()) / 2
+            for tr in tracks:
+                if tr is None or tr.Type() == pcbnew.PCB_VIA_T or not tr.IsLocked() or tr.GetNetname() != pad.GetNetname():
+                    continue
+                for get, put in ((tr.GetStart, tr.SetStart), (tr.GetEnd, tr.SetEnd)):
+                    x, y = xy(get())
+                    d = math.hypot(x - cx, y - cy)
+                    if abs(d - (r - RING_START)) < 0.005:
+                        k = (r - RING_OVERLAP) / d
+                        put(P(cx + (x - cx) * k, cy + (y - cy) * k)); moved += 1
+    pruned = prune_escapes(board, tracks)
+    print("fan-out tidied: %d ring stubs moved into their pad, %d unused escape tails removed" % (moved, pruned))
+    return [t for t in tracks if t is not None]
 
 def _pt_rect(px, py, r):
     dx = max(r[0] - px, 0.0, px - r[2]); dy = max(r[1] - py, 0.0, py - r[3])
@@ -559,7 +636,8 @@ def fanout(board, pre=None):
                 continue
             d = _pt_rect(x, y, bb) - dia / 2
             if n2 == net and lay != "*":
-                if d < -dia * 0.25:        # do not sit half on a neighbouring same-net pad
+                big = (bb[2] - bb[0]) * (bb[3] - bb[1]) >= 1.4 and p.GetParentFootprint().GetReference().startswith("U")
+                if d < (-dia * 0.25 if big else 0.1):        # do not sit half on a neighbouring same-net pad
                     return False
                 continue
             if d < (0.25 if lay == "*" else 0.2):
@@ -601,8 +679,7 @@ def fanout(board, pre=None):
         if fp.GetReference() != "U9":
             continue
         q0 = fp.GetPosition(); ux, uy = f(q0.x) - OX, f(q0.y) - OY
-        esc = {"A1": [(-0.7, -0.6), (-1.2, -1.1)], "B1": [(-1.2, -0.2)], "C1": [(-1.5, 0.2)], "D1": [(-0.7, 0.6), (-1.2, 1.1)],
-               "A2": [(0.7, -0.6), (1.2, -1.1)], "B2": [(1.0, -0.2)], "C2": [(1.5, 0.2)], "D2": [(0.7, 0.6), (1.2, 1.1)]}
+        esc = U9_ESCAPE
         for pad in fp.Pads():
             if pad.GetNumber() not in esc:
                 continue
@@ -611,8 +688,28 @@ def fanout(board, pre=None):
                 segs.append((pad.GetNetname(), "F", last[0], last[1], ux + ex, uy + ey, 0.15)); last = (ux + ex, uy + ey)
             if pad.GetNetname() in PLANE_NETS:
                 vias.append((pad.GetNetname(), last[0], last[1], 0.5))
+    def ring(q):
+        return RING_PADS.get(q.GetParentFootprint().GetReference()) == q.GetNumber()
+    rings = {}
+    for q in pads:
+        if ring(q[3]) and q[0] in PLANE_NETS and q[1] in ("F", "B"):
+            k = q[3].GetParentFootprint().GetReference()
+            if k not in rings or q[2][2] - q[2][0] > rings[k][2][2] - rings[k][2][0]:
+                rings[k] = q
+    for k in sorted(rings):
+        net, lay, bb, p = rings[k]
+        if True:
+            cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
+            r = (bb[2] - bb[0]) / 2
+            dia, tw = (0.6, 0.4) if r > 2 else (0.5, 0.25)
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                sx, sy, vx, vy = cx + dx * (r - RING_START), cy + dy * (r - RING_START), cx + dx * (r + dia / 2 + 0.2), cy + dy * (r + dia / 2 + 0.2)
+                if via_ok(net, vx, vy, dia, p) and seg_ok(net, lay, sx, sy, vx, vy, tw, p):
+                    vias.append((net, vx, vy, dia)); segs.append((net, lay, sx, sy, vx, vy, tw)); break
+            else:
+                stats["failed"].append("%s.%s(%s)" % (p.GetParentFootprint().GetReference(), p.GetNumber(), net))
     todo = [q for q in pads if q[0] in PLANE_NETS and q[1] in ("F", "B") and q[3].GetParentFootprint().GetReference() != "U9"
-            and not prewired(q[0], q[1], q[2])]
+            and not ring(q[3]) and not prewired(q[0], q[1], q[2])]
     todo.sort(key=lambda q: (q[2][2] - q[2][0]) * (q[2][3] - q[2][1]))      # tightest pads first
     for net, lay, bb, p in todo:
         cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
@@ -739,12 +836,13 @@ def rect(x1, y1, x2, y2):
 def add_rule_areas(board):
     f = pcbnew.ToMM
     poly_zone(board, rect(*ZB_ANT_KO), ALL_CU, keepout=True, name="KO_ZIGBEE_ANT")
+    poly_zone(board, rect(*ZB_ANT_KO2), ALL_CU, keepout=True, name="KO_ZIGBEE_ANT_END")
     # CM4 on-board WiFi/BT antenna: CM4 datasheet fig. 4 "Wireless Cutout" = 6.5 x 11 mm on the short edge at the
     # pin 99/199 end, 10.5..21.5 mm from the long edge of the pin 1-100 connector -> board x 92.5..99.0, y 46.5..57.5.
     # "minimum 6.5 x 11 mm, ideally at least 8 x 15 mm": no copper on any layer in 9 x 15 mm, out to the board edge.
     poly_zone(board, rect(91.0, 44.5, 100.0, 59.5), ALL_CU, keepout=True, name="KO_CM4_ANT")
-    # keep routed copper 0.35 mm away from the board edge (pads of edge connectors are still allowed)
-    e = 0.35
+    # keep routed copper 0.45 mm away from the board edge (pads of edge connectors are still allowed)
+    e = 0.45
     for i, r_ in enumerate((rect(0, 0, W, e), rect(0, H - e, W, H), rect(0, 0, e, H), rect(W - e, 0, W, H))):
         poly_zone(board, r_, ALL_CU, keepout=True, name="KO_EDGE%d" % i)
     for fp in sorted_fps(board):
@@ -827,6 +925,7 @@ def finish(outdir):
             board.Remove(tr); _KEEP.append(tr); tracks[i_] = None; n_usb += 1
     tracks = [t for t in tracks if t is not None]
     print("autorouted USB items discarded:", n_usb)
+    tracks = tidy_fanout(board, tracks)
     for tr in tracks:
         if tr.Type() != pcbnew.PCB_VIA_T and tr.GetWidth() < MM(0.1):
             tr.SetWidth(MM(0.1))
@@ -1022,6 +1121,8 @@ def patch(outdir, report=None, max_jobs=400, reroute=()):
         # (track width, clearance used for the search); the last entry is the tightest the board rules allow
         if net in usb:      # USB 2.0 data: 0.2 mm (about 45 ohm to the plane 0.1 mm below), stay on one layer if at all possible
             variants = ((0.2, 0.16), (0.2, 0.13))
+        elif net in NETCLASSES["HV"][2]:
+            variants = ((0.25, 0.23), (0.25, 0.21))
         elif power:
             variants = ((0.3, 0.18), (0.15, 0.18), (0.12, 0.165))
         else:
@@ -1378,6 +1479,7 @@ def repair(outdir, report):
         if cands:
             i = cands[-1]
             board.Remove(tracks[i]); _KEEP.append(tracks[i]); gone.add(i); tracks[i] = None; n += 1
+    n += prune_escapes(board, tracks)
     rm = cleanup(board, tracks)
     pcbnew.ZONE_FILLER(board).Fill(board.Zones()); board.BuildConnectivity()
     board.Save(board.GetFileName()); write_project(outdir)
@@ -1769,7 +1871,8 @@ def tune_usb(outdir):
 
 # net classes for the autorouter (the same numbers are in voxhub.kicad_pro for KiCad's DRC)
 NETCLASSES = {
-    "Power": (400, 150, ["VBUS", "VBUS_SW", "BUCK_SW", "USB1_VBUS", "USB2_VBUS", "SD_VDD", "SPK_P", "SPK_N"]),
+    "Power": (400, 150, ["BUCK_SW", "USB1_VBUS", "USB2_VBUS", "SD_VDD", "SPK_P", "SPK_N"]),
+    "HV": (250, 200, ["VBUS", "VBUS_SW", "PD_GATE", "PD_FET_EN"]),
     "P3V3": (250, 130, ["+3V3"]),
     "USB": (200, 130, ["USB_UP_P", "USB_UP_N", "USB1_P", "USB1_N", "USB2_P", "USB2_N"]),
 }

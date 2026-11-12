@@ -3,7 +3,7 @@ import math
 USB_W = 0.14
 USB_GAP = 0.16
 USB_SE_W = 0.185
-STACKUP = dict(name="JLC04161H-3313", finish="ENIG", outer_cu=0.035, inner_cu=0.0175,
+STACKUP = dict(name="JLC04161H-3313", finish="ENIG", outer_cu=0.035, inner_cu=0.0152,
                prepreg=("3313 RC57%", 0.0994, 4.1), core=("FR4 TG155", 1.265, 4.42), mask=0.015)
 USB_NETS = ("USB_UP_P", "USB_UP_N", "USB1_P", "USB1_N", "USB2_P", "USB2_N")
 VIA_POWER = 0.6
@@ -100,7 +100,7 @@ def plan(pp):
     t("GND", [c10g, pg], 0.5)
     gnd_vias(c10g, [(c10g[0] + 1.2, c10g[1])], 0.6)
     gnd_vias(pg, [(pg[0] + 1.1, pg[1])], 0.5)
-    gnd_vias(c9g, [(c9g[0], c9g[1] + 1.7), (c9g[0] + 1.3, c9g[1])])
+    gnd_vias(c9g, [(c9g[0], c9g[1] + 1.7), (c9g[0] + 1.1, c9g[1] + 1.2)])
     gnd_vias(c8g, [(c8g[0], c8g[1] + 1.7), (c8g[0] - 1.3, c8g[1])])
     d1a = pp("D1", "2")
     gnd_vias(d1a, [(d1a[0] - 1.0, d1a[1] + 2.0), (d1a[0] + 1.0, d1a[1] + 2.0)])
@@ -210,6 +210,25 @@ def plan(pp):
     lines["USB2_N"].append([u81, (u81[0], y81), (xn, y81 - abs(xn - u81[0])), (xn, ye + 0.8), (xn + 0.8, ye), (j6[0] - 0.75, ye), (j6[0], ye - 0.75), j6])
     balance(("USB2_P", "USB2_N"), {"USB2_P": (0, 1, 1.4, 0.3, -1)})
     reserve.append((31.0, 20.9, 32.6, 22.7))
+    hub = pp("U4", "37")
+    ch = 3.1875
+    p5, p10, p23, p29, p36 = (pp("U4", n) for n in ("5", "10", "23", "29", "36"))
+    t("+3V3", [p5, (p5[0], hub[1] - ch + 1.0), (hub[0] - ch + 1.0, hub[1] - ch + 1.0), (p10[0] + 0.54, p10[1]), p10], 0.2)
+    t("+3V3", [p10, pp("C30", "1")], 0.25)
+    t("+3V3", [p23, (p23[0], hub[1] + ch - 1.0), (hub[0] + ch - 1.0, hub[1] + ch - 1.0), (hub[0] + ch - 1.0, p29[1] + 0.25),
+               (p29[0] - 0.5, p29[1]), p29], 0.2)
+    c34 = pp("C34", "1")
+    t("+3V3", [p29, (p29[0] + 0.6, p29[1]), (c34[0] - 0.2, c34[1]), c34], 0.25)
+    c35 = pp("C35", "1")
+    t("+3V3", [p36, (c35[0] - 0.4, p36[1]), (c35[0], p36[1] - 0.4), c35], 0.25)
+    xi, xo, y1, y3 = pp("U4", "33"), pp("U4", "32"), pp("Y1", "1"), pp("Y1", "3")
+    ymid = (y1[1] + y3[1]) / 2
+    t("HUB_XO", [xo, (y3[0] - 1.0, xo[1]), (y3[0] - 1.0 + (xo[1] - y3[1]), y3[1]), y3], 0.15)
+    t("HUB_XI", [xi, (y3[0] - 2.0, xi[1]), (y3[0] - 2.0 + (xi[1] - ymid), ymid), (y1[0] - 0.85, ymid), (y1[0] - 0.4, ymid - 0.45), y1], 0.15)
+    c26, c27 = pp("C26", "1"), pp("C27", "1")
+    t("HUB_XI", [y1, c26], 0.15)
+    yb = y3[1] + 0.9
+    t("HUB_XO", [y3, (y3[0] + 0.9, yb), (c27[0] - 0.77, yb), (c27[0] - 0.77 + (yb - c27[1]), c27[1]), c27], 0.15)
     for net in USB_NETS:
         for l in lines[net]:
             t(net, l, width[net], dst=usb)

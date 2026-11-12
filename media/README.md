@@ -54,6 +54,15 @@ docker pull kicad/kicad:9.0
 BLENDER=/path/to/blender-4.5/blender media/build_showcase.sh      # frames go to media/work (not tracked)
 ```
 
+| Environment variable | Meaning |
+|---|---|
+| `BLENDER` | path of the Blender binary (4.2 - 4.5) |
+| `PYTHON` | interpreter with cadquery, pymupdf, pillow and numpy (default `python3`) |
+| `KICAD_NATIVE=1` | plot the board textures with the host's `kicad-cli` instead of the Docker image |
+| `SAMPLES`, `THREADS` | Cycles samples per pixel (default 4), render threads (default all) |
+| `FRAMES="start end"` | render only this frame range |
+| `KEEP_VIDEO=<mp4>` | together with `FRAMES`: take the frames outside the range from this earlier video (only valid while the printed parts and everything else visible in those frames are unchanged) |
+
 Blender 4.2 to 4.5 is required (tested with 4.5.16 LTS; Blender 5 changed the animation API and the script refuses to
 start there). Blender runs headless (`blender -b -P render_showcase.py -- ...`), Cycles on the CPU: 4 samples per pixel +
 OpenImageDenoise, fixed noise seed, 3 bounces, no motion blur. Measured on 4 cores: about 9 s per frame on average (7 to 13 s),

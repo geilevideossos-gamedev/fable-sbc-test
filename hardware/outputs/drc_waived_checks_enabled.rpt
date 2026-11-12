@@ -1,17 +1,20 @@
 ** Drc report for voxhub.kicad_pcb **
-** Created on 2026-11-12T08:41:14+0000 **
+** Created on 2026-11-12T10:00:27+0000 **
 ** Report includes: Errors, Warnings, Exclusions **
 
-** Found 4 DRC violations **
-[lib_footprint_mismatch]: Footprint 'USB_A_Wuerth_61400826021_Horizontal_Stacked' does not match copy in library 'Connector_USB'.
-    Local override; warning
-    @(138.7500 mm, 73.1100 mm): Footprint J6
+** Found 5 DRC violations **
 [lib_footprint_mismatch]: Footprint 'microSD_HC_Hirose_DM3AT-SF-PEJM5' does not match copy in library 'Connector_Card'.
     Local override; warning
     @(156.0000 mm, 68.7000 mm): Footprint J4
+[lib_footprint_mismatch]: Footprint 'C_0402_1005Metric' does not match copy in library 'Capacitor_SMD'.
+    Local override; warning
+    @(103.7900 mm, 88.2000 mm): Footprint C13
 [lib_footprint_mismatch]: Footprint 'USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal' does not match copy in library 'Connector_USB'.
     Local override; warning
     @(113.0000 mm, 63.6700 mm): Footprint J1
+[lib_footprint_mismatch]: Footprint 'USB_A_Wuerth_61400826021_Horizontal_Stacked' does not match copy in library 'Connector_USB'.
+    Local override; warning
+    @(138.7500 mm, 73.1100 mm): Footprint J6
 [footprint_type_mismatch]: Footprint component type doesn't match footprint pads (expected 'Through hole'; actual 'SMD')
     Local override; warning
     @(108.5000 mm, 85.5000 mm): Footprint U2

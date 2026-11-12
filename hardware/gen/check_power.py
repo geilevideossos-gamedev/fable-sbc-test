@@ -11,12 +11,12 @@ PATHS = [
     ("VBUS", "D1.1", "Q1.2", 1.2, 3.3, "VBUS bar to the load switch source"),
     ("VBUS_SW", "Q1.3", "C8.1", 1.2, 3.3, "load switch drain to the buck input capacitors"),
     ("VBUS_SW", "C8.1", "C9.1", 1.6, 3.3, "between the two 10 uF input capacitors"),
-    ("VBUS_SW", "C9.1", "U2.2", 0.59, 2.2, "input capacitors to the VIN pin (limited by the 0.6 mm pin pad)"),
+    ("VBUS_SW", "C9.1", "U2.2", 0.59, 3.0, "input capacitors to the VIN pin, RMS at 9 V in (limited by the 0.6 mm pin pad)"),
     ("BUCK_SW", "U2.8", "L1.1", 0.55, 4.0, "switch pin to the inductor (limited by the 0.6 mm pin pad)"),
     ("+5V", "L1.2", "C14.1", 1.6, 4.0, "inductor to the first output capacitor column"),
     ("+5V", "L1.2", "C17.1", 1.6, 2.0, "inductor to the second output capacitor column"),
-    ("GND", "U2.1", "U2.9", 0.5, 2.2, "PGND pin to the exposed pad on the front layer (limited by the pin pad)"),
-    ("GND", "U2.1", "C10.2", 0.5, 2.2, "PGND pin to the 220 nF bypass capacitor"),
+    ("GND", "U2.1", "U2.9", 0.5, 3.5, "PGND pin to the exposed pad on the front layer, RMS at 20 V in (limited by the pin pad)"),
+    ("GND", "U2.1", "C10.2", 0.5, 3.5, "PGND pin to the 220 nF bypass capacitor (carries the high-frequency part only)"),
     ("USB1_VBUS", "U5.6", "J6.1", 0.6, 1.3, "port 1 current-limit switch to the connector"),
     ("USB2_VBUS", "U6.6", "J6.5", 0.6, 1.3, "port 2 current-limit switch to the connector"),
 ]
@@ -104,6 +104,9 @@ def main(pcb, out=None):
     board = pcbnew.LoadBoard(pcb)
     cache, lines, bad = {}, [], 0
     lines.append("Narrowest front-layer copper on the high-current paths (probe width that still passes from pad to pad)")
+    lines.append("need mm = the width the path was designed with; a path fails when the copper found is narrower than that.")
+    lines.append("I(10K), I(20K) = IPC-2221 current of an outer-layer track of the neck width for 10 K / 20 K rise, for comparison with")
+    lines.append("the load: every neck below 1.2 mm is the pad of a connector contact or of a regulator pin and shorter than 0.7 mm.")
     lines.append("%-10s %-8s %-8s %9s %9s %9s %11s %11s  %s" % ("net", "from", "to", "neck mm", "need mm", "load A", "I(10K) A", "I(20K) A", "path"))
     for net, a, b, need, load, text in PATHS:
         pa, pb = find_pad(board, a, net), find_pad(board, b, net)
@@ -120,7 +123,10 @@ def main(pcb, out=None):
         if not ok:
             bad += 1
         lines.append("%-10s %-8s %-8s %9.2f %9.2f %9.2f %11.2f %11.2f  %s%s" % (net, a, b, w, need, load, ipc2221(w, 10), ipc2221(w, 20), text, "" if ok else "   <-- TOO NARROW"))
-    lines.append("result: %s" % ("all paths meet their requirement" if not bad else "%d path(s) below the requirement" % bad))
+    for net in ("+5V", "GND"):
+        n = sum(1 for t in board.GetTracks() if t.Type() == pcbnew.PCB_VIA_T and t.GetNetname() == net)
+        lines.append("vias of %s into its plane: %d" % (net, n))
+    lines.append("result: %s" % ("all paths are as wide as designed" if not bad else "%d path(s) narrower than designed" % bad))
     txt = "\n".join(lines) + "\n"
     if out:
         open(out, "w").write(txt)

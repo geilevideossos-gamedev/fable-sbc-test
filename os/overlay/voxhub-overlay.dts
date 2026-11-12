@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-// Device tree overlay for the VoxHub CM4 carrier (rev A1).
+// Device tree overlay for the VoxHub CM4 carrier (rev A2).
 //
 // Functionally equivalent to the stock-overlay combination in config/config-voxhub.txt,
 // but as one overlay with proper names (LED function/colour, EV_SW mute switch, named

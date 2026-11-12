@@ -167,7 +167,8 @@ image has not been booted - there is no hardware.
 
 ## First boot
 
-1. Flash the image, insert the card, plug in a USB-C PD charger (>= 20 W, 9 V capable). Green PWR LED on;
+1. Flash the image, insert the card, plug in a USB-C PD charger (30 W recommended; it must offer a 9 to 20 V profile
+   with at least 2 A). Green PWR LED on;
    red PD-FAULT LED means the charger offers no 9-20 V profile.
 2. Wait ~5 minutes on first boot, open `http://homeassistant.local:8123`.
 3. Settings -> System -> Hardware should list the `sndrpigooglevoi` sound card and `/dev/ttyAMA4`.

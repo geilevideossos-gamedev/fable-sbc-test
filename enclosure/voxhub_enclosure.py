@@ -5,7 +5,7 @@ Two printed parts, both support-free on a Bambu Lab printer (0.4 mm nozzle, 0.2 
 
   shell  top + four walls, printed UPSIDE DOWN (top face on the build plate).  All bosses,
          posts, mic chimneys and LED light pipes grow straight up from the top plate; the
-         connector windows in the rear wall are short bridges (<= 15.2 mm).
+         connector windows in the rear wall are short bridges (<= 15.6 mm).
   base   flat bottom plate with vents, a pedestal that clamps the speaker against the
          grille (through a foam pad) and four counterbored screw holes.  Printed flat.
 
@@ -39,16 +39,17 @@ POST_BAY = 7.6                               # extra interior width on the right
 CORNER_R = 5.0                               # outer vertical corner radius
 FIT = 0.25                                   # general printing clearance
 
-# speaker: Adafruit 3351 enclosed speaker with JST-PH plug: flange 70 x 30 mm, 17 mm deep, 4 ohm 3 W, 26 g
-SPK_L, SPK_W, SPK_DEPTH = 70.0, 30.0, 17.0
+# speaker: Adafruit 3351 enclosed speaker with JST-PH plug (maker's data sheet C5282-001: flange 70.11 x 30.72 mm,
+# 16.5 +-0.5 mm high, box 66.11 mm long, cone opening 38.5 x 26.8 mm about 3 mm off centre), 4 ohm 3 W
+SPK_L, SPK_W, SPK_DEPTH = 70.1, 30.7, 16.5
 SPK_FIT = 0.6                                # clearance per side of the locating frame
-SPK_FLANGE_T, SPK_BODY_L = 2.0, 62.0
-SPK_CONE_L, SPK_CONE_W, SPK_RELIEF = 42.0, 26.0, 1.0         # pocket in front of the cone
-SPK_GRILLE_L, SPK_GRILLE_W = 40.0, 24.0
+SPK_FLANGE_T, SPK_BODY_L = 2.0, 66.1
+SPK_CONE_L, SPK_CONE_W, SPK_RELIEF = 48.0, 28.0, 1.0         # pocket in front of the cone
+SPK_GRILLE_L, SPK_GRILLE_W = 46.0, 24.0
 SPK_PAD_L, SPK_PAD_W = 40.0, 18.0
-FOAM = 1.5                                   # compressed foam pad between speaker box and pedestal
+FOAM = 1.8                                   # compressed foam pad between speaker box and pedestal
 
-# screws: M2.5 x 6 thread-forming (PCB) and M2.5 x 8 (base); pilot hole for PLA/PETG
+# screws: M2.5 x 5 (PCB) and M2.5 x 8 (base) machine screws; pilot hole for PLA/PETG
 PILOT_D, SCREW_CLEAR_D, SCREW_HEAD_D = 2.1, 2.9, 5.2
 BOSS_D, POST_D = 6.0, 7.2
 
@@ -77,7 +78,7 @@ HOLES = [at(r)[:2] for r in ("H1", "H2", "H3", "H4")]            # PCB mounting 
 MICS = []
 for r in ("MK1", "MK2"):                                          # acoustic port = footprint-local (0.68, 0)
     x, y, rot, _ = at(r); dx, dy = rot_pt(0.68, 0.0, rot); MICS.append((x + dx, y + dy))
-LEDS = [v[:2] for k, v in sorted(PLACEMENT.items()) if k.startswith("D") and abs(v[1] - 71.2) < 0.01 and 30 < v[0] < 46]
+LEDS = [at(r)[:2] for r in ("D7", "D8", "D9")]
 SW = at("SW1")[:2]
 POSTS = [(X0 + POST_D / 2 + 0.2, Y0 + POST_D / 2 + 0.2), (X0 + POST_D / 2 + 0.2, Y1 - POST_D / 2 - 0.2),
          (X1 - POST_D / 2 - 0.2, Y0 + POST_D / 2 + 0.2), (X1 - POST_D / 2 - 0.2, Y1 - POST_D / 2 - 0.2)]
@@ -115,7 +116,7 @@ def make_shell():
     # base screw posts
     for x, y in POSTS:
         s = s.union(cyl(x, y, Z_FLOOR, Z_TOP_IN + 0.01, POST_D)).cut(cyl(x, y, Z_FLOOR - 0.1, Z_FLOOR + 10.0, PILOT_D))
-    # microphone chimneys: 1.5 mm bore, land 0.2 mm above the PCB (closed-cell foam gasket ring recommended)
+    # microphone chimneys: 1.5 mm bore, land 0.2 mm above the PCB (closed-cell foam gasket ring optional)
     for x, y in MICS:
         s = s.union(cyl(x, y, 0.2, Z_TOP_IN + 0.01, 5.0)).cut(cyl(x, y, 0.0, Z_TOP_OUT + 0.1, 1.5))
         s = s.cut(cyl(x, y, Z_TOP_OUT - 0.5, Z_TOP_OUT + 0.1, 2.6))            # small countersink on the outside
@@ -175,7 +176,7 @@ def make_base():
     # vents under the CM4 / heat sink and under the power stage
     for i in range(9):
         x = 48.0 + i * 5.6
-        b = b.cut(box(x, 32.0, Z_BOTTOM - 0.1, x + 2.4, 64.0, Z_FLOOR + 0.1))
+        b = b.cut(box(x, 32.0, Z_BOTTOM - 0.1, x + 2.4, 60.0, Z_FLOOR + 0.1))
     for i in range(4):
         x = 4.0 + i * 5.6
         b = b.cut(box(x, 20.0, Z_BOTTOM - 0.1, x + 2.4, 42.0, Z_FLOOR + 0.1))
@@ -188,7 +189,7 @@ def make_base():
 # (reference, body size x, y, height, footprint-local centre offset) - simplified keep-in solids
 BODIES = {
     "J1": (8.94, 7.35, 3.31, (0, 0.0)), "J6": (14.5, 17.0, 16.0, (3.5, 7.11)), "J4": (13.85, 15.95, 1.68, (0, 0.15)),
-    "L1": (7.3, 6.6, 2.8, (0, 0)), "U11": (16.5, 30.0, 2.3, (0, 0)), "J7": (5.9, 4.5, 6.0, (1.0, 0.55)),
+    "L1": (7.3, 6.6, 3.0, (0, 0)), "U11": (16.5, 30.0, 2.3, (0, 0)), "J7": (5.9, 4.5, 6.0, (1.0, 0.55)),
     "J5": (2.54, 7.62, 8.5, (0, 2.54)), "U4": (6, 6, 0.9, (0, 0)), "U2": (4.9, 6.0, 1.7, (0, 0)), "U1": (4, 4, 0.6, (0, 0)),
 }
 # CM4 datasheet fig. 4: 55 x 40 mm, PCB 1.2 mm, SoC 2.378 +-0.11 mm high, SoC centre 31.99 / 16.98 mm from the module

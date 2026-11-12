@@ -189,7 +189,7 @@ cap(s, "C_100n", 359, 200, V5)
 res(s, "2.2k", 340, 235, V5, "PWR_LED_A"); led(s, "LED_G", 365, 240, "PWR_LED_A", GND, "PWR (green)")
 s.flag(V5, 380, 205)
 d.near = "TPZONE"
-for i, (n, nm) in enumerate((("VBUS", "VBUS"), ("VBUS_SW", "VBUS_SW"), (V5, "+5V"), (V33, "+3V3"), (GND, "GND"))):
+for i, (n, nm) in enumerate(((V5, "+5V"), (V33, "+3V3"), (GND, "GND"))):
     tp(s, 300 + i * 20, 172, n, nm)
 
 # =========================================================================
@@ -224,15 +224,15 @@ cap(s, "C_100n", 262, 95, V33); d.near = "J4"; cap(s, "C_4u7", 320, 95, "SD_VDD"
 s.flag("SD_VDD", 342, 98)
 d.near = "UI"
 s.box(250, 115, 405, 215, "User interface: status LEDs (0603 on side B, inside the light pipes of the top cover) and hardware mic mute")
-for i, (key, en, name) in enumerate((("LED_UG", "LED_G_EN", "GREEN"), ("LED_UB", "LED_B_EN", "BLUE"))):
+for i, (key, en, name, rled) in enumerate((("LED_UG", "LED_G_EN", "GREEN", "5.1k"), ("LED_UB", "LED_B_EN", "BLUE", "2.2k"))):
     x = 265 + i * 55
-    res(s, "1k", x, 135, V5, "LED%d_A" % i)
+    res(s, rled, x, 135, V5, "LED%d_A" % i)
     led(s, key, x + 20, 150, "LED%d_A" % i, "LED%d_K" % i, name, pos=(34.0 + i * 4.6, 71.2, 90, "B"))
     q = ref("Q"); s.place("2N7002", q, "2N7002", x + 5, 180, {"1": en, "2": GND, "3": "LED%d_K" % i}, footprint=PARTS["Q_N"][3], fields=F("Q_N"))
     res(s, "10k", x, 200, en, GND)   # beats the SoC's ~50k boot-time pull-up on GPIO5/6
 s.place("SW_DPDT_x2", "SW1", "JS202011JCQN (MUTE)", 375, 140, {"1": "NC", "2": V33, "3": "MIC_MUTE"}, unit=1, footprint=PARTS["SW_MUTE"][3], fields=F("SW_MUTE"))
 s.place("SW_DPDT_x2", "SW1", "JS202011JCQN (MUTE)", 375, 165, {"4": "MIC_SDATA", "5": "I2S_DIN", "6": GND}, unit=2, footprint=PARTS["SW_MUTE"][3], fields=F("SW_MUTE"))
-res(s, "330", 370, 185, "MIC_MUTE", "MUTE_LED_A"); led(s, "LED_R", 395, 200, "MUTE_LED_A", GND, "RED (muted)", pos=(43.2, 71.2, 90, "B"))
+res(s, "150", 370, 185, "MIC_MUTE", "MUTE_LED_A"); led(s, "LED_R", 395, 200, "MUTE_LED_A", GND, "RED (muted)", pos=(43.2, 71.2, 90, "B"))
 res(s, "10k", 370, 195, "MIC_MUTE", "MUTE_SENSE"); res(s, "100k", 370, 205, "MUTE_SENSE", GND)
 res(s, "100k", 330, 205, "I2S_DIN", GND)
 s.text("SW1 pole A lights the red LED, pole B physically disconnects mic data\nfrom the CM4 (I2S_DIN grounded) - mute cannot be overridden by software.", 252, 213, size=1.4)

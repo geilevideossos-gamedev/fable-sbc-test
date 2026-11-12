@@ -183,18 +183,12 @@ def board_material(tex):
     return m
 
 def speaker_material():
-    """Speaker solid from the enclosure assembly: black basket, zinc-plated yoke (split by height, device frame)."""
+    """Speaker solid from the enclosure assembly: closed black plastic box."""
     m = bpy.data.materials.new("speaker"); m.use_nodes = True
-    nt = m.node_tree; N = nt.nodes; L = nt.links
-    bsdf = N["Principled BSDF"]
-    tc = N.new("ShaderNodeTexCoord"); sep = N.new("ShaderNodeSeparateXYZ"); L.new(tc.outputs["Object"], sep.inputs["Vector"])
-    lt = N.new("ShaderNodeMath"); lt.operation = "LESS_THAN"; lt.inputs[1].default_value = (4.0 - 11.25) * MM
-    L.new(sep.outputs["Z"], lt.inputs[0])
-    mixc = N.new("ShaderNodeMix"); mixc.data_type = "RGBA"
-    mixc.inputs[6].default_value = (0.02, 0.02, 0.022, 1); mixc.inputs[7].default_value = (0.72, 0.73, 0.75, 1)
-    L.new(lt.outputs[0], mixc.inputs["Factor"]); L.new(mixc.outputs[2], bsdf.inputs["Base Color"])
-    L.new(lt.outputs[0], bsdf.inputs["Metallic"])
-    bsdf.inputs["Roughness"].default_value = 0.38
+    bsdf = m.node_tree.nodes["Principled BSDF"]
+    bsdf.inputs["Base Color"].default_value = (0.02, 0.02, 0.022, 1)
+    bsdf.inputs["Metallic"].default_value = 0.0
+    bsdf.inputs["Roughness"].default_value = 0.45
     return m
 
 # --------------------------------------------------------------------------------------- scene

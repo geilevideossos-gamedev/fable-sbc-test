@@ -1,4 +1,7 @@
 Narrowest front-layer copper on the high-current paths (probe width that still passes from pad to pad)
+need mm = the width the path was designed with; a path fails when the copper found is narrower than that.
+I(10K), I(20K) = IPC-2221 current of an outer-layer track of the neck width for 10 K / 20 K rise, for comparison with
+the load: every neck below 1.2 mm is the pad of a connector contact or of a regulator pin and shorter than 0.7 mm.
 net        from     to         neck mm   need mm    load A    I(10K) A    I(20K) A  path
 VBUS       J1.A9    D1.1          0.61      0.60      1.65        1.67        2.26  left VBUS contact pair to the bar (limited by the 0.6 mm connector pad)
 VBUS       J1.A4    D1.1          0.61      0.60      1.65        1.67        2.26  right VBUS contact pair to the bar (limited by the 0.6 mm connector pad)
@@ -6,12 +9,14 @@ VBUS       D1.1     C1.1          1.61      1.60      3.30        3.37        4.
 VBUS       D1.1     Q1.2          1.21      1.20      3.30        2.74        3.72  VBUS bar to the load switch source
 VBUS_SW    Q1.3     C8.1          1.42      1.20      3.30        3.08        4.18  load switch drain to the buck input capacitors
 VBUS_SW    C8.1     C9.1          2.06      1.60      3.30        4.04        5.47  between the two 10 uF input capacitors
-VBUS_SW    C9.1     U2.2          0.61      0.59      2.20        1.67        2.26  input capacitors to the VIN pin (limited by the 0.6 mm pin pad)
+VBUS_SW    C9.1     U2.2          0.61      0.59      3.00        1.67        2.26  input capacitors to the VIN pin, RMS at 9 V in (limited by the 0.6 mm pin pad)
 BUCK_SW    U2.8     L1.1          1.61      0.55      4.00        3.37        4.58  switch pin to the inductor (limited by the 0.6 mm pin pad)
 +5V        L1.2     C14.1         1.68      1.60      4.00        3.48        4.72  inductor to the first output capacitor column
 +5V        L1.2     C17.1         1.61      1.60      2.00        3.37        4.58  inductor to the second output capacitor column
-GND        U2.1     U2.9          0.56      0.50      2.20        1.57        2.13  PGND pin to the exposed pad on the front layer (limited by the pin pad)
-GND        U2.1     C10.2         0.60      0.50      2.20        1.65        2.23  PGND pin to the 220 nF bypass capacitor
+GND        U2.1     U2.9          3.72      0.50      3.50        6.21        8.42  PGND pin to the exposed pad on the front layer, RMS at 20 V in (limited by the pin pad)
+GND        U2.1     C10.2         0.62      0.50      3.50        1.69        2.29  PGND pin to the 220 nF bypass capacitor (carries the high-frequency part only)
 USB1_VBUS  U5.6     J6.1          0.81      0.60      1.30        2.05        2.78  port 1 current-limit switch to the connector
 USB2_VBUS  U6.6     J6.5          0.81      0.60      1.30        2.05        2.78  port 2 current-limit switch to the connector
-result: all paths meet their requirement
+vias of +5V into its plane: 26
+vias of GND into its plane: 124
+result: all paths are as wide as designed

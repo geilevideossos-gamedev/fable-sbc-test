@@ -211,25 +211,25 @@ Line by line: [`hardware/outputs/bom.csv`](hardware/outputs/bom.csv).
 | Inductor, crystal, microphones | 3 | 4 | 6.48 | 4.23 |
 | Capacitors | 11 | 49 | 2.78 | 2.21 |
 | Diodes, LEDs, transistors | 9 | 14 | 1.18 | 0.96 |
-| Resistors | 15 | 47 | 0.04 | 0.04 |
-| **PCB assembly parts** | **53 (+2 DNP)** | **136** | **41.77** | **30.03** |
+| Resistors | 15 | 47 | 0.03 | 0.03 |
+| **PCB assembly parts** | **53 (+2 DNP)** | **136** | **41.78** | **30.03** |
 
 **Everything else for one device**, EU shops, prices of 2026-11-12 including VAT (EUR).
 Line by line: [`hardware/outputs/bom_system.csv`](hardware/outputs/bom_system.csv) and [`fab/SHOPPING_LIST.md`](fab/SHOPPING_LIST.md).
 
 | Item | EUR |
 |---|---|
-| Raspberry Pi CM4 Lite 4 GB wireless (CM4104000) | 103.16 |
+| Raspberry Pi CM4 Lite 4 GB wireless (CM4104000) | 105.83 |
 | microSD card 64 GB, endurance type | 28.90 |
 | USB-C PD charger 30 W and cable | 22.38 |
 | Speaker with JST-PH plug, heat sink, screws, feet, foam | 18.39 |
 | Shipping of two parcels to Austria | 12.90 |
-| **One device without the board** | **185.73** |
+| **One device without the board** | **188.40** |
 
 **The JLCPCB order** (5 PCBs, 2 of them assembled on both sides, parts, shipping, import VAT) is estimated in
 [`fab/ORDER_GUIDE.md`](fab/ORDER_GUIDE.md).
 
-- The same JLCPCB parts cost 41.77 USD where the DigiKey parts of revision A1 cost 74.79 USD; the radio module alone
+- The same JLCPCB parts cost 41.78 USD where the DigiKey parts of revision A1 cost 74.79 USD; the radio module alone
   went from 11.47 to 6.63 USD.
 - Thin stock at JLCPCB on the day of the check: ADAU7002ACBZ-R7 (104), Wurth 61400826021 (116), RF-BM-2652P2 (126).
   The order guide says how to reserve them; the BOM names the alternates. Details in
@@ -242,9 +242,10 @@ Line by line: [`hardware/outputs/bom_system.csv`](hardware/outputs/bom_system.cs
 | Check | Result | Evidence |
 |---|---|---|
 | ERC (kicad-cli 9.0.9) | 0 errors, 0 warnings | `hardware/outputs/erc.rpt` |
-| Netlist equals the code model | 152 components / 100 nets; schematic parity 0 issues | `hardware/gen/model_netlist.json`, `hardware/outputs/drc.rpt` |
-| DRC with schematic parity and JLCPCB's rules (kicad-cli 9.0.9) | 0 violations, 0 unconnected pads, 0 parity issues; two library-comparison checks waived (4 warnings, explained in `hardware/README.md`) | `hardware/outputs/drc.rpt`, `drc_waived_checks_enabled.rpt`, `hardware/voxhub.kicad_dru` |
-| Current paths | narrowest copper of every high-current path measured and compared with the IPC-2221 requirement; all pass | `hardware/outputs/power_paths.txt` |
+| Netlist equals the code model | 150 components / 100 nets; schematic parity 0 issues | `hardware/gen/model_netlist.json`, `hardware/outputs/drc.rpt` |
+| DRC with schematic parity and JLCPCB's rules (kicad-cli 9.0.9) | 0 violations, 0 unconnected pads, 0 parity issues; two library-comparison checks waived (5 warnings, explained in `hardware/README.md`) | `hardware/outputs/drc.rpt`, `drc_waived_checks_enabled.rpt`, `hardware/voxhub.kicad_dru` |
+| Current paths | narrowest copper of every high-current path measured: all as wide as designed (1.2 to 1.6 mm; the remaining necks are the 0.6 mm pads of the connector and of the regulator) | `hardware/outputs/power_paths.txt` |
+| Vias and pads | no via in or touching a pad other than the exposed pad of an IC | `hardware/outputs/via_in_pad.txt` |
 | USB 2.0 | upstream pair coupled, 0.14 / 0.16 mm = 89.96 ohm in JLCPCB's impedance calculator; pad-to-pad skew 0.00 / 0.00 / 0.00 mm (upstream / port 1 / port 2), limit 3.8 mm; no vias, no stubs | `hardware/outputs/usb_impedance.txt`, `routing_stats.txt`, DECISIONS.md section 6a |
 | CM4 socket strips | no copper of another net in Hirose's restricted strips | `hardware/outputs/df40_strips.txt` |
 | Assembly data | 135 of 136 placements fitted to JLCPCB's own footprint of the part (position, rotation, polarity); the last one is the hand-soldered USB-A connector | `fab/jlcpcb/placement_report.csv` |

@@ -6,6 +6,10 @@ UART4_SYSFS_DEVICE="/sys/devices/platform/soc/fe201800.serial"
 GPIO_CHIP_LABEL="pinctrl-bcm2711"
 GPIO_RESET=24
 GPIO_BOOT=25
+GPIO_JTAG_TMS=22
+GPIO_JTAG_TCK=23
+GPIO_JTAG_TDO=17
+GPIO_JTAG_TDI=7
 CONTAINER_IMAGE="${VOXHUB_CONTAINER_IMAGE:-debian:bookworm-slim}"
 CONTAINER_OPTIONS="${VOXHUB_CONTAINER_OPTIONS:-}"
 SERIAL_BAUD_RATES=(500000 115200)
@@ -46,6 +50,10 @@ PROBE_RESULT=""
 GPIO_BACKEND=""
 GPIO_CHIP=""
 GPIO_TOUCHED=0
+RADIO_NEEDS_RESTART=0
+JTAG_LINES_DRIVEN=0
+SERIAL_BOOTLOADER_SILENT=1
+WRITTEN_OVER=""
 declare -A GPIO_HOLDER_PIDS=()
 ORIGINAL_ARGUMENTS=("$@")
 SCRIPT_PATH="${BASH_SOURCE[0]:-}"
@@ -80,6 +88,9 @@ Options:
                       jtag: OpenOCD bit-bang JTAG only (erases the whole chip first)
   --port PATH         serial port of the radio (default /dev/ttyAMA4)
   --force             write even if the wanted firmware already answers
+                      Every write erases the whole chip, including a coordinator's stored
+                      Zigbee network: the devices must be paired again unless a ZHA or
+                      Zigbee2MQTT backup is restored.
   --probe-only        only report which firmware answers on the serial port
   --container         run inside a Debian container even if this system has apt-get
   --dry-run           show every step, download and check the files, touch no hardware
@@ -193,8 +204,14 @@ choose_where_to_run() {
         return 0
     fi
     if docker_is_usable; then
-        continue_inside_container
-        exit $?
+        local status=0
+        continue_inside_container || status=$?
+        if [ "$status" -ge 125 ] && [ "$status" -le 127 ]; then
+            printf '\nERROR: %s\n' "The temporary container could not be started (docker exit status $status).
+Check the internet connection of this system: the image $CONTAINER_IMAGE comes from Docker Hub.
+Nothing was written to the radio. Run this script again." >&2
+        fi
+        exit "$status"
     fi
     if running_on_home_assistant_os; then
         fail "This looks like Home Assistant OS, but the docker command does not work here.
@@ -207,6 +224,10 @@ or the Home Assistant app 'Advanced SSH & Web Terminal' with protection mode off
 
 basic_tools_are_missing() {
     command -v python3 >/dev/null 2>&1 || return 0
+    if [ "$PROBE_ONLY" -eq 1 ]; then
+        python3 -c 'import serial' >/dev/null 2>&1 || return 0
+        return 1
+    fi
     python3 -c 'import serial, intelhex' >/dev/null 2>&1 || return 0
     command -v sha256sum >/dev/null 2>&1 || return 0
     if [ -z "${VOXHUB_GPIO_SIM_DIR:-}" ]; then
@@ -225,13 +246,22 @@ install_packages() {
 
 install_basic_tools() {
     step "Checking the tools this script needs"
-    if [ "$DRY_RUN" -eq 1 ]; then
+    local packages=(python3 python3-serial python3-intelhex gpiod curl ca-certificates)
+    if [ "$PROBE_ONLY" -eq 1 ]; then
+        packages=(python3 python3-serial)
+    fi
+    if [ "$DRY_RUN" -eq 1 ] && [ "$IN_CONTAINER" -eq 0 ]; then
         command -v python3 >/dev/null 2>&1 || fail "The dry run needs python3 to unpack and check the firmware."
-        say "  [dry-run] would install with apt-get if missing: python3 python3-serial python3-intelhex gpiod curl ca-certificates"
+        say "  [dry-run] would install with apt-get if missing: ${packages[*]}"
         return 0
     fi
     if basic_tools_are_missing; then
-        install_packages python3 python3-serial python3-intelhex gpiod curl ca-certificates
+        install_packages "${packages[@]}"
+    fi
+    if [ "$PROBE_ONLY" -eq 1 ]; then
+        python3 -c 'import serial' || fail "The Python module serial is still missing."
+        say "python3 and pyserial are present."
+        return 0
     fi
     python3 -c 'import serial, intelhex' || fail "The Python modules serial and intelhex are still missing."
     say "python3, pyserial and intelhex are present."
@@ -244,9 +274,20 @@ prepare_work_dir() {
 remove_work_dir_and_release_gpios() {
     local status=$?
     trap - EXIT INT TERM
+    if [ "$JTAG_LINES_DRIVEN" -eq 1 ] && [ "$DRY_RUN" -eq 0 ]; then
+        release_jtag_lines
+    fi
     if [ "$GPIO_TOUCHED" -eq 1 ] && [ "$DRY_RUN" -eq 0 ]; then
-        gpio_release "$GPIO_RESET" pull-down || true
         gpio_release "$GPIO_BOOT" pull-up || true
+        gpio_release "$GPIO_RESET" pull-down || true
+        if [ "$RADIO_NEEDS_RESTART" -eq 1 ]; then
+            if (gpio_drive "$GPIO_RESET" 1 && sleep 0.3 && gpio_release "$GPIO_RESET" pull-down) 2>/dev/null; then
+                say "The radio was restarted (reset pulse on GPIO$GPIO_RESET) so that it is not left in reset or in its bootloader." || true
+            else
+                gpio_release "$GPIO_RESET" pull-down 2>/dev/null || true
+                say "The radio could not be restarted. If it does not answer afterwards, switch the board off and on again." || true
+            fi
+        fi
     fi
     if [ -n "$WORK_DIR" ] && [ -d "$WORK_DIR" ]; then
         rm -rf "$WORK_DIR"
@@ -272,11 +313,15 @@ file_sha256() {
 download_verified() {
     local destination="$1" description="$2"
     shift 2
-    local url expected actual
+    local url expected actual next
     while [ "$#" -ge 2 ]; do
         url="$1"
         expected="$2"
         shift 2
+        next=""
+        if [ "$#" -ge 2 ]; then
+            next=" - trying the next source"
+        fi
         say "  from $url"
         if download_file "$url" "$destination.part"; then
             actual="$(file_sha256 "$destination.part")"
@@ -285,9 +330,9 @@ download_verified() {
                 say "  SHA256 matches: $actual"
                 return 0
             fi
-            say "  SHA256 does not match (got $actual, expected $expected) - trying the next source"
+            say "  SHA256 does not match (got $actual, expected $expected)$next"
         else
-            say "  download failed - trying the next source"
+            say "  download failed$next"
         fi
     done
     fail "Could not download $description with the expected checksum. Nothing was written to the radio."
@@ -706,13 +751,16 @@ start_gpio_holder() {
     sleep 0.2
     if ! kill -0 "${GPIO_HOLDER_PIDS[$line]}" 2>/dev/null; then
         unset "GPIO_HOLDER_PIDS[$line]"
-        fail "Could not drive GPIO$line. Another program or driver is using this line."
+        fail "Could not drive GPIO$line. Another program or driver is using this line.
+If an earlier run of this script was killed, its gpioset helpers may still hold the line:
+stop them with 'pkill gpioset' (or restart the board) and run this script again."
     fi
 }
 
 gpio_drive() {
     local line="$1" value="$2"
     GPIO_TOUCHED=1
+    RADIO_NEEDS_RESTART=1
     case "$GPIO_BACKEND" in
         dry-run) say "  [dry-run] would drive GPIO$line to $value" ;;
         simulation) printf '%s\n' "$value" >"$VOXHUB_GPIO_SIM_DIR/gpio$line" ;;
@@ -770,6 +818,15 @@ gpio_level() {
     esac
 }
 
+release_jtag_lines() {
+    local line
+    for line in "$GPIO_JTAG_TMS" "$GPIO_JTAG_TCK" "$GPIO_JTAG_TDO"; do
+        gpio_release "$line" pull-down || true
+    done
+    gpio_release "$GPIO_JTAG_TDI" pull-up || true
+    JTAG_LINES_DRIVEN=0
+}
+
 radio_enter_bootloader() {
     say "Resetting the radio with the bootloader strap held low (GPIO$GPIO_BOOT low, GPIO$GPIO_RESET high, then released)."
     gpio_drive "$GPIO_BOOT" 0
@@ -788,12 +845,13 @@ radio_restart() {
     gpio_drive "$GPIO_RESET" 1
     pause 0.3
     gpio_release "$GPIO_RESET" pull-down
+    RADIO_NEEDS_RESTART=0
     pause 2
     local level
     level="$(gpio_level "$GPIO_BOOT" 2>/dev/null || printf '?\n')"
     if [ "$level" = "0" ]; then
         say "WARNING: GPIO$GPIO_BOOT reads low although it is released. The radio will stay in its bootloader."
-        say "         Check the 10k pull-up on the ZB_BOOT net."
+        say "         Check the 2.2k pull-up R45 on the ZB_BOOT net."
     fi
 }
 
@@ -837,6 +895,7 @@ wanted_firmware_is_already_there() {
 flash_over_serial() {
     step "Writing the firmware through the ROM serial bootloader"
     local baud status log="$WORK_DIR/cc2538-bsl.log"
+    SERIAL_BOOTLOADER_SILENT=1
     for baud in "${SERIAL_BAUD_RATES[@]}"; do
         radio_enter_bootloader
         say "Running: python3 cc2538_bsl.py -p $RADIO_PORT -b $baud -e -w -v $FIRMWARE_NAME.hex"
@@ -854,6 +913,7 @@ flash_over_serial() {
         if grep -q "Timeout waiting for ACK/NACK after 'Synch" "$log"; then
             say "The bootloader did not answer at $baud baud."
         else
+            SERIAL_BOOTLOADER_SILENT=0
             say "cc2538-bsl stopped with an error at $baud baud."
         fi
     done
@@ -891,8 +951,10 @@ flash_over_jtag() {
     sleep 0.5
     chip="$(gpio_chip_number)"
     say "Running: openocd -c 'set VOXHUB_GPIO_CHIP $chip' -f voxhub-cc2652-jtag.cfg -c 'voxhub_jtag_flash $FIRMWARE_NAME.hex'"
+    JTAG_LINES_DRIVEN=1
     openocd -c "set VOXHUB_GPIO_CHIP $chip" -f "$WORK_DIR/voxhub-cc2652-jtag.cfg" \
         -c "voxhub_jtag_flash $FIRMWARE_HEX" 2>&1 | tee "$log" || status=$?
+    release_jtag_lines
     if [ "$status" -eq 0 ] && grep -q 'VOXHUB_JTAG_FLASH_VERIFIED' "$log"; then
         say "OpenOCD wrote and verified the image."
         return 0
@@ -909,17 +971,27 @@ write_firmware() {
         serial)
             flash_over_serial || fail "The serial bootloader did not accept the firmware.
 Run the script again with '--method jtag' to erase and write the chip through JTAG."
+            WRITTEN_OVER="serial"
             ;;
         jtag)
             flash_over_jtag || fail "JTAG flashing failed. The radio was not programmed."
+            WRITTEN_OVER="jtag"
             ;;
         *)
-            if ! flash_over_serial; then
+            if flash_over_serial; then
+                WRITTEN_OVER="serial"
+            else
                 say ""
-                say "The serial bootloader is not reachable. This happens when the module was delivered"
-                say "with a firmware that has no backdoor on DIO15. Falling back to JTAG."
+                if [ "$SERIAL_BOOTLOADER_SILENT" -eq 1 ]; then
+                    say "The serial bootloader is not reachable. This happens when the module was delivered"
+                    say "with a firmware that has no backdoor on DIO15. Falling back to JTAG."
+                else
+                    say "cc2538-bsl could not write the firmware through the serial bootloader (see the messages"
+                    say "above). Falling back to JTAG."
+                fi
                 flash_over_jtag || fail "Neither the serial bootloader nor JTAG could program the radio.
 If JTAG reported a locked debug port, the chip needs a TI XDS110 probe on the Tag-Connect pads (J8)."
+                WRITTEN_OVER="jtag"
             fi
             ;;
     esac
@@ -933,6 +1005,11 @@ confirm_new_firmware() {
         return 0
     fi
     describe_probe_result
+    if [ "$WRITTEN_OVER" = "serial" ]; then
+        fail "The firmware was written and verified, but it does not answer on $RADIO_PORT.
+The UART itself works (the bootloader answered on it). Make sure that nothing else uses the port,
+then run this script again with --probe-only."
+    fi
     fail "The firmware was written and verified, but it does not answer on $RADIO_PORT.
 Check the UART wiring (GPIO8 -> DIO12, GPIO9 <- DIO13) and that nothing else uses the port."
 }
@@ -978,15 +1055,18 @@ main() {
     install_basic_tools
     prepare_work_dir
     write_helper_programs
+    if [ "$PROBE_ONLY" -eq 1 ]; then
+        locate_radio_port
+        refuse_if_port_is_busy
+        report_current_firmware
+        exit 0
+    fi
     fetch_downloads
     inspect_firmware
     locate_radio_port
     refuse_if_port_is_busy
     select_gpio_backend
     report_current_firmware
-    if [ "$PROBE_ONLY" -eq 1 ]; then
-        exit 0
-    fi
     if [ "$FORCE" -eq 0 ] && wanted_firmware_is_already_there; then
         say "The wanted firmware is already installed. Use --force to write it again."
         print_next_steps

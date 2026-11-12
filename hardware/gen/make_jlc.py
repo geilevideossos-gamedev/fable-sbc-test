@@ -167,7 +167,7 @@ def main(pcb, sourcing_path, fp_path, out):
             problems.append("%s: no LCSC number for %s" % (ref, mpn)); continue
         lcsc = part["lcsc"]
         name = str(fp.GetFPID().GetLibItemName())
-        groups.setdefault((lcsc, fp.GetValue(), name, mpn), []).append(ref)
+        groups.setdefault(lcsc, dict(refs=[], name=name, comment=part.get("jlc_mpn") or mpn))["refs"].append(ref)
         side = "Bottom" if fp.IsFlipped() else "Top"
         q = fp.GetPosition()
         krot = round(fp.GetOrientationDegrees()) % 360
@@ -196,9 +196,8 @@ def main(pcb, sourcing_path, fp_path, out):
         w = csv.writer(fh); w.writerow(["Designator", "Mid X", "Mid Y", "Layer", "Rotation"]); w.writerows(rows)
     with open(os.path.join(out, "bom_jlcpcb.csv"), "w", newline="") as fh:
         w = csv.writer(fh); w.writerow(["Comment", "Designator", "Footprint", "LCSC Part #"])
-        for (lcsc, value, name, mpn), refs in sorted(groups.items(), key=lambda kv: natural(kv[1][0])):
-            comment = mpn if value in mpn or mpn in value else "%s %s" % (value, mpn)
-            w.writerow([comment, ",".join(refs), name, lcsc])
+        for lcsc, g in sorted(groups.items(), key=lambda kv: natural(kv[1]["refs"][0])):
+            w.writerow([g["comment"], ",".join(g["refs"]), g["name"], lcsc])
     with open(os.path.join(out, "placement_report.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["Designator", "MPN", "LCSC", "KiCad footprint", "Side", "KiCad rotation", "JLCPCB rotation", "Offset vs. plain KiCad export",
