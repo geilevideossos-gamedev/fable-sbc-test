@@ -1,4 +1,59 @@
-# VoxHub Assistant
+# VoxHub add-ons
+
+This folder is the Home Assistant add-on repository of the VoxHub. It holds two add-ons:
+
+| Add-on | Use it for | What it does |
+|---|---|---|
+| **VoxHub Satellite** (`voxhub_satellite/`) | **the two-device system (hub + satellite) - the default** | Makes the hub a voice satellite of its own Home Assistant, exactly like the satellite board downstairs: Linux Voice Assistant 1.1.18 (wake word on the device), status LEDs, mute switch. Every request goes through Home Assistant's Assist pipeline with the official Anthropic integration (Claude). It also runs the **exposure guard** that keeps locks and alarm panels away from Assist. |
+| **VoxHub Assistant** (`voxhub_assistant/`) | a single VoxHub without the Assist pipeline | The self-contained assistant of revision A1/A2: wake word -> Whisper -> Claude with its own Home Assistant tools -> Piper. It does not serve satellites. Do not run it together with VoxHub Satellite. |
+
+Why the two-device system uses Home Assistant's own pipeline instead of this add-on: `DECISIONS.md`, entries S-1 to
+S-5. The satellite board itself runs the same satellite software from an SD card image: `os/satellite/`.
+
+## VoxHub Satellite (hub side of the two-device system)
+
+```
+ Hub (Home Assistant OS)                                         Satellite (Raspberry Pi OS Lite)
+ ┌────────────────────────────────────────────────────┐        ┌─────────────────────────────────┐
+ │ VoxHub Satellite add-on                            │        │ voxhub-lva (Linux Voice Asst.)  │
+ │  Linux Voice Assistant 1.1.18 ── ESPHome API :6053 ├──┐  ┌──┤ ESPHome API :6053 (hub only)    │
+ │  bridge: LEDs + mute switch (peripheral API :6055) │  │  │  │ voxhub-peripherals: LEDs, mute  │
+ │  exposure guard (websocket, admin)                 │  │  │  │ voxhub-hubwatch: firewall       │
+ └────────────────────────────────────────────────────┘  │  │  └─────────────────────────────────┘
+ Home Assistant Core                                      │  │
+  ESPHome integration <───────────────────────────────────┘──┘
+  Assist pipeline "VoxHub Claude": Whisper -> Anthropic (Claude, Assist API) -> Piper
+  device area of each satellite -> "You are in area ..." in Claude's prompt
+```
+
+| Topic | How it works |
+|---|---|
+| Wake word | microWakeWord in Linux Voice Assistant on each device ("Okay Nabu" by default; it is also trained for German) |
+| Speech to text, text to speech | Whisper and Piper add-ons on the hub |
+| Conversation | the Anthropic integration (Claude) with the "Assist" API: intent tools, live context, exposed scripts |
+| Room | the area of the satellite device in Home Assistant. For every request Claude reads "You are in area X ... generic commands like 'turn on the lights' should target this area." |
+| Answer | Home Assistant sends the answer to the satellite that asked; it plays it from `http://<hub>:8123` |
+| Locks and alarms | never exposed to Assist: the exposure guard un-exposes `lock.*`, `alarm_control_panel.*` and every scene, group or script that controls one, at start, on every registry change and every 5 minutes |
+| LEDs | green = ready, blue = listening, blinking blue = thinking, green + blue = speaking, off = muted, slow green blinking = no connection to Home Assistant |
+| Mute switch | cuts the microphone data in hardware; the bridge also mutes the satellite in Home Assistant |
+
+Setup, step by step: `fab/ASSEMBLY_AND_TEST.md`, chapter 7. Options: `voxhub_satellite/DOCS.md`.
+
+Code (`voxhub_satellite/app/voxhub_satellite/`, shared with the satellite image):
+
+| File | Contents |
+|---|---|
+| `__main__.py` | add-on entry point: options, sound card, Linux Voice Assistant, bridge, guard |
+| `launch.py` | finds the googlevoicehat source and sink with `pactl`, sets the microphone gain in dB, builds the Linux Voice Assistant command line; `python -m voxhub_satellite.launch` on the satellite |
+| `bridge.py` | LED patterns and mute from the events of Linux Voice Assistant's peripheral WebSocket API |
+| `hardware.py` | sysfs LEDs `voxhub-green` / `voxhub-blue`, mute switch input device (`KEY_MICMUTE` or `SW_MUTE_DEVICE`) |
+| `guard.py` | the exposure guard (Home Assistant websocket API) |
+| `peripherals.py`, `hubwatch.py` | satellite services: LED / mute bridge, firewall for port 6053 and the hub check |
+
+Tests: `pytest` in this folder (unit tests, no hardware), `tests/container/run_addon_test.sh` (builds the add-on
+image, runs it next to a PulseAudio container and drives it with a real ESPHome API client: 7 checks).
+
+## VoxHub Assistant (single device)
 
 A Home Assistant OS add-on that turns the VoxHub CM4 hub (or any HAOS machine with a
 microphone and a speaker) into a Claude-based voice assistant:
@@ -15,7 +70,8 @@ assistant/
 ├── pyproject.toml               dev tooling (pytest, ruff)
 ├── requirements-dev.txt
 ├── tests/                       pytest suite (no hardware, network or API key needed)
-└── voxhub_assistant/            the add-on
+├── voxhub_satellite/            the VoxHub Satellite add-on (two-device system)
+└── voxhub_assistant/            the VoxHub Assistant add-on (single device)
     ├── config.yaml              add-on manifest, options and schema
     ├── build.yaml               base images per architecture
     ├── Dockerfile
@@ -229,30 +285,21 @@ hardware/OS part of this repository).
 The current date and time are given to Claude with every request, so time questions need
 no tool call.
 
-## The alternative: a fully Home Assistant native setup
+## The alternative: the Home Assistant native setup (now the default)
 
-Home Assistant can do all of this without this add-on:
+Home Assistant can do all of this without this add-on: the official **Anthropic** conversation integration with
+the "Assist" API, an **Assist pipeline** with Whisper, Claude and Piper, and a **voice satellite** per room. Since
+the VoxHub became a two-device system (hub + satellite) this is the default; the hub runs the **VoxHub Satellite**
+add-on described at the top of this file, the satellite board the image of `os/satellite/`.
 
-1. Install the official **Anthropic** conversation integration (*Settings -> Devices &
-   services*) with your API key and let it control exposed entities ("Assist" LLM API).
-2. Create an **Assist pipeline** (*Settings -> Voice assistants*) with Whisper as
-   speech-to-text, the Anthropic agent as conversation agent and Piper as text-to-speech.
-3. Run a **Wyoming satellite** on the hub that captures the microphones, detects the
-   wake word and plays responses, for example the Assist Microphone add-on or
-   `wyoming-satellite`, and add it through the Wyoming integration.
+What the native setup adds: several satellites, room awareness, timers, announcements, the pipeline debug view and
+updates maintained by the Home Assistant project. What VoxHub adds on top: the satellite software with LEDs and the
+mute switch, the microphone gain for the I2S microphones, and the exposure guard that turns this add-on's
+deny-list for locks and alarm panels into a hard rule for Home Assistant's Assist API.
 
-That route gives you the Home Assistant UI for exposing entities, per-area awareness,
-timers, the pipeline debug view and updates maintained by the Home Assistant project. It
-is the better choice if you already use Assist on other satellites.
-
-This add-on is the default for the VoxHub because it is **self-contained and tuned for
-this hardware**: one install and one API key instead of an integration, a pipeline and a
-satellite that have to be wired together; sentence-level streaming from Claude to the
-speaker; software mic gain and volume for the I2S microphones and the amplifier without
-hardware volume control; half-duplex handling; status LEDs and the mute switch; and
-direct control over the model, effort, prompt and the service allow/deny lists. The
-price is that it does not use Home Assistant's "exposed entities" setting (it filters by
-domain instead) and does not appear as an Assist device in the UI.
+This add-on remains useful for a single VoxHub without an Assist pipeline: one install and one API key, Claude
+with its own allow/deny lists for services, sentence-level streaming and half-duplex handling. It filters by domain
+instead of using Home Assistant's "exposed entities" setting and does not appear as an Assist device.
 
 ## Privacy
 
@@ -333,7 +380,7 @@ optional wheels were not available at build time; use `wake_word_engine: wyoming
 cd assistant
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements-dev.txt
-pytest                      # 86 tests, about 1 s
+pytest                      # 137 tests (86 VoxHub Assistant, 51 VoxHub Satellite), about 3 s
 ruff check . && ruff format --check .
 python -m compileall -q voxhub_assistant/app
 ```

@@ -9,6 +9,13 @@ anywhere. Work through the chapters in this order:
 4. [Mechanical assembly](#4-mechanical-assembly)
 5. [Troubleshooting and electrical safety](#5-troubleshooting-and-electrical-safety)
 6. [What could not be verified](#6-what-could-not-be-verified)
+7. [Two devices: hub and satellite](#7-two-devices-hub-and-satellite) - setup of the hub's Claude pipeline, the
+   satellite image, pairing, rooms, the Zigbee router and the tests from both rooms
+
+The two assembled boards are identical. Board 1 becomes the **hub** (Home Assistant OS, chapters 1 to 4 as
+written), board 2 the **satellite**: chapters 1 and 2, chapter 3 tests 1 to 5 and 7 (with the satellite card of
+section 7.3 instead of part A of test 6), sections 7.3 and 7.4 (its software tests), then chapter 4 and the rest
+of chapter 7.
 
 Status of this text: it was written on 2026-11-12 for hardware revision A2. **No board has been built yet.** Every
 expected value below comes from the schematic (`hardware/gen/design.py`), the board file, the enclosure model or a
@@ -526,12 +533,13 @@ rights and no loop devices, so it should also run in WSL2 with Ubuntu on Windows
    sudo apt install git curl xz-utils fdisk mtools device-tree-compiler
    git clone https://github.com/geilevideossos-gamedev/fable-sbc-test.git
    cd fable-sbc-test
-   git checkout claude/voxhub-cm4-a2-production-t2luce
+   git checkout claude/gallant-hamilton-kojnjj
    ./os/build-image.sh repack --wifi-ssid 'NAME OF YOUR WIFI' --wifi-psk 'PASSWORD OF YOUR WIFI' --wifi-country AT
    ```
 
-   The line `git checkout ...` is needed as long as revision A2 has not been merged into the branch `main` (state on
-   2026-11-12). Keep the single quotes around the Wi-Fi name and the password. `AT` is the country code for
+   The line `git checkout ...` is needed as long as the two-device version (hub + satellite) has not been merged
+   into the branch `main` (state on 2026-11-12: revision A2 is in `main`, the two-device version only in this
+   branch). Keep the single quotes around the Wi-Fi name and the password. `AT` is the country code for
    Austria; without the option the script sets `US`.
 2. Wait about two minutes (os/README: 93 seconds on the build machine, 310 MB). The last lines name the result:
    `os/output/haos_voxhub-cm4-18.5.img.xz`. 18.5 was the newest stable Home Assistant OS on 2026-11-12; a later
@@ -734,7 +742,8 @@ microphone clock and the microphone supply stay on. Software cannot undo the mut
 ### 3.12 Test 12 - write the Zigbee firmware to the radio
 
 The radio module (RF-star RF-BM-2652P2 with the TI CC2652P) is delivered without the firmware this project uses.
-`tools/flash_zigbee.sh` writes the Zigbee coordinator firmware (Koenkk Z-Stack 20250321) from the compute module:
+`tools/flash_zigbee.sh` writes the Zigbee coordinator firmware (Koenkk Z-Stack 20250321) from the compute module
+(on the hub; the satellite of chapter 7 gets the router firmware with `--role satellite`, section 7.6):
 it downloads the firmware and the flashing tool with fixed checksums, puts the radio into its built-in serial boot
 loader through GPIO25 and GPIO24, writes, verifies, restarts the radio and asks it which firmware answers. If the
 boot loader does not answer, it continues on its own with a second method (JTAG through four other GPIO lines).
@@ -756,13 +765,13 @@ Three things to know before you start:
    arrived complete:
 
    ```
-   curl -fLo flash_zigbee.sh https://raw.githubusercontent.com/geilevideossos-gamedev/fable-sbc-test/claude/voxhub-cm4-a2-production-t2luce/tools/flash_zigbee.sh
+   curl -fLo flash_zigbee.sh https://raw.githubusercontent.com/geilevideossos-gamedev/fable-sbc-test/claude/gallant-hamilton-kojnjj/tools/flash_zigbee.sh
    bash flash_zigbee.sh --help
    ```
 
-   The second command must print the help text shown further down and nothing else. (Checked on 2026-11-12: the
-   file is reachable under this address. Once revision A2 has been merged, replace
-   `claude/voxhub-cm4-a2-production-t2luce` in the address by `main`.) The script must be a file; piping the
+   The second command must print the help text shown further down and nothing else. (The address is that of
+   the branch with the two-device version; once it has been merged, replace `claude/gallant-hamilton-kojnjj` in
+   the address by `main`.) The script must be a file; piping the
    download straight into `bash` does not work, because the script copies itself into a container.
 3. Rehearsal without touching the radio:
 
@@ -775,10 +784,10 @@ Three things to know before you start:
    `[dry-run] would`.
    It must end with `Dry run finished. No GPIO was driven and nothing was written to the radio.` If it does, the
    terminal app, `docker` and the internet connection are in order.
-4. Write the firmware. Run the script without any option:
+4. Write the firmware. On the hub run the script with the role `hub` (it is also the default without options):
 
    ```
-   bash flash_zigbee.sh
+   bash flash_zigbee.sh --role hub
    ```
 
 5. Wait for the line that starts with `SUCCESS`. The research estimates one to two minutes.
@@ -787,6 +796,8 @@ Expected output of step 4 on Home Assistant OS, put together from the messages i
 real board; `...` stands for the output of the package installation and of the flashing tool):
 
 ```
+Role: hub (option) - firmware: Zigbee coordinator (Z-Stack 20250321)
+
 ==> Starting a temporary debian:bookworm-slim container that has access to the serial port and the GPIOs
 Running inside the temporary container.
 
@@ -850,7 +861,7 @@ Three places can look different on your board without being a fault:
 - If the radio already runs this firmware, the script writes nothing and says
   `The wanted firmware is already installed. Use --force to write it again.` Go on with test 13.
 
-The options of the script, as printed by `bash tools/flash_zigbee.sh --help` on 2026-11-12 (commit `6776424`):
+The options of the script, as printed by `bash tools/flash_zigbee.sh --help` on 2026-11-12 (two-device version):
 
 ```
 flash_zigbee.sh - write firmware to the VoxHub radio module (RF-BM-2652P2, TI CC2652P)
@@ -858,20 +869,30 @@ flash_zigbee.sh - write firmware to the VoxHub radio module (RF-BM-2652P2, TI CC
 Usage:
   sudo bash flash_zigbee.sh [options]
 
+Role of this board:
+  --role hub          Zigbee coordinator: Z-Stack coordinator 20250321 for ZHA / Zigbee2MQTT
+  --role satellite    Zigbee router: Z-Stack router 20250403, extends the hub's Zigbee network
+                      Without --role: satellite on the VoxHub satellite image
+                      (/etc/voxhub/satellite.env exists), hub everywhere else.
+
 Firmware:
-  --zigbee            Z-Stack coordinator 20250321 for ZHA / Zigbee2MQTT (default)
-  --thread            OpenThread RCP 2025.3.1 for the OpenThread Border Router
+  --zigbee            the Zigbee firmware of the role (default)
+  --thread            OpenThread RCP 2025.3.1 for the OpenThread Border Router (hub only)
 
 Options:
   --method METHOD     auto (default): serial bootloader first, JTAG if it does not answer
                       serial: serial bootloader only
                       jtag: OpenOCD bit-bang JTAG only (erases the whole chip first)
   --port PATH         serial port of the radio (default /dev/ttyAMA4)
-  --force             write even if the wanted firmware already answers
+  --force             write even if the wanted firmware is already installed;
+                      also needed for --role satellite on Home Assistant OS
                       Every write erases the whole chip, including a coordinator's stored
                       Zigbee network: the devices must be paired again unless a ZHA or
                       Zigbee2MQTT backup is restored.
   --probe-only        only report which firmware answers on the serial port
+  --rejoin            satellite only, writes nothing: make the router leave its network
+                      and search for a network again (GPIO25 low for 0.5 s, the same as
+                      pressing the button of a launchpad)
   --container         run inside a Debian container even if this system has apt-get
   --dry-run           show every step, download and check the files, touch no hardware
   --help              this text
@@ -881,12 +902,13 @@ reset = ROM bootloader, JTAG TMS GPIO22, TCK GPIO23, TDO GPIO17, TDI GPIO7.
 ```
 
 What the script really prints up to the point where it would touch the hardware was captured with
-`bash tools/flash_zigbee.sh --dry-run` on a PC on 2026-11-12 (commit `6776424`, no board connected; the downloads
-and all checksums were correct on that day). On Home Assistant OS the first lines are those of the container
+`bash tools/flash_zigbee.sh --role hub --dry-run` on a PC on 2026-11-12 (two-device version, no board connected; the
+downloads and all checksums were correct on that day). On Home Assistant OS the first lines are those of the container
 (`Starting a temporary ... container`, `Running inside the temporary container.`, `Installing: ...`) instead of
 `Running directly on this system`:
 
 ```
+Role: hub (option) - firmware: Zigbee coordinator (Z-Stack 20250321)
 Running directly on this system (apt-get is available).
 
 ==> Checking the tools this script needs
@@ -911,7 +933,7 @@ CC1352P2_CC2652P_launchpad_coordinator_20250321.hex SHA256 matches: c2d3a05fe714
 Using /dev/ttyAMA4
 
 ==> Selecting how to drive GPIO24 (reset) and GPIO25 (bootloader strap)
-GPIO method: dry-run
+GPIO method: dry-run 
 
 ==> Asking the radio which firmware it runs now
   [dry-run] would ask the radio on /dev/ttyAMA4 which firmware it runs (looking for: any)
@@ -951,7 +973,7 @@ It needs a second microSD card, so that the Home Assistant card stays as it is.
 4. Log in from the PC with `ssh <user>@<address of the board>` and run:
 
    ```
-   curl -fLo flash_zigbee.sh https://raw.githubusercontent.com/geilevideossos-gamedev/fable-sbc-test/claude/voxhub-cm4-a2-production-t2luce/tools/flash_zigbee.sh
+   curl -fLo flash_zigbee.sh https://raw.githubusercontent.com/geilevideossos-gamedev/fable-sbc-test/claude/gallant-hamilton-kojnjj/tools/flash_zigbee.sh
    sudo bash flash_zigbee.sh
    ```
 
@@ -1314,3 +1336,344 @@ No hardware exists yet, so nothing in this guide has been tried on a real board.
   `fab/SHOPPING_LIST.md` found in stock at Reichelt.at.
 - No foam rings for the microphone tubes are used, because no shop that was searched sells 0.5 mm foam; the
   acoustic effect of leaving them out is untested.
+
+**Two-device system (chapter 7)**
+
+- Nothing of chapter 7 has run on a board or on Home Assistant OS. What was run in the build environment on
+  2026-11-12: the satellite image build with its checks (`os/README.md`, section "Satellite image: verification"),
+  the hub add-on in a container against a PulseAudio container and a real ESPHome API client (7 checks), the unit
+  tests of the add-on, and `tools/flash_zigbee.sh` against a simulated radio in both roles (55 checks).
+- The Home Assistant labels of section 7.2 were read from the source (core 2026.11.1, frontend development branch),
+  not from an installed release; the names of the discovered devices, the success dialog with the area field and
+  the debug view are described from the source and the documentation.
+- The satellite downloads each answer from the hub's web server. That the answers of both devices are always
+  played on the device that asked follows from Home Assistant's source (one pipeline per satellite); it was not
+  observed with two real devices, and neither was the handling of a wake word heard by both devices (R11).
+- That the router firmware joins the hub, that `--rejoin` makes it leave and search again, and that ground-floor
+  devices pick it as their parent are taken from Koenkk's firmware sources and the Zigbee standard behaviour.
+- RAM and CPU load of the satellite on the 1 GB module, the wake word reliability with the VoxHub microphones and
+  the microphone gain of +12 dB are not measured.
+- The first boot of the satellite image (Wi-Fi, SSH host keys, user `voxhub`, PipeWire under the lingering user,
+  the order of the services) was checked in the image, not on a running board.
+
+## 7. Two devices: hub and satellite
+
+Both assembled boards of the JLCPCB order are identical. They get two roles:
+
+| | Device 1: **hub** | Device 2: **satellite** |
+|---|---|---|
+| Where | your room, upstairs | your mother's room, downstairs |
+| SD card | Home Assistant OS (`os/build-image.sh`, test 6) | VoxHub satellite image (`os/satellite/build-satellite-image.sh`, section 7.3) |
+| Home Assistant | yes: the one Home Assistant of the house | no |
+| Voice | VoxHub Satellite add-on: wake word, microphones, speaker, LEDs, mute switch | the same satellite software (Linux Voice Assistant 1.1.18) as a system service |
+| Understanding, answers | Whisper, Claude (Anthropic integration), Piper - for **both** devices | nothing: it sends the request to the hub and plays the answer |
+| Zigbee radio | coordinator (`--role hub`, test 12) | router (`--role satellite`, section 7.6) |
+| Compute module | CM4104000 (4 GB) | CM4101000 (1 GB) is enough (`fab/SHOPPING_LIST.md`, section 8) |
+
+```
+   upstairs: hub                                     downstairs: satellite
+   ┌──────────────────────────────┐   Wi-Fi          ┌──────────────────────────────┐
+   │ Home Assistant OS            │◄────────────────►│ Raspberry Pi OS Lite         │
+   │  Whisper ─ Claude ─ Piper    │ ESPHome API 6053 │  Linux Voice Assistant       │
+   │  VoxHub Satellite add-on     │ answers via 8123 │  LEDs, mute switch           │
+   │  ZHA: Zigbee coordinator     │                  │  Zigbee router (radio only)  │
+   └──────────────┬───────────────┘                  └──────────────┬───────────────┘
+                  │            Zigbee mesh (2.4 GHz)                │
+                  └─────────────── devices upstairs ── devices downstairs
+```
+
+The request always goes through Claude: wake word on the device that heard it, speech to text on the hub,
+Claude with the area of that device, text to speech on the hub, answer on the speaker of the device that heard it.
+Why it is built like this: `DECISIONS.md`, section "Two devices: hub and satellite" (S-1 to S-40).
+
+Work through the sections in this order. The hub has to be finished (chapter 3 complete, test 13 passed) before
+the satellite is paired.
+
+### 7.1 Before you start
+
+- Both boards went through chapter 3 tests 1 to 5 and 7 (power, compute module, 3.3 V); for the satellite board
+  test 5 uses the card of section 7.3, not the Home Assistant OS card. The satellite does tests 6 and 8 to 11 in
+  their satellite form in section 7.4 (S6, S8 to S11) before it goes into its case, and test 12 as the router in
+  section 7.6; test 13 does not apply to it. The hub did all tests as written.
+- An Anthropic API key (console.anthropic.com, "API Keys"). The key is entered once, on the hub.
+- The hub has a **fixed IP address**: in your router's DHCP settings give the device `homeassistant` a reservation
+  (every router names this differently: "address reservation", "static lease", "always assign this address").
+  Write the address down, for example `192.168.1.10`. The satellite is built with it and its firewall only lets
+  that address in.
+- Areas in Home Assistant: **Settings > Areas, labels & zones**, create one area per room, for example "Upstairs
+  room" and "Mother's room" (optionally on floors "Upstairs" and "Ground floor"), and put the lights and devices of
+  each room into its area. Claude uses the area of the device that heard the request.
+
+### 7.2 Hub: the Claude pipeline and the VoxHub Satellite add-on
+
+The labels are those of the Home Assistant source on 2026-11-12 (core 2026.11.1, frontend development branch); the
+installed release can differ slightly. "Apps" were called "add-ons" in older versions.
+
+1. **Home Assistant URL.** **Settings > System > Network**, section **Home Assistant URL**, field **Local network**:
+   switch **Automatic** off and enter `http://192.168.1.10:8123` (your hub's address). The satellites download every
+   spoken answer from this address; with a name such as `homeassistant.local` it would depend on name resolution.
+2. **Speech services.** **Settings > Apps > Install app**: install and start **Whisper** and **Piper**.
+   - Whisper: on the **Configuration** tab choose the model `tiny-int8` (fastest on a CM4) or `base-int8` (better)
+     and the language you speak (`de` for German, `en` for English).
+   - Piper: choose a voice, for example `de_DE-thorsten-medium` or `en_US-lessac-medium`.
+   - **Settings > Devices & services** shows both as discovered **Wyoming Protocol** services: **Add** each.
+   - openWakeWord is not needed: the wake word runs on each device.
+3. **Claude.** **Settings > Devices & services > Add integration**, search **Anthropic**, enter the API key.
+   The integration creates a conversation agent "Claude conversation". Open it (**Anthropic** > the three dots of
+   "Claude conversation" > **Reconfigure**) and set:
+
+   | Field | Value |
+   |---|---|
+   | **Instructions** | the text below |
+   | **AI tools** | **Device control** only. Never tick **Home Assistant**: that API reaches everything and bypasses the exposure settings. |
+   | **Recommended model settings** | on (Claude Haiku 5.5, effort low: fastest). Switch it off to pick `claude-sonnet-5-5` or `claude-opus-5-5` and the effort. |
+
+   Instructions for the VoxHub (they replace the default text; Home Assistant adds the room of the device and the
+   list of your devices by itself):
+
+   ```
+   You are the voice assistant of this home. You speak through small loudspeakers in two rooms.
+   Keep answers short and conversational, usually one or two sentences. No markdown, lists, emoji or URLs:
+   everything you write is read aloud. Say numbers, units and times the way a person would say them.
+   Reply in the language the user speaks.
+   Speech recognition makes mistakes: go with the most sensible interpretation, ask one short question only if
+   the request is truly unclear.
+   Do the action instead of describing it, then confirm in a few words. Only say something happened if the tool
+   call succeeded.
+   Never lock, unlock, arm or disarm anything. If asked, say that this has to be done in the Home Assistant app.
+   ```
+
+4. **Pipeline.** **Settings > Voice assistants > Add assistant**:
+
+   | Field | Value |
+   |---|---|
+   | **Name** | `VoxHub Claude` |
+   | **Language** | the language you speak |
+   | **Conversation agent** | Claude conversation |
+   | **Prefer handling commands locally** | **off** - otherwise Home Assistant's own agent answers simple commands and Claude never sees them |
+   | **Speech-to-text** | faster-whisper, same language |
+   | **Text-to-speech** | piper, **Voice** as chosen in step 2 |
+   | **Wake word engine** | leave empty: the devices detect the wake word themselves |
+
+   **Create**, then make it the preferred assistant (star in the list of assistants).
+5. **What Claude may control.** **Settings > Voice assistants**, tab **Expose**: expose the lights, switches,
+   covers, climate and media players Claude should control. Locks and alarm panels stay unexposed - Home
+   Assistant does not expose them by default, and the VoxHub exposure guard (step 7) keeps them that way.
+6. **Stop the old assistant.** If the **VoxHub Assistant** app runs, stop it and switch **Start on boot** off. It
+   uses the same microphones and LEDs.
+7. **VoxHub Satellite app.** **Settings > Apps > Install app**, three dots > **Repositories**:
+   add `https://github.com/geilevideossos-gamedev/fable-sbc-test#claude/gallant-hamilton-kojnjj`. The part after
+   `#` is the branch with the two-device version; as long as it is not merged into `main`, the address without it
+   offers only VoxHub Assistant (if you added the repository before without `#...`, remove it and add it again).
+   Install **VoxHub Satellite**. The first install builds the app on the hub (several minutes).
+   - **Configuration** tab: **Device name** `VoxHub Upstairs` (the room of the hub). Keep the other defaults:
+     **Exposure guard** on, **Protected domains** `lock` and `alarm_control_panel`, **Microphone gain** 4.
+   - **Info** tab: **Protection mode** off (needed for the LEDs and the mute switch), **Start on boot** on,
+     **Start**.
+   - **Log** tab, expected lines: `Microphone alsa_input...soc_sound...`, `Exposure guard on: alarm_control_panel,
+     lock are never exposed to Assist`, `Server started (host=127.0.0.1, port=6053)` (the hub's satellite only listens on the hub itself), `Connected to the voice
+     satellite at ws://127.0.0.1:6055`. The green LED blinks slowly: the satellite is not paired yet.
+8. **Pair the hub's own satellite.** **Settings > Devices & services**: under **Discovered**, **ESPHome** offers
+   "VoxHub Upstairs" (or `lva-<12 hex digits>`). **Add**, **Submit**; in the success dialog choose the **Area**
+   of the hub's room. The green LED now stays on.
+9. On the new device page (**Settings > Devices & services > ESPHome > VoxHub Upstairs**): **Assistant** =
+   `VoxHub Claude`, **Wake word** = `Okay Nabu` (or another one). Check that the device page shows the **Area**.
+
+| Expected | If not |
+|---|---|
+| ESPHome device "VoxHub Upstairs" in the area of the hub's room, green LED on, "Okay Nabu, what time is it?" is answered from the hub's speaker | **No discovered device:** **Settings > Devices & services > Add integration > ESPHome**, host `127.0.0.1`, port 6053. **The log says "the sound card did not appear":** the VoxHub block is missing in `config.txt` (test 9 fails as well). **No LEDs:** protection mode is still on; the log says `LED feedback disabled`. **The answer is spoken by Home Assistant's own agent ("Turned on the light") instead of Claude:** "Prefer handling commands locally" is on, or the device uses another assistant. |
+
+### 7.3 Satellite: build and write the SD card
+
+On a Linux PC (Debian / Ubuntu; WSL2 with Ubuntu should work but is untested):
+
+```bash
+sudo apt install git curl xz-utils fdisk parted e2fsprogs openssl python3 device-tree-compiler qemu-user-static binfmt-support
+git clone https://github.com/geilevideossos-gamedev/fable-sbc-test.git
+cd fable-sbc-test
+sudo os/satellite/build-satellite-image.sh --wifi-ssid 'NAME OF YOUR WIFI' --wifi-psk 'PASSWORD OF YOUR WIFI' \
+    --wifi-country AT --hub 192.168.1.10 --room "Downstairs" --password 'A PASSWORD FOR THE SATELLITE'
+```
+
+- `--hub` is the fixed address of the hub from section 7.1. `--room` gives the device its name ("VoxHub
+  Downstairs"). The room itself is assigned in Home Assistant in section 7.5.
+- The same branch as for the Home Assistant OS image applies: as long as this work is not merged into `main`, run
+  `git checkout claude/gallant-hamilton-kojnjj` after `cd fable-sbc-test`.
+- The script runs about 25 minutes (packages are installed into the image in emulation) and ends with
+  `[voxhub-satellite] all checks passed` and `done: .../os/output/voxhub-satellite-2026-10-06-lva1.1.18.img.xz`.
+- Write the file to a microSD card with Raspberry Pi Imager: **Choose OS > Use custom**, the `.img.xz` file, the
+  card, **Next**. Decline **OS customisation**: the image does not use it.
+
+The Wi-Fi preset has the same limits as the hub's: WPA2 with a password, no hidden network, no login page.
+
+### 7.4 Satellite: first boot and bring-up (replaces tests 6 and 8 to 11 for this board)
+
+Card in, compute module (1 GB) fitted, speaker plugged in, 30 W charger.
+
+**Test S6 - first boot**
+
+1. Plug in the charger. D6 (5 V) at once, D10 (card activity) flickers.
+2. After about two minutes the green status LED D7 **blinks slowly** (one second on, one second off): Linux
+   Voice Assistant runs and waits for Home Assistant.
+3. From the PC: `ssh voxhub@voxhub-satellite.local` (or the address your router lists for `voxhub-satellite`), the
+   password of `--password`. Then:
+
+   ```bash
+   sudo voxhub-status
+   ```
+
+   Expected: `voxhub-lva active`, `voxhub-peripherals active`, `voxhub-hubwatch active`, `NetworkManager active`,
+   `ssh active`; under **Hub** `"reachable": true`; under **Firewall** `tcp dport 6053 ip saddr @hub4 accept` and
+   `elements = { 192.168.1.10 }`; under **Sound card** a source and a sink with `soc_sound` in the name; LEDs
+   `voxhub-green` / `voxhub-blue` present.
+
+| Expected | If not |
+|---|---|
+| green LED blinks slowly, `voxhub-status` as above | **Never on the network:** Wi-Fi name or password wrong, WPA3-only network, or too far from the access point: build the image again. **`"reachable": false`:** the hub's address in `--hub` is wrong or the hub is off; edit `VOXHUB_HUB` in `/etc/voxhub/satellite.env` and run `sudo systemctl restart voxhub-hubwatch voxhub-lva`. **No `soc_sound` source:** the VoxHub block is missing in `/boot/firmware/config.txt` - the card was not made with the satellite script. **LED dark:** `journalctl -u voxhub-peripherals -n 20`. |
+
+**Test S8 - USB-A ports (optional on the satellite).** Plug the USB stick into each socket in turn and run
+`lsblk`; `sda` appears. Same faults as test 8.
+
+**Test S9 - microphones.** Over SSH, as the user `voxhub`:
+
+```bash
+SRC=$(pactl list short sources | grep soc_sound | grep -v monitor | cut -f2)
+SNK=$(pactl list short sinks | grep soc_sound | cut -f2)
+parecord --device="$SRC" --file-format=wav --channels=2 /tmp/mic.wav & sleep 8; kill %1
+paplay --device="$SNK" --volume=164619 /tmp/mic.wav
+paplay --device="$SNK" --volume=164619 --channel-map=front-right,front-left /tmp/mic.wav
+```
+
+Speak during the eight seconds, first over the front left corner (MK1), then over the rear right corner (MK2).
+The first `paplay` plays MK1 (left channel), the second MK2 (the channels swapped, as in test 9). The recording
+already contains the +12 dB of the satellite's microphone gain; `--volume=164619` adds 24 dB, so it plays about as
+loud as test 9. Expected and faults: as test 9.
+
+**Test S10 - speaker.**
+
+```bash
+paplay --device="$SNK" /usr/share/sounds/alsa/Front_Center.wav
+```
+
+A voice says "Front Center". Faults: as test 10.
+
+**Test S11 - mute switch.** Push the slider to the mute position: D9 (red) on. Repeat test S9: silence. Push it
+back: D9 off, voice back. The status LEDs are tested in section 7.8 (they need the hub).
+
+### 7.5 Pair the satellite with the hub and give it its room
+
+1. With the satellite running, open **Settings > Devices & services** on the hub. **Discovered** shows a second
+   **ESPHome** device, "VoxHub Downstairs" or `lva-<12 hex digits>`. **Add**, **Submit**.
+2. In the success dialog choose the **Area** "Mother's room". If you skipped it: device page > pencil icon >
+   **Area**.
+3. Device page: **Assistant** = `VoxHub Claude`, **Wake word** = `Okay Nabu`.
+4. The satellite's green LED stops blinking and stays on.
+5. Room check, from each room: "Okay Nabu, which room are you in?" The hub answers with the hub's area, the
+   satellite with "Mother's room". Home Assistant tells Claude for every request: *You are in area Mother's room
+   and all generic commands like 'turn on the lights' should target this area.*
+
+| Expected | If not |
+|---|---|
+| Second ESPHome device in "Mother's room", green LED steady, the room answer is right on both devices | **Not discovered:** add it by hand: **Add integration > ESPHome**, host = the satellite's address, port 6053. **"Connection refused" or timeout although the satellite runs:** the satellite's firewall does not know the hub's current address (`sudo voxhub-status`, section **Firewall**); fix `VOXHUB_HUB` (section 7.4, test S6). **Claude asks which room you mean:** the device has no area. **Wrong room:** the area is set on the wrong device; the area of the *device* counts, not the one of its entities. |
+
+### 7.6 Zigbee router on the satellite
+
+The hub's radio is the coordinator (test 12, `--role hub`). The satellite's radio becomes a router: it forwards
+messages for the Zigbee devices on the ground floor. Do not add a Zigbee integration on the satellite - it has no
+Home Assistant, and a second coordinator would form a second, separate network.
+
+1. Write the router firmware. On the satellite (SSH):
+
+   ```bash
+   sudo voxhub-flash-zigbee --role satellite
+   ```
+
+   The firmware and the flashing tool are stored in the image, so no internet is needed. The script prints
+   `Role: satellite (option) - firmware: Zigbee router (Z-Stack 20250403)` and ends with
+   `SUCCESS: the radio runs the Zigbee router firmware 20250403 (role: satellite).` Before that, instead of the
+   coordinator's "The radio answers as a Zigbee coordinator", it prints `The radio is silent on the serial port,
+   as expected: the router firmware has no serial interface.` and `The bootloader confirmed the checksum of the
+   written image.` Run once more, it says `The flash holds exactly CC1352P2_CC2652P_launchpad_router_20250403.`
+   and writes nothing.
+2. The router searches for a network **once**, right after it starts. So open the hub's network first: on the
+   hub, **Settings > Devices & services > Zigbee Home Automation > Add device**, and leave the page open.
+3. Within the next minute, on the satellite:
+
+   ```bash
+   sudo voxhub-flash-zigbee --role satellite --rejoin
+   ```
+
+   This presses the router's button electrically (GPIO25 low for half a second): it leaves any old network and
+   searches again.
+4. On the hub's page the device **TexasInstruments ti.router** appears. Name it "Zigbee router Mother's room" and
+   give it the area "Mother's room".
+5. Check the mesh: **Settings > Devices & services > Zigbee Home Automation > Configure**, tab **Visualization**
+   (network map): a line between the coordinator and the router. Pair one Zigbee device on the ground floor (in
+   the mother's room) and look at the map again: it hangs on the router, not directly on the coordinator. Mains
+   powered devices route themselves too; battery devices pick the best parent when they join.
+
+| Expected | If not |
+|---|---|
+| `SUCCESS ... router firmware 20250403 (role: satellite)`; "TexasInstruments ti.router" in ZHA; a ground-floor device routes through it | **The router does not appear:** the hub's "Add device" page was not open when the router searched: open it, run `--rejoin` again. Distance: at the first join keep the satellite within a few rooms of the hub; afterwards the router can be moved. **The script refuses with "This system runs Home Assistant OS, so it is the hub":** you are on the hub - use `--role hub` there. **Other messages:** the table at the end of test 12 applies to the satellite as well. |
+
+To take the router out of the network later: remove it in ZHA (it resets itself and searches once more) or run
+`--rejoin` while the hub does not accept new devices.
+
+### 7.7 Exposure guard check
+
+1. If you have a lock (or an alarm panel) in Home Assistant: **Settings > Voice assistants > Expose**, **Expose
+   entities**, select the lock, **Expose**.
+2. Within a few seconds it disappears from the list again, a notification "VoxHub: removed from the voice
+   assistant" appears, and the VoxHub Satellite log says `Exposure guard: lock.<name> is no longer exposed to Assist
+   (lock entities are never available to the voice assistant)`.
+3. Without a lock: create a scene that contains any lock or alarm entity, or skip this check. A scene of lights only
+   stays exposed.
+
+### 7.8 Tests from both rooms
+
+Two people help: one in each room. "Wake word" is "Okay Nabu" unless you changed it. Use your own device and room
+names.
+
+| # | Room | Say / do | Expected |
+|---|---|---|---|
+| R1 | hub room | wake word | blue LED on the hub only, short sound from the hub; the satellite stays green |
+| R2 | hub room | "which room are you in?" | blue blinking while Claude thinks, green + blue while it speaks; answer names the hub's room, from the hub's speaker only |
+| R3 | mother's room | wake word, "which room are you in?" | the same on the satellite, answer "Mother's room", from the satellite's speaker only |
+| R4 | hub room | "turn on the light" | the light(s) of the hub's area go on, none downstairs |
+| R5 | mother's room | "turn on the light" | the light(s) of "Mother's room" go on, none upstairs |
+| R6 | mother's room | "turn off the light in the <hub's room>" | the named room wins over the device's room |
+| R7 | both | "unlock the front door" (or any lock) | Claude declines; nothing unlocks; with no lock exposed it says it cannot do that |
+| R8 | mother's room | slider to mute, then the wake word | red LED on, green and blue off; no reaction; on the hub the satellite's **Mute** switch shows on. Slider back: green on, wake word works |
+| R9 | hub room | the same with the hub's slider | the same on the hub |
+| R10 | mother's room | "set a timer for one minute" | after a minute the satellite rings (green and blue alternating) until you say "stop" |
+| R11 | both, at the same time | both people say the wake word | each device answers its own person, or Home Assistant drops one of two detections of the same voice (`duplicate_wake_up_detected`) - never an answer in the wrong room |
+| R12 | hub | **Settings > Voice assistants > VoxHub Claude**, three dots > **Debug**: the last runs of both devices | each run shows Conversation agent "Claude conversation" and the device that started it; no run handled locally |
+| R13 | satellite | pull the hub's charger for a minute, then plug it in again | the satellite's green LED blinks slowly while the hub is away, steady again a few minutes after the hub is back |
+| R14 | satellite | `systemctl list-timers 'apt-daily*'` and `sudo unattended-upgrade --dry-run -v` over SSH | both timers listed; the dry run prints "Allowed origins are: ..." with Debian, Debian-Security and Raspberry Pi Foundation, then the packages it would upgrade, and ends without an error |
+| R15 | mother's room | a Zigbee device near the satellite | operable from Home Assistant; in the network map it is connected through the router |
+
+### 7.9 Results table, two-device system
+
+| # | Test | Expected | Seen | OK |
+|---|---|---|---|---|
+| 7.2 | Hub satellite paired, area set, assistant VoxHub Claude | green LED steady | | [ ] |
+| S6 | Satellite first boot, `voxhub-status` | services active, hub reachable, firewall with the hub's address | | [ ] |
+| S9 | Satellite microphones MK1 / MK2 | voice audible | | [ ] |
+| S10 | Satellite speaker | "Front Center" | | [ ] |
+| S11 | Satellite mute switch | silent while D9 is lit | | [ ] |
+| 7.5 | Satellite paired, area "Mother's room" | green LED steady, room answer right | | [ ] |
+| 7.6 | Router firmware, join | `SUCCESS ... 20250403`, "TexasInstruments ti.router" in ZHA | | [ ] |
+| 7.7 | Exposure guard | an exposed lock is un-exposed again | | [ ] |
+| R1-R15 | Tests from both rooms | as in 7.8 | | [ ] |
+
+### 7.10 Troubleshooting the two-device system
+
+| Symptom | Cause and fix |
+|---|---|
+| The satellite hears the wake word (blue), then nothing is said | The satellite cannot download the answer from the hub. `sudo voxhub-status`, section **Hub**: `reachable` must be `true`; **Settings > System > Network > Local network** on the hub must be `http://<hub address>:8123` (section 7.2 step 1). `journalctl -u voxhub-lva -n 30` shows the URL it tried. |
+| Fast blinking of green and blue | The request failed in the pipeline (no internet for Claude, Whisper or Piper stopped, API key rejected). Look at the pipeline debug view (R12) and at the logs of Whisper and Piper. |
+| Answers come from Home Assistant's own agent, short and fixed | "Prefer handling commands locally" is on, or the device page names another assistant. |
+| The satellite answers, but Claude does not know the room | The satellite device has no area (section 7.5). |
+| The wake word is not heard well | Raise the microphone gain: on the hub the option **Microphone gain** (e.g. 6), on the satellite `VOXHUB_MIC_GAIN=6` in `/etc/voxhub/satellite.env` and `sudo systemctl restart voxhub-lva`. Too much gain makes loud speech clip. **Wake word 1 Sensitivity** on the device page changes the threshold. |
+| After a new Home Assistant address the satellite is "unavailable" | Its firewall still has the old address: `VOXHUB_HUB` in `/etc/voxhub/satellite.env`, then `sudo systemctl restart voxhub-hubwatch voxhub-lva`. |
+| Changes of the satellite configuration | `sudo nano /etc/voxhub/satellite.env` (name, hub address, microphone gain), then `sudo systemctl restart voxhub-lva voxhub-hubwatch`. The wake word is chosen on the device page in Home Assistant (**Wake word**; `VOXHUB_WAKE_WORD` only sets the first one), the room is the device's **Area** (section 7.5; `VOXHUB_ROOM` is only a note). Wi-Fi: `sudo nmtui`. |

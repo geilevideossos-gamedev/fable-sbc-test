@@ -24,6 +24,14 @@ ZIGBEE_SOURCES=(
     "66f5d3d20c2ca5375133da6a47b959525e39d707736a4d1b01b44bd95b04273a"
 )
 
+ROUTER_NAME="CC1352P2_CC2652P_launchpad_router_20250403"
+ROUTER_REVISION="20250403"
+ROUTER_HEX_SHA256="47e5043e994f8b540a1e29446b7ec0019de12f7255b7897823fbdd5a4875bb7f"
+ROUTER_SOURCES=(
+    "https://github.com/Koenkk/Z-Stack-firmware/releases/download/Z-Stack_3.x.0_router_20250403/${ROUTER_NAME}.zip"
+    "86bf0527fbc70b76df9144fcf6b3a80e18d69aa1eb5ab24bc48a2bb9fcdee9c2"
+)
+
 THREAD_NAME="CC1352P2_CC2652P_launchpad_ot_rcp_2025_3_1"
 THREAD_VERSION_MARKER="Koenkk-2025.3.1"
 THREAD_HEX_SHA256="75330d9294629feb72d401a2ec73f8a886f822d1de2b74a513758e19494f7e9f"
@@ -37,7 +45,13 @@ BSL_SOURCES=(
     "392cf987b8f741401547dc0faa8f43af085b3e4378facfafaecdfd19ea6503f3"
 )
 
-FIRMWARE_KIND="zigbee"
+SATELLITE_MARKER="${VOXHUB_SATELLITE_MARKER:-/etc/voxhub/satellite.env}"
+DOWNLOAD_CACHE="${VOXHUB_RADIO_CACHE:-/usr/local/share/voxhub/radio}"
+ROLE=""
+ROLE_SOURCE=""
+PROTOCOL="zigbee"
+FIRMWARE_KIND=""
+REJOIN=0
 METHOD="auto"
 DRY_RUN=0
 FORCE=0
@@ -57,6 +71,7 @@ WRITTEN_OVER=""
 declare -A GPIO_HOLDER_PIDS=()
 ORIGINAL_ARGUMENTS=("$@")
 SCRIPT_PATH="${BASH_SOURCE[0]:-}"
+SCRIPT_NAME="$(basename "${SCRIPT_PATH:-flash_zigbee.sh}")"
 
 say() {
     printf '%s\n' "$*"
@@ -78,20 +93,30 @@ flash_zigbee.sh - write firmware to the VoxHub radio module (RF-BM-2652P2, TI CC
 Usage:
   sudo bash flash_zigbee.sh [options]
 
+Role of this board:
+  --role hub          Zigbee coordinator: Z-Stack coordinator 20250321 for ZHA / Zigbee2MQTT
+  --role satellite    Zigbee router: Z-Stack router 20250403, extends the hub's Zigbee network
+                      Without --role: satellite on the VoxHub satellite image
+                      (/etc/voxhub/satellite.env exists), hub everywhere else.
+
 Firmware:
-  --zigbee            Z-Stack coordinator 20250321 for ZHA / Zigbee2MQTT (default)
-  --thread            OpenThread RCP 2025.3.1 for the OpenThread Border Router
+  --zigbee            the Zigbee firmware of the role (default)
+  --thread            OpenThread RCP 2025.3.1 for the OpenThread Border Router (hub only)
 
 Options:
   --method METHOD     auto (default): serial bootloader first, JTAG if it does not answer
                       serial: serial bootloader only
                       jtag: OpenOCD bit-bang JTAG only (erases the whole chip first)
   --port PATH         serial port of the radio (default /dev/ttyAMA4)
-  --force             write even if the wanted firmware already answers
+  --force             write even if the wanted firmware is already installed;
+                      also needed for --role satellite on Home Assistant OS
                       Every write erases the whole chip, including a coordinator's stored
                       Zigbee network: the devices must be paired again unless a ZHA or
                       Zigbee2MQTT backup is restored.
   --probe-only        only report which firmware answers on the serial port
+  --rejoin            satellite only, writes nothing: make the router leave its network
+                      and search for a network again (GPIO25 low for 0.5 s, the same as
+                      pressing the button of a launchpad)
   --container         run inside a Debian container even if this system has apt-get
   --dry-run           show every step, download and check the files, touch no hardware
   --help              this text
@@ -104,8 +129,19 @@ HELP
 parse_arguments() {
     while [ "$#" -gt 0 ]; do
         case "$1" in
-            --zigbee) FIRMWARE_KIND="zigbee" ;;
-            --thread) FIRMWARE_KIND="thread" ;;
+            --role)
+                [ "$#" -ge 2 ] || fail "--role needs a value: hub or satellite"
+                ROLE="$2"
+                ROLE_SOURCE="option"
+                shift
+                ;;
+            --role=*)
+                ROLE="${1#--role=}"
+                ROLE_SOURCE="option"
+                ;;
+            --zigbee) PROTOCOL="zigbee" ;;
+            --thread) PROTOCOL="thread" ;;
+            --rejoin) REJOIN=1 ;;
             --method)
                 [ "$#" -ge 2 ] || fail "--method needs a value: auto, serial or jtag"
                 METHOD="$2"
@@ -133,10 +169,59 @@ parse_arguments() {
         auto | serial | jtag) ;;
         *) fail "--method must be auto, serial or jtag" ;;
     esac
+    case "$ROLE" in
+        "" | hub | satellite) ;;
+        *) fail "--role must be hub or satellite" ;;
+    esac
+}
+
+decide_role() {
+    if [ -z "$ROLE" ]; then
+        if [ -f "$SATELLITE_MARKER" ]; then
+            ROLE="satellite"
+            ROLE_SOURCE="this system is a VoxHub satellite ($SATELLITE_MARKER exists)"
+        else
+            ROLE="hub"
+            ROLE_SOURCE="default"
+        fi
+    fi
+    if [ "$ROLE" = "satellite" ] && [ "$PROTOCOL" = "thread" ]; then
+        fail "--thread is only for the hub. The satellite runs the Zigbee router firmware (--role satellite)."
+    fi
+    if [ "$REJOIN" -eq 1 ] && [ "$ROLE" != "satellite" ]; then
+        fail "--rejoin only works with the router firmware of the satellite (--role satellite)."
+    fi
+    if [ "$REJOIN" -eq 1 ] && [ "$PROBE_ONLY" -eq 1 ]; then
+        fail "--rejoin and --probe-only cannot be combined."
+    fi
+    if [ "$ROLE" = "satellite" ]; then
+        FIRMWARE_KIND="router"
+    else
+        FIRMWARE_KIND="$PROTOCOL"
+    fi
+}
+
+refuse_router_on_the_hub() {
+    [ "$IN_CONTAINER" -eq 1 ] && return 0
+    [ "$ROLE" = "satellite" ] || return 0
+    [ "$PROBE_ONLY" -eq 1 ] && return 0
+    [ "$REJOIN" -eq 1 ] && return 0
+    running_on_home_assistant_os || return 0
+    [ "$FORCE" -eq 1 ] && return 0
+    fail "This system runs Home Assistant OS, so it is the hub. --role satellite would replace the
+coordinator firmware by the router firmware and erase the Zigbee network stored in the radio.
+Use --role hub here. The router firmware belongs on the second board, which runs the VoxHub
+satellite image. If you really want a router on this board, add --force."
 }
 
 select_firmware() {
-    if [ "$FIRMWARE_KIND" = "zigbee" ]; then
+    if [ "$FIRMWARE_KIND" = "router" ]; then
+        FIRMWARE_NAME="$ROUTER_NAME"
+        FIRMWARE_HEX_SHA256="$ROUTER_HEX_SHA256"
+        FIRMWARE_SOURCES=("${ROUTER_SOURCES[@]}")
+        FIRMWARE_PROTOCOL="none"
+        FIRMWARE_TITLE="Zigbee router (Z-Stack $ROUTER_REVISION)"
+    elif [ "$FIRMWARE_KIND" = "zigbee" ]; then
         FIRMWARE_NAME="$ZIGBEE_NAME"
         FIRMWARE_HEX_SHA256="$ZIGBEE_HEX_SHA256"
         FIRMWARE_SOURCES=("${ZIGBEE_SOURCES[@]}")
@@ -179,10 +264,18 @@ continue_inside_container() {
     if [ -n "$CONTAINER_OPTIONS" ]; then
         read -r -a options <<<"$CONTAINER_OPTIONS"
     fi
-    local forwarded=()
-    local argument
+    local forwarded=(--role "$ROLE")
+    local argument skip=0
     for argument in ${ORIGINAL_ARGUMENTS[@]+"${ORIGINAL_ARGUMENTS[@]}"}; do
-        [ "$argument" = "--container" ] || forwarded+=("$argument")
+        if [ "$skip" -eq 1 ]; then
+            skip=0
+            continue
+        fi
+        case "$argument" in
+            --container | --role=*) ;;
+            --role) skip=1 ;;
+            *) forwarded+=("$argument") ;;
+        esac
     done
     docker run --rm --interactive --privileged --pid=host --network=host \
         --volume /dev:/dev \
@@ -313,7 +406,16 @@ file_sha256() {
 download_verified() {
     local destination="$1" description="$2"
     shift 2
-    local url expected actual next
+    local url expected actual next cached
+    for expected in $(printf '%s\n' "$@" | sed -n '2~2p'); do
+        cached="$DOWNLOAD_CACHE/$expected"
+        if [ -f "$cached" ] && [ "$(file_sha256 "$cached")" = "$expected" ]; then
+            cp "$cached" "$destination"
+            say "  from the local copy $cached"
+            say "  SHA256 matches: $expected"
+            return 0
+        fi
+    done
     while [ "$#" -ge 2 ]; do
         url="$1"
         expected="$2"
@@ -402,6 +504,48 @@ if word(memory, IMAGE_VALID_CONF) != 0:
 if problems:
     raise SystemExit("REFUSED: " + "; ".join(problems) + ".")
 print("  OK: this image keeps the serial bootloader reachable through DIO%d (GPIO25)." % pin)
+PYTHON
+
+    cat >"$WORK_DIR/compare_flash.py" <<'PYTHON'
+import binascii
+import sys
+
+sys.path.insert(0, sys.argv[1])
+import cc2538_bsl as bsl
+from intelhex import IntelHex
+
+bsl.QUIET = 0
+port, baud, image = sys.argv[2], int(sys.argv[3]), sys.argv[4]
+hexfile = IntelHex(image)
+ranges = []
+for start, end in hexfile.segments():
+    start, end = start & ~3, (end + 3) & ~3
+    if ranges and start - ranges[-1][1] < 0x2000:
+        ranges[-1][1] = end
+    else:
+        ranges.append([start, end])
+command = bsl.CommandInterface()
+command.open(port, baud)
+try:
+    if not command.sendSynch():
+        print("NO-BOOTLOADER")
+        sys.exit(2)
+    command.cmdGetChipId()
+    device = bsl.CC26xx(command)
+    for start, end in ranges:
+        local = binascii.crc32(hexfile.tobinstr(start=start, size=end - start)) & 0xFFFFFFFF
+        remote = device.crc(start, end - start)
+        print("RANGE 0x%05X-0x%05X local 0x%08X chip 0x%08X" % (start, end, local, remote))
+        if local != remote:
+            print("DIFFERENT")
+            sys.exit(1)
+    print("SAME")
+finally:
+    try:
+        command.cmdReset()
+    except Exception:
+        pass
+    command.close()
 PYTHON
 
     cat >"$WORK_DIR/unpack_firmware.py" <<'PYTHON'
@@ -888,8 +1032,54 @@ wanted_firmware_is_already_there() {
     case "$FIRMWARE_KIND:$PROBE_RESULT" in
         "zigbee:RESULT znp revision=$ZIGBEE_REVISION "*) return 0 ;;
         "thread:RESULT spinel "*"$THREAD_VERSION_MARKER"*) return 0 ;;
+        "router:RESULT none" | "router:RESULT dry-run") router_is_installed ;;
         *) return 1 ;;
     esac
+}
+
+router_is_installed() {
+    step "Checking through the bootloader whether the router firmware is already installed"
+    say "The router firmware has no serial interface, so the bootloader compares the checksums of the"
+    say "areas $FIRMWARE_NAME.hex programs (code and CCFG; the router's own network memory is left out)."
+    say "Nothing is erased or written in this step."
+    local baud status log="$WORK_DIR/compare.log"
+    for baud in "${SERIAL_BAUD_RATES[@]}"; do
+        radio_enter_bootloader
+        say "Comparing at $baud baud."
+        if [ "$DRY_RUN" -eq 1 ]; then
+            say "  [dry-run] nothing is compared"
+            return 1
+        fi
+        status=0
+        python3 "$WORK_DIR/compare_flash.py" "$WORK_DIR" "$RADIO_PORT" "$baud" "$FIRMWARE_HEX" >"$log" 2>&1 || status=$?
+        grep '^RANGE' "$log" | sed 's/^/  /' || true
+        if [ "$status" -eq 0 ] && grep -q '^SAME' "$log"; then
+            say "The flash holds exactly $FIRMWARE_NAME."
+            radio_restart
+            return 0
+        fi
+        if grep -q '^DIFFERENT' "$log"; then
+            say "The flash holds a different firmware."
+            radio_restart
+            return 1
+        fi
+        say "The bootloader did not answer at $baud baud."
+    done
+    say "The bootloader did not answer; the firmware is written in the next step."
+    radio_restart
+    return 1
+}
+
+pulse_router_button() {
+    step "Asking the router to leave its Zigbee network and to search for a network again"
+    say "GPIO$GPIO_BOOT (DIO15, the BTN-1 input of the router firmware) is held low for 0.5 s while the"
+    say "radio runs. The router sends a leave request, clears its network settings and restarts."
+    gpio_release "$GPIO_RESET" pull-down
+    gpio_drive "$GPIO_BOOT" 0
+    pause 0.5
+    gpio_release "$GPIO_BOOT" pull-up
+    RADIO_NEEDS_RESTART=0
+    pause 3
 }
 
 flash_over_serial() {
@@ -998,6 +1188,10 @@ If JTAG reported a locked debug port, the chip needs a TI XDS110 probe on the Ta
 }
 
 confirm_new_firmware() {
+    if [ "$FIRMWARE_PROTOCOL" = "none" ]; then
+        confirm_router_firmware
+        return 0
+    fi
     step "Starting the new firmware and checking that it answers"
     radio_restart
     if probe_radio "$FIRMWARE_PROTOCOL" 8; then
@@ -1014,13 +1208,51 @@ then run this script again with --probe-only."
 Check the UART wiring (GPIO8 -> DIO12, GPIO9 <- DIO13) and that nothing else uses the port."
 }
 
+confirm_router_firmware() {
+    step "Starting the router firmware"
+    radio_restart
+    probe_radio any 2 || true
+    case "$PROBE_RESULT" in
+        "RESULT znp "* | "RESULT spinel "*)
+            describe_probe_result
+            fail "The radio still answers on the serial port, so the router firmware is not running.
+Run this script again with --force."
+            ;;
+        "RESULT dry-run") ;;
+        *) say "The radio is silent on the serial port, as expected: the router firmware has no serial interface." ;;
+    esac
+    if [ "$WRITTEN_OVER" = "jtag" ]; then
+        say "OpenOCD verified the written image."
+    else
+        say "The bootloader confirmed the checksum of the written image."
+    fi
+}
+
+print_router_steps() {
+    cat <<NEXT
+The router searches for a Zigbee network once, right after it starts. Open the hub's
+network for new devices first, then let the router search again:
+
+  1. On the hub (Home Assistant, ZHA): Settings -> Devices & services ->
+     Zigbee Home Automation -> Add device. Keep the page open while it searches.
+     Zigbee2MQTT: Permit join (All).
+  2. On the satellite: sudo bash $SCRIPT_NAME --role satellite --rejoin
+  3. The satellite appears as "TexasInstruments ti.router" within about a minute.
+
+NEXT
+}
+
 print_next_steps() {
     step "Done"
     if [ "$DRY_RUN" -eq 1 ]; then
         say "Dry run finished. No GPIO was driven and nothing was written to the radio."
         return 0
     fi
-    if [ "$FIRMWARE_KIND" = "zigbee" ]; then
+    if [ "$FIRMWARE_KIND" = "router" ]; then
+        say "SUCCESS: the radio runs the Zigbee router firmware $ROUTER_REVISION (role: satellite)."
+        say ""
+        print_router_steps
+    elif [ "$FIRMWARE_KIND" = "zigbee" ]; then
         cat <<NEXT
 SUCCESS: the radio runs the Zigbee coordinator firmware $ZIGBEE_REVISION.
 
@@ -1046,8 +1278,13 @@ NEXT
 
 main() {
     parse_arguments "$@"
+    decide_role
     select_firmware
+    if [ "$IN_CONTAINER" -eq 0 ]; then
+        say "Role: $ROLE ($ROLE_SOURCE) - firmware: $FIRMWARE_TITLE"
+    fi
     require_root
+    refuse_router_on_the_hub
     choose_where_to_run
     trap remove_work_dir_and_release_gpios EXIT
     trap 'exit 130' INT
@@ -1059,6 +1296,38 @@ main() {
         locate_radio_port
         refuse_if_port_is_busy
         report_current_firmware
+        if [ "$PROBE_RESULT" = "RESULT none" ]; then
+            say "A Zigbee router firmware is silent on the serial port as well. Run with --role satellite"
+            say "without --probe-only to check it through the bootloader; that run writes the router"
+            say "firmware if the radio holds something else."
+        fi
+        exit 0
+    fi
+    if [ "$REJOIN" -eq 1 ]; then
+        locate_radio_port
+        refuse_if_port_is_busy
+        select_gpio_backend
+        report_current_firmware
+        case "$PROBE_RESULT" in
+            "RESULT znp "* | "RESULT spinel "*)
+                fail "The radio answers on the serial port, so it does not run the router firmware.
+Write it first: sudo bash $SCRIPT_NAME --role satellite"
+                ;;
+        esac
+        if [ "$DRY_RUN" -eq 0 ]; then
+            fetch_downloads
+            router_is_installed || fail "The router firmware $ROUTER_REVISION is not on the radio, so there is no router to rejoin.
+Write it first: sudo bash $SCRIPT_NAME --role satellite"
+        fi
+        pulse_router_button
+        step "Done"
+        if [ "$DRY_RUN" -eq 1 ]; then
+            say "Dry run finished. No GPIO was driven."
+            exit 0
+        fi
+        say "The router left its network and searches for a network now."
+        say ""
+        print_router_steps
         exit 0
     fi
     fetch_downloads

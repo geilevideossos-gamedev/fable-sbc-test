@@ -1,5 +1,9 @@
 # Operating system: Home Assistant OS for VoxHub CM4
 
+This file covers the **hub** (board 1). The **satellite** (board 2) runs Raspberry Pi OS Lite with the VoxHub
+satellite software; its image is built by [`satellite/build-satellite-image.sh`](satellite/README.md) and verified as
+described in the section "Satellite image: verification" at the end of this file.
+
 The carrier is electrically a Raspberry Pi CM4 board, so it runs the **official HAOS `rpi4-64` target**.
 Everything board-specific is expressed in `config.txt` (stock Raspberry Pi overlays) or, for from-source
 builds, in one extra device tree overlay.
@@ -13,7 +17,8 @@ os/
 ├── board/voxhub/kernel.config     kernel config fragment (driver guard)
 ├── board/voxhub_defconfig         Buildroot defconfig as generated from rpi4_64_defconfig (HAOS 18.5)
 ├── package/voxhub-overlay/        Buildroot package that builds voxhub.dtbo with host-dtc
-└── full-build-attempt.log         log excerpts of the from-source build attempts (9 on 2026-11-11, the last one complete)
+├── full-build-attempt.log         log excerpts of the from-source build attempts (9 on 2026-11-11, the last one complete)
+└── satellite/                     SD card image of the second board (satellite, Raspberry Pi OS Lite): see satellite/README.md
 ```
 
 ## Quick start (recommended): repack the latest official release
@@ -175,3 +180,94 @@ image has not been booted - there is no hardware.
 4. Flash the radio module once with `tools/flash_zigbee.sh` (one command, see `fab/ASSEMBLY_AND_TEST.md`), then add
    ZHA with radio type ZNP, `/dev/ttyAMA4`, 115200 baud, no flow control (Zigbee2MQTT: `adapter: zstack`).
 5. Continue with `assistant/README.md`.
+
+## Satellite image: verification
+
+The image of the second board is built by `satellite/build-satellite-image.sh` (see `satellite/README.md`). It was
+built once on 2026-11-12 in this session's environment (x86_64, 4 shared cores, qemu-user-static 8.2.2 through
+binfmt_misc; the kernel there cannot mount FAT, so the boot partition went through mtools):
+
+```bash
+sudo os/satellite/build-satellite-image.sh --wifi-ssid VoxHub-Test --wifi-psk not-a-real-password \
+    --hub 192.168.1.10 --room Downstairs --password voxhub-test-only
+```
+
+| Item | Result |
+|---|---|
+| Base image | `2026-10-06-raspios-trixie-arm64-lite.img.xz`, SHA256 checked |
+| Result | `voxhub-satellite-2026-10-06-lva1.1.18.img.xz`, 913 MiB (4.37 GiB unpacked), SHA256 `a5235d97e2e3ff4e09249fb431ee8392ead872f6ebb4c4c558f7fdc6f36db06c` (an image of the owner's own build differs: Wi-Fi, hub, password, package downloads of that day) |
+| Duration | about 30 minutes, most of it the emulated package installation (196 new and 4 upgraded packages; 41 other packages of the base image are left for the automatic updates on the device) and the Python environment |
+| Linux Voice Assistant | 1.1.18 at `b55d36af`, Python 3.13, the 24 packages of `satellite/lva-constraints.txt` (all from PyPI as binary wheels) |
+| Boot partition | `config.txt` (VoxHub block) and `cmdline.txt` (Wi-Fi country) changed, nothing else |
+
+The checks at the end of the build, as printed by that run (31 of 31):
+
+```
+  ok    config.txt carries the VoxHub block of the hub
+  ok    stock overlay googlevoicehat-soundcard.dtbo present
+  ok    stock overlay gpio-key.dtbo present
+  ok    stock overlay gpio-led.dtbo present
+  ok    stock overlay uart4.dtbo present
+  ok    VoxHub overlay applies to bcm2711-rpi-cm4.dtb of this image
+  ok    Wi-Fi country AT on the kernel command line
+  ok    Wi-Fi connection file, mode 600
+  ok    Wi-Fi radio enabled for NetworkManager
+  ok    user voxhub (uid 1000) with a password
+  ok    user voxhub lingers (PipeWire without login)
+  ok    first-boot user dialog off
+  ok    cloud-init off
+  ok    no SSH host keys in the image (generated on first boot)
+  ok    service ssh enabled
+  ok    service voxhub-lva enabled
+  ok    service voxhub-peripherals enabled
+  ok    service voxhub-hubwatch enabled
+  ok    PipeWire user units enabled
+  ok    unattended-upgrades enabled, VoxHub origins
+  ok    Linux Voice Assistant 1.1.18 at b55d36af522c263eeed4e023d6ebf30da47e4710
+  ok    Linux Voice Assistant loads its libraries and parses its options (emulated, sound server stubbed)
+  ok    libmpv, numpy, microWakeWord, ESPHome API library load (emulated)
+  ok    VoxHub modules import with the LVA interpreter (emulated)
+  ok    launcher reads the settings (emulated)
+  ok    wake word model okay_nabu present
+  ok    automatic updates: Debian, Debian-Security and Raspberry Pi archive allowed, daily timers on
+  ok    router firmware and cc2538-bsl for offline flashing
+  ok    flashing tool: role satellite detected, local firmware used (dry run, emulated)
+  ok    machine-id empty: first boot generates the SSH host keys
+  ok    systemd accepts the VoxHub units (emulated)
+```
+
+Then the **runtime test** of the finished image, `sudo os/satellite/test-satellite-image.sh
+os/output/voxhub-satellite-2026-10-06-lva1.1.18.img.xz` (needs `pip install aioesphomeapi==45.3.1` on the PC). It
+works on a copy of the image: it starts PipeWire, PipeWire-Pulse and WirePlumber as the user `voxhub` inside the
+emulated image, gives them a source and a sink named like the googlevoicehat card, starts `voxhub-lva` (launcher ->
+Linux Voice Assistant) and `voxhub-peripherals` the way the units do (LEDs written to a scratch directory), and
+then connects from the PC with the ESPHome API client of `assistant/tests/container/esphome_client.py`, as Home
+Assistant would. Result on the image above (7 of 7):
+
+```
+  ok    PipeWire answers to pactl inside the image
+  ok    launcher picks the googlevoicehat source and sink
+  ok    Linux Voice Assistant starts its ESPHome API server
+  ok    bridge connects to the peripheral API
+  ok    microphone gain 12.04 dB on the source
+        PASS  device info: VoxHub Downstairs / Linux Voice Assistant 1.1.18
+        PASS  voice assistant features announced
+        entities: Media Player, Mic Auto Gain, Mic Noise Suppression, Mic Volume, Mute, Stop Word Sensitivity, Thinking Sound, Wake Word 1 Sensitivity, Wake Word 2 Sensitivity
+        PASS  LEDs idle (green) once Home Assistant is connected
+        PASS  LEDs off while muted from Home Assistant
+        PASS  mute switch state reported as on
+        PASS  LEDs idle again after unmute
+        PASS  LEDs blink slowly (no connection) after Home Assistant left
+        7 of 7 checks passed
+  ok    ESPHome API: device "VoxHub Downstairs", entities, LEDs follow connect / mute / unmute / disconnect
+  ok    firewall ruleset of voxhub-hubwatch accepted by nft (check mode, nothing loaded)
+
+7 passed, 0 failed
+```
+
+What the checks do not cover: the real sound card, LEDs and mute switch, Wi-Fi, the first boot itself (resize,
+SSH host keys, the lingering user session), zeroconf on a real network (qemu-user does not translate the socket
+option `IP_MULTICAST_IF`; the runtime test tolerates that one error code, and zeroconf ran natively in the add-on
+container test), and the firewall in operation (the ruleset is only checked with `nft -c`, because netlink does not
+work in emulation).
+

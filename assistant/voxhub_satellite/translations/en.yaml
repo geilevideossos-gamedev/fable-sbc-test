@@ -1,0 +1,46 @@
+configuration:
+  name:
+    name: Device name
+    description: Name of the voice satellite in Home Assistant, for example "VoxHub Upstairs".
+  wake_word:
+    name: Wake word
+    description: Wake word at the first start. Afterwards it is chosen on the device page in Home Assistant. "okay_nabu" also works in German.
+  mic_gain:
+    name: Microphone gain
+    description: Software gain of the microphones (4 = +12 dB). The PDM microphones of the VoxHub are quiet; 4 to 8 is normal.
+  mic_auto_gain:
+    name: Automatic gain
+    description: WebRTC automatic gain in dB, 0 = off.
+  mic_noise_suppression:
+    name: Noise suppression
+    description: WebRTC noise suppression, 0 = off, 4 = maximum.
+  volume_percent:
+    name: Speaker level
+    description: Level of the speaker output in the sound server in percent. The volume itself is set on the media player of the device.
+  thinking_sound:
+    name: Thinking sound
+    description: Play a short sound while Claude is thinking.
+  input_device:
+    name: Microphone (PulseAudio source)
+    description: Leave empty to use the VoxHub sound card.
+  output_device:
+    name: Speaker (PulseAudio sink)
+    description: Leave empty to use the VoxHub sound card.
+  leds:
+    name: Status LEDs
+    description: Drive the green and blue LEDs. Needs protection mode off.
+  mute_switch:
+    name: Mute switch
+    description: Report the hardware mute switch to Home Assistant. Needs protection mode off.
+  guard:
+    name: Exposure guard
+    description: Keep locks and alarm panels (and scenes, groups and scripts that control them) unexposed to Assist, so that Claude can never unlock or disarm anything.
+  protected_domains:
+    name: Protected domains
+    description: Entity domains the exposure guard keeps away from Assist.
+  guard_interval:
+    name: Guard interval
+    description: Seconds between two full checks of the exposure guard. It also checks after every change in the entity registry.
+  log_level:
+    name: Log level
+    description: debug also logs the messages of Linux Voice Assistant.

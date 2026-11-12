@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -u
+
+ENV_FILE=/etc/voxhub/satellite.env
+
+printf '== VoxHub satellite %s\n' "$(hostname)"
+if [ -r "$ENV_FILE" ]; then
+    grep -E '^VOXHUB_(NAME|ROOM|HUB|HUB_PORT|WAKE_WORD|MIC_GAIN|FIREWALL)=' "$ENV_FILE"
+fi
+printf '\n== Services\n'
+for unit in voxhub-lva voxhub-peripherals voxhub-hubwatch NetworkManager ssh unattended-upgrades; do
+    printf '%-22s %s\n' "$unit" "$(systemctl is-active "$unit" 2>/dev/null)"
+done
+printf '\n== Network\n'
+ip -4 -brief address show scope global 2>/dev/null
+nmcli -t -f DEVICE,STATE,CONNECTION device 2>/dev/null | grep -v '^lo:'
+printf '\n== Hub\n'
+cat /run/voxhub/hub.json 2>/dev/null || echo "no status yet (voxhub-hubwatch writes /run/voxhub/hub.json)"
+printf '\n== Firewall\n'
+nft list table inet voxhub 2>/dev/null | grep -E 'elements|dport' || echo "table inet voxhub not loaded"
+printf '\n== Sound card\n'
+if [ "$(id -u)" -eq 0 ]; then
+    runuser -u voxhub -- env XDG_RUNTIME_DIR=/run/user/1000 pactl list short sources 2>/dev/null | grep -v monitor
+    runuser -u voxhub -- env XDG_RUNTIME_DIR=/run/user/1000 pactl list short sinks 2>/dev/null
+else
+    XDG_RUNTIME_DIR="/run/user/$(id -u)" pactl list short sources 2>/dev/null | grep -v monitor
+    XDG_RUNTIME_DIR="/run/user/$(id -u)" pactl list short sinks 2>/dev/null
+fi
+aplay -l 2>/dev/null | grep -i card
+printf '\n== LEDs and mute switch\n'
+for led in voxhub-green voxhub-blue; do
+    printf '%-14s %s\n' "$led" "$(cat "/sys/class/leds/$led/brightness" 2>/dev/null || echo missing)"
+done
+grep -l -i -E 'voxhub-mute|button' /sys/class/input/event*/device/name 2>/dev/null | sed 's|/device/name||;s|.*/|mute switch: /dev/input/|'
+printf '\n== Linux Voice Assistant (last lines)\n'
+journalctl -u voxhub-lva -n 8 --no-pager 2>/dev/null

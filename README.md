@@ -4,6 +4,12 @@ A single-board computer for home automation that runs **Home Assistant OS** and 
 **Claude-based voice assistant**: it listens for a wake word, transcribes the request locally, lets Claude
 answer and control the home through tool use, and speaks the reply.
 
+**Two identical boards, one Home Assistant for the whole house.** Board 1, the **hub** (upstairs), runs Home
+Assistant OS, the Zigbee coordinator and the Claude pipeline. Board 2, the **satellite** (downstairs), runs no Home
+Assistant: it gives the hub its wake word, microphones, speaker, mute switch and LEDs over Wi-Fi, and its radio
+runs Zigbee router firmware that extends the mesh to the ground floor. Every request of both devices goes through
+Claude, knows which room it came from, and is answered on the speaker of the device that heard it.
+
 Everything in this repository is generated from code - schematic, PCB, enclosure, OS image and add-on.
 
 | | |
@@ -26,6 +32,7 @@ view, orbit, reassembly, turntable) - rendered with Blender from the STEP files 
 > | 1. Order 5 PCBs, 2 of them assembled | [`fab/ORDER_GUIDE.md`](fab/ORDER_GUIDE.md) - every option to click, cost estimate |
 > | 2. Buy everything that is not on the board | [`fab/SHOPPING_LIST.md`](fab/SHOPPING_LIST.md) - EU shops, part numbers, prices |
 > | 3. Print, test, assemble, flash the radio | [`fab/ASSEMBLY_AND_TEST.md`](fab/ASSEMBLY_AND_TEST.md) |
+> | 4. Hub + satellite: Claude pipeline, satellite SD card, pairing, rooms, Zigbee router, tests from both rooms | [`fab/ASSEMBLY_AND_TEST.md`, chapter 7](fab/ASSEMBLY_AND_TEST.md#7-two-devices-hub-and-satellite) |
 
 ## System overview
 
@@ -78,17 +85,32 @@ flowchart LR
     CM4 <-->|I2C1| BCR
 ```
 
-### Voice pipeline
+### Voice pipeline (hub + satellite)
 
 ```mermaid
 flowchart LR
-    M[microphones] --> W[wake word<br/>openWakeWord] --> V[VAD<br/>end of speech] --> S[STT<br/>Whisper, local]
-    S -->|text| C[Claude Messages API<br/>tool use]
-    C <-->|get state / call service| HA[Home Assistant Core API]
-    C -->|text, sentence by sentence| T[TTS<br/>Piper, local] --> P[speaker]
+    subgraph SAT[satellite, downstairs]
+        M2[microphones] --> W2[wake word<br/>microWakeWord]
+        P2[speaker]
+    end
+    subgraph HUB[hub, upstairs: Home Assistant OS]
+        M1[microphones] --> W1[wake word<br/>microWakeWord]
+        P1[speaker]
+        S[STT<br/>Whisper, local] -->|text + area of the device| C[Claude<br/>Anthropic integration]
+        C <-->|Assist API: intents,<br/>exposed entities| HA[Home Assistant Core]
+        G[VoxHub exposure guard:<br/>no locks, no alarms] -.-> HA
+        C -->|text, streamed| T[TTS<br/>Piper, local]
+    end
+    W1 -->|audio after the wake word| S
+    W2 -->|ESPHome API, Wi-Fi| S
+    T -->|answer| P1
+    T -->|answer URL| P2
 ```
 
-Only the transcribed text (plus tool results) leaves the device.
+Both devices run Linux Voice Assistant 1.1.18 (`assistant/voxhub_satellite` on the hub, `os/satellite` on the
+satellite). Audio stays in the house; only the transcribed request, Claude's instructions, the names and areas of
+the devices you expose and the results of Claude's tool calls go to Anthropic. The single-device VoxHub Assistant add-on
+of revision A2 still exists for a hub without a satellite (`assistant/README.md`).
 
 ### GPIO map (CM4)
 
@@ -154,10 +176,10 @@ These are estimates, not measurements - verify with `vcgencmd measure_temp` on t
 |---|---|
 | [`hardware/`](hardware/README.md) | KiCad 9 project (generated), generator scripts, schematic PDF, BOM, Gerbers, drill, pick-and-place, DXF, renders, fab + assembly notes |
 | [`fab/`](fab/ORDER_GUIDE.md) | JLCPCB order package (`jlcpcb/`: Gerbers, BOM, CPL, placement report), order guide, shopping list, assembly and test guide |
-| [`tools/`](tools/flash_zigbee.sh) | `flash_zigbee.sh`: writes the Zigbee (or Thread) firmware to the radio module from the CM4 |
+| [`tools/`](tools/flash_zigbee.sh) | `flash_zigbee.sh --role hub\|satellite`: writes the Zigbee coordinator (hub), the Zigbee router (satellite) or the Thread firmware to the radio module from the CM4; `test/`: radio simulator and test runner |
 | [`enclosure/`](enclosure/README.md) | parametric CadQuery source, STL / 3MF / STEP, renders |
-| [`os/`](os/README.md) | HAOS board definition, device tree overlay, `build-image.sh` |
-| [`assistant/`](assistant/README.md) | Home Assistant add-on: wake word -> STT -> Claude -> TTS |
+| [`os/`](os/README.md) | HAOS board definition, device tree overlay, `build-image.sh` (hub); [`os/satellite/`](os/satellite/README.md): SD card image of the satellite |
+| [`assistant/`](assistant/README.md) | Home Assistant add-ons: **VoxHub Satellite** (hub side of the two-device system, exposure guard) and **VoxHub Assistant** (single device) |
 | [`media/`](media/README.md) | showcase animation (MP4), still of the exploded view, Blender script and helpers |
 | [`DECISIONS.md`](DECISIONS.md) | every design decision with its reasoning, the datasheet verification table, sourcing decisions, open items |
 | [`TODO.md`](TODO.md) | progress checklist |
@@ -186,9 +208,19 @@ sudo apt install git curl xz-utils fdisk mtools device-tree-compiler
 os/build-image.sh repack --wifi-ssid "MyWifi" --wifi-psk "secret"
 #    -> os/output/haos_voxhub-cm4-<version>.img.xz
 
-# 4. Assistant add-on: tests
+# 3b. Satellite image (Raspberry Pi OS Lite + Linux Voice Assistant, about 30 minutes)
+sudo apt install qemu-user-static binfmt-support parted e2fsprogs openssl
+sudo os/satellite/build-satellite-image.sh --wifi-ssid "MyWifi" --wifi-psk "secret-password" --hub 192.168.1.10 --room Downstairs
+#    -> os/output/voxhub-satellite-2026-10-06-lva1.1.18.img.xz
+
+# 4. Add-ons: tests (VoxHub Satellite and VoxHub Assistant), container test of VoxHub Satellite (Docker)
 pip install -r assistant/requirements-dev.txt
 (cd assistant && python3 -m pytest -q)
+assistant/tests/container/run_addon_test.sh
+
+# 4b. Radio flashing script against the simulated radio (about 17 minutes)
+sudo apt install python3-serial python3-intelhex
+sudo tools/test/run_flash_tests.sh
 
 # 5. Showcase animation (Blender 4.2 - 4.5, headless; a little over 3 hours on 4 CPU cores)
 pip install cadquery pymupdf pillow numpy && sudo apt install ffmpeg
@@ -197,7 +229,10 @@ BLENDER=/path/to/blender media/build_showcase.sh
 
 Then: order the boards (`fab/ORDER_GUIDE.md`), buy the rest (`fab/SHOPPING_LIST.md`), print `enclosure/voxhub_shell.3mf` and
 `voxhub_base.3mf`, test and assemble (`fab/ASSEMBLY_AND_TEST.md`), flash the image, flash the radio (`tools/flash_zigbee.sh`),
-add this repository as an add-on repository in Home Assistant and install **VoxHub Assistant** (`assistant/README.md`).
+add this repository as an add-on repository in Home Assistant (until the two-device version is merged into `main`:
+`https://github.com/geilevideossos-gamedev/fable-sbc-test#claude/gallant-hamilton-kojnjj`) and install **VoxHub
+Satellite**; for the second board
+write the satellite image and follow `fab/ASSEMBLY_AND_TEST.md`, chapter 7.
 
 ## Cost summary
 
@@ -225,6 +260,10 @@ Line by line: [`hardware/outputs/bom_system.csv`](hardware/outputs/bom_system.cs
 | Speaker with JST-PH plug, heat sink, screws, feet, foam | 18.39 |
 | Shipping of two parcels to Austria | 12.90 |
 | **One device without the board** | **188.40** |
+
+**Hub + satellite** (the satellite with a 1 GB module, CM4101000, 50.82 EUR, and a 32 GB card): **286.90 EUR**
+delivered for both devices without the boards, 66.01 EUR less than two hubs - [`fab/SHOPPING_LIST.md`, section
+8](fab/SHOPPING_LIST.md#8-two-device-system-satellite-variant-and-combined-basket-hub--satellite).
 
 **The JLCPCB order** (5 PCBs, 2 of them assembled on both sides, parts, shipping, import VAT) is estimated in
 [`fab/ORDER_GUIDE.md`](fab/ORDER_GUIDE.md).
@@ -257,6 +296,10 @@ Line by line: [`hardware/outputs/bom_system.csv`](hardware/outputs/bom_system.cs
 | Radio flashing | one command; run end to end against a simulated radio with the real flashing tool, dry run in this repository; not on hardware | `tools/flash_zigbee.sh`, `fab/ASSEMBLY_AND_TEST.md` |
 | OS image | repack image built from HAOS 18.5 and verified; from-source build (`build-image.sh full`) ran to the end on the ninth attempt, image inspected; not booted (no hardware) | `os/README.md` |
 | Assistant | 86 unit tests pass | `assistant/tests/` |
+| Two-device system: architecture | read in the Home Assistant source (2026.11.1): the Anthropic integration + Assist API cover tool use, room awareness and per-device answers, not a hard lock / alarm rule - hence the exposure guard | `DECISIONS.md` S-1 to S-5 |
+| Hub add-on VoxHub Satellite | 51 unit tests (guard, bridge, LEDs, mute switch, launcher, options); image built from the official LVA 1.1.18 image and run against PulseAudio with a real ESPHome API client: 7 / 7 checks, LVA only on 127.0.0.1, gain unchanged after a restart; not on Home Assistant OS | `assistant/voxhub_satellite`, `assistant/tests/` |
+| Satellite image | built once, 31 / 31 checks of the finished image (overlays, settings, services, update origins, LVA and VoxHub modules start, offline radio flashing dry run) and 7 / 7 in the runtime test (PipeWire, LVA and the LED / mute bridge inside the emulated image, driven by an ESPHome API client); not booted (no hardware) | `os/satellite/`, `os/README.md` |
+| Radio roles | coordinator and router written into a simulated radio with the real cc2538-bsl, router detection by CRC over the programmed ranges, rejoin, refusals: 55 checks pass; not on hardware | `tools/test/` |
 
 ## License
 
