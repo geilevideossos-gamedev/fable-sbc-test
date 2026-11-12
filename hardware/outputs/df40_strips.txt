@@ -1,0 +1,4 @@
+DF40 socket strips between 0.75 mm and 1.19 mm from the connector centre line (Hirose: only the pad's own circuit)
+J2: 100 strips, copper of the pad's own net in 48, copper of another net in 0
+J3: 100 strips, copper of the pad's own net in 64, copper of another net in 0
+result: no foreign copper inside the DF40 strips

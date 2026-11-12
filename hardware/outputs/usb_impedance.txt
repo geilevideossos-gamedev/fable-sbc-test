@@ -1,0 +1,9 @@
+USB 2.0 track geometry checked with JLCPCB's impedance calculator (https://jlcpcb.com/api/jlcTools/impedance/calc, 2026-11-12)
+stack-up JLC04161H-3313: outer layer over 3313 RC57% prepreg, 0.0994 mm after lamination, reference plane In1.Cu (GND)
+
+coupled pair  0.140 mm wide, 0.160 mm gap   ->  89.96 ohm differential (target 90, USB 2.0 allows 76.5 .. 103.5)
+single track  0.185 mm wide                 ->  45.21 ohm (two uncoupled lines: 90.42 ohm differential)
+
+calculator's own width for 90 ohm differential at a 0.160 mm gap: 0.1393 mm (it stops at 90.16 ohm)
+calculator's own width for 45 ohm single ended:                0.1857 mm (it stops at 45.12 ohm)
+result: within +-5 % of 90 ohm

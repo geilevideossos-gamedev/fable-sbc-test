@@ -11,12 +11,14 @@ import sys, os, json, math
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pcbnew
 from sexpr import parse, find, first
+import prewire
 
 MM = pcbnew.FromMM
 W, H = 100.0, 74.0            # board size
 OX, OY = 100.0, 60.0          # board origin on the KiCad page
 SYS_FP = "/usr/share/kicad/footprints"
 POWER = ("GND", "+5V", "+3V3")
+VIA_DRILL = 0.3
 
 # ref -> (x, y, rot, side)  [board coordinates, mm, origin = rear-left corner, F.Cu view]
 CM4_X0, CM4_Y0 = 95.5, 64.5   # CM4 mounting hole nearest front-right; module spans x 44..99, y 28..68
@@ -24,13 +26,11 @@ FIXED = {
     "J1": (13.0, 3.67, 180, "F"),      # USB-C PD input (rear edge)
     "J6": (38.75, 13.11, 180, "F"),    # stacked USB-A (rear edge)
     "J4": (56.0, 8.7, 180, "F"),       # microSD (rear edge; shield pads end 0.37 mm inside the edge)
-    "U1": (13.0, 14.0, 0, "F"), "Q1": (23.5, 9.5, 90, "F"),
-    # LMR33640 power stage, placed by hand as a whole (the earlier fixed entries had VIN / PGND of U2 facing the fixed
-    # inductor position; with the bulk capacitors placed by the greedy placer the switch-node track then cut C8 off
-    # from the VIN pour).  U2 is turned so that VIN / PGND (pins 2 / 1, y 22.8) face the PD stage and
-    # SW / BOOT / VCC (pins 8 / 7 / 6, y 28.2) face the inductor.  Input: C10 (220 nF) directly above VIN / PGND, the two
-    # 10 uF capacitors above it with their VIN pads side by side.  Boot capacitor C12 under pins 7 / 8, VCC capacitor
-    # C11 under pin 6, inductor with its SW pad under pin 8, the four output capacitors below the inductor.
+    "U1": (19.5, 16.6, 90, "F"),
+    "Q1": (8.9, 13.3, 270, "F"), "D1": (4.2, 12.25, 270, "F"),
+    "R9": (11.1, 11.6, 270, "F"), "C7": (12.15, 11.6, 270, "F"), "D5": (13.7, 12.15, 270, "F"), "R10": (11.7, 14.1, 0, "F"),
+    "C2": (15.5, 11.7, 270, "F"), "C1": (17.1, 11.7, 270, "F"),
+    "C3": (15.3, 17.25, 180, "F"), "C5": (15.3, 18.75, 180, "F"), "C4": (15.85, 16.0, 180, "F"), "C6": (15.85, 15.0, 180, "F"),
     "U2": (8.5, 25.5, 270, "F"), "L1": (7.7, 34.6, 180, "F"),
     "C10": (9.77, 21.0, 0, "F"), "C8": (6.5, 19.0, 180, "F"), "C9": (11.3, 19.0, 0, "F"),
     "C12": (9.77, 29.95, 0, "F"), "C11": (7.09, 30.0, 180, "F"),
@@ -39,24 +39,132 @@ FIXED = {
     # the other (3, 2, 1) the connector, D+ on the left and D- on the right in both rows - the same order as the hub
     # pins (x 34.0 .. 35.5: port 2 D+, D-, port 1 D+, D-) and the connector pins.  Port 2 (U8) left, port 1 (U7) right:
     # every line runs straight through its ESD part and no line has to cross another one.
-    "U4": (33.5, 26.5, 270, "F"), "U7": (36.6, 18.6, 270, "F"), "U8": (32.9, 18.6, 270, "F"),
-    "U5": (45.8, 4.0, 90, "F"), "U6": (45.8, 10.5, 90, "F"),
+    "U4": (33.5, 26.5, 270, "F"), "U7": (35.25, 18.6, 270, "F"), "U8": (31.75, 17.8, 270, "F"),
+    "Y1": (40.2, 24.9, 180, "F"), "C26": (43.3, 24.05, 0, "F"), "C27": (37.6, 23.6, 90, "F"),
+    "U5": (45.8, 10.5, 90, "F"), "U6": (45.8, 4.0, 90, "F"),
     "U3": (68.5, 9.0, 0, "F"),
     "J2": (74.0, 64.96, 0, "F"), "J3": (74.0, 31.04, 0, "F"),
     "H5": (95.5, 64.5, 0, "F"), "H6": (95.5, 31.5, 0, "F"), "H7": (47.5, 64.5, 0, "F"), "H8": (47.5, 31.5, 0, "F"),
     "H1": (3.5, 3.5, 0, "F"), "H2": (96.5, 3.5, 0, "F"), "H3": (3.5, 70.5, 0, "F"), "H4": (97.0, 70.8, 0, "F"),
     "U9": (40.0, 61.0, 0, "F"), "MK1": (9.5, 70.2, 0, "F"), "MK2": (92.0, 10.0, 0, "F"),
     "U10": (9.0, 49.0, 0, "F"), "J7": (4.2, 58.5, 90, "F"),
-    "U11": (24.0, 66.5, 180, "F"), "J8": (36.5, 46.0, 0, "F"),
+    "U11": (21.5, 59.0, 180, "F"), "J8": (36.5, 46.0, 0, "F"),
     "SW1": (33.5, 54.0, 0, "B"),
     "J5": (80.0, 21.5, 90, "F"),
-    "FID1": (22.0, 2.0, 0, "F"), "FID2": (31.0, 44.0, 0, "F"), "FID3": (2.0, 40.0, 0, "F"),
+    "FID1": (22.0, 2.0, 0, "F"), "FID2": (96.5, 39.5, 0, "F"), "FID3": (2.0, 46.0, 0, "F"),
 }
 ANCHOR_PTS = {"TPZONE": (84.0, 12.0), "UI": (38.0, 66.0), "CM4CAP": (80.0, 71.0)}
 # keep-out rectangles for the automatic placer (x1, y1, x2, y2)
+ZB_ANT_KO = (11.75, 68.0, 31.25, 74.0)
 NOGO_F = [(43.6, 27.6, 99.4, 68.4),          # under the CM4 module
-          (19.3, 58.0, 28.7, 64.2)]          # MGM240P antenna clearance (handled as rule area too)
+          ZB_ANT_KO]
 HOLES = [(3.5, 3.5), (96.5, 3.5), (3.5, 70.5), (97.0, 70.8)]
+
+def trim_silk(board):
+    f = pcbnew.ToMM
+    n = 0
+    for fp in sorted_fps(board):
+        for g in list(fp.GraphicalItems()):
+            if g.GetLayer() not in (pcbnew.F_SilkS, pcbnew.B_SilkS):
+                continue
+            b = g.GetBoundingBox()
+            if f(b.GetLeft()) - OX < 0.3 or f(b.GetTop()) - OY < 0.3 or f(b.GetRight()) - OX > W - 0.3 or f(b.GetBottom()) - OY > H - 0.3:
+                fp.Remove(g); _KEEP.append(g); n += 1
+    print("silkscreen items cut off at the board edge:", n)
+
+class Legends:
+    STEP = 0.25
+
+    def __init__(self, board, pre):
+        import numpy as np
+        f = pcbnew.ToMM
+        self.np = np
+        self.board = board
+        self.nx, self.ny = int(W / self.STEP) + 1, int(H / self.STEP) + 1
+        self.occ = {pcbnew.F_SilkS: np.zeros((self.nx, self.ny), bool), pcbnew.B_SilkS: np.zeros((self.nx, self.ny), bool)}
+        for fp in sorted_fps(board):
+            front = not fp.IsFlipped()
+            for p in fp.Pads():
+                b = p.GetBoundingBox()
+                bb = (f(b.GetLeft()) - OX, f(b.GetTop()) - OY, f(b.GetRight()) - OX, f(b.GetBottom()) - OY)
+                th = p.GetAttribute() in (pcbnew.PAD_ATTRIB_PTH, pcbnew.PAD_ATTRIB_NPTH)
+                for lay, cu in ((pcbnew.F_SilkS, pcbnew.F_Cu), (pcbnew.B_SilkS, pcbnew.B_Cu)):
+                    if th or p.IsOnLayer(cu):
+                        self.block(lay, bb, 0.5)
+            bb = crt_bbox(fp)
+            self.block(pcbnew.F_SilkS if front else pcbnew.B_SilkS, bb, 0.3)
+            for g in fp.GraphicalItems():
+                if g.GetLayer() in self.occ:
+                    b = g.GetBoundingBox()
+                    self.block(g.GetLayer(), (f(b.GetLeft()) - OX, f(b.GetTop()) - OY, f(b.GetRight()) - OX, f(b.GetBottom()) - OY), 0.3)
+        for k in board_keepouts(board):
+            self.block(pcbnew.F_SilkS, k[:4], 0.2); self.block(pcbnew.B_SilkS, k[:4], 0.2)
+        for net, x, y, dia in pre["vias"]:
+            self.block(pcbnew.F_SilkS, (x, y, x, y), dia / 2 + 0.2); self.block(pcbnew.B_SilkS, (x, y, x, y), dia / 2 + 0.2)
+        for lay in self.occ:
+            self.block(lay, (0, 0, W, 1.0), 0); self.block(lay, (0, H - 1.0, W, H), 0)
+            self.block(lay, (0, 0, 1.0, H), 0); self.block(lay, (W - 1.0, 0, W, H), 0)
+
+    def block(self, lay, bb, m):
+        i0, i1 = max(0, int((bb[0] - m) / self.STEP)), min(self.nx, int(math.ceil((bb[2] + m) / self.STEP)) + 1)
+        j0, j1 = max(0, int((bb[1] - m) / self.STEP)), min(self.ny, int(math.ceil((bb[3] + m) / self.STEP)) + 1)
+        if i1 > i0 and j1 > j0:
+            self.occ[lay][i0:i1, j0:j1] = True
+
+    def put(self, s, layer, size, want, rots=(0,), reach=40.0):
+        tx = pcbnew.PCB_TEXT(self.board); tx.SetText(s); tx.SetLayer(layer)
+        tx.SetTextSize(pcbnew.VECTOR2I(MM(size), MM(size))); tx.SetTextThickness(MM(size * 0.15))
+        if layer == pcbnew.B_SilkS: tx.SetMirrored(True)
+        best = None
+        for rot in rots:
+            tx.SetTextAngle(pcbnew.EDA_ANGLE(rot, pcbnew.DEGREES_T)); tx.SetPosition(P(0, 0))
+            b = tx.GetBoundingBox()
+            x0, y0, x1, y1 = (pcbnew.ToMM(v) for v in (b.GetLeft(), b.GetTop(), b.GetRight(), b.GetBottom()))
+            dx0, dy0, dx1, dy1 = x0 - OX, y0 - OY, x1 - OX, y1 - OY
+            n = int(reach / self.STEP)
+            offs = sorted(((i * self.STEP, j * self.STEP) for i in range(-n, n + 1) for j in range(-n, n + 1)), key=lambda o: (o[0] ** 2 + (2.0 * o[1]) ** 2, o))
+            for ox, oy in offs:
+                x, y = want[0] + ox, want[1] + oy
+                bb = (x + dx0, y + dy0, x + dx1, y + dy1)
+                if bb[0] < 1.2 or bb[1] < 1.2 or bb[2] > W - 1.2 or bb[3] > H - 1.2:
+                    continue
+                i0, i1 = int((bb[0] - 0.2) / self.STEP), int(math.ceil((bb[2] + 0.2) / self.STEP)) + 1
+                j0, j1 = int((bb[1] - 0.2) / self.STEP), int(math.ceil((bb[3] + 0.2) / self.STEP)) + 1
+                if not self.occ[layer][i0:i1, j0:j1].any():
+                    d = math.hypot(ox, 2.0 * oy)
+                    if best is None or d < best[0]:
+                        best = (d, rot, x, y, bb)
+                    break
+        if best is None:
+            raise RuntimeError("no free place for the legend '%s'" % s)
+        _, rot, x, y, bb = best
+        tx.SetTextAngle(pcbnew.EDA_ANGLE(rot, pcbnew.DEGREES_T)); tx.SetPosition(P(x, y))
+        self.board.Add(tx)
+        self.block(layer, bb, 0.3)
+        print("legend %-52s at %6.2f %6.2f rot %d (wanted %.1f %.1f)" % (repr(s), x, y, rot, want[0], want[1]))
+
+STACKUP = prewire.STACKUP
+
+def write_stackup(path):
+    pp, co = STACKUP["prepreg"], STACKUP["core"]
+    rows = [('"F.SilkS"', '(type "Top Silk Screen")'), ('"F.Paste"', '(type "Top Solder Paste")'),
+            ('"F.Mask"', '(type "Top Solder Mask") (thickness %g)' % STACKUP["mask"]),
+            ('"F.Cu"', '(type "copper") (thickness %g)' % STACKUP["outer_cu"]),
+            ('"dielectric 1"', '(type "prepreg") (thickness %g) (material "%s") (epsilon_r %g) (loss_tangent 0.02)' % (pp[1], pp[0], pp[2])),
+            ('"In1.Cu"', '(type "copper") (thickness %g)' % STACKUP["inner_cu"]),
+            ('"dielectric 2"', '(type "core") (thickness %g) (material "%s") (epsilon_r %g) (loss_tangent 0.02)' % (co[1], co[0], co[2])),
+            ('"In2.Cu"', '(type "copper") (thickness %g)' % STACKUP["inner_cu"]),
+            ('"dielectric 3"', '(type "prepreg") (thickness %g) (material "%s") (epsilon_r %g) (loss_tangent 0.02)' % (pp[1], pp[0], pp[2])),
+            ('"B.Cu"', '(type "copper") (thickness %g)' % STACKUP["outer_cu"]),
+            ('"B.Mask"', '(type "Bottom Solder Mask") (thickness %g)' % STACKUP["mask"]),
+            ('"B.Paste"', '(type "Bottom Solder Paste")'), ('"B.SilkS"', '(type "Bottom Silk Screen")')]
+    block = "\t\t(stackup\n" + "".join("\t\t\t(layer %s %s)\n" % r for r in rows)
+    block += '\t\t\t(copper_finish "%s")\n\t\t\t(dielectric_constraints yes)\n\t\t)\n' % STACKUP["finish"]
+    txt = open(path).read()
+    if "(stackup" in txt:
+        return
+    i = txt.index("\t(setup\n") + len("\t(setup\n")
+    open(path, "w").write(txt[:i] + block + txt[i:])
 
 def write_project(outdir):
     """pcbnew's Save() rewrites voxhub.kicad_pro with default rules - put ours back."""
@@ -209,6 +317,15 @@ def place(netlist, outdir):
     for ref, (x, y, rot, side) in FIXED.items():
         put(ref, x, y, rot, side); commit(ref, side)
 
+    def pad_xy(ref, num):
+        for p in fps[ref].Pads():
+            if p.GetNumber() == num:
+                q = p.GetPosition()
+                return (pcbnew.ToMM(q.x) - OX, pcbnew.ToMM(q.y) - OY)
+        raise RuntimeError("no pad %s.%s" % (ref, num))
+    pre = prewire.plan(pad_xy)
+    placed["F"].extend(prewire.boxes(pre))
+
     def padpos(ref, netname=None):
         out = []
         for p in fps[ref].Pads():
@@ -309,13 +426,19 @@ def place(netlist, outdir):
         tx.SetTextAngle(pcbnew.EDA_ANGLE(rot, pcbnew.DEGREES_T))
         if layer == pcbnew.B_SilkS: tx.SetMirrored(True)
         board.Add(tx)
-    text("VoxHub CM4  rev A1", 22.0, 41.0, pcbnew.F_SilkS, 1.2)
-    text("github.com/geilevideossos-gamedev/fable-sbc-test", 22.0, 43.2, pcbnew.F_SilkS, 0.6)
-    text("SPK", 8.6, 58.5, pcbnew.F_SilkS, 0.8, 90)
-    text("GND TX RX", 80.0, 18.6, pcbnew.F_SilkS, 0.7)
-    text("USB-C PD 9-20V", 13.0, 9.2, pcbnew.F_SilkS, 0.6)
-    text("VoxHub CM4 rev A1 - this side faces the top cover", 60.0, 50.0, pcbnew.B_SilkS, 1.0)
-    text("MUTE", 33.5, 57.0, pcbnew.B_SilkS, 0.8)
+    add_rule_areas(board)
+    trim_silk(board)
+    legends = Legends(board, pre)
+    legends.put("VoxHub CM4  rev A2", pcbnew.F_SilkS, 1.2, (22.0, 41.0))
+    legends.put("USB-C PD 9-20V", pcbnew.B_SilkS, 1.0, (13.0, 10.5))
+    legends.put("SPK", pcbnew.F_SilkS, 1.0, (8.6, 58.5), rots=(90, 0))
+    legends.put("J5: GND TX RX", pcbnew.F_SilkS, 1.0, (80.0, 18.6))
+    legends.put("VoxHub CM4 rev A2 - this side faces the top cover", pcbnew.B_SilkS, 1.0, (60.0, 50.0))
+    legends.put("github.com/geilevideossos-gamedev/fable-sbc-test", pcbnew.B_SilkS, 1.0, (60.0, 53.0))
+    legends.put("MUTE", pcbnew.B_SilkS, 1.0, (33.5, 57.4))
+    for mk in ("MK1", "MK2"):
+        q = fps[mk].GetPosition()
+        legends.put("MIC - NO WASH", pcbnew.B_SilkS, 1.0, (pcbnew.ToMM(q.x) - OX, pcbnew.ToMM(q.y) - OY + (-4.2 if mk == "MK1" else 4.2)), reach=14.0)
     # ---- mechanical drawing layer (exported to DXF): holes, ports, connector envelopes -----
     mech = [("feature", "ref", "x_mm", "y_mm", "detail")]
     def circle(x, y, d):
@@ -350,10 +473,12 @@ def place(netlist, outdir):
         w_ = _csv.writer(fh)
         for row in mech:
             w_.writerow([("%.3f" % v) if isinstance(v, float) else v for v in row])
-    add_rule_areas(board)
-    fanout(board)
+    lay_prewire(board, pre)
+    fanout(board, pre)
+    add_df40_strips(board)
     board.BuildConnectivity()
     board.Save(board.GetFileName()); write_project(outdir)
+    write_stackup(board.GetFileName())
     json.dump({r: [round(pcbnew.ToMM(f.GetPosition().x) - OX, 3), round(pcbnew.ToMM(f.GetPosition().y) - OY, 3),
                    f.GetOrientationDegrees(), "B" if f.IsFlipped() else "F"] for r, f in fps.items()},
               open(os.path.join(outdir, "gen", "placement.json"), "w"), indent=0, sort_keys=True)
@@ -375,7 +500,29 @@ def _seg_rect(x1, y1, x2, y2, r):
     n = max(2, int(math.hypot(x2 - x1, y2 - y1) / 0.05) + 1)
     return min(_pt_rect(x1 + (x2 - x1) * i / n, y1 + (y2 - y1) * i / n, r) for i in range(n + 1))
 
-def fanout(board):
+def lay_prewire(board, pre):
+    for net, x, y, dia in pre["vias"]:
+        v = pcbnew.PCB_VIA(board); v.SetPosition(P(x, y)); v.SetWidth(pcbnew.F_Cu, MM(dia))
+        v.SetDrill(MM(VIA_DRILL)); v.SetViaType(pcbnew.VIATYPE_THROUGH)
+        v.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu); v.SetNetCode(board.GetNetcodeFromNetname(net)); v.SetLocked(True)
+        board.Add(v)
+    for lock, key in ((True, "tracks"), (False, "usb")):
+        for net, lay, x1, y1, x2, y2, w in pre[key]:
+            s = pcbnew.PCB_TRACK(board); s.SetStart(P(x1, y1)); s.SetEnd(P(x2, y2)); s.SetWidth(MM(w))
+            s.SetLayer(pcbnew.F_Cu if lay == "F" else pcbnew.B_Cu); s.SetNetCode(board.GetNetcodeFromNetname(net)); s.SetLocked(lock)
+            board.Add(s)
+    print("prewire: %d power / fixed tracks, %d USB tracks, %d vias" % (len(pre["tracks"]), len(pre["usb"]), len(pre["vias"])))
+
+def lock_usb(outdir):
+    board = pcbnew.LoadBoard(os.path.join(outdir, "voxhub.kicad_pcb"))
+    n = 0
+    for tr in board.GetTracks():
+        if tr.GetNetname() in prewire.USB_NETS and not tr.IsLocked():
+            tr.SetLocked(True); n += 1
+    board.Save(board.GetFileName()); write_project(outdir)
+    print("USB tracks locked:", n)
+
+def fanout(board, pre=None):
     f = pcbnew.ToMM
     pads = []      # (net, layers 'F'/'B'/'*', bbox, pad)
     for fp in sorted_fps(board):
@@ -390,7 +537,15 @@ def fanout(board):
     kos = board_keepouts(board)
     vias = []      # (net, x, y, dia)
     segs = []      # (net, layer, x1, y1, x2, y2, w)
+    if pre:
+        vias += list(pre["vias"]); segs += list(pre["tracks"]) + list(pre["usb"])
+    n_pre_v, n_pre_s = len(vias), len(segs)
     stats = dict(center=0, shared=0, new=0, failed=[])
+    def prewired(net, lay, bb):
+        for n2, l2, x1, y1, x2, y2, w in segs[:n_pre_s]:
+            if n2 == net and l2 == lay and any(bb[0] - 0.01 <= x <= bb[2] + 0.01 and bb[1] - 0.01 <= y <= bb[3] + 0.01 for x, y in ((x1, y1), (x2, y2))):
+                return True
+        return False
 
     def via_ok(net, x, y, dia, own):
         if not (0.7 < x < W - 0.7 and 0.7 < y < H - 0.7):
@@ -419,7 +574,7 @@ def fanout(board):
         return True
 
     def seg_ok(net, lay, x1, y1, x2, y2, w, own):
-        if any(_seg_rect(x1, y1, x2, y2, k) < w / 2 + 0.1 and _pt_rect(x1, y1, k) > 0.05 for k in kos):
+        if any(lay in k[4] and _seg_rect(x1, y1, x2, y2, k) < w / 2 + 0.1 and _pt_rect(x1, y1, k) > 0.05 for k in kos):
             return False
         for n2, l2, bb, p in pads:
             if p is own or n2 == net:
@@ -456,7 +611,8 @@ def fanout(board):
                 segs.append((pad.GetNetname(), "F", last[0], last[1], ux + ex, uy + ey, 0.15)); last = (ux + ex, uy + ey)
             if pad.GetNetname() in PLANE_NETS:
                 vias.append((pad.GetNetname(), last[0], last[1], 0.5))
-    todo = [q for q in pads if q[0] in PLANE_NETS and q[1] in ("F", "B") and q[3].GetParentFootprint().GetReference() != "U9"]
+    todo = [q for q in pads if q[0] in PLANE_NETS and q[1] in ("F", "B") and q[3].GetParentFootprint().GetReference() != "U9"
+            and not prewired(q[0], q[1], q[2])]
     todo.sort(key=lambda q: (q[2][2] - q[2][0]) * (q[2][3] - q[2][1]))      # tightest pads first
     for net, lay, bb, p in todo:
         cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
@@ -477,17 +633,30 @@ def fanout(board):
             stats["center"] += 1
             continue
         best = None
+        ep = None
+        if small and net == "GND" and fpr.GetReference() not in ("J2", "J3"):
+            for q in fpr.Pads():
+                qb = q.GetBoundingBox()
+                if q.GetNetname() == net and q is not p and f(qb.GetWidth()) * f(qb.GetHeight()) >= 1.4 and q.IsOnLayer(pcbnew.F_Cu if lay == "F" else pcbnew.B_Cu):
+                    ep = (f(qb.GetLeft()) - OX, f(qb.GetTop()) - OY, f(qb.GetRight()) - OX, f(qb.GetBottom()) - OY)
+        if ep is not None:
+            ex = min(max(cx, ep[0] + 0.25), ep[2] - 0.25); ey = min(max(cy, ep[1] + 0.25), ep[3] - 0.25)
+            if seg_ok(net, lay, cx, cy, ex, ey, tw, p):
+                segs.append((net, lay, cx, cy, ex, ey, tw)); stats["shared"] += 1
+                continue
+        via_path = None
         if fpr.GetReference() in ("J2", "J3"):
             q0 = fpr.GetPosition(); ccy = f(q0.y) - OY
+            jy = ccy + math.copysign(DF40_JOG, cy - ccy)
             for dxv in (0.0, 0.2, -0.2, 0.4, -0.4, 0.6, -0.6):
-                for n2, vx, vy, vd in vias:
-                    if n2 == net and abs(vy - ccy) < 0.01 and abs(vx - (cx + dxv)) < 0.01 and seg_ok(net, lay, cx, cy, vx, vy, tw, p):
-                        best = (0.0, vx, vy, None); break
-                if best: break
-                if via_ok(net, cx + dxv, ccy, 0.5, p) and seg_ok(net, lay, cx, cy, cx + dxv, ccy, tw, p):
-                    best = (0.0, cx + dxv, ccy, 0.5); break
+                pts = [(cx, cy), (cx, jy), (cx + dxv, ccy)] if dxv else [(cx, cy), (cx, ccy)]
+                if not all(seg_ok(net, lay, a[0], a[1], b[0], b[1], tw, p) for a, b in zip(pts, pts[1:])):
+                    continue
+                shared = any(n2 == net and abs(vy - ccy) < 0.01 and abs(vx - (cx + dxv)) < 0.01 for n2, vx, vy, vd in vias)
+                if shared or via_ok(net, cx + dxv, ccy, 0.5, p):
+                    best = (0.0, cx + dxv, ccy, None if shared else 0.5); via_path = pts; break
         # 1) share an existing via of the same net
-        for n2, vx, vy, vd in (vias if best is None else []):
+        for n2, vx, vy, vd in (vias if best is None and fpr.GetReference() not in ("J2", "J3") else []):
             if n2 == net and math.hypot(vx - cx, vy - cy) < 2.2 and seg_ok(net, lay, cx, cy, vx, vy, tw, p):
                 d = math.hypot(vx - cx, vy - cy)
                 if best is None or d < best[0]:
@@ -495,10 +664,19 @@ def fanout(board):
         if best is None:
             # 2) new via: scan outwards
             rmin = max(w_, h_) / 2 + dia / 2 + 0.12 if not small else min(w_, h_) / 2 + 0.2
+            q0 = fpr.GetPosition(); fx, fy = f(q0.x) - OX, f(q0.y) - OY
+            def outside(x, y):
+                if _pt_rect(x, y, bb) < dia / 2 + 0.1:
+                    return False
+                if not small:
+                    return True
+                if w_ >= h_:
+                    return (x - fx) * (cx - fx) > 0 and abs(x - fx) >= max(abs(bb[0] - fx), abs(bb[2] - fx)) + dia / 2 + 0.1
+                return (y - fy) * (cy - fy) > 0 and abs(y - fy) >= max(abs(bb[1] - fy), abs(bb[3] - fy)) + dia / 2 + 0.1
             for r in [rmin + 0.2 * i for i in range(0, 30)]:
                 for a in range(0, 360, 15):
                     x, y = cx + r * math.cos(math.radians(a)), cy + r * math.sin(math.radians(a))
-                    if via_ok(net, x, y, dia, p) and seg_ok(net, lay, cx, cy, x, y, tw, p):
+                    if outside(x, y) and via_ok(net, x, y, dia, p) and seg_ok(net, lay, cx, cy, x, y, tw, p):
                         # prefer leaving a fine-pitch pad along its long axis
                         pen = 0.0
                         if small:
@@ -515,19 +693,22 @@ def fanout(board):
             vias.append((net, x, y, vd)); stats["new"] += 1
         else:
             stats["shared"] += 1
-        segs.append((net, lay, cx, cy, x, y, tw))
+        if via_path:
+            segs.extend((net, lay, a[0], a[1], b[0], b[1], tw) for a, b in zip(via_path, via_path[1:]))
+        else:
+            segs.append((net, lay, cx, cy, x, y, tw))
 
-    for net, x, y, dia in vias:
+    for net, x, y, dia in vias[n_pre_v:]:
         v = pcbnew.PCB_VIA(board); v.SetPosition(P(x, y)); v.SetWidth(pcbnew.F_Cu, MM(dia)) if hasattr(v, "SetWidth") else None
-        v.SetDrill(MM(0.3 if dia >= 0.6 else 0.25)); v.SetViaType(pcbnew.VIATYPE_THROUGH)
+        v.SetDrill(MM(VIA_DRILL)); v.SetViaType(pcbnew.VIATYPE_THROUGH)
         v.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu); v.SetNetCode(board.GetNetcodeFromNetname(net)); v.SetLocked(True)
         board.Add(v)
-    for net, lay, x1, y1, x2, y2, w in segs:
+    for net, lay, x1, y1, x2, y2, w in segs[n_pre_s:]:
         s = pcbnew.PCB_TRACK(board); s.SetStart(P(x1, y1)); s.SetEnd(P(x2, y2)); s.SetWidth(MM(w))
         s.SetLayer(pcbnew.F_Cu if lay == "F" else pcbnew.B_Cu); s.SetNetCode(board.GetNetcodeFromNetname(net)); s.SetLocked(True)
         board.Add(s)
     print("fanout: %d pads, %d vias (%d in-pad groups, %d shared stubs), failed: %s" %
-          (len(todo), len(vias), stats["center"], stats["shared"], stats["failed"]))
+          (len(todo), len(vias) - n_pre_v, stats["center"], stats["shared"], stats["failed"]))
 
 def poly_zone(board, pts, layers, netname=None, keepout=False, name="", prio=0, clearance=0.25, minw=0.2):
     z = pcbnew.ZONE(board)
@@ -557,8 +738,7 @@ def rect(x1, y1, x2, y2):
 
 def add_rule_areas(board):
     f = pcbnew.ToMM
-    # MGM240P antenna clearance: no copper on any layer (footprint-local x -4.4..4.4, y -7.5..-2.7, module rotated 180)
-    poly_zone(board, rect(19.6, 69.2, 28.4, 74.0), ALL_CU, keepout=True, name="KO_ZIGBEE_ANT")
+    poly_zone(board, rect(*ZB_ANT_KO), ALL_CU, keepout=True, name="KO_ZIGBEE_ANT")
     # CM4 on-board WiFi/BT antenna: CM4 datasheet fig. 4 "Wireless Cutout" = 6.5 x 11 mm on the short edge at the
     # pin 99/199 end, 10.5..21.5 mm from the long edge of the pin 1-100 connector -> board x 92.5..99.0, y 46.5..57.5.
     # "minimum 6.5 x 11 mm, ideally at least 8 x 15 mm": no copper on any layer in 9 x 15 mm, out to the board edge.
@@ -570,6 +750,8 @@ def add_rule_areas(board):
     for fp in sorted_fps(board):
         ref = fp.GetReference()
         q = fp.GetPosition(); x, y = f(q.x) - OX, f(q.y) - OY
+        if ref == "J1":
+            poly_zone(board, rect(x - 3.75, y + 0.35, x + 3.75, y + 3.0), (pcbnew.F_Cu,), keepout=True, name="KO_J1_SHELL")
         if ref.startswith("FID"):          # fiducial: 2 mm mask opening must stay free of other copper
             poly_zone(board, rect(x - 1.2, y - 1.2, x + 1.2, y + 1.2), (pcbnew.F_Cu,), keepout=True, name="KO_" + ref)
         for pad in fp.Pads():              # non-plated slots/holes inside parts (LED light slots, mic ports)
@@ -584,8 +766,42 @@ def board_keepouts(board):
     for z in list(board.Zones()) + [z for fp in sorted_fps(board) for z in fp.Zones()]:
         if z.GetIsRuleArea():
             b = z.GetBoundingBox()
-            out.append((f(b.GetLeft()) - OX, f(b.GetTop()) - OY, f(b.GetRight()) - OX, f(b.GetBottom()) - OY))
+            lays = ("F" if z.IsOnLayer(pcbnew.F_Cu) else "") + ("B" if z.IsOnLayer(pcbnew.B_Cu) else "")
+            out.append((f(b.GetLeft()) - OX, f(b.GetTop()) - OY, f(b.GetRight()) - OX, f(b.GetBottom()) - OY, lays))
     return out
+
+DF40_JOG, DF40_IN, DF40_OUT, DF40_HALF = 0.6, 0.75, 1.19, 0.1
+
+def add_df40_strips(board):
+    f = pcbnew.ToMM
+    n_ko = n_own = 0
+    for fp in sorted_fps(board):
+        if "DF40C" not in str(fp.GetFPID().GetLibItemName()):
+            continue
+        if fp.GetOrientationDegrees() % 180 or fp.IsFlipped():
+            raise SystemExit("add_df40_strips expects the CM4 sockets on the front side, unrotated")
+        ref = fp.GetReference(); q0 = fp.GetPosition(); ccy = f(q0.y) - OY
+        own = [(t.GetNetname(), f(t.GetStart().x) - OX, f(t.GetStart().y) - OY, f(t.GetEnd().x) - OX, f(t.GetEnd().y) - OY, f(t.GetWidth()))
+               for t in board.GetTracks() if t.Type() != pcbnew.PCB_VIA_T and t.GetLayer() == pcbnew.F_Cu]
+        for sgn in (-1, 1):
+            row = sorted((f(p.GetPosition().x) - OX, p) for p in fp.Pads() if (f(p.GetPosition().y) - OY - ccy) * sgn > 0)
+            y0, y1 = sorted((ccy + sgn * DF40_IN, ccy + sgn * DF40_OUT))
+            run = []
+            def flush():
+                nonlocal n_ko
+                if run:
+                    poly_zone(board, rect(run[0] - DF40_HALF, y0, run[-1] + DF40_HALF, y1), (pcbnew.F_Cu,), keepout=True,
+                              name="KO_DF40_%s_%d" % (ref, n_ko)); n_ko += 1
+                    del run[:]
+            for px, p in row:
+                r_ = (px - DF40_HALF, y0, px + DF40_HALF, y1)
+                if any(n == p.GetNetname() and _seg_rect(a, b, c, d, r_) < w / 2 for n, a, b, c, d, w in own):
+                    n_own += 1; flush()
+                else:
+                    if run and px - run[-1] > 0.45: flush()
+                    run.append(px)
+            flush()
+    print("DF40 strips: %d keep-out areas, %d strips used by the pad's own net" % (n_ko, n_own))
 
 def add_planes(board):
     full = rect(0, 0, W, H)
@@ -607,16 +823,13 @@ def finish(outdir):
     # whatever the autorouter drew for them is discarded
     n_usb = 0
     for i_, tr in enumerate(tracks):
-        if tr.GetNetname() in NETCLASSES["USB"][2]:
+        if tr.GetNetname() in NETCLASSES["USB"][2] and not tr.IsLocked():
             board.Remove(tr); _KEEP.append(tr); tracks[i_] = None; n_usb += 1
     tracks = [t for t in tracks if t is not None]
     print("autorouted USB items discarded:", n_usb)
     for tr in tracks:
         if tr.Type() != pcbnew.PCB_VIA_T and tr.GetWidth() < MM(0.1):
             tr.SetWidth(MM(0.1))
-        if tr.IsLocked() and tr.GetNetname() not in PLANE_NETS:
-            tr.SetLocked(False)
-    add_esd_links(board, tracks)
     print("dangling items removed:", cleanup(board, tracks))
     if not [z for z in board.Zones() if not z.GetIsRuleArea()]:
         add_planes(board)
@@ -625,53 +838,6 @@ def finish(outdir):
     board.Save(board.GetFileName()); write_project(outdir)
     print("unconnected:", board.GetConnectivity().GetUnconnectedCount(True))
 
-
-# ---------------------------------------------------------------------------------------
-# Local copper pours for the high-current nets (convex hull of the net's pads on F.Cu).
-# ---------------------------------------------------------------------------------------
-def _hull(pts):
-    pts = sorted(set(pts))
-    if len(pts) < 3:
-        return pts
-    def cross(o, a, b): return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
-    lo, up = [], []
-    for q in pts:
-        while len(lo) >= 2 and cross(lo[-2], lo[-1], q) <= 0: lo.pop()
-        lo.append(q)
-    for q in reversed(pts):
-        while len(up) >= 2 and cross(up[-2], up[-1], q) <= 0: up.pop()
-        up.append(q)
-    return lo[:-1] + up[:-1]
-
-POUR_NETS = ("VBUS", "VBUS_SW", "BUCK_SW", "USB1_VBUS", "USB2_VBUS")
-
-def add_power_pours(board):
-    f = pcbnew.ToMM
-    corners = {}
-    def add(net, pad):
-        b = pad.GetBoundingBox()
-        x0, y0, x1, y1 = f(b.GetLeft()) - OX, f(b.GetTop()) - OY, f(b.GetRight()) - OX, f(b.GetBottom()) - OY
-        corners.setdefault(net, []).extend([(x0 - 0.3, y0 - 0.3), (x1 + 0.3, y0 - 0.3), (x1 + 0.3, y1 + 0.3), (x0 - 0.3, y1 + 0.3)])
-    l1 = None
-    for fp in sorted_fps(board):
-        if fp.GetReference() == "L1":
-            q = fp.GetPosition(); l1 = (f(q.x) - OX, f(q.y) - OY)
-    for fp in sorted_fps(board):
-        for pad in fp.Pads():
-            n = pad.GetNetname()
-            if not pad.IsOnLayer(pcbnew.F_Cu):
-                continue
-            if n in POUR_NETS:
-                add(n, pad)
-            elif n == "+5V" and l1:        # buck output: tie inductor, output caps and their plane vias together
-                q = pad.GetPosition()
-                if math.hypot(f(q.x) - OX - l1[0], f(q.y) - OY - l1[1]) < 13.0 and fp.GetReference()[0] in "LC":
-                    add("+5V", pad)
-    for i, (net, pts) in enumerate(sorted(corners.items())):
-        h = [(min(max(x, 0.5), W - 0.5), min(max(y, 0.5), H - 0.5)) for x, y in _hull(pts)]
-        if len(h) >= 3:
-            z = poly_zone(board, h, (pcbnew.F_Cu,), net, name="POUR_" + net, prio=5 + i, clearance=0.2)
-            z.SetPadConnection(pcbnew.ZONE_CONNECTION_FULL)
 
 # ---------------------------------------------------------------------------------------
 # Patch router: completes whatever the autorouter left open.  For every net it computes the
@@ -902,8 +1068,8 @@ def patch(outdir, report=None, max_jobs=400, reroute=()):
                 i0, i1, j0, j1 = box_idx(bb[0] - mv, bb[1] - mv, bb[2] + mv, bb[3] + mv); hardv[i0:i1, j0:j1] = True
             for k in kos:
                 i0, i1, j0, j1 = box_idx(k[0] - width / 2, k[1] - width / 2, k[2] + width / 2, k[3] + width / 2)
-                hard[0][i0:i1, j0:j1] = True; hard[1][i0:i1, j0:j1] = True
-                absh[0][i0:i1, j0:j1] = True; absh[1][i0:i1, j0:j1] = True
+                for L in [LI[c] for c in k[4]]:
+                    hard[L][i0:i1, j0:j1] = True; absh[L][i0:i1, j0:j1] = True
                 i0, i1, j0, j1 = box_idx(k[0] - VR, k[1] - VR, k[2] + VR, k[3] + VR); hardv[i0:i1, j0:j1] = True
             for o in items:
                 if o["kind"] == "via": ax, ay, bx, by, hw, lays = o["x"], o["y"], o["x"], o["y"], o["r"], (0, 1)
@@ -1040,7 +1206,7 @@ def patch(outdir, report=None, max_jobs=400, reroute=()):
             n_before = len(tracks)
             for a, b_ in zip(pts, pts[1:]):
                 if a[2] != b_[2]:
-                    v = pcbnew.PCB_VIA(board); v.SetPosition(P(a[0], a[1])); v.SetWidth(pcbnew.F_Cu, MM(0.5)); v.SetDrill(MM(0.25))
+                    v = pcbnew.PCB_VIA(board); v.SetPosition(P(a[0], a[1])); v.SetWidth(pcbnew.F_Cu, MM(0.5)); v.SetDrill(MM(VIA_DRILL))
                     v.SetViaType(pcbnew.VIATYPE_THROUGH); v.SetLayerPair(pcbnew.F_Cu, pcbnew.B_Cu); v.SetNetCode(code); board.Add(v); tracks.append(v)
                 elif math.hypot(a[0] - b_[0], a[1] - b_[1]) > 1e-6:
                     s = pcbnew.PCB_TRACK(board); s.SetStart(P(a[0], a[1])); s.SetEnd(P(b_[0], b_[1])); s.SetWidth(MM(width))
@@ -1184,6 +1350,8 @@ def repair(outdir, report):
         m = re.match(r"(Track|Via) \[([^\]]+)\]", desc)
         if not m: return None
         best = None
+        ml = re.search(r"length ([\d.]+) mm", desc)
+        want_len = float(ml.group(1)) if ml else None
         for i, tr in enumerate(tracks):
             if tr is None or i in gone or tr.GetNetname() != m.group(2) or tr.IsLocked(): continue
             isvia = tr.Type() == pcbnew.PCB_VIA_T
@@ -1193,8 +1361,10 @@ def repair(outdir, report):
             else:
                 a, e = tr.GetStart(), tr.GetEnd()
                 d = _seg_rect(f(a.x), f(a.y), f(e.x), f(e.y), (x, y, x, y))
+                if want_len is not None and d < 0.6 and abs(f(tr.GetLength()) - want_len) > 0.002:
+                    d += 0.3
             if best is None or d < best[0]: best = (d, i)
-        return best[1] if best and best[0] < 0.6 else None
+        return best[1] if best and best[0] < 0.9 else None
     n = 0
     for blk in re.split(r"\n(?=\[)", txt):
         m = re.match(r"\[(\w+)\]", blk)
@@ -1616,17 +1786,19 @@ def dsn_netclasses(s):
     head, tail = block.split("(circuit", 1)
     toks = re.findall(r'"[^"]*"|\S+', head)[2:]
     keep = [x for x in toks if x not in special]
-    out = "    (class kicad_default " + " ".join(keep) + "\n      (circuit\n        (use_via \"Via[0-3]_500:250_um\")\n      )\n"
+    out = "    (class kicad_default " + " ".join(keep) + "\n      (circuit\n        (use_via \"Via[0-3]_500:300_um\")\n      )\n"
     out += "      (rule\n        (width %d)\n        (clearance %d)\n      )\n    )\n" % DEFAULT_RULE
     for name, (w, c, nets) in NETCLASSES.items():
         out += "    (class %s %s\n      (circuit\n        (use_via \"Via[0-3]_%s_um\")\n      )\n" % (
-            name, " ".join(nets), "600:300" if name == "Power" else "500:250")
+            name, " ".join(nets), "600:300" if name == "Power" else "500:300")
         out += "      (rule\n        (width %d)\n        (clearance %d)\n      )\n    )\n" % (w, c)
     return s[:a] + out + "  )\n" + s[b:]
 
 if __name__ == "__main__":
     if sys.argv[1] == "place":
         place(sys.argv[2], sys.argv[3])
+        tune_usb(sys.argv[3])
+        lock_usb(sys.argv[3])
     elif sys.argv[1] == "dsn":
         b = pcbnew.LoadBoard(os.path.join(sys.argv[2], "voxhub.kicad_pcb"))
         os.makedirs(os.path.join(sys.argv[2], "gen", "work"), exist_ok=True)
@@ -1640,13 +1812,6 @@ if __name__ == "__main__":
         for lay in ("In1.Cu", "In2.Cu"):       # planes: keep the router off these layers
             s = s.replace("(layer %s\n      (type signal)" % lay, "(layer %s\n      (type power)" % lay)
         open(dsn, "w").write(s)
-    elif sys.argv[1] == "pours":       # last step: local pours for the high-current nets (routing is complete by then)
-        outdir = sys.argv[2]
-        b = pcbnew.LoadBoard(os.path.join(outdir, "voxhub.kicad_pcb"))
-        add_power_pours(b)
-        pcbnew.ZONE_FILLER(b).Fill(b.Zones()); b.BuildConnectivity()
-        b.Save(b.GetFileName()); write_project(outdir)
-        print("pours added; unconnected:", b.GetConnectivity().GetUnconnectedCount(True))
     elif sys.argv[1] == "repair":
         repair(sys.argv[2], sys.argv[3])
     elif sys.argv[1] == "patch":

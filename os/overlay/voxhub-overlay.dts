@@ -101,7 +101,7 @@
 		};
 	};
 
-	/* ---- Zigbee/Thread radio on UART4 with RTS/CTS ---- */
+	/* ---- Zigbee/Thread radio on UART4 (no flow control) ---- */
 	fragment@4 {
 		target = <&uart4>;
 		__overlay__ {
@@ -114,15 +114,15 @@
 	fragment@5 {
 		target = <&uart4_pins>;
 		__overlay__ {
-			brcm,pins = <8 9 10 11>;
+			brcm,pins = <8 9>;
 			brcm,function = <3>;	/* ALT4 */
-			brcm,pull = <0 2 2 0>;
+			brcm,pull = <0 2>;
 		};
 	};
 
 	/* Radio reset (GPIO24, active HIGH: it drives an open-drain FET on the module's RESETn, 100k pull-down on the
-	 * board) and bootloader strap (GPIO25, active low, 10k pull-up) are left as inputs; a flasher may drive them
-	 * from user space (libgpiod). */
+	 * board) and bootloader strap (GPIO25, active low, 2.2k pull-up) are left as inputs; tools/flash_zigbee.sh
+	 * drives them from user space. */
 
 	/* ---- I2C1: USB-PD controller (CYPD3177 HPI @ 0x08), read-only status ---- */
 	fragment@6 {

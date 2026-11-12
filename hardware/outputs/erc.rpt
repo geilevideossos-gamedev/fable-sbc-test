@@ -1,4 +1,4 @@
-ERC report (2026-11-11T17:43:12+0000, Encoding UTF8)
+ERC report (2026-11-12T08:28:25+0000, Encoding UTF8)
 Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /
@@ -11,6 +11,6 @@ Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /Audio: PDM microphones, PDM-to-I2S, class-D speaker amplifier/
 
-***** Sheet /Zigbee / Thread radio (MGM240P, EFR32MG24)/
+***** Sheet /Zigbee / Thread radio (RF-BM-2652P2, CC2652P)/
 
  ** ERC messages: 0  Errors 0  Warnings 0

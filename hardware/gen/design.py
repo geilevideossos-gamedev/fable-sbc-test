@@ -4,7 +4,7 @@ import sys, os, json
 from kisch import Design, PROJECT
 from parts import PARTS, res as RES
 
-d = Design("VoxHub CM4 - Home Assistant voice hub carrier", "A1", "2026-11-11", "VoxHub (open hardware)")
+d = Design("VoxHub CM4 - Home Assistant voice hub carrier", "A2", "2026-11-12", "VoxHub (open hardware)")
 L = d.lib
 _cnt = {}
 
@@ -85,14 +85,15 @@ L.box("ADAU7002", [P("A1", "PDM_DAT", "input"), P("A2", "PDM_CLK", "output"), P(
       [P("D1", "IOVDD", "power_in"), P("B2", "BCLK", "input"), P("C2", "LRCLK", "input"), P("B1", "SDATA", "tri_state")],
       ref="U", footprint=PARTS["U_PDM"][3], datasheet="https://www.analog.com/media/en/technical-documentation/data-sheets/ADAU7002.pdf",
       descr="Stereo PDM to I2S/TDM converter", width=22.86)
-MGM = "1:GND 2:PB04 3:PB03 4:PB02 5:PB01 6:PB00 7:PA00 8:PA01/SWCLK 9:PA02/SWDIO 10:PA03/SWO 11:PA04 12:PA05 13:PA06 14:GND 15:VDD 16:PA07 17:PA08 18:PD03 19:PD02 20:PD01 21:PD00 22:PC00 23:GND 24:PC01 25:PC02 26:PC03 27:PC04 28:PC05 29:PC06 30:PC07 31:~{RESET} 32:GND 33:RFOUT 34:GND 35:GND 36:GND"
-MG = {int(t.split(":")[0]): t.split(":")[1] for t in MGM.split()}
-def mg(n):
-    return P(n, MG[n], "power_in" if MG[n] in ("GND", "VDD") else "passive")
-L.box("MGM240P", [mg(n) for n in (15, 31, 8, 9, 10, 12, 13, 16, 17, 5, 6, 7, 11, 2, 3, 4, 1, 14)],
-      [mg(n) for n in (33, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 29, 30, 23, 32, 34, 35, 36)], ref="U",
-      footprint=PARTS["U_ZB"][3], datasheet="https://www.silabs.com/documents/public/data-sheets/mgm240p-datasheet.pdf",
-      descr="Silicon Labs MGM240P EFR32MG24 multiprotocol (Zigbee/Thread) module", width=38.1)
+RFB = ("1:DIO5 2:DIO6 3:DIO7 4:DIO8 5:DIO9 6:DIO10 7:DIO11 8:DIO12/RX 9:DIO13/TX 10:~{RES} 11:JTAG_TMSC 12:JTAG_TCKC 13:VCC 14:GND "
+       "15:DIO14 16:DIO15/BSL 17:DIO16/TDO 18:DIO17/TDI 19:DIO18/RTS 20:DIO19/CTS 21:DIO20 22:DIO21 23:DIO22 24:DIO23 25:DIO24 26:DIO25 "
+       "27:DIO26 28:DIO27 29:GND 30:ANT")
+RF = {int(t.split(":")[0]): t.split(":")[1] for t in RFB.split()}
+def rf(n):
+    return P(n, RF[n], "power_in" if RF[n] in ("GND", "VCC") else "passive")
+L.box("RF-BM-2652P2", [rf(n) for n in range(1, 15)], [rf(n) for n in (30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15)], ref="U",
+      footprint=PARTS["U_ZB"][3], datasheet="https://rfstariot.com/uploadfile/downloads/RF-BM-2652P2%20RF-BM-2652P2I%20Hardware%20Datasheet%20V1.1_20240823.pdf",
+      descr="RF-star RF-BM-2652P2 (TI CC2652P) multiprotocol 2.4 GHz module (Zigbee / Thread), PCB antenna", width=40.64)
 
 GND, V5, V33 = "GND", "+5V", "+3V3"
 
@@ -201,8 +202,8 @@ for n in range(1, 101):
     if CM4[n] == "GND": n1[n] = GND
     if CM4[n] == "+5V": n1[n] = V5
 n1.update({21: "ACT_LED_K", 25: "I2S_DOUT", 26: "I2S_LRCLK", 27: "I2S_DIN", 29: "AMP_SD", 30: "LED_B_EN", 34: "LED_G_EN",
-           38: "UART4_RTS", 39: "UART4_TX", 40: "UART4_RX", 41: "ZB_BOOT", 44: "UART4_CTS", 45: "ZB_RST",
-           46: "ZB_SWDIO", 47: "ZB_SWCLK", 48: "MUTE_SENSE", 49: "I2S_BCLK", 51: "DBG_RX", 55: "DBG_TX",
+           37: "ZB_TDI", 38: "UART4_RTS", 39: "UART4_TX", 40: "UART4_RX", 41: "ZB_BOOT", 44: "UART4_CTS", 45: "ZB_RST",
+           46: "ZB_TMS", 47: "ZB_TCK", 48: "MUTE_SENSE", 49: "I2S_BCLK", 50: "ZB_TDO", 51: "DBG_RX", 55: "DBG_TX",
            56: "I2C_SCL", 58: "I2C_SDA", 57: "SD_CLK", 61: "SD_DAT3", 62: "SD_CMD", 63: "SD_DAT0", 67: "SD_DAT1",
            69: "SD_DAT2", 75: "SD_PWR_ON", 78: V33, 84: V33, 86: V33, 93: "NRPIBOOT", 100: "HUB_RST_N"})
 s.place("CM4_J1", "J2", "DF40C-100DS-0.4V(51)", 70, 150, {str(k): v for k, v in n1.items()}, fields=F("J_CM4"))
@@ -222,16 +223,16 @@ res(s, "49.9k", 290, 72, "SD_ILIM", GND); res(s, "10k", 290, 82, V33, "SD_PWR_ON
 cap(s, "C_100n", 262, 95, V33); d.near = "J4"; cap(s, "C_4u7", 320, 95, "SD_VDD"); cap(s, "C_100n", 331, 95, "SD_VDD")
 s.flag("SD_VDD", 342, 98)
 d.near = "UI"
-s.box(250, 115, 405, 215, "User interface: status LEDs (reverse-mount, shine through PCB to the top cover) and hardware mic mute")
+s.box(250, 115, 405, 215, "User interface: status LEDs (0603 on side B, inside the light pipes of the top cover) and hardware mic mute")
 for i, (key, en, name) in enumerate((("LED_UG", "LED_G_EN", "GREEN"), ("LED_UB", "LED_B_EN", "BLUE"))):
     x = 265 + i * 55
-    res(s, "680" if i == 0 else "470", x, 135, V5, "LED%d_A" % i)
-    led(s, key, x + 20, 150, "LED%d_A" % i, "LED%d_K" % i, name, pos=(34.0 + i * 4.6, 71.2, 90, "F"))
+    res(s, "1k", x, 135, V5, "LED%d_A" % i)
+    led(s, key, x + 20, 150, "LED%d_A" % i, "LED%d_K" % i, name, pos=(34.0 + i * 4.6, 71.2, 90, "B"))
     q = ref("Q"); s.place("2N7002", q, "2N7002", x + 5, 180, {"1": en, "2": GND, "3": "LED%d_K" % i}, footprint=PARTS["Q_N"][3], fields=F("Q_N"))
     res(s, "10k", x, 200, en, GND)   # beats the SoC's ~50k boot-time pull-up on GPIO5/6
 s.place("SW_DPDT_x2", "SW1", "JS202011JCQN (MUTE)", 375, 140, {"1": "NC", "2": V33, "3": "MIC_MUTE"}, unit=1, footprint=PARTS["SW_MUTE"][3], fields=F("SW_MUTE"))
 s.place("SW_DPDT_x2", "SW1", "JS202011JCQN (MUTE)", 375, 165, {"4": "MIC_SDATA", "5": "I2S_DIN", "6": GND}, unit=2, footprint=PARTS["SW_MUTE"][3], fields=F("SW_MUTE"))
-res(s, "330", 370, 185, "MIC_MUTE", "MUTE_LED_A"); led(s, "LED_UR", 395, 200, "MUTE_LED_A", GND, "RED (muted)", pos=(43.2, 71.2, 90, "F"))
+res(s, "330", 370, 185, "MIC_MUTE", "MUTE_LED_A"); led(s, "LED_R", 395, 200, "MUTE_LED_A", GND, "RED (muted)", pos=(43.2, 71.2, 90, "B"))
 res(s, "10k", 370, 195, "MIC_MUTE", "MUTE_SENSE"); res(s, "100k", 370, 205, "MUTE_SENSE", GND)
 res(s, "100k", 330, 205, "I2S_DIN", GND)
 s.text("SW1 pole A lights the red LED, pole B physically disconnects mic data\nfrom the CM4 (I2S_DIN grounded) - mute cannot be overridden by software.", 252, 213, size=1.4)
@@ -257,8 +258,8 @@ s.place("USB2514B_Bi", "U4", "USB2514B-I/M2", 110, 130,
          "26": "HUB_RST_N", "27": "HUB_VBUSDET", "28": "HUB_NONREM0", "29": V33, "30": "USB_UP_N", "31": "USB_UP_P",
          "32": "HUB_XO", "33": "HUB_XI", "34": "HUB_PLLFILT", "35": "HUB_RBIAS", "36": V33, "37": GND},
         footprint=PARTS["U_HUB"][3], fields=F("U_HUB"))
-s.place("Crystal_GND24", "Y1", "24MHz", 45, 215, {"1": "HUB_XI", "3": "HUB_XO", "2": GND, "4": GND}, footprint=PARTS["Y_24M"][3], fields=F("Y_24M"))
-cap(s, "C_27p", 30, 240, "HUB_XI"); cap(s, "C_27p", 60, 240, "HUB_XO")
+s.place("Crystal_GND24", "Y1", "24MHz CL12pF", 45, 215, {"1": "HUB_XI", "3": "HUB_XO", "2": GND, "4": GND}, footprint=PARTS["Y_24M"][3], fields=F("Y_24M"))
+cap(s, "C_xtal", 30, 240, "HUB_XI"); cap(s, "C_xtal", 60, 240, "HUB_XO")
 res(s, "12k", 40, 60, "HUB_RBIAS", GND); cap(s, "C_100n", 30, 85, "HUB_PLLFILT"); cap(s, "C_100n", 45, 85, "HUB_CRFILT")
 s.text("RESET_N is driven by the CM4 (nEXTRST, pin 100):\nlow during reset, high once the SoC boots.", 22, 108, size=1.4)
 res(s, "100k", 40, 130, V33, "HUB_VBUSDET")
@@ -314,24 +315,24 @@ s.text("SD_MODE driven by GPIO16 (3.3 V = left channel, low = shutdown). GAIN_SL
 # =========================================================================
 # Sheet 6: Zigbee / Thread radio
 # =========================================================================
-s = d.sheet("zigbee", "Zigbee / Thread radio (MGM240P, EFR32MG24)")
+s = d.sheet("zigbee", "Zigbee / Thread radio (RF-BM-2652P2, CC2652P)")
 d.near = "U11"
-z = {n: "NC" for n in range(1, 37)}
-for n in (1, 14, 23, 32, 34, 35, 36): z[n] = GND
-z.update({15: V33, 31: "ZB_NRST", 8: "ZB_SWCLK", 9: "ZB_SWDIO", 10: "ZB_SWO", 12: "UART4_RX", 13: "UART4_TX",
-          16: "UART4_CTS", 17: "UART4_RTS", 22: "ZB_BOOT"})
-s.box(15, 20, 290, 150, "MGM240P network co-processor on CM4 UART4 (GPIO8-11, hardware flow control) + SWD")
-s.place("MGM240P", "U11", "MGM240PB32VNA3", 110, 85, {str(k): v for k, v in z.items()}, fields=F("U_ZB"))
+z = {n: "NC" for n in range(1, 31)}
+z.update({13: V33, 14: GND, 29: GND, 8: "UART4_TX", 9: "UART4_RX", 19: "UART4_CTS", 20: "UART4_RTS", 10: "ZB_NRST", 16: "ZB_BOOT",
+          11: "ZB_TMS", 12: "ZB_TCK", 17: "ZB_TDO", 18: "ZB_TDI"})
+s.box(15, 20, 290, 150, "CC2652P network co-processor on CM4 UART4 (GPIO8-11) + ROM serial bootloader strap + JTAG")
+s.place("RF-BM-2652P2", "U11", "RF-BM-2652P2", 110, 85, {str(k): v for k, v in z.items()}, fields=F("U_ZB"))
 cap(s, "C_4u7", 30, 130, V33); cap(s, "C_100n", 41, 130, V33)
-res(s, "10k", 90, 143, V33, "ZB_BOOT")       # GPIO25 defaults to pull-down at boot; keep the bootloader strap high
-# RESETn has an internal pull-up and must only ever be pulled low (MGM240P datasheet, pin table): open-drain driver
+res(s, "2.2k", 90, 143, V33, "ZB_BOOT")
 q = ref("Q"); s.place("2N7002", q, "2N7002", 262, 105, {"1": "ZB_RST", "2": GND, "3": "ZB_NRST"}, footprint=PARTS["Q_N"][3], fields=F("Q_N"))
-res(s, "100k", 255, 124, "ZB_RST", GND)      # radio runs while GPIO24 is low / floating / the module is absent
-s.place("Conn_ARM_SWD_TagConnect_TC2030-NL", "J8", "TC2030-NL (SWD)", 230, 80,
-        {"1": V33, "2": "ZB_SWDIO", "3": "ZB_NRST", "4": "ZB_SWCLK", "5": GND, "6": "ZB_SWO"}, in_bom=False,
+res(s, "100k", 255, 124, "ZB_RST", GND)
+res(s, "100k", 255, 92, V33, "ZB_NRST")
+s.place("Conn_ARM_SWD_TagConnect_TC2030-NL", "J8", "TC2030-NL (cJTAG)", 230, 60,
+        {"1": V33, "2": "ZB_TMS", "3": "ZB_NRST", "4": "ZB_TCK", "5": GND, "6": "ZB_TDO"}, in_bom=False,
         fields={"MPN": "", "Manufacturer": "", "PartDescription": "Tag-Connect footprint (no part)"})
-s.text("UART: PA05 = module TX -> GPIO9 (RXD4), PA06 = module RX <- GPIO8 (TXD4),\nPA07 = module RTS -> GPIO10 (CTS4), PA08 = module CTS <- GPIO11 (RTS4)  [datasheet fig. 5.1].\n"
-       "PC00 = bootloader entry, active low (GPIO25). Reset: GPIO24 HIGH pulls RESETn low (open drain).\nSWD also wired to GPIO22/23 so the CM4 can flash the radio in-system (openocd bit-bang).", 150, 141, size=1.4)
+s.text("UART: DIO13 = module TX -> GPIO9 (RXD4), DIO12 = module RX <- GPIO8 (TXD4),\nDIO18 = module RTS -> GPIO10 (CTS4), DIO19 = module CTS <- GPIO11 (RTS4)  [TI LAUNCHXL-CC1352P-2 assignment].\n"
+       "DIO15 = ROM bootloader backdoor, active low (GPIO25). Reset: GPIO24 HIGH pulls RES low (open drain).\n"
+       "JTAG for recovery: TMS = GPIO22, TCK = GPIO23, TDO = GPIO17, TDI = GPIO7 (4-wire, OpenOCD bit-bang).", 150, 141, size=1.4)
 
 # =========================================================================
 # Root sheet: mechanical items

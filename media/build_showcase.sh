@@ -14,11 +14,18 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"; ROOT="$(dirname "${HERE}")"
 WORK="$(mkdir -p "${1:-${HERE}/work}" && cd "${1:-${HERE}/work}" && pwd)"
-BLENDER="${BLENDER:-blender}"; SAMPLES="${SAMPLES:-4}"; THREADS="${THREADS:-0}"
+BLENDER="${BLENDER:-blender}"; SAMPLES="${SAMPLES:-4}"; THREADS="${THREADS:-0}"; PY="${PYTHON:-python3}"
 read -r F0 F1 <<< "${FRAMES:-1 1260}"
-for t in python3 docker ffmpeg "${BLENDER}"; do      # ffmpeg is only needed after hours of rendering: check everything first
+KITOOL=docker; [ "${KICAD_NATIVE:-0}" = 1 ] && KITOOL=kicad-cli
+for t in "${PY}" "${KITOOL}" ffmpeg "${BLENDER}"; do      # ffmpeg is only needed after hours of rendering: check everything first
     command -v "${t}" > /dev/null || { echo "missing tool: ${t}" >&2; exit 1; }
 done
+E0=1; E1=1260
+if [ -n "${KEEP_VIDEO:-}" ]; then
+    [ -s "${KEEP_VIDEO}" ] || { echo "KEEP_VIDEO: ${KEEP_VIDEO} not found" >&2; exit 1; }
+else
+    E0="${F0}"; E1="${F1}"
+fi
 
 echo "== 1/4 STEP -> GLB"
 mkdir -p "${WORK}/models" "${WORK}/tex" "${WORK}/frames"
@@ -33,13 +40,13 @@ if [ "$(cat "${WORK}/frames/.inputs" 2>/dev/null || true)" != "${FP}" ]; then
     rm -f "${WORK}/frames"/f*.png
     echo "${FP}" > "${WORK}/frames/.inputs"
 fi
-python3 "${HERE}/step_to_glb.py" "${ROOT}/hardware/outputs/voxhub_pcb.step" "${WORK}/pcb.glb" 0.03 0.3
-python3 "${HERE}/step_to_glb.py" "${ROOT}/enclosure/voxhub_assembly.step" "${WORK}/enclosure.glb" 0.03 0.25
+"${PY}" "${HERE}/step_to_glb.py" "${ROOT}/hardware/outputs/voxhub_pcb.step" "${WORK}/pcb.glb" 0.03 0.3
+"${PY}" "${HERE}/step_to_glb.py" "${ROOT}/enclosure/voxhub_assembly.step" "${WORK}/enclosure.glb" 0.03 0.25
 find "${ROOT}/hardware/3dmodels" -name '*.step' | sort | while read -r f; do
-    python3 "${HERE}/step_to_glb.py" "${f}" "${WORK}/models/$(basename "${f%.step}").glb" 0.02 0.25 > /dev/null
+    "${PY}" "${HERE}/step_to_glb.py" "${f}" "${WORK}/models/$(basename "${f%.step}").glb" 0.02 0.25 > /dev/null
 done
 echo "== 2/4 board textures"
-python3 "${HERE}/make_pcb_texture.py" "${ROOT}" "${WORK}/tex" 32
+"${PY}" "${HERE}/make_pcb_texture.py" "${ROOT}" "${WORK}/tex" 32
 echo "== 3/4 render (frames ${F0}..${F1}, ${SAMPLES} samples)"
 # --python-exit-code: without it Blender returns 0 even if the script raised
 "${BLENDER}" -b --python-exit-code 1 -P "${HERE}/render_showcase.py" -- --work "${WORK}" --out "${WORK}/frames" \
@@ -47,12 +54,24 @@ echo "== 3/4 render (frames ${F0}..${F1}, ${SAMPLES} samples)"
 "${BLENDER}" -b --python-exit-code 1 -P "${HERE}/render_showcase.py" -- --work "${WORK}" --still 10.4 "${HERE}/voxhub_exploded.png" \
     --samples 96 --threads "${THREADS}" | grep "showcase:"
 echo "== 4/4 encode"
-for f in $(seq "${F0}" "${F1}"); do
+if [ -n "${KEEP_VIDEO:-}" ]; then
+    mkdir -p "${WORK}/kept"
+    ffmpeg -y -loglevel error -i "${KEEP_VIDEO}" -start_number 1 "${WORK}/kept/f%05d.png"
+    for f in $(seq 1 1260); do
+        n="$(printf 'f%05d.png' "${f}")"
+        if [ "${f}" -lt "${F0}" ] || [ "${f}" -gt "${F1}" ]; then
+            [ -s "${WORK}/kept/${n}" ] || { echo "KEEP_VIDEO has no frame ${f}" >&2; exit 1; }
+            cp "${WORK}/kept/${n}" "${WORK}/frames/${n}"
+        fi
+    done
+    rm -rf "${WORK}/kept"
+fi
+for f in $(seq "${E0}" "${E1}"); do
     [ -s "${WORK}/frames/$(printf 'f%05d.png' "${f}")" ] || { echo "missing frame ${f}" >&2; exit 1; }
 done
 # the PNGs are sRGB; convert with the BT.709 matrix and tag the stream, otherwise players guess (and HD players guess 709
 # for data that swscale wrote as 601 by default - the board would come out too dark a green)
-ffmpeg -y -loglevel error -framerate 60 -start_number "${F0}" -i "${WORK}/frames/f%05d.png" -c:v libx264 -preset slow -crf 17 \
+ffmpeg -y -loglevel error -framerate 60 -start_number "${E0}" -i "${WORK}/frames/f%05d.png" -c:v libx264 -preset slow -crf 17 \
     -vf scale=out_color_matrix=bt709:out_range=tv -pix_fmt yuv420p -colorspace bt709 -color_primaries bt709 -color_trc bt709 \
     -movflags +faststart -r 60 "${HERE}/voxhub_showcase.mp4"
 ls -la "${HERE}/voxhub_showcase.mp4" "${HERE}/voxhub_exploded.png"

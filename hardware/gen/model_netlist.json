@@ -2,8 +2,8 @@
  "C1": {
   "dnp": false,
   "fields": {
-   "MPN": "C1608X5R1H105K080AB",
-   "Manufacturer": "TDK",
+   "MPN": "CL10A105KB8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 1uF 50V X5R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -40,9 +40,9 @@
  "C11": {
   "dnp": false,
   "fields": {
-   "MPN": "C1608X7R1C105K080AC",
-   "Manufacturer": "TDK",
-   "PartDescription": "CAP CER 1uF 16V X7R 0603"
+   "MPN": "CL10B105KA8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 1uF 25V X7R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
@@ -78,8 +78,8 @@
  "C13": {
   "dnp": true,
   "fields": {
-   "MPN": "CL05C220JB5NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
+   "MPN": "0402CG220J500NT",
+   "Manufacturer": "FH (Guangdong Fenghua)",
    "PartDescription": "CAP CER 22pF 50V C0G 0402"
   },
   "footprint": "Capacitor_SMD:C_0402_1005Metric",
@@ -97,9 +97,9 @@
  "C14": {
   "dnp": false,
   "fields": {
-   "MPN": "CL31A226KOHNNNE",
+   "MPN": "CL31A226KAHNNNE",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+   "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
   "in_bom": true,
@@ -116,9 +116,9 @@
  "C15": {
   "dnp": false,
   "fields": {
-   "MPN": "CL31A226KOHNNNE",
+   "MPN": "CL31A226KAHNNNE",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+   "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
   "in_bom": true,
@@ -135,9 +135,9 @@
  "C16": {
   "dnp": false,
   "fields": {
-   "MPN": "CL31A226KOHNNNE",
+   "MPN": "CL31A226KAHNNNE",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+   "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
   "in_bom": true,
@@ -154,9 +154,9 @@
  "C17": {
   "dnp": false,
   "fields": {
-   "MPN": "CL31A226KOHNNNE",
+   "MPN": "CL31A226KAHNNNE",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+   "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
   "in_bom": true,
@@ -211,8 +211,8 @@
  "C2": {
   "dnp": false,
   "fields": {
-   "MPN": "C0603C104K5RACTU",
-   "Manufacturer": "KEMET",
+   "MPN": "CC0603KRX7R9BB104",
+   "Manufacturer": "Yageo",
    "PartDescription": "CAP CER 100nF 50V X7R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -230,8 +230,8 @@
  "C20": {
   "dnp": false,
   "fields": {
-   "MPN": "C1608X5R1E475K080AC",
-   "Manufacturer": "TDK",
+   "MPN": "CL10A475KA8NQNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -268,9 +268,9 @@
  "C22": {
   "dnp": false,
   "fields": {
-   "MPN": "CL31A226KOHNNNE",
+   "MPN": "CL31A226KAHNNNE",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+   "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
   "in_bom": true,
@@ -287,9 +287,9 @@
  "C23": {
   "dnp": false,
   "fields": {
-   "MPN": "CL31A226KOHNNNE",
+   "MPN": "CL31A226KAHNNNE",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+   "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
   "in_bom": true,
@@ -344,9 +344,9 @@
  "C26": {
   "dnp": false,
   "fields": {
-   "MPN": "CL05C270JB5NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 27pF 50V C0G 0402"
+   "MPN": "0402CG150J500NT",
+   "Manufacturer": "FH (Guangdong Fenghua)",
+   "PartDescription": "CAP CER 15pF 50V C0G 0402"
   },
   "footprint": "Capacitor_SMD:C_0402_1005Metric",
   "in_bom": true,
@@ -358,14 +358,14 @@
   "pos": null,
   "ref": "C26",
   "sheet": "usb",
-  "value": "27pF"
+  "value": "15pF"
  },
  "C27": {
   "dnp": false,
   "fields": {
-   "MPN": "CL05C270JB5NNNC",
-   "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 27pF 50V C0G 0402"
+   "MPN": "0402CG150J500NT",
+   "Manufacturer": "FH (Guangdong Fenghua)",
+   "PartDescription": "CAP CER 15pF 50V C0G 0402"
   },
   "footprint": "Capacitor_SMD:C_0402_1005Metric",
   "in_bom": true,
@@ -377,7 +377,7 @@
   "pos": null,
   "ref": "C27",
   "sheet": "usb",
-  "value": "27pF"
+  "value": "15pF"
  },
  "C28": {
   "dnp": false,
@@ -420,9 +420,9 @@
  "C3": {
   "dnp": false,
   "fields": {
-   "MPN": "C1608X7R1C105K080AC",
-   "Manufacturer": "TDK",
-   "PartDescription": "CAP CER 1uF 16V X7R 0603"
+   "MPN": "CL10B105KA8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 1uF 25V X7R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
@@ -553,8 +553,8 @@
  "C36": {
   "dnp": false,
   "fields": {
-   "MPN": "C1608X5R1E475K080AC",
-   "Manufacturer": "TDK",
+   "MPN": "CL10A475KA8NQNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -572,8 +572,8 @@
  "C37": {
   "dnp": false,
   "fields": {
-   "MPN": "C1608X5R1E475K080AC",
-   "Manufacturer": "TDK",
+   "MPN": "CL10A475KA8NQNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -591,9 +591,9 @@
  "C38": {
   "dnp": false,
   "fields": {
-   "MPN": "T520B107M006ATE070",
+   "MPN": "T520B107M006ATE040",
    "Manufacturer": "KEMET",
-   "PartDescription": "CAP POLYMER TANT 100uF 6.3V 70mOhm 3528"
+   "PartDescription": "CAP POLYMER TANT 100uF 6.3V 40mOhm 3528"
   },
   "footprint": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
   "in_bom": true,
@@ -648,8 +648,8 @@
  "C40": {
   "dnp": false,
   "fields": {
-   "MPN": "C1608X5R1E475K080AC",
-   "Manufacturer": "TDK",
+   "MPN": "CL10A475KA8NQNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -667,9 +667,9 @@
  "C41": {
   "dnp": false,
   "fields": {
-   "MPN": "T520B107M006ATE070",
+   "MPN": "T520B107M006ATE040",
    "Manufacturer": "KEMET",
-   "PartDescription": "CAP POLYMER TANT 100uF 6.3V 70mOhm 3528"
+   "PartDescription": "CAP POLYMER TANT 100uF 6.3V 40mOhm 3528"
   },
   "footprint": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
   "in_bom": true,
@@ -762,9 +762,9 @@
  "C46": {
   "dnp": false,
   "fields": {
-   "MPN": "CL31A226KOHNNNE",
+   "MPN": "CL31A226KAHNNNE",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+   "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
   "in_bom": true,
@@ -781,9 +781,9 @@
  "C47": {
   "dnp": false,
   "fields": {
-   "MPN": "CL31A226KOHNNNE",
+   "MPN": "CL31A226KAHNNNE",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 22uF 16V X5R 1206"
+   "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
   "footprint": "Capacitor_SMD:C_1206_3216Metric",
   "in_bom": true,
@@ -819,8 +819,8 @@
  "C49": {
   "dnp": false,
   "fields": {
-   "MPN": "C1608X5R1E475K080AC",
-   "Manufacturer": "TDK",
+   "MPN": "CL10A475KA8NQNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
@@ -838,9 +838,9 @@
  "C5": {
   "dnp": false,
   "fields": {
-   "MPN": "C1608X7R1C105K080AC",
-   "Manufacturer": "TDK",
-   "PartDescription": "CAP CER 1uF 16V X7R 0603"
+   "MPN": "CL10B105KA8NNNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 1uF 25V X7R 0603"
   },
   "footprint": "Capacitor_SMD:C_0603_1608Metric",
   "in_bom": true,
@@ -973,7 +973,7 @@
   "fields": {
    "MPN": "150060VS75000",
    "Manufacturer": "Wurth Elektronik",
-   "PartDescription": "LED green 0603"
+   "PartDescription": "LED green 570nm 0603, 30mA"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
   "in_bom": true,
@@ -1028,9 +1028,9 @@
  "D4": {
   "dnp": false,
   "fields": {
-   "MPN": "150060RS75000",
-   "Manufacturer": "Wurth Elektronik",
-   "PartDescription": "LED red 0603"
+   "MPN": "LTST-C191KRKT",
+   "Manufacturer": "Lite-On",
+   "PartDescription": "LED red 631nm 0603, 30mA"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
   "in_bom": true,
@@ -1047,9 +1047,9 @@
  "D5": {
   "dnp": false,
   "fields": {
-   "MPN": "SZMM3Z10VT1G",
+   "MPN": "MM3Z10VT1G",
    "Manufacturer": "onsemi",
-   "PartDescription": "Zener 10V 300mW SOD-323 (AEC-Q101)"
+   "PartDescription": "Zener 10V 300mW SOD-323"
   },
   "footprint": "Diode_SMD:D_SOD-323",
   "in_bom": true,
@@ -1068,7 +1068,7 @@
   "fields": {
    "MPN": "150060VS75000",
    "Manufacturer": "Wurth Elektronik",
-   "PartDescription": "LED green 0603"
+   "PartDescription": "LED green 570nm 0603, 30mA"
   },
   "footprint": "LED_SMD:LED_0603_1608Metric",
   "in_bom": true,
@@ -1085,11 +1085,11 @@
  "D7": {
   "dnp": false,
   "fields": {
-   "MPN": "156120GS75000",
-   "Manufacturer": "Wurth Elektronik",
-   "PartDescription": "LED green 1206 reverse mount"
+   "MPN": "KT-0603G",
+   "Manufacturer": "Hubei KENTO",
+   "PartDescription": "LED green 520nm 0603, 30mA (status, side B)"
   },
-  "footprint": "LED_SMD:LED_1206_3216Metric_ReverseMount_Hole1.8x2.4mm",
+  "footprint": "LED_SMD:LED_0603_1608Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -1100,7 +1100,7 @@
    34.0,
    71.2,
    90,
-   "F"
+   "B"
   ],
   "ref": "D7",
   "sheet": "cm4",
@@ -1109,11 +1109,11 @@
  "D8": {
   "dnp": false,
   "fields": {
-   "MPN": "156120BS75000",
-   "Manufacturer": "Wurth Elektronik",
-   "PartDescription": "LED blue 1206 reverse mount"
+   "MPN": "KT-0603B",
+   "Manufacturer": "Hubei KENTO",
+   "PartDescription": "LED blue 468nm 0603, 30mA (status, side B)"
   },
-  "footprint": "LED_SMD:LED_1206_3216Metric_ReverseMount_Hole1.8x2.4mm",
+  "footprint": "LED_SMD:LED_0603_1608Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -1124,7 +1124,7 @@
    38.6,
    71.2,
    90,
-   "F"
+   "B"
   ],
   "ref": "D8",
   "sheet": "cm4",
@@ -1133,11 +1133,11 @@
  "D9": {
   "dnp": false,
   "fields": {
-   "MPN": "156120RS75000",
-   "Manufacturer": "Wurth Elektronik",
-   "PartDescription": "LED red 1206 reverse mount"
+   "MPN": "LTST-C191KRKT",
+   "Manufacturer": "Lite-On",
+   "PartDescription": "LED red 631nm 0603, 30mA"
   },
-  "footprint": "LED_SMD:LED_1206_3216Metric_ReverseMount_Hole1.8x2.4mm",
+  "footprint": "LED_SMD:LED_0603_1608Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -1148,7 +1148,7 @@
    43.2,
    71.2,
    90,
-   "F"
+   "B"
   ],
   "ref": "D9",
   "sheet": "cm4",
@@ -1393,6 +1393,7 @@
    "32": "GND",
    "33": "GND",
    "34": "LED_G_EN",
+   "37": "ZB_TDI",
    "38": "UART4_RTS",
    "39": "UART4_TX",
    "40": "UART4_RX",
@@ -1401,10 +1402,11 @@
    "43": "GND",
    "44": "UART4_CTS",
    "45": "ZB_RST",
-   "46": "ZB_SWDIO",
-   "47": "ZB_SWCLK",
+   "46": "ZB_TMS",
+   "47": "ZB_TCK",
    "48": "MUTE_SENSE",
    "49": "I2S_BCLK",
+   "50": "ZB_TDO",
    "51": "DBG_RX",
    "52": "GND",
    "53": "GND",
@@ -1596,16 +1598,16 @@
   "near": "U11",
   "pins": {
    "1": "+3V3",
-   "2": "ZB_SWDIO",
+   "2": "ZB_TMS",
    "3": "ZB_NRST",
-   "4": "ZB_SWCLK",
+   "4": "ZB_TCK",
    "5": "GND",
-   "6": "ZB_SWO"
+   "6": "ZB_TDO"
   },
   "pos": null,
   "ref": "J8",
   "sheet": "zigbee",
-  "value": "TC2030-NL (SWD)"
+  "value": "TC2030-NL (cJTAG)"
  },
  "JP1": {
   "dnp": false,
@@ -1629,9 +1631,9 @@
  "L1": {
   "dnp": false,
   "fields": {
-   "MPN": "SRP7028A-6R8M",
-   "Manufacturer": "Bourns",
-   "PartDescription": "IND 6.8uH 4.5A(rms) 8A(sat) 60mOhm shielded 7.3x6.6mm"
+   "MPN": "SLO0630H6R8MTT",
+   "Manufacturer": "Sunltech",
+   "PartDescription": "IND 6.8uH 4.5A(rms) 8A(sat) 54mOhm shielded 7.1x6.6x3.0mm"
   },
   "footprint": "Inductor_SMD:L_Bourns_SRP7028A_7.3x6.6mm",
   "in_bom": true,
@@ -1772,8 +1774,8 @@
  "R1": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-075K1L",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF5101TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 5.1k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1791,8 +1793,8 @@
  "R10": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07150KL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF1503TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 150k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1810,8 +1812,8 @@
  "R11": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07470KL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF4703TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 470k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1829,8 +1831,8 @@
  "R12": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1848,8 +1850,8 @@
  "R13": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1867,8 +1869,8 @@
  "R14": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT24K9",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF2492TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 24.9k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1886,8 +1888,8 @@
  "R15": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-072K2L",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF2201TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1905,8 +1907,8 @@
  "R16": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT49K9",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF4992TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 49.9k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1924,8 +1926,8 @@
  "R17": {
   "dnp": false,
   "fields": {
-   "MPN": "WR04X1002FTL",
-   "Manufacturer": "Walsin Technology",
+   "MPN": "0402WGF1002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1943,9 +1945,9 @@
  "R18": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07680RL",
-   "Manufacturer": "Yageo",
-   "PartDescription": "RES 680 1% 1/16W 0402"
+   "MPN": "0402WGF1001TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
+   "PartDescription": "RES 1k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
   "in_bom": true,
@@ -1957,13 +1959,13 @@
   "pos": null,
   "ref": "R18",
   "sheet": "cm4",
-  "value": "680"
+  "value": "1k"
  },
  "R19": {
   "dnp": false,
   "fields": {
-   "MPN": "WR04X1002FTL",
-   "Manufacturer": "Walsin Technology",
+   "MPN": "0402WGF1002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -1981,8 +1983,8 @@
  "R2": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-071KL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF1001TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 1k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2000,9 +2002,9 @@
  "R20": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07470RL",
-   "Manufacturer": "Yageo",
-   "PartDescription": "RES 470 1% 1/16W 0402"
+   "MPN": "0402WGF1001TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
+   "PartDescription": "RES 1k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
   "in_bom": true,
@@ -2014,13 +2016,13 @@
   "pos": null,
   "ref": "R20",
   "sheet": "cm4",
-  "value": "470"
+  "value": "1k"
  },
  "R21": {
   "dnp": false,
   "fields": {
-   "MPN": "WR04X1002FTL",
-   "Manufacturer": "Walsin Technology",
+   "MPN": "0402WGF1002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2038,8 +2040,8 @@
  "R22": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-07330RL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF3300TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 330 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2057,8 +2059,8 @@
  "R23": {
   "dnp": false,
   "fields": {
-   "MPN": "WR04X1002FTL",
-   "Manufacturer": "Walsin Technology",
+   "MPN": "0402WGF1002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2076,8 +2078,8 @@
  "R24": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2095,8 +2097,8 @@
  "R25": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2114,8 +2116,8 @@
  "R26": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-071KL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF1001TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 1k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2133,8 +2135,8 @@
  "R27": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0712KL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF1202TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 12k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2152,8 +2154,8 @@
  "R28": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2171,8 +2173,8 @@
  "R29": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2190,8 +2192,8 @@
  "R3": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-070RL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF0000TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 0 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2209,8 +2211,8 @@
  "R30": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2228,8 +2230,8 @@
  "R31": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2247,8 +2249,8 @@
  "R32": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2266,8 +2268,8 @@
  "R33": {
   "dnp": false,
   "fields": {
-   "MPN": "WR04X1002FTL",
-   "Manufacturer": "Walsin Technology",
+   "MPN": "0402WGF1002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2285,8 +2287,8 @@
  "R34": {
   "dnp": false,
   "fields": {
-   "MPN": "WR04X1002FTL",
-   "Manufacturer": "Walsin Technology",
+   "MPN": "0402WGF1002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2304,8 +2306,8 @@
  "R35": {
   "dnp": false,
   "fields": {
-   "MPN": "WR04X1002FTL",
-   "Manufacturer": "Walsin Technology",
+   "MPN": "0402WGF1002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2323,8 +2325,8 @@
  "R36": {
   "dnp": false,
   "fields": {
-   "MPN": "WR04X1002FTL",
-   "Manufacturer": "Walsin Technology",
+   "MPN": "0402WGF1002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2342,8 +2344,8 @@
  "R37": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0720KL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF2002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 20k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2361,8 +2363,8 @@
  "R38": {
   "dnp": false,
   "fields": {
-   "MPN": "WR04X1002FTL",
-   "Manufacturer": "Walsin Technology",
+   "MPN": "0402WGF1002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2380,8 +2382,8 @@
  "R39": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0720KL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF2002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 20k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2399,8 +2401,8 @@
  "R4": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-075K1L",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF5101TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 5.1k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2418,8 +2420,8 @@
  "R40": {
   "dnp": false,
   "fields": {
-   "MPN": "WR04X1002FTL",
-   "Manufacturer": "Walsin Technology",
+   "MPN": "0402WGF1002TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2437,8 +2439,8 @@
  "R41": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-0733RL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF330JTCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 33 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2456,8 +2458,8 @@
  "R42": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2475,8 +2477,8 @@
  "R43": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2494,8 +2496,8 @@
  "R44": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2513,9 +2515,9 @@
  "R45": {
   "dnp": false,
   "fields": {
-   "MPN": "WR04X1002FTL",
-   "Manufacturer": "Walsin Technology",
-   "PartDescription": "RES 10k 1% 1/16W 0402"
+   "MPN": "0402WGF2201TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
+   "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
   "in_bom": true,
@@ -2527,13 +2529,13 @@
   "pos": null,
   "ref": "R45",
   "sheet": "zigbee",
-  "value": "10k"
+  "value": "2.2k"
  },
  "R46": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2548,11 +2550,30 @@
   "sheet": "zigbee",
   "value": "100k"
  },
+ "R47": {
+  "dnp": false,
+  "fields": {
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
+   "PartDescription": "RES 100k 1% 1/16W 0402"
+  },
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "in_bom": true,
+  "near": "U11",
+  "pins": {
+   "1": "+3V3",
+   "2": "ZB_NRST"
+  },
+  "pos": null,
+  "ref": "R47",
+  "sheet": "zigbee",
+  "value": "100k"
+ },
  "R5": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-072K4L",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF2401TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 2.4k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2570,8 +2591,8 @@
  "R6": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-070RL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF0000TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 0 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2589,8 +2610,8 @@
  "R7": {
   "dnp": false,
   "fields": {
-   "MPN": "RC0402FR-071KL",
-   "Manufacturer": "Yageo",
+   "MPN": "0402WGF1001TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 1k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2608,8 +2629,8 @@
  "R8": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT49K9",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF4992TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 49.9k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2627,8 +2648,8 @@
  "R9": {
   "dnp": false,
   "fields": {
-   "MPN": "RMCF0402FT100K",
-   "Manufacturer": "Stackpole Electronics",
+   "MPN": "0402WGF1003TCE",
+   "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "Resistor_SMD:R_0402_1005Metric",
@@ -2822,36 +2843,32 @@
  "U11": {
   "dnp": false,
   "fields": {
-   "MPN": "MGM240PB32VNA3",
-   "Manufacturer": "Silicon Labs",
-   "PartDescription": "EFR32MG24 Zigbee/Thread module +20dBm, built-in antenna"
+   "MPN": "RF-BM-2652P2",
+   "Manufacturer": "RF-star",
+   "PartDescription": "CC2652P Zigbee/Thread module +20dBm, PCB antenna, 16.5x30mm"
   },
-  "footprint": "voxhub:SiliconLabs_MGM240P",
+  "footprint": "voxhub:RFstar_RF-BM-2652P2",
   "in_bom": true,
   "near": "U11",
   "pins": {
-   "1": "GND",
-   "10": "ZB_SWO",
-   "12": "UART4_RX",
-   "13": "UART4_TX",
+   "10": "ZB_NRST",
+   "11": "ZB_TMS",
+   "12": "ZB_TCK",
+   "13": "+3V3",
    "14": "GND",
-   "15": "+3V3",
-   "16": "UART4_CTS",
-   "17": "UART4_RTS",
-   "22": "ZB_BOOT",
-   "23": "GND",
-   "31": "ZB_NRST",
-   "32": "GND",
-   "34": "GND",
-   "35": "GND",
-   "36": "GND",
-   "8": "ZB_SWCLK",
-   "9": "ZB_SWDIO"
+   "16": "ZB_BOOT",
+   "17": "ZB_TDO",
+   "18": "ZB_TDI",
+   "19": "UART4_CTS",
+   "20": "UART4_RTS",
+   "29": "GND",
+   "8": "UART4_TX",
+   "9": "UART4_RX"
   },
   "pos": null,
   "ref": "U11",
   "sheet": "zigbee",
-  "value": "MGM240PB32VNA3"
+  "value": "RF-BM-2652P2"
  },
  "U2": {
   "dnp": false,
@@ -3070,9 +3087,9 @@
  "Y1": {
   "dnp": false,
   "fields": {
-   "MPN": "TSX-3225 24.0000MF18X-C0",
-   "Manufacturer": "Epson",
-   "PartDescription": "XTAL 24MHz 18pF 10ppm 3.2x2.5mm"
+   "MPN": "X322524MOB4SI",
+   "Manufacturer": "YXC",
+   "PartDescription": "XTAL 24MHz 12pF 10ppm 3.2x2.5mm"
   },
   "footprint": "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm",
   "in_bom": true,
@@ -3086,6 +3103,6 @@
   "pos": null,
   "ref": "Y1",
   "sheet": "usb",
-  "value": "24MHz"
+  "value": "24MHz CL12pF"
  }
 }

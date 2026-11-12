@@ -1,21 +1,21 @@
-track segments: 1455, vias: 314 (GND 141, +5V 24)
+track segments: 1446, vias: 294 (GND 129, +5V 26)
 USB 2.0 pairs - electrical length pad to pad (hub pin to connector pin, 1.5 mm counted per via):
-USB_UP_P   30.96 mm (0 vias)   USB_UP_N   30.96 mm (0 vias)   skew 0.00 mm   (vias counted as 0: 0.00 mm)
-USB1_P     11.21 mm (0 vias)   USB1_N     11.21 mm (0 vias)   skew 0.00 mm   (vias counted as 0: 0.00 mm)
-USB2_P     15.17 mm (0 vias)   USB2_N     15.17 mm (0 vias)   skew 0.00 mm   (vias counted as 0: 0.00 mm)
+USB_UP_P   31.79 mm (0 vias)   USB_UP_N   31.79 mm (0 vias)   skew 0.00 mm   (vias counted as 0: 0.00 mm)
+USB1_P     10.76 mm (0 vias)   USB1_N     10.76 mm (0 vias)   skew 0.00 mm   (vias counted as 0: 0.00 mm)
+USB2_P     16.21 mm (0 vias)   USB2_N     16.21 mm (0 vias)   skew 0.00 mm   (vias counted as 0: 0.00 mm)
 USB 2.0 lines - pads on the path, and copper of the net that is not on that path (stubs, loops; 0 = pure flow-through):
-USB_UP_P  U4.31 > J3.105                     on-path  30.96 mm   off-path 0.04 mm
-USB_UP_N  U4.30 > J3.103                     on-path  30.96 mm   off-path 0.00 mm
-USB1_P    U4.2 > U7.4 > U7.3 > J6.3          on-path  11.21 mm   off-path 0.05 mm
-USB1_N    U4.1 > U7.6 > U7.1 > J6.2          on-path  11.21 mm   off-path 0.03 mm
-USB2_P    U4.4 > U8.4 > U8.3 > J6.7          on-path  15.17 mm   off-path 0.05 mm
-USB2_N    U4.3 > U8.6 > U8.1 > J6.6          on-path  15.17 mm   off-path 0.05 mm
-worst pair: skew 0.00 mm, 0.00 mm with vias counted as 0 (limit 3.8 mm); off-path copper 0.05 mm
-SD_CLK      58.1 mm (6 vias)
-SD_CMD      66.4 mm (4 vias)
-SD_DAT0     85.5 mm (2 vias)
-SD_DAT1     85.6 mm (2 vias)
-SD_DAT2     59.6 mm (6 vias)
-SD_DAT3     90.8 mm (2 vias)
-I2S_BCLK    95.0 mm (4 vias)
-PDM_CLK_M  144.3 mm (3 vias)
+USB_UP_P  U4.31 > J3.105                     on-path  31.79 mm   off-path 0.00 mm
+USB_UP_N  U4.30 > J3.103                     on-path  31.79 mm   off-path 0.00 mm
+USB1_P    U4.2 > U7.4 > U7.3 > J6.3          on-path  10.76 mm   off-path 0.00 mm
+USB1_N    U4.1 > U7.6 > U7.1 > J6.2          on-path  10.76 mm   off-path 0.00 mm
+USB2_P    U4.4 > U8.4 > U8.3 > J6.7          on-path  16.21 mm   off-path 0.00 mm
+USB2_N    U4.3 > U8.6 > U8.1 > J6.6          on-path  16.21 mm   off-path 0.00 mm
+worst pair: skew 0.00 mm, 0.00 mm with vias counted as 0 (limit 3.8 mm); off-path copper 0.00 mm
+SD_CLK      84.6 mm (4 vias)
+SD_CMD      58.9 mm (2 vias)
+SD_DAT0     58.8 mm (4 vias)
+SD_DAT1     81.0 mm (4 vias)
+SD_DAT2     64.6 mm (4 vias)
+SD_DAT3     97.8 mm (4 vias)
+I2S_BCLK    86.0 mm (3 vias)
+PDM_CLK_M  146.3 mm (3 vias)

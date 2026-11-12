@@ -64,10 +64,10 @@ def slide_switch():
             pins = pins.union(cbox(0.6, 0.9, 0.5, 0.0, x, y * 1.15))
     return [("frame", frame, SILVER), ("base", base, BLACK), ("actuator", act, BLACK), ("pins", pins, SILVER)]
 
-def mgm240p():
-    pcb = cbox(12.9, 15.0, 0.8)
-    can = box(-6.0, -7.0, 0.8, 6.0, 2.5, 2.2).edges("|Z").fillet(0.5)
-    ant = box(-4.6, 3.6, 0.8, 4.6, 6.9, 0.84).cut(box(-3.6, 4.6, 0.7, 3.6, 5.9, 0.9))
+def rf_bm_2652p2():
+    pcb = cbox(16.5, 30.0, 0.8)
+    can = box(-7.2, -13.6, 0.8, 7.2, 5.0, 2.25).edges("|Z").fillet(0.5)
+    ant = box(-7.0, 9.6, 0.8, 7.0, 14.4, 0.84).cut(box(-6.0, 10.6, 0.7, 6.0, 13.4, 0.9))
     return [("pcb", pcb, GREEN), ("shield", can, SILVER), ("antenna", ant, GOLD)]
 
 def simple(solid, colour):
@@ -79,13 +79,11 @@ M = {
     "Button_Switch_SMD.3dshapes/SW_DPDT_CK_JS202011JCQN": slide_switch(),
     "Inductor_SMD.3dshapes/L_Bourns_SRP7028A_7.3x6.6mm": [("body", cbox(7.3, 6.6, 2.75, 0.05).edges("|Z").fillet(0.8), GREY),
                                                            ("pads", cbox(1.4, 3.2, 0.3, 0.0, -3.0, 0).union(cbox(1.4, 3.2, 0.3, 0.0, 3.0, 0)), SILVER)],
-    "LED_SMD.3dshapes/LED_1206_3216Metric_ReverseMount": [("body", cbox(2.0, 1.6, 0.7), WHITE),
-                                                           ("pads", cbox(0.6, 1.6, 0.7, 0.0, -1.3, 0).union(cbox(0.6, 1.6, 0.7, 0.0, 1.3, 0)), GOLD)],
     "Package_DFN_QFN.3dshapes/QFN-24-1EP_4x4mm_P0.5mm_EP2.75x2.75mm": simple(cbox(4.0, 4.0, 0.6), BLACK),
     "Package_DFN_QFN.3dshapes/TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm": simple(cbox(3.0, 3.0, 0.75), BLACK),
     "Package_SO.3dshapes/HTSOP-8-1EP_3.9x4.9mm_Pitch1.27mm": [("body", cbox(3.9, 4.9, 1.5, 0.1), BLACK), ("leads", cbox(6.0, 4.3, 0.25), SILVER)],
     "Sensor_Audio.3dshapes/Infineon_PG-LLGA-5-1": [("lid", cbox(4.0, 3.0, 0.95, 0.25), SILVER), ("base", cbox(4.0, 3.0, 0.25), GREEN)],
-    "MGM240P": mgm240p(),
+    "RF-BM-2652P2": rf_bm_2652p2(),
     "ADAU7002": simple(cbox(0.76, 1.56, 0.5), BLACK),
     "RaspberryPi_CM4_with_heatsink": cm4(),
 }

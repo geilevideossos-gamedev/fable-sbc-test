@@ -1,9 +1,20 @@
 {
- "checked": "2026-11-11",
- "lines": 58,
- "placements": 135,
- "pcb_parts_usd_1": 74.79,
- "pcb_parts_usd_100": 43.71,
+ "checked_jlcpcb": "2026-11-12",
+ "checked_digikey": "2026-11-11",
+ "lines": 55,
+ "placements": 136,
+ "pcb_parts_usd_1": 41.78,
+ "pcb_parts_usd_100": 30.03,
  "system_usd_1": 114.53,
- "system_usd_100": 111.15
+ "system_usd_100": 111.15,
+ "library_types": {
+  "Basic": 17,
+  "Extended": 32,
+  "Preferred Extended": 4
+ },
+ "below_200_at_jlcpcb": [
+  "61400826021 (116)",
+  "ADAU7002ACBZ-R7 (104)",
+  "RF-BM-2652P2 (126)"
+ ]
 }
