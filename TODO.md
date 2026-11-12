@@ -9,30 +9,37 @@ Rules: PCB, BOM and JLCPCB order package unchanged; only software, documentation
 Assistant architecture
 - [x] Decision: Home Assistant's Assist pipeline with the official Anthropic integration for both devices; the
       VoxHub Assistant add-on is not extended (DECISIONS.md S-1 to S-5)
-- [x] Exposure guard for locks and alarm panels (`assistant/voxhub_satellite/app/voxhub_satellite/guard.py`),
-      unit tests against a fake Home Assistant websocket
-- [x] Hub add-on "VoxHub Satellite": launcher, LED / mute bridge, guard; 45 unit tests; image built from the
-      official LVA image and run in a container against PulseAudio and a real ESPHome API client (7 / 7 checks)
+- [x] Exposure guard for locks and alarm panels (`assistant/voxhub_satellite/app/voxhub_satellite/guard.py`), also
+      reading every script's configuration; unit tests against a fake Home Assistant websocket
+- [x] Hub add-on "VoxHub Satellite": launcher, LED / mute bridge, guard; Linux Voice Assistant on 127.0.0.1 only;
+      51 unit tests; image built from the official LVA image and run in a container against PulseAudio and a real
+      ESPHome API client (7 / 7 checks, gain unchanged after a restart)
 - [x] Assistant documentation (add-on DOCS.md, `assistant/README.md`)
 - [~] Not run on Home Assistant OS or on the board (no hardware): Supervisor audio, LEDs, mute switch, discovery
 
 Satellite image (`/os/satellite`)
-- [ ] Build script for a Raspberry Pi OS Lite 64-bit image with LVA, the VoxHub overlay block, LEDs / mute,
-      Wi-Fi and hub address at build time, discovery, automatic security updates
-- [ ] Image built once and verified
+- [x] Build script for a Raspberry Pi OS Lite 64-bit image with LVA, the VoxHub overlay block, LEDs / mute,
+      Wi-Fi and hub address at build time, discovery, automatic security updates; checks of the finished image
+- [x] Runtime test of a built image (`test-satellite-image.sh`): PipeWire, launcher, LVA and the bridge inside the
+      emulated image, driven by an ESPHome API client; 7 / 7 on the first build's image
+- [ ] Image built once with all checks passing, runtime test on that image, `lva-constraints.txt` committed,
+      `os/README.md` section "Satellite image: verification"
+- [ ] Boot on the board (no hardware)
 
 Zigbee radio
-- [x] `tools/flash_zigbee.sh --role hub|satellite` (coordinator / router 20250403), router check by boot loader CRC,
-      `--rejoin`, refusal on Home Assistant OS, local copies of the downloads
-- [x] Radio simulator and test runner (`tools/test/`): 49 checks pass
+- [x] `tools/flash_zigbee.sh --role hub|satellite` (coordinator / router 20250403), router check over the
+      programmed ranges, `--rejoin` (refused without router firmware), refusal on Home Assistant OS, local copies
+- [x] Radio simulator (writes its NV area like the real firmware) and test runner (`tools/test/`)
 - [ ] Router firmware on real hardware (no board exists)
 
 Shopping list and documentation
 - [x] `fab/SHOPPING_LIST.md`, section 8: satellite variant (CM4101000 1 GB, Reichelt.at 50.82 EUR; 32 GB card) and
       combined basket hub + satellite, two parcels to Austria, 286.90 EUR (prices read 2026-11-12)
-- [ ] `fab/ASSEMBLY_AND_TEST.md`: hub / satellite setup, pairing, room assignment, Zigbee router, tests from both rooms
-- [ ] README.md, os/README.md updated
-- [ ] Independent review of the changes
+- [x] `fab/ASSEMBLY_AND_TEST.md`, chapter 7: hub / satellite setup, pairing, room assignment, Zigbee router, tests
+      from both rooms, results table, troubleshooting
+- [x] README.md, os/README.md, os/satellite/README.md, assistant/README.md updated
+- [x] Independent review (three reviewers): 4 high, 7 medium, 13 low findings, all fixed or documented
+      (DECISIONS.md S-33 to S-40)
 
 ## Revision A2: orderable at JLCPCB (third session, 2026-11-12)
 

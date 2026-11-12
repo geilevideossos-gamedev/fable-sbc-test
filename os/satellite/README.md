@@ -51,7 +51,7 @@ through `qemu-user-static` and `binfmt_misc`; the script stops with a clear mess
 | `voxhub-lva.service` | finds the googlevoicehat source and sink, sets the microphone gain (default +12 dB), starts Linux Voice Assistant as user `voxhub` with the ESPHome API on port 6053 and the peripheral API on 127.0.0.1:6055 |
 | `voxhub-peripherals.service` | status LEDs and mute switch (same code and LED meanings as the hub add-on) |
 | `voxhub-hubwatch.service` | firewall: port 6053 only from the hub, port 6055 only local; checks that Home Assistant answers at `http://<hub>:8123` (answers are played from there) |
-| Settings | `/etc/voxhub/satellite.env` (name, room, hub, wake word, microphone gain); Wi-Fi in `/etc/NetworkManager/system-connections/voxhub-wifi.nmconnection` |
+| Settings | `/etc/voxhub/satellite.env` (name, hub, microphone gain; the wake word only for the first start - later it is chosen in Home Assistant; the room only as a note - the room is the device's area in Home Assistant); Wi-Fi in `/etc/NetworkManager/system-connections/voxhub-wifi.nmconnection` |
 | Updates | `unattended-upgrades` daily for Debian, Debian security and the Raspberry Pi archive (kernel, firmware); reboot at 04:30 when an update needs it |
 | Radio | `voxhub-flash-zigbee` (= `tools/flash_zigbee.sh`; picks the role `satellite` by itself) with the router firmware and cc2538-bsl stored in the image, so flashing needs no internet |
 | Access | user `voxhub` (sudo), SSH on; host keys are generated at the first boot; cloud-init and the first-boot user dialog are switched off |
@@ -66,7 +66,7 @@ ssh voxhub@voxhub-satellite.local
 sudo voxhub-status                              # services, hub, firewall, sound card, LEDs, last log lines
 sudo voxhub-flash-zigbee --role satellite       # Zigbee router firmware (once)
 journalctl -u voxhub-lva -f                     # follow Linux Voice Assistant
-sudo nano /etc/voxhub/satellite.env             # change hub address, wake word, gain; then: sudo systemctl restart voxhub-lva voxhub-hubwatch
+sudo nano /etc/voxhub/satellite.env             # hub address, name, gain; then: sudo systemctl restart voxhub-lva voxhub-hubwatch
 ```
 
 ## Verification

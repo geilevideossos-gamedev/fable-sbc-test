@@ -13,7 +13,9 @@ anywhere. Work through the chapters in this order:
    satellite image, pairing, rooms, the Zigbee router and the tests from both rooms
 
 The two assembled boards are identical. Board 1 becomes the **hub** (Home Assistant OS, chapters 1 to 4 as
-written), board 2 the **satellite** (chapters 1 to 4 except the software tests, then chapter 7).
+written), board 2 the **satellite**: chapters 1 and 2, chapter 3 tests 1 to 5 and 7 (with the satellite card of
+section 7.3 instead of part A of test 6), sections 7.3 and 7.4 (its software tests), then chapter 4 and the rest
+of chapter 7.
 
 Status of this text: it was written on 2026-11-12 for hardware revision A2. **No board has been built yet.** Every
 expected value below comes from the schematic (`hardware/gen/design.py`), the board file, the enclosure model or a
@@ -1365,7 +1367,7 @@ Both assembled boards of the JLCPCB order are identical. They get two roles:
 | Home Assistant | yes: the one Home Assistant of the house | no |
 | Voice | VoxHub Satellite add-on: wake word, microphones, speaker, LEDs, mute switch | the same satellite software (Linux Voice Assistant 1.1.18) as a system service |
 | Understanding, answers | Whisper, Claude (Anthropic integration), Piper - for **both** devices | nothing: it sends the request to the hub and plays the answer |
-| Zigbee radio | coordinator (`--role hub`, test 12) | router (`--role satellite`, section 7.7) |
+| Zigbee radio | coordinator (`--role hub`, test 12) | router (`--role satellite`, section 7.6) |
 | Compute module | CM4104000 (4 GB) | CM4101000 (1 GB) is enough (`fab/SHOPPING_LIST.md`, section 8) |
 
 ```
@@ -1382,15 +1384,17 @@ Both assembled boards of the JLCPCB order are identical. They get two roles:
 
 The request always goes through Claude: wake word on the device that heard it, speech to text on the hub,
 Claude with the area of that device, text to speech on the hub, answer on the speaker of the device that heard it.
-Why it is built like this: `DECISIONS.md`, entries S-1 to S-17.
+Why it is built like this: `DECISIONS.md`, section "Two devices: hub and satellite" (S-1 to S-40).
 
 Work through the sections in this order. The hub has to be finished (chapter 3 complete, test 13 passed) before
 the satellite is paired.
 
 ### 7.1 Before you start
 
-- Both boards went through chapter 3 tests 1 to 5 and 7 (power, compute module, 3.3 V). The satellite board does
-  tests 6 and 8 to 13 in their satellite form in section 7.4; the hub did them as written.
+- Both boards went through chapter 3 tests 1 to 5 and 7 (power, compute module, 3.3 V); for the satellite board
+  test 5 uses the card of section 7.3, not the Home Assistant OS card. The satellite does tests 6 and 8 to 11 in
+  their satellite form in section 7.4 (S6, S8 to S11) before it goes into its case, and test 12 as the router in
+  section 7.6; test 13 does not apply to it. The hub did all tests as written.
 - An Anthropic API key (console.anthropic.com, "API Keys"). The key is entered once, on the hub.
 - The hub has a **fixed IP address**: in your router's DHCP settings give the device `homeassistant` a reservation
   (every router names this differently: "address reservation", "static lease", "always assign this address").
@@ -1457,15 +1461,17 @@ installed release can differ slightly. "Apps" were called "add-ons" in older ver
    Assistant does not expose them by default, and the VoxHub exposure guard (step 7) keeps them that way.
 6. **Stop the old assistant.** If the **VoxHub Assistant** app runs, stop it and switch **Start on boot** off. It
    uses the same microphones and LEDs.
-7. **VoxHub Satellite app.** **Settings > Apps > Install app**, three dots > **Repositories**: the repository
-   `https://github.com/geilevideossos-gamedev/fable-sbc-test` is there if you installed VoxHub Assistant before;
-   otherwise add it. Install **VoxHub Satellite**. The first install builds the app on the hub (several minutes).
+7. **VoxHub Satellite app.** **Settings > Apps > Install app**, three dots > **Repositories**:
+   add `https://github.com/geilevideossos-gamedev/fable-sbc-test#claude/gallant-hamilton-kojnjj`. The part after
+   `#` is the branch with the two-device version; as long as it is not merged into `main`, the address without it
+   offers only VoxHub Assistant (if you added the repository before without `#...`, remove it and add it again).
+   Install **VoxHub Satellite**. The first install builds the app on the hub (several minutes).
    - **Configuration** tab: **Device name** `VoxHub Upstairs` (the room of the hub). Keep the other defaults:
      **Exposure guard** on, **Protected domains** `lock` and `alarm_control_panel`, **Microphone gain** 4.
    - **Info** tab: **Protection mode** off (needed for the LEDs and the mute switch), **Start on boot** on,
      **Start**.
    - **Log** tab, expected lines: `Microphone alsa_input...soc_sound...`, `Exposure guard on: alarm_control_panel,
-     lock are never exposed to Assist`, `Server started (host=<hub address>, port=6053)`, `Connected to the voice
+     lock are never exposed to Assist`, `Server started (host=127.0.0.1, port=6053)` (the hub's satellite only listens on the hub itself), `Connected to the voice
      satellite at ws://127.0.0.1:6055`. The green LED blinks slowly: the satellite is not paired yet.
 8. **Pair the hub's own satellite.** **Settings > Devices & services**: under **Discovered**, **ESPHome** offers
    "VoxHub Upstairs" (or `lva-<12 hex digits>`). **Add**, **Submit**; in the success dialog choose the **Area**
@@ -1475,7 +1481,7 @@ installed release can differ slightly. "Apps" were called "add-ons" in older ver
 
 | Expected | If not |
 |---|---|
-| ESPHome device "VoxHub Upstairs" in the area of the hub's room, green LED on, "Okay Nabu, what time is it?" is answered from the hub's speaker | **No discovered device:** **Settings > Devices & services > Add integration > ESPHome**, host = the hub's address, port 6053. **The log says "the sound card did not appear":** the VoxHub block is missing in `config.txt` (test 9 fails as well). **No LEDs:** protection mode is still on; the log says `LED feedback disabled`. **The answer is spoken by Home Assistant's own agent ("Turned on the light") instead of Claude:** "Prefer handling commands locally" is on, or the device uses another assistant. |
+| ESPHome device "VoxHub Upstairs" in the area of the hub's room, green LED on, "Okay Nabu, what time is it?" is answered from the hub's speaker | **No discovered device:** **Settings > Devices & services > Add integration > ESPHome**, host `127.0.0.1`, port 6053. **The log says "the sound card did not appear":** the VoxHub block is missing in `config.txt` (test 9 fails as well). **No LEDs:** protection mode is still on; the log says `LED feedback disabled`. **The answer is spoken by Home Assistant's own agent ("Turned on the light") instead of Claude:** "Prefer handling commands locally" is on, or the device uses another assistant. |
 
 ### 7.3 Satellite: build and write the SD card
 
@@ -1534,12 +1540,14 @@ Card in, compute module (1 GB) fitted, speaker plugged in, 30 W charger.
 SRC=$(pactl list short sources | grep soc_sound | grep -v monitor | cut -f2)
 SNK=$(pactl list short sinks | grep soc_sound | cut -f2)
 parecord --device="$SRC" --file-format=wav --channels=2 /tmp/mic.wav & sleep 8; kill %1
-paplay --device="$SNK" /tmp/mic.wav
+paplay --device="$SNK" --volume=164619 /tmp/mic.wav
+paplay --device="$SNK" --volume=164619 --channel-map=front-right,front-left /tmp/mic.wav
 ```
 
 Speak during the eight seconds, first over the front left corner (MK1), then over the rear right corner (MK2).
-The recording already contains the +12 dB of the satellite's microphone gain, so it plays back louder than on the
-hub in test 9. Expected and faults: as test 9.
+The first `paplay` plays MK1 (left channel), the second MK2 (the channels swapped, as in test 9). The recording
+already contains the +12 dB of the satellite's microphone gain; `--volume=164619` adds 24 dB, so it plays about as
+loud as test 9. Expected and faults: as test 9.
 
 **Test S10 - speaker.**
 
@@ -1641,7 +1649,7 @@ names.
 | R11 | both, at the same time | both people say the wake word | each device answers its own person, or Home Assistant drops one of two detections of the same voice (`duplicate_wake_up_detected`) - never an answer in the wrong room |
 | R12 | hub | **Settings > Voice assistants > VoxHub Claude**, three dots > **Debug**: the last runs of both devices | each run shows Conversation agent "Claude conversation" and the device that started it; no run handled locally |
 | R13 | satellite | pull the hub's charger for a minute, then plug it in again | the satellite's green LED blinks slowly while the hub is away, steady again a few minutes after the hub is back |
-| R14 | satellite | `systemctl list-timers 'apt-daily*'` and `sudo unattended-upgrade --dry-run` over SSH | both timers listed; the dry run ends without an error (it lists what it would install) |
+| R14 | satellite | `systemctl list-timers 'apt-daily*'` and `sudo unattended-upgrade --dry-run -v` over SSH | both timers listed; the dry run prints "Allowed origins are: ..." with Debian, Debian-Security and Raspberry Pi Foundation, then the packages it would upgrade, and ends without an error |
 | R15 | mother's room | a Zigbee device near the satellite | operable from Home Assistant; in the network map it is connected through the router |
 
 ### 7.9 Results table, two-device system
@@ -1668,4 +1676,4 @@ names.
 | The satellite answers, but Claude does not know the room | The satellite device has no area (section 7.5). |
 | The wake word is not heard well | Raise the microphone gain: on the hub the option **Microphone gain** (e.g. 6), on the satellite `VOXHUB_MIC_GAIN=6` in `/etc/voxhub/satellite.env` and `sudo systemctl restart voxhub-lva`. Too much gain makes loud speech clip. **Wake word 1 Sensitivity** on the device page changes the threshold. |
 | After a new Home Assistant address the satellite is "unavailable" | Its firewall still has the old address: `VOXHUB_HUB` in `/etc/voxhub/satellite.env`, then `sudo systemctl restart voxhub-hubwatch voxhub-lva`. |
-| Changes of the satellite configuration | `sudo nano /etc/voxhub/satellite.env` (name, room, hub, wake word, gain), then `sudo systemctl restart voxhub-lva voxhub-hubwatch`. Wi-Fi: `sudo nmtui`. |
+| Changes of the satellite configuration | `sudo nano /etc/voxhub/satellite.env` (name, hub address, microphone gain), then `sudo systemctl restart voxhub-lva voxhub-hubwatch`. The wake word is chosen on the device page in Home Assistant (**Wake word**; `VOXHUB_WAKE_WORD` only sets the first one), the room is the device's **Area** (section 7.5; `VOXHUB_ROOM` is only a note). Wi-Fi: `sudo nmtui`. |

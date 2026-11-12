@@ -108,7 +108,8 @@ flowchart LR
 ```
 
 Both devices run Linux Voice Assistant 1.1.18 (`assistant/voxhub_satellite` on the hub, `os/satellite` on the
-satellite). Only the transcribed text (plus tool results) leaves the house. The single-device VoxHub Assistant add-on
+satellite). Audio stays in the house; only the transcribed request, Claude's instructions, the names and areas of
+the devices you expose and the results of Claude's tool calls go to Anthropic. The single-device VoxHub Assistant add-on
 of revision A2 still exists for a hub without a satellite (`assistant/README.md`).
 
 ### GPIO map (CM4)
@@ -209,7 +210,7 @@ os/build-image.sh repack --wifi-ssid "MyWifi" --wifi-psk "secret"
 
 # 3b. Satellite image (Raspberry Pi OS Lite + Linux Voice Assistant, about 25 minutes)
 sudo apt install qemu-user-static binfmt-support parted e2fsprogs openssl
-sudo os/satellite/build-satellite-image.sh --wifi-ssid "MyWifi" --wifi-psk "secret" --hub 192.168.1.10 --room Downstairs
+sudo os/satellite/build-satellite-image.sh --wifi-ssid "MyWifi" --wifi-psk "secret-password" --hub 192.168.1.10 --room Downstairs
 #    -> os/output/voxhub-satellite-2026-10-06-lva1.1.18.img.xz
 
 # 4. Add-ons: tests (VoxHub Satellite and VoxHub Assistant), container test of VoxHub Satellite (Docker)
@@ -218,8 +219,8 @@ pip install -r assistant/requirements-dev.txt
 assistant/tests/container/run_addon_test.sh
 
 # 4b. Radio flashing script against the simulated radio (about 17 minutes)
-pip install pyserial intelhex
-tools/test/run_flash_tests.sh
+sudo apt install python3-serial python3-intelhex
+sudo tools/test/run_flash_tests.sh
 
 # 5. Showcase animation (Blender 4.2 - 4.5, headless; a little over 3 hours on 4 CPU cores)
 pip install cadquery pymupdf pillow numpy && sudo apt install ffmpeg
@@ -228,7 +229,9 @@ BLENDER=/path/to/blender media/build_showcase.sh
 
 Then: order the boards (`fab/ORDER_GUIDE.md`), buy the rest (`fab/SHOPPING_LIST.md`), print `enclosure/voxhub_shell.3mf` and
 `voxhub_base.3mf`, test and assemble (`fab/ASSEMBLY_AND_TEST.md`), flash the image, flash the radio (`tools/flash_zigbee.sh`),
-add this repository as an add-on repository in Home Assistant and install **VoxHub Satellite**; for the second board
+add this repository as an add-on repository in Home Assistant (until the two-device version is merged into `main`:
+`https://github.com/geilevideossos-gamedev/fable-sbc-test#claude/gallant-hamilton-kojnjj`) and install **VoxHub
+Satellite**; for the second board
 write the satellite image and follow `fab/ASSEMBLY_AND_TEST.md`, chapter 7.
 
 ## Cost summary
@@ -294,7 +297,7 @@ delivered for both devices without the boards, 66.01 EUR less than two hubs - [`
 | OS image | repack image built from HAOS 18.5 and verified; from-source build (`build-image.sh full`) ran to the end on the ninth attempt, image inspected; not booted (no hardware) | `os/README.md` |
 | Assistant | 86 unit tests pass | `assistant/tests/` |
 | Two-device system: architecture | read in the Home Assistant source (2026.11.1): the Anthropic integration + Assist API cover tool use, room awareness and per-device answers, not a hard lock / alarm rule - hence the exposure guard | `DECISIONS.md` S-1 to S-5 |
-| Hub add-on VoxHub Satellite | 45 unit tests (guard, bridge, LEDs, mute switch, launcher, options); image built from the official LVA 1.1.18 image and run against PulseAudio with a real ESPHome API client: 7 / 7 checks; not on Home Assistant OS | `assistant/voxhub_satellite`, `assistant/tests/` |
+| Hub add-on VoxHub Satellite | 51 unit tests (guard, bridge, LEDs, mute switch, launcher, options); image built from the official LVA 1.1.18 image and run against PulseAudio with a real ESPHome API client: 7 / 7 checks, LVA only on 127.0.0.1, gain unchanged after a restart; not on Home Assistant OS | `assistant/voxhub_satellite`, `assistant/tests/` |
 | Satellite image | built and checked in emulation (overlays, settings, services, LVA and VoxHub modules start, unattended-upgrades dry run, offline radio flashing dry run); not booted (no hardware) | `os/satellite/`, `os/README.md` |
 | Radio roles | coordinator and router written into a simulated radio with the real cc2538-bsl, router detection by CRC, rejoin, refusals: 51 checks pass; not on hardware | `tools/test/` |
 

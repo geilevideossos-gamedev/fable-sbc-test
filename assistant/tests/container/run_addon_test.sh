@@ -15,6 +15,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
+if ! docker image inspect "$PULSE_IMAGE" >/dev/null 2>&1; then
+    docker build -q -t "$PULSE_IMAGE" "$HERE/pulse" >/dev/null
+fi
 docker build -q --build-arg BUILD_FROM=ghcr.io/ohf-voice/linux-voice-assistant:1.1.18 \
     --build-arg BUILD_ARCH=amd64 --build-arg BUILD_VERSION=test -t voxhub-satellite:test "$ADDON" >/dev/null
 mkdir -p "$WORK/data" "$WORK/leds/voxhub-green" "$WORK/leds/voxhub-blue"
@@ -44,10 +47,20 @@ for _ in $(seq 1 60); do
     sleep 1
 done
 docker logs "$NAME-addon" 2>&1 | sed -n '1,40p'
-ADDRESS="$(docker inspect -f "{{(index .NetworkSettings.Networks \"$NAME\").IPAddress}}" "$NAME-addon")"
 STATUS=0
-docker run --rm --network "$NAME" -v "$HERE/esphome_client.py:/test/esphome_client.py:ro" -v "$WORK/leds:/leds" \
-    --entrypoint /app/.venv/bin/python3 voxhub-satellite:test /test/esphome_client.py "$ADDRESS" /leds || STATUS=$?
+docker logs "$NAME-addon" 2>&1 | grep -q "Server started (host=127.0.0.1, port=6053)" || { echo "FAIL  LVA does not listen on 127.0.0.1"; STATUS=1; }
+docker run --rm --network "container:$NAME-addon" -v "$HERE/esphome_client.py:/test/esphome_client.py:ro" -v "$WORK/leds:/leds" \
+    --entrypoint /app/.venv/bin/python3 voxhub-satellite:test /test/esphome_client.py 127.0.0.1 /leds || STATUS=$?
+level() {
+    docker exec -e PULSE_SERVER=unix:/run/audio/pulse.sock "$NAME-pulse" pactl get-source-volume alsa_input.platform-soc_sound.stereo-fallback
+}
+level | grep -q "12.04 dB" || { echo "FAIL  microphone gain after the first start"; STATUS=1; }
+docker restart "$NAME-addon" >/dev/null
+for _ in $(seq 1 60); do
+    [ "$(docker logs "$NAME-addon" 2>&1 | grep -c "Connected to the voice satellite")" -ge 2 ] && break
+    sleep 1
+done
+level | grep -q "12.04 dB" && echo "PASS  microphone gain still +12.04 dB after a restart" || { echo "FAIL  microphone gain changed after a restart"; STATUS=1; }
 echo "--- add-on log after the test"
 docker logs "$NAME-addon" 2>&1 | tail -n 25
 echo "--- levels set by the launcher"

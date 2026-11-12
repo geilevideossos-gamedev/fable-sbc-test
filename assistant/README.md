@@ -380,7 +380,7 @@ optional wheels were not available at build time; use `wake_word_engine: wyoming
 cd assistant
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements-dev.txt
-pytest                      # 131 tests (86 VoxHub Assistant, 45 VoxHub Satellite), about 3 s
+pytest                      # 137 tests (86 VoxHub Assistant, 51 VoxHub Satellite), about 3 s
 ruff check . && ruff format --check .
 python -m compileall -q voxhub_assistant/app
 ```
