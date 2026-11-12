@@ -69,7 +69,7 @@ def test_wait_for_audio_retries(monkeypatch):
 def test_levels():
     pactl = Pactl()
     apply_levels(Settings(mic_gain=4.0, volume_percent=90), "src", "snk", pactl)
-    assert ["pactl", "set-source-volume", "src", "+12.04dB"] in pactl.calls
+    assert ["pactl", "set-source-volume", "src", "4.000000"] in pactl.calls
     assert gain_db(1.0) == "+0.00dB" and gain_db(0.5) == "-6.02dB"
     assert ["pactl", "set-sink-volume", "snk", "90%"] in pactl.calls
 
@@ -88,6 +88,9 @@ def test_lva_command():
     assert pairs["--peripheral-host"] == "127.0.0.1"
     assert "--mic-auto-gain" in argv and "--debug" in argv
     assert "--mic-noise-suppression" not in argv
+    assert "--host" not in argv
+    hub = lva_command(Settings(host="127.0.0.1"), "src", "snk", "/venv/python")
+    assert hub[hub.index("--host") + 1] == "127.0.0.1"
 
 
 @pytest.mark.parametrize(
@@ -136,6 +139,7 @@ def test_addon_options_match_config():
 def test_addon_options_defaults_and_guard_off():
     options = Options.parse({})
     assert options.settings.name == "VoxHub Hub"
+    assert options.settings.host == "127.0.0.1"
     assert options.guard is True
     assert options.protected_domains == ["lock", "alarm_control_panel"]
     assert Options.parse({"guard": False, "protected_domains": []}).protected_domains == []

@@ -17,6 +17,8 @@ PRCM_RAMHWOPT = 0x40082250
 FLASH_SIZE_REG = 0x4003002C
 MISC_CONF_1 = 0x500010A0
 IEEE_PRIMARY = 0x500012F0
+NV_START = 0x50000
+NV_END = 0x56000
 
 
 def read_hex(path):
@@ -31,6 +33,7 @@ class Chip:
         self.images = images
         self.bootloader_closed = bootloader_closed
         self.log = log
+        self.levels = {}
         self.flash = bytearray(b"\xff" * FLASH_SIZE)
         if initial in images:
             data = images[initial]
@@ -45,9 +48,13 @@ class Chip:
     def gpio(self, line):
         try:
             with open(os.path.join(self.gpio_dir, "gpio%d" % line)) as handle:
-                return handle.read().strip()
+                value = handle.read().strip()
         except OSError:
-            return "0" if line == 24 else "1"
+            value = ""
+        if value not in ("0", "1"):
+            return self.levels.get(line, "0" if line == 24 else "1")
+        self.levels[line] = value
+        return value
 
     def image_valid(self):
         return struct.unpack_from("<I", self.flash, IMAGE_VALID_CONF)[0] == 0
@@ -57,8 +64,12 @@ class Chip:
         return (config >> 24) == 0xC5 and (config & 0xFF) == 0xC5 and ((config >> 8) & 0xFF) == 15 and not (config >> 16) & 1
 
     def identify(self):
+        flash = bytearray(self.flash)
+        flash[NV_START:NV_END] = b"\xff" * (NV_END - NV_START)
         for name, data in self.images.items():
-            if bytes(self.flash[: len(data)]) == data and all(b == 0xFF for b in self.flash[len(data):]):
+            image = bytearray(data)
+            image[NV_START:NV_END] = b"\xff" * max(0, min(len(image), NV_END) - NV_START)
+            if bytes(flash[: len(image)]) == bytes(image) and all(b == 0xFF for b in flash[len(image):]):
                 return name
         return "unknown"
 
@@ -71,6 +82,10 @@ class Chip:
             self.mode = "bootloader"
         else:
             self.mode = "firmware:" + self.identify()
+            if self.flash[NV_START] == 0xFF:
+                self.flash[NV_START : NV_START + 16] = bytes(range(16))
+                self.events.append("nv-written")
+        self.pressed_at = None
         self.log("boot -> %s" % self.mode)
 
     def poll(self):

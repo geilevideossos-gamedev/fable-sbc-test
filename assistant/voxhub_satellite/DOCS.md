@@ -63,5 +63,9 @@ When the guard un-exposes something it writes a notification and a log line, for
 assistant)`. To let the voice assistant control a lock after all, remove `lock` from "Protected domains" - not
 recommended.
 
-Not covered by the guard: a script that targets a lock only through an area or a device, and automations with a
-sentence trigger. Do not expose such scripts and do not write such automations.
+The guard reads the configuration of every script: a script that calls a lock or alarm action (also through an area,
+a device or a template) or that calls such a script is kept unexposed as well.
+
+Not covered by the guard: automations. An automation with a sentence trigger runs before Claude, and an automation
+that unlocks or disarms when an exposed switch or helper changes can be started by Claude through that helper. Do not
+write such automations, or do not expose their trigger entities.

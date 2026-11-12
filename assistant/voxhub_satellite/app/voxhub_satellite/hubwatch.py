@@ -113,7 +113,9 @@ class HubWatch:
             addresses = self.resolver(self.host)
         except OSError as err:
             addresses = []
-            _LOGGER.warning("Cannot resolve the hub %s: %s", self.host, err)
+            _LOGGER.warning("Cannot resolve the hub %s to an IPv4 address: %s", self.host, err)
+        if not addresses and not self.addresses:
+            _LOGGER.error("No IPv4 address for the hub %s yet: port 6053 stays closed", self.host)
         if addresses and addresses != self.addresses:
             _LOGGER.info("Hub %s is at %s", self.host, ", ".join(addresses))
             self.addresses = addresses

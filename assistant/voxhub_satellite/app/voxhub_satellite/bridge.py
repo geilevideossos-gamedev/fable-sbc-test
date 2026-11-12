@@ -49,6 +49,8 @@ class Bridge:
         self.ha_connected = False
         self.lva_muted = False
         self.hardware_muted = False
+        self.muted_by_switch = False
+        self.resync_delay = 1.0
         self.phase = Show.IDLE
         self.error_until = 0.0
         self.ringing_since = 0.0
@@ -91,20 +93,30 @@ class Bridge:
             _LOGGER.debug("Could not send %s: %r", command, err)
 
     async def assert_mute(self) -> None:
-        if self.hardware_muted and not self.lva_muted and self.ha_connected:
+        if not self.ha_connected or self.socket is None:
+            return
+        if self.hardware_muted and not self.lva_muted:
+            self.muted_by_switch = True
             await self.send("mute_mic")
+        elif not self.hardware_muted and self.lva_muted and self.muted_by_switch:
+            await self.send("unmute_mic")
 
     def on_hardware_mute(self, muted: bool) -> None:
         previous = self.hardware_muted
         self.hardware_muted = muted
         self.update()
-        if self.socket is None or muted == previous or not self.ha_connected:
-            return
-        loop = asyncio.get_running_loop()
-        if muted and not self.lva_muted:
-            loop.create_task(self.send("mute_mic"))
-        elif not muted and self.lva_muted:
-            loop.create_task(self.send("unmute_mic"))
+        if muted != previous:
+            asyncio.get_running_loop().create_task(self.assert_mute())
+
+    def connected(self) -> None:
+        if not self.ha_connected:
+            self.ha_connected = True
+            asyncio.get_running_loop().create_task(self.assert_mute())
+
+    def resync(self) -> None:
+        socket = self.socket
+        if socket is not None:
+            asyncio.get_running_loop().create_task(socket.close())
 
     async def handle(self, message: dict[str, Any]) -> None:
         event = message.get("event")
@@ -112,11 +124,15 @@ class Bridge:
         if event == "snapshot":
             self.ha_connected = bool(data.get("ha_connected"))
             self.lva_muted = bool(data.get("muted"))
+            self.phase = Show.IDLE
+            self.error_until = 0.0
             self.update()
             await self.assert_mute()
             return
         if event == "muted":
             self.lva_muted = bool(data.get("muted"))
+            if not self.lva_muted:
+                self.muted_by_switch = False
             self.update()
             await self.assert_mute()
             return
@@ -127,14 +143,17 @@ class Bridge:
             return
         if event == "disconnected":
             self.ha_connected = False
+            self.phase = Show.IDLE
+            self.error_until = 0.0
             self.update()
+            asyncio.get_running_loop().call_later(self.resync_delay, self.resync)
             return
         if event == "pipeline_error":
             self.error_until = self.clock() + ERROR_SECONDS
             self.update()
             return
         if event in PHASES:
-            self.ha_connected = True
+            self.connected()
             if event == "timer_ringing" and self.phase is not Show.TIMER:
                 self.ringing_since = self.clock()
             self.phase = PHASES[event]

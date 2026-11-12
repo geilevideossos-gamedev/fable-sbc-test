@@ -135,7 +135,7 @@ validate() {
     esac
     [[ "$WIFI_COUNTRY" =~ ^[A-Z]{2}$ ]] || fail "--wifi-country must be two capital letters, for example AT"
     [ -n "$HUB" ] || fail "--hub is required: the IP address or host name of the hub (Home Assistant)"
-    [[ "$HUB" =~ ^[A-Za-z0-9.:-]+$ ]] || fail "--hub must be an IP address or a host name"
+    [[ "$HUB" =~ ^[A-Za-z0-9.-]+$ ]] || fail "--hub must be an IPv4 address or a host name (Linux Voice Assistant uses IPv4)"
     [[ "$HUB_PORT" =~ ^[0-9]+$ ]] && [ "$HUB_PORT" -ge 1 ] && [ "$HUB_PORT" -le 65535 ] || fail "--hub-port must be a port number"
     [[ "$HOST_NAME" =~ ^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$ ]] || fail "--hostname: lower-case letters, digits and hyphens"
     case " $WAKE_WORDS " in

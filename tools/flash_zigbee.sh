@@ -506,6 +506,48 @@ if problems:
 print("  OK: this image keeps the serial bootloader reachable through DIO%d (GPIO25)." % pin)
 PYTHON
 
+    cat >"$WORK_DIR/compare_flash.py" <<'PYTHON'
+import binascii
+import sys
+
+sys.path.insert(0, sys.argv[1])
+import cc2538_bsl as bsl
+from intelhex import IntelHex
+
+bsl.QUIET = 0
+port, baud, image = sys.argv[2], int(sys.argv[3]), sys.argv[4]
+hexfile = IntelHex(image)
+ranges = []
+for start, end in hexfile.segments():
+    start, end = start & ~3, (end + 3) & ~3
+    if ranges and start - ranges[-1][1] < 0x2000:
+        ranges[-1][1] = end
+    else:
+        ranges.append([start, end])
+command = bsl.CommandInterface()
+command.open(port, baud)
+try:
+    if not command.sendSynch():
+        print("NO-BOOTLOADER")
+        sys.exit(2)
+    command.cmdGetChipId()
+    device = bsl.CC26xx(command)
+    for start, end in ranges:
+        local = binascii.crc32(hexfile.tobinstr(start=start, size=end - start)) & 0xFFFFFFFF
+        remote = device.crc(start, end - start)
+        print("RANGE 0x%05X-0x%05X local 0x%08X chip 0x%08X" % (start, end, local, remote))
+        if local != remote:
+            print("DIFFERENT")
+            sys.exit(1)
+    print("SAME")
+finally:
+    try:
+        command.cmdReset()
+    except Exception:
+        pass
+    command.close()
+PYTHON
+
     cat >"$WORK_DIR/unpack_firmware.py" <<'PYTHON'
 import sys
 import zipfile
@@ -997,24 +1039,26 @@ wanted_firmware_is_already_there() {
 
 router_is_installed() {
     step "Checking through the bootloader whether the router firmware is already installed"
-    say "The router firmware has no serial interface, so the bootloader compares the checksum of the"
-    say "flash with $FIRMWARE_NAME.hex. Nothing is erased or written in this step."
-    local baud status log="$WORK_DIR/cc2538-bsl-verify.log"
+    say "The router firmware has no serial interface, so the bootloader compares the checksums of the"
+    say "areas $FIRMWARE_NAME.hex programs (code and CCFG; the router's own network memory is left out)."
+    say "Nothing is erased or written in this step."
+    local baud status log="$WORK_DIR/compare.log"
     for baud in "${SERIAL_BAUD_RATES[@]}"; do
         radio_enter_bootloader
-        say "Running: python3 cc2538_bsl.py -p $RADIO_PORT -b $baud -v $FIRMWARE_NAME.hex"
+        say "Comparing at $baud baud."
         if [ "$DRY_RUN" -eq 1 ]; then
             say "  [dry-run] nothing is compared"
             return 1
         fi
         status=0
-        python3 "$WORK_DIR/cc2538_bsl.py" -p "$RADIO_PORT" -b "$baud" -v "$FIRMWARE_HEX" >"$log" 2>&1 || status=$?
-        if [ "$status" -eq 0 ] && grep -q 'Verified (match' "$log"; then
+        python3 "$WORK_DIR/compare_flash.py" "$WORK_DIR" "$RADIO_PORT" "$baud" "$FIRMWARE_HEX" >"$log" 2>&1 || status=$?
+        grep '^RANGE' "$log" | sed 's/^/  /' || true
+        if [ "$status" -eq 0 ] && grep -q '^SAME' "$log"; then
             say "The flash holds exactly $FIRMWARE_NAME."
             radio_restart
             return 0
         fi
-        if grep -q 'NO CRC32 match' "$log"; then
+        if grep -q '^DIFFERENT' "$log"; then
             say "The flash holds a different firmware."
             radio_restart
             return 1
@@ -1253,8 +1297,9 @@ main() {
         refuse_if_port_is_busy
         report_current_firmware
         if [ "$PROBE_RESULT" = "RESULT none" ]; then
-            say "A Zigbee router firmware is silent on the serial port as well; --role satellite without"
-            say "--probe-only checks through the bootloader whether it is the router firmware."
+            say "A Zigbee router firmware is silent on the serial port as well. Run with --role satellite"
+            say "without --probe-only to check it through the bootloader; that run writes the router"
+            say "firmware if the radio holds something else."
         fi
         exit 0
     fi
@@ -1266,9 +1311,14 @@ main() {
         case "$PROBE_RESULT" in
             "RESULT znp "* | "RESULT spinel "*)
                 fail "The radio answers on the serial port, so it does not run the router firmware.
-Write it first: sudo bash flash_zigbee.sh --role satellite"
+Write it first: sudo bash $SCRIPT_NAME --role satellite"
                 ;;
         esac
+        if [ "$DRY_RUN" -eq 0 ]; then
+            fetch_downloads
+            router_is_installed || fail "The router firmware $ROUTER_REVISION is not on the radio, so there is no router to rejoin.
+Write it first: sudo bash $SCRIPT_NAME --role satellite"
+        fi
         pulse_router_button
         step "Done"
         if [ "$DRY_RUN" -eq 1 ]; then

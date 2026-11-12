@@ -230,3 +230,65 @@ async def test_run_retries(monkeypatch):
         await bridge.run()
     assert len(attempts) == 4
     assert delays == [2.0, 4.0, 8.0, 10.0]
+
+
+async def test_switch_released_while_home_assistant_was_away(linked):
+    bridge, socket, leds, _ = linked
+    socket.push("snapshot", {"muted": False, "ha_connected": True})
+    await settle()
+    bridge.on_hardware_mute(True)
+    await settle()
+    socket.push("muted", {"muted": True})
+    socket.push("disconnected")
+    await settle()
+    bridge.on_hardware_mute(False)
+    await settle()
+    assert socket.sent == ["mute_mic"]
+    socket.push("zeroconf", {"status": "connected"})
+    await settle()
+    assert socket.sent == ["mute_mic", "unmute_mic"]
+    socket.push("muted", {"muted": False})
+    await settle()
+    assert leds.now is Show.IDLE
+
+
+async def test_phase_is_reset_by_disconnect_and_snapshot(linked):
+    bridge, socket, leds, _ = linked
+    bridge.resync_delay = 60
+    socket.push("snapshot", {"muted": False, "ha_connected": True})
+    socket.push("thinking")
+    await settle()
+    assert leds.now is Show.THINKING
+    socket.push("disconnected")
+    socket.push("zeroconf", {"status": "connected"})
+    await settle()
+    assert leds.now is Show.IDLE
+    socket.push("listening")
+    socket.push("snapshot", {"muted": False, "ha_connected": True})
+    await settle()
+    assert leds.now is Show.IDLE
+
+
+async def test_disconnected_triggers_a_fresh_snapshot(linked):
+    bridge, socket, leds, _ = linked
+    bridge.resync_delay = 0
+    socket.push("snapshot", {"muted": False, "ha_connected": True})
+    socket.push("disconnected")
+    for _ in range(50):
+        if socket.closed:
+            break
+        await asyncio.sleep(0.01)
+    assert socket.closed
+
+
+async def test_phase_event_after_disconnect_reasserts_mute(linked):
+    bridge, socket, leds, _ = linked
+    bridge.resync_delay = 60
+    socket.push("snapshot", {"muted": False, "ha_connected": False})
+    await settle()
+    bridge.on_hardware_mute(True)
+    await settle()
+    assert socket.sent == []
+    socket.push("idle")
+    await settle()
+    assert socket.sent == ["mute_mic"]

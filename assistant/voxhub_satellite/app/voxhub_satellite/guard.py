@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 from collections.abc import Awaitable, Callable, Iterable
 from typing import Any
 
@@ -11,7 +12,6 @@ _LOGGER = logging.getLogger(__name__)
 SUPERVISOR_WEBSOCKET = "ws://supervisor/core/websocket"
 ASSISTANT = "conversation"
 DEFAULT_PROTECTED_DOMAINS = ("lock", "alarm_control_panel")
-REFERENCE_DOMAINS = ("script", "scene")
 NOTIFICATION_ID = "voxhub_guard"
 
 
@@ -129,6 +129,24 @@ def is_exposed(
     return entity_id not in forced
 
 
+TOKEN = re.compile(r"(?=\b([a-z_][a-z0-9_]*)\.([a-z0-9_]+)\b)")
+
+
+def references_in(config: Any) -> set[str]:
+    found: set[str] = set()
+    stack = [config]
+    while stack:
+        item = stack.pop()
+        if isinstance(item, dict):
+            stack.extend(item.keys())
+            stack.extend(item.values())
+        elif isinstance(item, (list, tuple)):
+            stack.extend(item)
+        elif isinstance(item, str):
+            found.update(f"{domain}.{name}" for domain, name in TOKEN.findall(item.lower()))
+    return found
+
+
 def plan(
     states: Iterable[dict[str, Any]],
     registry: dict[str, dict[str, Any]],
@@ -157,9 +175,13 @@ def plan(
         for entity_id in sorted(members):
             if entity_id in reasons:
                 continue
-            hits = sorted(member for member in members[entity_id] if member in reasons)
-            if hits:
-                reasons[entity_id] = f"it can control {hits[0]}"
+            known = sorted(member for member in members[entity_id] if member in reasons)
+            calls = sorted(member for member in members[entity_id] if domain_of(member) in protected)
+            if known:
+                reasons[entity_id] = f"it can control {known[0]}"
+                changed = True
+            elif calls:
+                reasons[entity_id] = f"it uses {calls[0]}"
                 changed = True
     return {
         entity_id: reason
@@ -235,6 +257,29 @@ class Guard:
                     raise GuardError("connection closed")
             await self.check(connection)
 
+    async def related_entities(self, connection: Connection, kind: str, entity_id: str) -> set[str]:
+        try:
+            related = await connection.call("search/related", item_type=kind, item_id=entity_id)
+        except GuardError as err:
+            _LOGGER.debug("search/related failed for %s: %s", entity_id, err)
+            return set()
+        found: set[str] = set()
+        if isinstance(related, dict):
+            for key in ("entity", "group"):
+                found.update(item for item in related.get(key, []) if isinstance(item, str))
+        found.discard(entity_id)
+        return found
+
+    async def script_references(self, connection: Connection, entity_id: str) -> set[str]:
+        try:
+            result = await connection.call("script/config", entity_id=entity_id)
+        except GuardError as err:
+            _LOGGER.debug("script/config failed for %s: %s", entity_id, err)
+            return await self.related_entities(connection, "script", entity_id)
+        found = references_in((result or {}).get("config"))
+        found.discard(entity_id)
+        return found
+
     async def check(self, connection: Connection) -> dict[str, str]:
         states = await connection.call("get_states")
         entries = await connection.call("config/entity_registry/list")
@@ -245,22 +290,10 @@ class Guard:
         references: dict[str, set[str]] = {}
         for state in states:
             entity_id = state.get("entity_id", "")
-            if domain_of(entity_id) not in REFERENCE_DOMAINS or not is_exposed(
-                entity_id, registry, exposed, self.forced
-            ):
-                continue
-            try:
-                related = await connection.call(
-                    "search/related", item_type=domain_of(entity_id), item_id=entity_id
-                )
-            except GuardError as err:
-                _LOGGER.debug("search/related failed for %s: %s", entity_id, err)
-                continue
-            found: set[str] = set()
-            for kind in ("entity", "script", "scene", "group"):
-                found.update(related.get(kind, []) if isinstance(related, dict) else [])
-            found.discard(entity_id)
-            references[entity_id] = found
+            if domain_of(entity_id) == "script":
+                references[entity_id] = await self.script_references(connection, entity_id)
+            elif domain_of(entity_id) == "scene" and is_exposed(entity_id, registry, exposed, self.forced):
+                references[entity_id] = await self.related_entities(connection, "scene", entity_id)
         violations = plan(states, registry, exposed, references, self.protected_domains, self.forced)
         self.passes += 1
         if not violations:

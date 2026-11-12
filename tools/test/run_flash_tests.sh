@@ -110,6 +110,8 @@ check "satellite, router installed: nothing written" '[ "$(state writes)" -eq 0 
 check "satellite, router installed: bootloader compared" 'grep -q "The flash holds exactly $ROUTER_NAME." "$LOG"'
 check "satellite, router installed: already installed" 'grep -q "The wanted firmware is already installed" "$LOG"'
 check "satellite, router installed: radio runs again" '[ "$(state mode)" = firmware:router ]'
+check "satellite, router installed: the router's network memory is ignored" 'has_event nv-written && grep -q "^  RANGE 0x00000-" "$LOG"'
+check "satellite, router installed: no button click while checking" '! has_event router-button'
 
 case_run sat-over-coordinator coordinator --role satellite
 check "satellite over coordinator: exit 0" '[ "$STATUS" -eq 0 ]'
@@ -132,6 +134,10 @@ check "rejoin: radio runs the router again" '[ "$(state mode)" = firmware:router
 case_run sat-rejoin-coordinator coordinator --role satellite --rejoin
 check "rejoin on a coordinator: refused" '[ "$STATUS" -ne 0 ] && grep -q "it does not run the router firmware" "$LOG"'
 check "rejoin on a coordinator: no click" '! has_event router-button'
+
+case_run sat-rejoin-blank blank --role satellite --rejoin
+check "rejoin without router firmware: refused" '[ "$STATUS" -ne 0 ] && grep -q "is not on the radio, so there is no router to rejoin" "$LOG"'
+check "rejoin without router firmware: no click, nothing written" '! has_event router-button && [ "$(state writes)" -eq 0 ]'
 
 case_run sat-thread blank --role satellite --thread
 check "satellite + thread: refused" '[ "$STATUS" -ne 0 ] && grep -q "only for the hub" "$LOG"'

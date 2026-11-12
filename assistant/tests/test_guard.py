@@ -19,7 +19,8 @@ def entry(entity_id, should_expose=None):
 
 
 class FakeHomeAssistant:
-    def __init__(self, states, entries, legacy_exposed=None, related=None, token="token"):
+    def __init__(self, states, entries, legacy_exposed=None, related=None, token="token", scripts=None):
+        self.scripts = scripts or {}
         self.states = states
         self.entries = {item["entity_id"]: item for item in entries}
         self.legacy_exposed = dict(legacy_exposed or {})
@@ -115,6 +116,11 @@ class FakeHomeAssistant:
     def _search_related(self, message):
         return self.related.get(message["item_id"], {})
 
+    def _script_config(self, message):
+        if message["entity_id"] not in self.scripts:
+            return None
+        return {"config": self.scripts[message["entity_id"]]}
+
     def _call_service(self, message):
         return {"context": {}}
 
@@ -193,7 +199,17 @@ async def test_check_unexposes_and_notifies():
             entry("alarm_control_panel.home", None),
         ],
         legacy_exposed={"scene.leaving": True},
-        related={"script.goodnight": {"entity": ["alarm_control_panel.home", "light.kitchen"]}},
+        scripts={
+            "script.goodnight": {
+                "sequence": [
+                    {"action": "light.turn_off", "target": {"entity_id": "light.kitchen"}},
+                    {
+                        "action": "alarm_control_panel.alarm_arm_night",
+                        "target": {"entity_id": "alarm_control_panel.home"},
+                    },
+                ]
+            }
+        },
     )
     connection = await Connection.open("ws://test", "token", home.connector)
     guard = Guard("token", connector=home.connector)
@@ -293,3 +309,62 @@ async def test_run_retries_until_home_assistant_answers(monkeypatch):
 
 async def test_disabled_guard_returns_at_once():
     await asyncio.wait_for(Guard("token", protected_domains=[]).run(), 1)
+
+
+async def test_scripts_that_call_scripts_or_target_areas_are_unexposed():
+    home = FakeHomeAssistant(
+        states=[
+            state("script.good_morning"),
+            state("script.disarm"),
+            state("script.hall"),
+            state("script.lights"),
+            state("script.template"),
+            state("scene.movie", ["light.kitchen"]),
+            state("light.kitchen"),
+        ],
+        entries=[
+            entry("script.good_morning", True),
+            entry("script.disarm", False),
+            entry("script.hall", True),
+            entry("script.lights", True),
+            entry("script.template", True),
+            entry("scene.movie", True),
+            entry("light.kitchen", True),
+        ],
+        scripts={
+            "script.good_morning": {"sequence": [{"action": "script.disarm"}]},
+            "script.disarm": {
+                "sequence": [{"action": "alarm_control_panel.alarm_disarm", "target": {"area_id": "hall"}}]
+            },
+            "script.hall": {"sequence": [{"action": "lock.unlock", "target": {"area_id": "hall"}}]},
+            "script.lights": {
+                "sequence": [{"action": "light.turn_on", "target": {"entity_id": "light.kitchen"}}]
+            },
+            "script.template": {
+                "sequence": [
+                    {
+                        "condition": "template",
+                        "value_template": "{{ states.lock.front_door.state == 'locked' }}",
+                    }
+                ]
+            },
+        },
+        related={"scene.movie": {"entity": ["light.kitchen"], "script": ["script.good_morning"]}},
+    )
+    connection = await Connection.open("ws://test", "token", home.connector)
+    reported = await Guard("token").check(connection)
+    assert set(reported) == {"script.good_morning", "script.hall", "script.template"}
+    assert reported["script.good_morning"] == "it can control script.disarm"
+    assert reported["script.hall"] == "it uses lock.unlock"
+    assert home.exposed_now("script.lights") is True
+    assert home.exposed_now("scene.movie") is True
+    await connection.close()
+
+
+def test_references_in_config():
+    from voxhub_satellite.guard import references_in
+
+    found = references_in(
+        {"sequence": [{"action": "Script.Turn_On", "data": {"entity_id": "script.x"}}, ["lock.a"]]}
+    )
+    assert {"script.turn_on", "script.x", "lock.a"} <= found

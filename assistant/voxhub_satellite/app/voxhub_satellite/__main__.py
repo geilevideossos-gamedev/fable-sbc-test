@@ -44,6 +44,7 @@ class Options:
             download_dir="/data/downloads",
             input_device=str(raw.get("input_device") or ""),
             output_device=str(raw.get("output_device") or ""),
+            host="127.0.0.1",
             thinking_sound=bool(raw.get("thinking_sound", False)),
             debug=str(raw.get("log_level", "info")) == "debug",
         ).validate()
@@ -108,10 +109,12 @@ async def run(options: Options) -> None:
     bridge.hardware_muted = mute.muted
     tasks = [asyncio.create_task(keep_running(command)), asyncio.create_task(bridge.run())]
     token = os.environ.get("SUPERVISOR_TOKEN", "")
-    if options.guard and token:
-        guard = Guard(token, options.protected_domains, options.guard_interval)
+    guard = Guard(token, options.protected_domains, options.guard_interval)
+    if options.guard and token and guard.protected_domains:
         tasks.append(asyncio.create_task(guard.run()))
         _LOGGER.info("Exposure guard on: %s are never exposed to Assist", ", ".join(guard.protected_domains))
+    elif options.guard and token:
+        _LOGGER.warning("Exposure guard on, but no protected domains: nothing is kept away from Assist")
     elif options.guard:
         _LOGGER.warning("SUPERVISOR_TOKEN is missing: the exposure guard cannot run")
     else:
@@ -123,8 +126,8 @@ async def run(options: Options) -> None:
     try:
         done, _ = await asyncio.wait([waiter, *tasks], return_when=asyncio.FIRST_COMPLETED)
         for task in done:
-            if task is not waiter and task.exception() is not None:
-                _LOGGER.error("Stopped: %r", task.exception())
+            if task is not waiter:
+                _LOGGER.error("Stopped: %r", task.exception() or "a background task ended")
     finally:
         for task in [waiter, *tasks]:
             task.cancel()

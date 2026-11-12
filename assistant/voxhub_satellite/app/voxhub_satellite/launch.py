@@ -36,6 +36,7 @@ class Settings:
     download_dir: str = "/data/downloads"
     input_device: str = ""
     output_device: str = ""
+    host: str = ""
     thinking_sound: bool = False
     debug: bool = False
     extra: list[str] = field(default_factory=list)
@@ -102,8 +103,12 @@ def gain_db(factor: float) -> str:
     return f"{20 * math.log10(factor):+.2f}dB"
 
 
+def gain_factor(factor: float) -> str:
+    return f"{factor:.6f}"
+
+
 def apply_levels(settings: Settings, source: str, sink: str, runner: Runner = run_command) -> None:
-    runner(["pactl", "set-source-volume", source, gain_db(settings.mic_gain)])
+    runner(["pactl", "set-source-volume", source, gain_factor(settings.mic_gain)])
     runner(["pactl", "set-sink-volume", sink, f"{settings.volume_percent}%"])
     for command in (["pactl", "set-source-mute", source, "0"], ["pactl", "set-sink-mute", sink, "0"]):
         try:
@@ -140,6 +145,8 @@ def lva_command(settings: Settings, source: str, sink: str, python: str = "") ->
         "--download-dir",
         settings.download_dir,
     ]
+    if settings.host:
+        argv += ["--host", settings.host]
     if settings.mic_auto_gain:
         argv += ["--mic-auto-gain", str(settings.mic_auto_gain)]
     if settings.mic_noise_suppression:
