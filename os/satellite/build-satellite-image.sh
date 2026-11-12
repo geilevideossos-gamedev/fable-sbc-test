@@ -371,7 +371,7 @@ install_lva() {
         --no-cache-dir --disable-pip-version-check --prefer-binary "${constraints[@]}" \
         -e /opt/linux-voice-assistant
     in_root /opt/linux-voice-assistant/.venv/bin/pip freeze --disable-pip-version-check --exclude-editable \
-        >"$ROOT/opt/linux-voice-assistant/voxhub-freeze.txt"
+        >"$ROOT/opt/linux-voice-assistant/voxhub-freeze.txt" 2>"$WORK/pip-freeze.err"
     cp "$ROOT/opt/linux-voice-assistant/voxhub-freeze.txt" "$WORK/lva-freeze.txt"
 }
 
