@@ -77,7 +77,7 @@ voltage is measured on the large pads of D1 and of C8 / C9 (see "Probe points" i
 ```
                 rear edge of the board
 
-                                          GND       <- label of the rear pad: up and to the right of its pad
+                               GND                 <- label of the rear pad: directly behind its pad
                                (O)                 <- pad GND
       3V3           (O)        (O)         5V      <- pad 3V3 (label on its left), pad 5V (label on its right)
 
@@ -89,10 +89,10 @@ voltage is measured on the large pads of D1 and of C8 / C9 (see "Probe points" i
 |---|---|---|---|---|---|
 | TP1 | `5V`, directly to the right of the pad | (84.0 / 12.0) | (87.5 / 12.0) | +5V | 5 V |
 | TP2 | `3V3`, directly to the left of the pad | (80.8 / 12.0) | (76.9 / 12.0) | +3V3 | 3.3 V |
-| TP3 | `GND`, about 3 mm to the right of the pad and 3 mm nearer to the rear edge | (84.0 / 8.8) | (87.2 / 5.6) | GND | 0 V |
+| TP3 | `GND`, directly behind the pad (3.3 mm nearer to the rear edge) | (84.0 / 8.8) | (84.0 / 5.5) | GND | 0 V |
 
 Read it like this: the two pads that lie side by side are `3V3` (left) and `5V` (right); the third pad, behind
-the `5V` pad, is ground. The `GND` label is not beside its pad but diagonally behind it; no other test pad is near
+the `5V` pad, is ground. Its label `GND` is printed directly behind it, in line with the pad; no other test pad is near
 that label. The pads `3V3` and `5V` are only 1.7 mm apart. A probe tip that touches both at once puts 5 V on the 3.3 V
 parts and can damage them, so the guide uses the `3V3` pad for one live measurement only (test 7).
 
@@ -337,7 +337,7 @@ the pins of a chip or the small parts around them.
 | supply of the other USB-A port | C41, polymer capacitor | its **rear** end (the end with the printed bar) | (40.1 / 16.9) | same kind of block, the left one, at right angles to C38; front end = GND |
 | +3V3 | TP2, test pad | the round pad with the label `3V3` on its left | (80.8 / 12.0) | see "The three test pads" above; the pad `5V` is 1.7 mm to its right |
 | +5V | TP1, test pad | the round pad with the label `5V` on its right | (84.0 / 12.0) | same group of pads |
-| GND | TP3, test pad | the round pad behind the `5V` pad; its label `GND` is printed diagonally behind it | (84.0 / 8.8) | same group of pads |
+| GND | TP3, test pad | the round pad behind the `5V` pad; its label `GND` is printed directly behind it | (84.0 / 8.8) | same group of pads |
 | GND next to the test pads | J5, empty 3-hole footprint | the **left, square** hole | (80.0 / 21.5) | three gold holes in a row, 4 mm in front of the text `J5: GND TX RX`; the probe tip sits in the hole and cannot slip |
 
 ### 3.1 Test 1 - visual inspection (no power)
