@@ -4,7 +4,7 @@
 usage: make_bom.py <model_netlist.json> <out_dir>
 Writes  bom.csv        - PCB assembly BOM grouped by MPN: LCSC number, JLCPCB library type, JLCPCB / LCSC stock and
                          JLCPCB prices (live, sourcing_jlc.json), DigiKey second source (sourcing_live.json)
-        bom_system.csv - everything else needed for one unit (module, speaker, screws, ...)
+        bom_system.csv - everything else needed for one unit (module, speaker, screws, ...) with the EU shop of fab/SHOPPING_LIST.md
 """
 import csv, json, re, sys, os
 from collections import OrderedDict
@@ -67,32 +67,26 @@ def main(model_path, out):
         w = csv.writer(fh); w.writerow(hdr); w.writerows(rows)
         w.writerow([]); w.writerow(["", "", "", "", "PCB assembly parts total per board (JLCPCB prices, excl. PCB, assembly fees and DNP parts)"] + [""] * 11
                                    + ["%.2f" % t1, "%.2f" % t100])
-    rows2, s1, s100 = [], 0.0, 0.0
-    for i, (item, qty, desc, mfr, mpn) in enumerate(sourcing.EXTRA, 1):
-        d = sourcing.PARTS_LIVE.get(mpn)
-        sec, note = sourcing.EXTRA_SECOND.get(mpn) or sourcing.second(mpn)
-        if d is not None and d.get("digikey_p1") is not None:
-            p1 = d["digikey_p1"]; p100 = d["digikey_p100"] if d["digikey_p100"] is not None else p1
-            row = [d["digikey_pn"], d["digikey_status"], d["digikey_stock"], money(p1), money(p100)]
-        else:
-            p1 = p100 = sourcing.ESTIMATES.get(mpn, sourcing.GENERIC_PRICE)
-            row = ["", "not a distributor item", "", "~" + money(p1), "~" + money(p100)]
-            sec = sec or "any equivalent"; note = note or "hardware-store item, price is an estimate"
-        s1 += p1 * qty; s100 += p100 * qty
-        rows2.append([i, qty, item, desc, mfr, mpn] + row + ["%.2f" % (p1 * qty), "%.2f" % (p100 * qty), sec, note])
+    rows2, s1 = [], 0.0
+    for i, e in enumerate(sourcing.EXTRA, 1):
+        ext = e["eur"] * e["buy"]; s1 += ext
+        rows2.append([i, e["qty"], e["function"], e["description"], e["maker"], e["mpn"], e["shop"], e["article"], e["buy"], e["pack"],
+                      "%.2f" % e["eur"], "%.2f" % ext, e["second"], e["note"], e["url"]])
+    ship = sum(sourcing.EXTRA_SHIPPING.values())
     with open(os.path.join(out, "bom_system.csv"), "w", newline="") as fh:
         w = csv.writer(fh)
-        w.writerow(["Item", "Qty", "Function", "Description", "Manufacturer", "MPN", "DigiKey PN", "DigiKey status", "DigiKey stock",
-                    "Unit USD @1", "Unit USD @100", "Ext. USD @1", "Ext. USD @100", "Second source",
-                    "Sourcing note (DigiKey checked %s; EU shops and prices: fab/SHOPPING_LIST.md)" % date_d])
+        w.writerow(["Item", "Qty used", "Function", "Description", "Manufacturer", "Part number", "Shop", "Shop article no.", "Buy qty", "Pack",
+                    "EUR incl. VAT", "Ext. EUR", "Second source", "Note", "Link (prices and stock checked %s)" % sourcing.EXTRA_CHECKED])
         w.writerows(rows2)
-        w.writerow([]); w.writerow(["", "", "", "System parts total per unit", "", "", "", "", "", "", "", "%.2f" % s1, "%.2f" % s100])
+        w.writerow([]); w.writerow(["", "", "", "System parts for one device", "", "", "", "", "", "", "", "%.2f" % s1])
+        w.writerow(["", "", "", "Shipping to Austria (%s)" % ", ".join("%s %.2f" % kv for kv in sourcing.EXTRA_SHIPPING.items()), "", "", "", "", "", "", "", "%.2f" % ship])
+        w.writerow(["", "", "", "Total", "", "", "", "", "", "", "", "%.2f" % (s1 + ship)])
     summary = dict(checked_jlcpcb=date_j, checked_digikey=date_d, lines=len(rows), placements=sum(r[1] for r in rows if r[8] != "DNP"),
-                   pcb_parts_usd_1=round(t1, 2), pcb_parts_usd_100=round(t100, 2), system_usd_1=round(s1, 2), system_usd_100=round(s100, 2),
+                   pcb_parts_usd_1=round(t1, 2), pcb_parts_usd_100=round(t100, 2), system_eur_1=round(s1, 2), system_shipping_eur=round(ship, 2),
                    library_types=types, below_200_at_jlcpcb=thin)
     json.dump(summary, open(os.path.join(out, "bom_summary.json"), "w"), indent=1)
     print("BOM: %(lines)d lines, %(placements)d placements; PCB parts $%(pcb_parts_usd_1).2f @1 / $%(pcb_parts_usd_100).2f @100 (JLCPCB); "
-          "system items $%(system_usd_1).2f @1 / $%(system_usd_100).2f @100" % summary)
+          "system items EUR %(system_eur_1).2f + EUR %(system_shipping_eur).2f shipping" % summary)
     print("JLCPCB library types:", types, "| below 200 pieces:", thin or "none")
 
 if __name__ == "__main__":

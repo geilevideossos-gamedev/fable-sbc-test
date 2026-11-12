@@ -16,11 +16,16 @@ view, orbit, reassembly, turntable) - rendered with Blender from the STEP files 
 
 ![exploded view](media/voxhub_exploded.png)
 
-> **Status: revision A1, design complete and checked against the datasheets, not yet built.** ERC and DRC pass, every
-> IC, module, connector and electromechanical part was verified against its manufacturer data sheet (generic passives and
-> LEDs use KiCad standard footprints), every BOM line was looked up live at DigiKey, the OS image builds and the
-> add-on's test-suite passes - but no hardware exists yet. Read [DECISIONS.md](DECISIONS.md) (decision log and
-> "Open items") before ordering boards. Progress is tracked in [TODO.md](TODO.md).
+> **Status: revision A2, ready to order fully assembled from JLCPCB, not yet built.** Every part is in stock in
+> JLCPCB's assembly library (checked live on 2026-11-12), ERC and DRC pass against JLCPCB's design rules, the order files
+> are in [`fab/jlcpcb/`](fab/jlcpcb). Nothing has to be soldered by hand: order the boards, print the enclosure, plug in
+> the CM4, screw it together. No hardware exists yet - read the "Open items" in [DECISIONS.md](DECISIONS.md) first.
+>
+> | Step | Document |
+> |---|---|
+> | 1. Order 5 PCBs, 2 of them assembled | [`fab/ORDER_GUIDE.md`](fab/ORDER_GUIDE.md) - every option to click, cost estimate |
+> | 2. Buy everything that is not on the board | [`fab/SHOPPING_LIST.md`](fab/SHOPPING_LIST.md) - EU shops, part numbers, prices |
+> | 3. Print, test, assemble, flash the radio | [`fab/ASSEMBLY_AND_TEST.md`](fab/ASSEMBLY_AND_TEST.md) |
 
 ## System overview
 
@@ -31,11 +36,11 @@ view, orbit, reassembly, turntable) - rendered with Blender from the STEP files 
 | Storage | microSD (push-push socket, card power switched by the module) |
 | USB | 2 x USB-A 2.0 host (stacked), USB2514B hub, 1.3 A current-limited per port, ESD protected |
 | Microphones | 2 x Infineon IM69D130 PDM MEMS (bottom port), ADAU7002 PDM-to-I2S, hardware mute switch |
-| Speaker | MAX98357A I2S class-D, 3.2 W into 4 ohm, JST-PH header, 40 mm speaker in the enclosure |
-| Zigbee / Thread | Silicon Labs MGM240P (EFR32MG24, +20 dBm) on UART4, flashable in-system |
+| Speaker | MAX98357A I2S class-D, 3.2 W into 4 ohm, JST-PH header, enclosed 3 W speaker with JST-PH plug in the enclosure |
+| Zigbee / Thread | RF-star RF-BM-2652P2 (TI CC2652P, +20 dBm) on UART4, flashed from the CM4 with one command |
 | Power | USB-C PD sink (CYPD3177): negotiates 9-20 V, then 5 V / 4 A buck (LMR33640) |
 | UI | green + blue status LEDs, red mute LED (hard-wired), mute slider on top |
-| PCB | 100 x 74 mm, 4 layers, 1.6 mm, parts on one side + one switch on the other |
+| PCB | 100 x 74 mm, 4 layers, 1.6 mm (JLC04161H-3313), parts on one side + mute switch and three status LEDs on the other |
 | Enclosure | 158.8 x 79.2 x 28 mm, two printed parts, no supports |
 
 ### Block diagram
@@ -68,7 +73,7 @@ flowchart LR
     CM4 -->|I2S GPIO18/19/21| AMP
     AMP --> SPK[speaker 4 ohm / 3 W]
 
-    CM4 <-->|UART4 + RTS/CTS<br/>SWD, reset| ZB[MGM240P<br/>Zigbee / Thread]
+    CM4 <-->|UART4, boot strap,<br/>reset, JTAG| ZB[RF-BM-2652P2<br/>Zigbee / Thread]
     CM4 -->|GPIO5/6| LED[status LEDs]
     CM4 <-->|I2C1| BCR
 ```
@@ -91,12 +96,14 @@ Only the transcribed text (plus tool results) leaves the device.
 |---|---|---|
 | 2 / 3 | I2C1 SDA / SCL | CYPD3177 PD controller (HPI, 0x08) |
 | 5 / 6 | LED green / blue enable | active high, N-FET drivers, 10k pull-downs |
-| 8 / 9 / 10 / 11 | UART4 TX / RX / CTS / RTS | Zigbee module PA06 (RX) / PA05 (TX) / PA07 (RTS) / PA08 (CTS) - the Silicon Labs reference pin-out |
+| 8 / 9 | UART4 TX / RX | radio module DIO12 (RX) / DIO13 (TX), 115200 baud, no flow control |
+| 10 / 11 | UART4 CTS / RTS | wired to DIO18 / DIO19, not used by the standard firmware |
+| 7 / 17 | JTAG TDI / TDO of the radio | DIO17 / DIO16, recovery flashing only |
 | 14 / 15 | UART0 TX / RX | debug header (DNP) |
 | 16 | amplifier SD_MODE | high = on (left channel) |
 | 18 / 19 / 20 / 21 | I2S BCLK / LRCLK / DIN / DOUT | DIN passes through the mute switch |
-| 22 / 23 | SWDIO / SWCLK of the radio | in-system flashing |
-| 24 / 25 | radio reset / bootloader strap | GPIO24 **high = reset** (open-drain FET on RESETn, 100k pull-down); GPIO25 low = bootloader (10k pull-up) |
+| 22 / 23 | JTAG TMS / TCK of the radio | recovery flashing only |
+| 24 / 25 | radio reset / boot-loader strap | GPIO24 **high = reset** (open-drain FET on RESET, 100k pull-down); GPIO25 low at reset = ROM serial boot loader (DIO15, 2.2k pull-up) |
 | 27 | mute sense | high = muted |
 
 ## Power budget
@@ -107,25 +114,25 @@ everything at its maximum simultaneously:
 | Load | Typical | Peak | Basis |
 |---|---|---|---|
 | CM4 (SoC, RAM, Wi-Fi) | 3.5 W | 7.0 W | CM4 datasheet: 1.4 A typical maximum at 5 V |
-| 3.3 V loads via the CM4 regulator (hub 70/150 mA, microSD 50/200 mA, radio 10/160 mA, mics + converter 3 mA, LEDs 5 mA) | 0.14 A -> 0.5 W | 0.52 A -> 1.9 W | 3.3 V budget 600 mA; 90 % converter efficiency |
+| 3.3 V loads via the CM4 regulator (hub 70/150 mA, microSD 50/200 mA, radio 10/85 mA, mics + converter 3 mA, pull-ups 5 mA) | 0.14 A -> 0.5 W | 0.44 A -> 1.6 W | 3.3 V budget 600 mA; 90 % converter efficiency; radio: CC2652P at +20 dBm |
 | USB-A ports | 0.5 W | 5.0 W | 2 x 500 mA (hardware limit 1.3 A per port) |
 | Speaker amplifier | 0.3 W | 3.6 W | 3.2 W output at 90 % efficiency; speech averages far less |
 | LEDs, pull-ups | 0.05 W | 0.1 W | |
-| **5 V rail total** | **4.9 W (0.98 A)** | **17.6 W (3.5 A)** | buck rated 4 A |
-| Buck + switch losses | 0.5 W | 1.9 W | 92 % at 9 V in, P-FET 70 mOhm, inductor 60 mOhm |
-| **At the USB-C connector** | **5.4 W** | **19.5 W** | 9 V: 0.6 A typ / 2.17 A peak - 20 V: 0.27 A typ / 0.98 A peak |
+| **5 V rail total** | **4.9 W (0.98 A)** | **17.3 W (3.45 A)** | buck rated 4 A |
+| Buck + switch losses | 0.5 W | 1.9 W | 92 % at 9 V in, P-FET 70 mOhm, inductor 54 mOhm |
+| **At the USB-C connector** | **5.4 W** | **19.2 W** | 9 V: 0.6 A typ / 2.13 A peak - 20 V: 0.27 A typ / 0.96 A peak |
 
 - The PD controller requests **>= 2 A at 9-20 V** (18 W at 9 V). Realistic operation (no bus-powered disks, speech
-  rather than sine waves) stays below 12 W. The theoretical simultaneous peak of 19.5 W exceeds an 18 W contract by 8 %:
+  rather than sine waves) stays below 12 W. The theoretical simultaneous peak of 19.2 W exceeds an 18 W contract by 7 %:
   use a **27 W or larger** charger (9 V/3 A, or anything offering 12/15/20 V at >= 2 A) if both USB ports feed
   500 mA devices.
-- 3.3 V budget: 520 mA peak of the 600 mA the CM4 can supply.
+- 3.3 V budget: 440 mA peak of the 600 mA the CM4 can supply.
 - Chargers without a 9-20 V PD profile are rejected safely: the load switch stays open, the buck stays in UVLO (< 7 V)
   and the red PD-FAULT LED lights.
 
 ## Thermal estimate (SoC)
 
-Assumptions: 25 C room, module mounted component-side down in the vented enclosure, 14 x 14 x 6 mm heat sink on the BCM2711
+Assumptions: 25 C room, module mounted component-side down in the vented enclosure, 14 x 14 x 7 mm heat sink on the BCM2711
 (36 K/W on its own in free convection), heat also spreading through the module PCB and the two mezzanine connectors.
 Effective module-level thermal resistance derived from published CM4 measurements (bare module on the IO board:
 ~25 K rise idle at ~2 W, ~55-60 K at full load): about **12 K/W bare, ~9.5-10 K/W with the heat sink in this enclosure**.
@@ -146,6 +153,8 @@ These are estimates, not measurements - verify with `vcgencmd measure_temp` on t
 | Path | Contents |
 |---|---|
 | [`hardware/`](hardware/README.md) | KiCad 9 project (generated), generator scripts, schematic PDF, BOM, Gerbers, drill, pick-and-place, DXF, renders, fab + assembly notes |
+| [`fab/`](fab/ORDER_GUIDE.md) | JLCPCB order package (`jlcpcb/`: Gerbers, BOM, CPL, placement report), order guide, shopping list, assembly and test guide |
+| [`tools/`](tools/flash_zigbee.sh) | `flash_zigbee.sh`: writes the Zigbee (or Thread) firmware to the radio module from the CM4 |
 | [`enclosure/`](enclosure/README.md) | parametric CadQuery source, STL / 3MF / STEP, renders |
 | [`os/`](os/README.md) | HAOS board definition, device tree overlay, `build-image.sh` |
 | [`assistant/`](assistant/README.md) | Home Assistant add-on: wake word -> STT -> Claude -> TTS |
@@ -155,15 +164,17 @@ These are estimates, not measurements - verify with `vcgencmd measure_temp` on t
 
 ## How to build everything
 
-Prerequisites: Linux, Docker, Python >= 3.10, `zip`, Java >= 21 (only for re-running the autorouter), `xvfb` for the
-enclosure renders (`sudo apt install zip xvfb`).
+Prerequisites: Linux, Python >= 3.10, `zip`, Java >= 21 (only for re-running the autorouter), `xvfb` for the
+enclosure renders (`sudo apt install zip xvfb`), and KiCad 9 either as the Docker image `kicad/kicad:9.0` or installed
+natively (`KICAD_NATIVE=1`; the Python that imports `pcbnew` also needs `numpy` and `shapely`).
 
 ```bash
-# 1. Hardware: schematic -> ERC -> netlist -> placement -> autoroute -> DRC -> fabrication outputs
-docker pull kicad/kicad:9.0
-SKIP_ROUTE=1 hardware/build.sh all      # re-uses the checked-in autorouter session (reproduces the committed board, ~5 min)
+# 1. Hardware: schematic -> ERC -> netlist -> placement -> autoroute -> DRC -> fabrication outputs -> fab/jlcpcb
+docker pull kicad/kicad:9.0             # or: export KICAD_NATIVE=1
+SKIP_ROUTE=1 hardware/build.sh all      # re-uses the checked-in autorouter session (reproduces the committed board, ~4 min)
 # to autoroute again: wget -P hardware https://github.com/freerouting/freerouting/releases/download/v2.0.1/freerouting-2.0.1.jar
 #                     hardware/build.sh all
+# to refresh stock and prices: python3 hardware/gen/jlc_lookup.py refresh hardware/gen/sourcing_jlc.json
 
 # 2. Enclosure: STL / 3MF / STEP + renders
 pip install cadquery
@@ -184,57 +195,65 @@ pip install cadquery pymupdf pillow numpy && sudo apt install ffmpeg
 BLENDER=/path/to/blender media/build_showcase.sh
 ```
 
-Then: order the PCB (see `hardware/README.md`), print `enclosure/voxhub_shell.3mf` and `voxhub_base.3mf`, flash the image,
+Then: order the boards (`fab/ORDER_GUIDE.md`), buy the rest (`fab/SHOPPING_LIST.md`), print `enclosure/voxhub_shell.3mf` and
+`voxhub_base.3mf`, test and assemble (`fab/ASSEMBLY_AND_TEST.md`), flash the image, flash the radio (`tools/flash_zigbee.sh`),
 add this repository as an add-on repository in Home Assistant and install **VoxHub Assistant** (`assistant/README.md`).
 
 ## Cost summary
 
-Unit cost of the purchased parts, DigiKey prices of 2026-11-11 (USD, without tax, shipping, PCB and printed parts).
-Line by line: [`hardware/outputs/bom.csv`](hardware/outputs/bom.csv) and [`bom_system.csv`](hardware/outputs/bom_system.csv).
+**Parts on the board**, JLCPCB prices of 2026-11-12 (USD, without tax, PCB, assembly fees and shipping).
+Line by line: [`hardware/outputs/bom.csv`](hardware/outputs/bom.csv).
 
-| Group | Lines | Placements | 1 unit | per unit at 100 |
+| Group | Lines | Placements | 1 board | per board at 100 |
 |---|---|---|---|---|
-| ICs and radio module (MGM240P alone: 11.47 / 8.45) | 8 | 11 | 30.77 | 20.54 |
-| Connectors, slide switch, SMT spacers | 7 | 11 | 16.84 | 12.49 |
-| Inductor, crystal, microphones | 3 | 4 | 6.79 | 4.17 |
-| Capacitors | 11 | 49 | 11.01 | 3.67 |
-| Diodes, LEDs, transistors | 10 | 14 | 4.64 | 2.43 |
-| Resistors | 17 | 46 | 4.74 | 0.40 |
-| **PCB assembly parts** | **56 (+2 DNP)** | **135** | **74.79** | **43.71** |
-| Raspberry Pi CM4 Lite 4 GB wireless (CM4104000) | | | 95.00 | 95.00 |
-| Speaker, heat sink, speaker lead | | | 8.83 | 5.45 |
-| microSD card, screws, foam, feet (estimates) | | | 10.70 | 10.70 |
-| **Complete unit, parts only** | | | **189.32** | **154.86** |
+| ICs and radio module (RF-BM-2652P2 alone: 6.63 / 5.56) | 8 | 11 | 20.85 | 15.11 |
+| Connectors, slide switch, SMT spacers | 7 | 11 | 10.44 | 7.48 |
+| Inductor, crystal, microphones | 3 | 4 | 6.48 | 4.23 |
+| Capacitors | 11 | 49 | 2.78 | 2.21 |
+| Diodes, LEDs, transistors | 9 | 14 | 1.18 | 0.96 |
+| Resistors | 15 | 47 | 0.04 | 0.04 |
+| **PCB assembly parts** | **53 (+2 DNP)** | **136** | **41.77** | **30.03** |
 
-- The compute module is now half of the bill: DigiKey lists the CM4104000 at 95 USD (purchase limit, no backorders);
-  the first session's snapshot said 55 USD. A CM4102000 (2 GB) is a drop-in if price matters more than RAM.
-- Swaps that came out of the live check (same footprint, equal or better ratings): Epson instead of Abracon crystal
-  (-0.24 USD at 100), Walsin / Stackpole instead of Yageo for the 10k, 100k and 49.9k resistors (-0.08), in-stock
-  TDK / KEMET / onsemi parts for four lines that were out of stock (+0.30). The datasheet findings add about 0.12 USD net
-  (X7R capacitors, one FET, minus the removed reset parts). Net effect on the board: about +0.11 USD at 100 pieces.
-- **Out of stock at DigiKey on the day of the check** (all Active): LMR33640ADDAR (26 weeks), 2N7002,215 and
-  CL31A226KOHNNNE (22 uF) - no in-stock drop-in with equal ratings exists; TPS2553DBVR (due mid-December) - the identical
-  device is in stock as the DBVT reel (+0.16 USD each); CL31B106KBHNNNE (10 uF X7R) - an equal part ships only as a
-  2,000-piece Marketplace item. For the 220 nF capacitor C10 (GRM188R71H224KAC4D, Active, 17 weeks lead time) DigiKey
-  shows no stock figure. Thin: MGM240PB32VNA3 (71). The BOM names alternates for each; details in
-  [DECISIONS.md, section 10](DECISIONS.md#10-sourcing-live-check-2026-11-11).
-- **Mouser:** mouser.com blocks automated access, so the Mouser column of the BOM is **not live**: 19 part numbers and figures
-  come from search-engine snippets, 18 part numbers are only built from Mouser's prefix scheme or carried over from the
-  first session (each line says which), 21 lines have none.
+**Everything else for one device**, EU shops, prices of 2026-11-12 including VAT (EUR).
+Line by line: [`hardware/outputs/bom_system.csv`](hardware/outputs/bom_system.csv) and [`fab/SHOPPING_LIST.md`](fab/SHOPPING_LIST.md).
+
+| Item | EUR |
+|---|---|
+| Raspberry Pi CM4 Lite 4 GB wireless (CM4104000) | 103.16 |
+| microSD card 64 GB, endurance type | 28.90 |
+| USB-C PD charger 30 W and cable | 22.38 |
+| Speaker with JST-PH plug, heat sink, screws, feet, foam | 18.39 |
+| Shipping of two parcels to Austria | 12.90 |
+| **One device without the board** | **185.73** |
+
+**The JLCPCB order** (5 PCBs, 2 of them assembled on both sides, parts, shipping, import VAT) is estimated in
+[`fab/ORDER_GUIDE.md`](fab/ORDER_GUIDE.md).
+
+- The same JLCPCB parts cost 41.77 USD where the DigiKey parts of revision A1 cost 74.79 USD; the radio module alone
+  went from 11.47 to 6.63 USD.
+- Thin stock at JLCPCB on the day of the check: ADAU7002ACBZ-R7 (104), Wurth 61400826021 (116), RF-BM-2652P2 (126).
+  The order guide says how to reserve them; the BOM names the alternates. Details in
+  [DECISIONS.md, section 10](DECISIONS.md#10-sourcing-jlcpcb--lcsc-live-check-2026-11-12-digikey-2026-11-11-as-the-second-source).
+- In a Standard PCBA order JLCPCB charges the same feeder fee for every part type, Basic or Extended, so the 32 Extended
+  lines cost nothing extra compared with Basic parts; what counts is the number of BOM lines (53).
 
 ## Verification summary
 
 | Check | Result | Evidence |
 |---|---|---|
 | ERC (kicad-cli 9.0.9) | 0 errors, 0 warnings | `hardware/outputs/erc.rpt` |
-| Netlist equals the code model | 151 components / 99 nets; schematic parity 0 issues | `hardware/gen/model_netlist.json`, `hardware/outputs/drc.rpt` |
-| DRC with schematic parity (kicad-cli 9.0.9) | 0 violations, 0 unconnected pads, 0 parity issues; 5 cosmetic checks waived (10 warnings, each explained in `hardware/README.md`) | `hardware/outputs/drc.rpt`, `drc_waived_checks_enabled.rpt` |
-| USB 2.0 pair matching | pad-to-pad skew 0.00 / 0.00 / 0.00 mm (upstream / port 1 / port 2), limit 3.8 mm; no vias, no stubs; re-computed independently after the first A1 figure for port 2 turned out to be wrong (real: 4.9 mm) | `hardware/outputs/routing_stats.txt`, DECISIONS.md section 6a |
-| Parts vs. datasheets | 26 rows: 25 "verified against datasheet" with source (nine of them read from mirrors of the manufacturer PDF), 1 row of generic passives / standard footprints not individually verified; 7 deviations found and fixed | `DECISIONS.md` section 9 and decision log |
+| Netlist equals the code model | 152 components / 100 nets; schematic parity 0 issues | `hardware/gen/model_netlist.json`, `hardware/outputs/drc.rpt` |
+| DRC with schematic parity and JLCPCB's rules (kicad-cli 9.0.9) | 0 violations, 0 unconnected pads, 0 parity issues; two library-comparison checks waived (4 warnings, explained in `hardware/README.md`) | `hardware/outputs/drc.rpt`, `drc_waived_checks_enabled.rpt`, `hardware/voxhub.kicad_dru` |
+| Current paths | narrowest copper of every high-current path measured and compared with the IPC-2221 requirement; all pass | `hardware/outputs/power_paths.txt` |
+| USB 2.0 | upstream pair coupled, 0.14 / 0.16 mm = 89.96 ohm in JLCPCB's impedance calculator; pad-to-pad skew 0.00 / 0.00 / 0.00 mm (upstream / port 1 / port 2), limit 3.8 mm; no vias, no stubs | `hardware/outputs/usb_impedance.txt`, `routing_stats.txt`, DECISIONS.md section 6a |
+| CM4 socket strips | no copper of another net in Hirose's restricted strips | `hardware/outputs/df40_strips.txt` |
+| Assembly data | 135 of 136 placements fitted to JLCPCB's own footprint of the part (position, rotation, polarity); the last one is the hand-soldered USB-A connector | `fab/jlcpcb/placement_report.csv` |
+| Parts vs. datasheets | 34 rows: 31 "verified against datasheet" with source (seven of them still read from distributor copies of the manufacturer PDF), 2 rows with shop dimensions only (speaker, heat sink), 1 row of generic passives / standard footprints not individually verified | `DECISIONS.md` section 9 and decision logs |
 | PCB render | kicad-cli 3D renders | `hardware/outputs/render_*.png` |
 | Enclosure fit | part dimensions from the manufacturer drawings; 0 mm^3 interference PCB assembly vs. printed parts | `enclosure/voxhub_enclosure.py`, `enclosure/README.md` |
 | Power budget / thermal estimate | above | |
-| Sourcing | every BOM line Active and looked up live at DigiKey (status, stock, price at 1 and 100; no stock figure shown for one line, C10); Mouser not live | `hardware/outputs/bom.csv`, `hardware/gen/sourcing_live.json` |
+| Sourcing | every BOM line in stock in JLCPCB's assembly library on 2026-11-12 (three lines below 200 pieces); DigiKey data of 2026-11-11 as the second source | `hardware/outputs/bom.csv`, `hardware/gen/sourcing_jlc.json` |
+| Radio flashing | one command; run end to end against a simulated radio with the real flashing tool, dry run in this repository; not on hardware | `tools/flash_zigbee.sh`, `fab/ASSEMBLY_AND_TEST.md` |
 | OS image | repack image built from HAOS 18.5 and verified; from-source build (`build-image.sh full`) ran to the end on the ninth attempt, image inspected; not booted (no hardware) | `os/README.md` |
 | Assistant | 86 unit tests pass | `assistant/tests/` |
 
