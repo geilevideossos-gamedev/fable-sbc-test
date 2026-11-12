@@ -1,5 +1,9 @@
 # Operating system: Home Assistant OS for VoxHub CM4
 
+This file covers the **hub** (board 1). The **satellite** (board 2) runs Raspberry Pi OS Lite with the VoxHub
+satellite software; its image is built by [`satellite/build-satellite-image.sh`](satellite/README.md) and verified as
+described in the section "Satellite image: verification" at the end of this file.
+
 The carrier is electrically a Raspberry Pi CM4 board, so it runs the **official HAOS `rpi4-64` target**.
 Everything board-specific is expressed in `config.txt` (stock Raspberry Pi overlays) or, for from-source
 builds, in one extra device tree overlay.
@@ -13,7 +17,8 @@ os/
 ├── board/voxhub/kernel.config     kernel config fragment (driver guard)
 ├── board/voxhub_defconfig         Buildroot defconfig as generated from rpi4_64_defconfig (HAOS 18.5)
 ├── package/voxhub-overlay/        Buildroot package that builds voxhub.dtbo with host-dtc
-└── full-build-attempt.log         log excerpts of the from-source build attempts (9 on 2026-11-11, the last one complete)
+├── full-build-attempt.log         log excerpts of the from-source build attempts (9 on 2026-11-11, the last one complete)
+└── satellite/                     SD card image of the second board (satellite, Raspberry Pi OS Lite): see satellite/README.md
 ```
 
 ## Quick start (recommended): repack the latest official release
