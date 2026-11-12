@@ -208,7 +208,7 @@ sudo apt install git curl xz-utils fdisk mtools device-tree-compiler
 os/build-image.sh repack --wifi-ssid "MyWifi" --wifi-psk "secret"
 #    -> os/output/haos_voxhub-cm4-<version>.img.xz
 
-# 3b. Satellite image (Raspberry Pi OS Lite + Linux Voice Assistant, about 25 minutes)
+# 3b. Satellite image (Raspberry Pi OS Lite + Linux Voice Assistant, about 30 minutes)
 sudo apt install qemu-user-static binfmt-support parted e2fsprogs openssl
 sudo os/satellite/build-satellite-image.sh --wifi-ssid "MyWifi" --wifi-psk "secret-password" --hub 192.168.1.10 --room Downstairs
 #    -> os/output/voxhub-satellite-2026-10-06-lva1.1.18.img.xz
@@ -298,7 +298,7 @@ delivered for both devices without the boards, 66.01 EUR less than two hubs - [`
 | Assistant | 86 unit tests pass | `assistant/tests/` |
 | Two-device system: architecture | read in the Home Assistant source (2026.11.1): the Anthropic integration + Assist API cover tool use, room awareness and per-device answers, not a hard lock / alarm rule - hence the exposure guard | `DECISIONS.md` S-1 to S-5 |
 | Hub add-on VoxHub Satellite | 51 unit tests (guard, bridge, LEDs, mute switch, launcher, options); image built from the official LVA 1.1.18 image and run against PulseAudio with a real ESPHome API client: 7 / 7 checks, LVA only on 127.0.0.1, gain unchanged after a restart; not on Home Assistant OS | `assistant/voxhub_satellite`, `assistant/tests/` |
-| Satellite image | built and checked in emulation (overlays, settings, services, LVA and VoxHub modules start, unattended-upgrades dry run, offline radio flashing dry run); not booted (no hardware) | `os/satellite/`, `os/README.md` |
+| Satellite image | built once, 31 / 31 checks of the finished image (overlays, settings, services, update origins, LVA and VoxHub modules start, offline radio flashing dry run) and 7 / 7 in the runtime test (PipeWire, LVA and the LED / mute bridge inside the emulated image, driven by an ESPHome API client); not booted (no hardware) | `os/satellite/`, `os/README.md` |
 | Radio roles | coordinator and router written into a simulated radio with the real cc2538-bsl, router detection by CRC over the programmed ranges, rejoin, refusals: 55 checks pass; not on hardware | `tools/test/` |
 
 ## License

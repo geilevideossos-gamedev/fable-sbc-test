@@ -242,7 +242,28 @@ works on a copy of the image: it starts PipeWire, PipeWire-Pulse and WirePlumber
 emulated image, gives them a source and a sink named like the googlevoicehat card, starts `voxhub-lva` (launcher ->
 Linux Voice Assistant) and `voxhub-peripherals` the way the units do (LEDs written to a scratch directory), and
 then connects from the PC with the ESPHome API client of `assistant/tests/container/esphome_client.py`, as Home
-Assistant would. Results: see the end of this section.
+Assistant would. Result on the image above (7 of 7):
+
+```
+  ok    PipeWire answers to pactl inside the image
+  ok    launcher picks the googlevoicehat source and sink
+  ok    Linux Voice Assistant starts its ESPHome API server
+  ok    bridge connects to the peripheral API
+  ok    microphone gain 12.04 dB on the source
+        PASS  device info: VoxHub Downstairs / Linux Voice Assistant 1.1.18
+        PASS  voice assistant features announced
+        entities: Media Player, Mic Auto Gain, Mic Noise Suppression, Mic Volume, Mute, Stop Word Sensitivity, Thinking Sound, Wake Word 1 Sensitivity, Wake Word 2 Sensitivity
+        PASS  LEDs idle (green) once Home Assistant is connected
+        PASS  LEDs off while muted from Home Assistant
+        PASS  mute switch state reported as on
+        PASS  LEDs idle again after unmute
+        PASS  LEDs blink slowly (no connection) after Home Assistant left
+        7 of 7 checks passed
+  ok    ESPHome API: device "VoxHub Downstairs", entities, LEDs follow connect / mute / unmute / disconnect
+  ok    firewall ruleset of voxhub-hubwatch accepted by nft (check mode, nothing loaded)
+
+7 passed, 0 failed
+```
 
 What the checks do not cover: the real sound card, LEDs and mute switch, Wi-Fi, the first boot itself (resize,
 SSH host keys, the lingering user session), zeroconf on a real network (qemu-user does not translate the socket

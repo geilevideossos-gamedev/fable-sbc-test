@@ -35,7 +35,7 @@ sudo os/satellite/build-satellite-image.sh \
   inside (`.packages.txt`). Write it with Raspberry Pi Imager ("Use custom") or
   `xz -dc <file> | sudo dd of=/dev/sdX bs=4M conv=fsync`. If Imager offers to apply its own settings, decline:
   the image does not use them.
-- Duration: about 25 minutes on an x86 PC with 4 cores (the packages are installed into the image in emulation);
+- Duration: about 30 minutes on an x86 PC with 4 cores (the packages are installed into the image in emulation);
   disk: about 10 GB in the work directory.
 
 The script needs root (loop devices, mounts, chroot). On an x86 machine the aarch64 programs of the image run

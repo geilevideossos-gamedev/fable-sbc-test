@@ -21,9 +21,9 @@ Satellite image (`/os/satellite`)
 - [x] Build script for a Raspberry Pi OS Lite 64-bit image with LVA, the VoxHub overlay block, LEDs / mute,
       Wi-Fi and hub address at build time, discovery, automatic security updates; checks of the finished image
 - [x] Runtime test of a built image (`test-satellite-image.sh`): PipeWire, launcher, LVA and the bridge inside the
-      emulated image, driven by an ESPHome API client; 7 / 7 on the first build's image
-- [ ] Image built once with all checks passing, runtime test on that image, `lva-constraints.txt` committed,
-      `os/README.md` section "Satellite image: verification"
+      emulated image, driven by an ESPHome API client
+- [x] Image built once with all checks passing (31 / 31), runtime test on that image (7 / 7), package versions in
+      `lva-constraints.txt`, results in `os/README.md` section "Satellite image: verification"
 - [ ] Boot on the board (no hardware)
 
 Zigbee radio
