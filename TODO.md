@@ -28,7 +28,8 @@ Zigbee radio
 - [ ] Router firmware on real hardware (no board exists)
 
 Shopping list and documentation
-- [ ] `fab/SHOPPING_LIST.md`: satellite variant and combined basket hub + satellite
+- [x] `fab/SHOPPING_LIST.md`, section 8: satellite variant (CM4101000 1 GB, Reichelt.at 50.82 EUR; 32 GB card) and
+      combined basket hub + satellite, two parcels to Austria, 286.90 EUR (prices read 2026-11-12)
 - [ ] `fab/ASSEMBLY_AND_TEST.md`: hub / satellite setup, pairing, room assignment, Zigbee router, tests from both rooms
 - [ ] README.md, os/README.md updated
 - [ ] Independent review of the changes

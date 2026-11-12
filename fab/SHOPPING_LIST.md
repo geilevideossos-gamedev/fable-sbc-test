@@ -9,6 +9,8 @@ Everything you must buy that is **not** on the assembled PCB from JLCPCB. Hardwa
   "2. Tools and parts on the table" names every part by the line number of this list, section "3. Bring-up before
   assembly" tests the board, section "4. Mechanical assembly" puts the device together.
 - Nothing on this list needs soldering or crimping.
+- **Two-device system (hub upstairs + satellite downstairs):** the second board is the satellite. Its parts and the
+  combined basket for both devices are in section 8.
 - All prices are in EUR **including VAT**, as the shop displayed them for Austria on **2026-11-12**. Shipping is to
   Austria.
 - Prices and stock change daily; the compute module at Reichelt.at rose by 2.67 EUR within the morning of
@@ -21,6 +23,7 @@ How each figure was obtained (column "Checked" in the tables below):
 | R | read from the shop page for this document on 2026-11-12, about 09:00 UTC (re-check of the research notes) |
 | L | first looked up for this document on 2026-11-12, about 09:00 UTC (the item is not in the research notes) |
 | N | taken from the research notes (shop pages read earlier on 2026-11-12), not read again |
+| S | read from the shop page for the satellite variant (section 8) on 2026-11-12, 12:45 to 12:56 UTC |
 
 ## Already on the board - do not buy
 
@@ -88,7 +91,10 @@ reader (the card comes with an SD adapter); a Wi-Fi network; and the workshop an
 
 ## 2. Two devices
 
-Quantities for both assembled boards: 2 x line 1, 2 x line 2, 2 x line 3, 2 x line 4, 20 x line 5 (16 used),
+For the two-device system of hub and satellite buy the combined basket of section 8 instead: the satellite needs
+neither the 4 GB module nor the 64 GB endurance card.
+
+Quantities for both assembled boards, both built as hubs: 2 x line 1, 2 x line 2, 2 x line 3, 2 x line 4, 20 x line 5 (16 used),
 10 x line 6 (8 used), 1 x line 7 (8 feet from the same pack of 70), 1 x line 8 (two pads from the same sheet),
 2 x line 9, 2 x line 10, 1 x line 11 (one spool prints both enclosures), 1 x line 12.
 Total delivered: 352.91 EUR without lines 11 and 12, 378.87 EUR with them (basket A, section 4).
@@ -219,7 +225,7 @@ Why CM4104000:
 | **CM4104000** | 4 GB | yes | none (Lite) | **Buy this.** Cheapest variant that runs Home Assistant OS with the voice add-ons with headroom; the variant the BOM, the OS image and the thermal estimate of this repository are written for. |
 | CM4102000 | 2 GB | yes | none (Lite) | Fallback, about 37 EUR cheaper. 2 GB is the minimum Home Assistant states ("make sure to choose a model with at least 2 GB of RAM", home-assistant.io/installation/raspberrypi, read 2026-11-12). Little headroom: Home Assistant Core, Supervisor, Whisper, Piper, openWakeWord and the Zigbee stack run at the same time (estimate of the research notes, not measured: 1.6 to 1.9 GB in use). Use the Whisper model `tiny-int8` or Speech-to-Phrase. |
 | CM4108000 | 8 GB | yes | none (Lite) | Works, not worth it: 179.09 EUR at Reichelt.at (R). More RAM does not make speech recognition faster; the about 8 s Whisper needs on a Raspberry Pi 4 are CPU time, identical on every CM4. |
-| CM4101000 | 1 GB | yes | none (Lite) | **Does not work**: below Home Assistant's 2 GB minimum. |
+| CM4101000 | 1 GB | yes | none (Lite) | **Does not work as the hub**: below Home Assistant's 2 GB minimum. It is the module of the **satellite** (section 8), which runs no Home Assistant. |
 | CM4004000 and every other number that starts with CM40 | any | **no** | any | **Does not work.** The carrier board has no Ethernet socket (and no HDMI). The Wi-Fi of the module is the only network connection of the device; a module without it can never be reached. |
 | Numbers that end in 008, 016 or 032 (for example CM4104016) | any | any | 8 / 16 / 32 GB | **Do not buy.** The board boots from its microSD socket, and the SD card signals exist only on Lite modules (CM4 datasheet, section 2.11 "SDIO/eMMC (CM4Lite only)"). Writing an eMMC module would need the solder jumper JP1. |
 
@@ -499,3 +505,96 @@ items. Conrad.at, Amazon.de, Geizhals.at, Cyberport.at and voelkner.at could not
 13. **VAT rate at BerryBase.at:** the pages say "Preise inkl. MwSt." without naming the rate.
 14. **Lines marked N** in sections 5 and 6 are from the research notes of the same day and were not read again for
     this document.
+
+## 8. Two-device system: satellite variant and combined basket hub + satellite
+
+Prices of 2026-11-12, read 12:45 to 12:56 UTC (marked **S** in the tables below: read for this section). The
+satellite is the second board in your mother's room. It runs Raspberry Pi OS Lite with the satellite software
+(`os/satellite/`), no Home Assistant; the hub keeps the parts of section 1.
+
+### 8.1 What changes for the satellite
+
+| Line | Hub (section 1) | Satellite | Why |
+|---|---|---|---|
+| **1S** Compute module | CM4104000, 4 GB, 105.83 | **CM4101000**, Raspberry Pi Compute Module 4 Lite wireless **1 GB**, Reichelt.at `RPI CM4W 1GBLITE`, **50.82 EUR** | cheapest wireless Lite module in stock; see 8.2 |
+| **4S** microSD card | SanDisk High Endurance 64 GB, 28.90 | **SanDisk Ultra microSDHC A1 32 GB** with adapter, BerryBase.at `619659184155`, **17.90 EUR** | the image needs about 5 GB; the satellite writes little (journal limited to 64 MB, no database) |
+| 2, 3, 5 to 10 | | the same articles as the hub | same board, same enclosure, same charger (the board needs a 9 to 20 V PD profile with 2 A or more in any role) |
+
+| Item | Exact part number | Shop | Shop article no. | Price incl. VAT (EUR) | Stock text on the shop page | Checked | Link |
+|---|---|---|---|---|---|---|---|
+| **1S** Raspberry Pi Compute Module 4 Lite, wireless, 1 GB RAM, no eMMC | Raspberry Pi CM4101000 (EAN 0728886755400) | Reichelt.at | RPI CM4W 1GBLITE | 50.82 | "ab Lager, Lieferzeit: 2 - 3 Werktage" | S | [product page](https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_compute_modul_4_1gb_ram_lite_wlan-290499) |
+| **4S** microSD card SanDisk Ultra 32 GB, A1, Class 10, with SD adapter | SanDisk SDSQUA4-032G-GN6MA (EAN 0619659184155) | BerryBase.at | 619659184155 | 17.90 | "Sofort verfügbar · 100+ Stück · 1-3 Tage" | S | [product page](https://www.berrybase.at/sandisk-ultra-microsdhc-a1-120mb-s-class-10-speicherkarte-adapter-32gb) |
+
+On the Reichelt.at page "Artikel-Nr.:" must read `RPI CM4W 1GBLITE` and "Hst.-Teile-Nr.:" `CM4101000`. The article
+`RPI CM4W 1GB16GB` (92.11 EUR) has eMMC and does not boot from the card of this board (section 5.1).
+
+### 8.2 Why the 1 GB module
+
+| Module | Price, shop, stock (2026-11-12, S) | Verdict for the satellite |
+|---|---|---|
+| **CM4101000, 1 GB** | **50.82 Reichelt.at, in stock**; 51.00 BerryBase.at, 14 pieces; 49.90 Welectron (German VAT shown, + 9.90 UPS); 49.27 DigiKey.at (+ 25.00 shipping below 75 EUR); 35.70 Semaf, "Nicht auf Lager" | **Buy this.** Linux Voice Assistant states a minimum of 512 MB RAM and a 1 GHz CPU (its README, "Requirements"); its recommended board is a Raspberry Pi Zero 2 W with 512 MB. The CM4 has twice the RAM and four 1.5 GHz Cortex-A72 cores. Speech recognition and Claude run on the hub, not here |
+| CM4102000, 2 GB | 69.00 BerryBase.at, 16 pieces; 68.52 Reichelt.at "Voraussichtlich lieferbar ab: 5.12.2026"; 66.90 Welectron; 38.00 Semaf, "Nicht auf Lager" | Works, 18.18 EUR more, no benefit for the satellite. Take it only if the board may become a hub later (Home Assistant needs 2 GB) |
+
+That 1 GB is enough is a conclusion from the stated requirements; nothing has been measured on this board. Reichelt
+shows no stock count for this module, only "ab Lager".
+
+### 8.3 Combined basket A: hub + satellite, two parcels to Austria
+
+The hub gets the parts of section 1, the satellite the lines 1S and 4S and otherwise the same articles. The
+shipping fees stay those of basket A: Reichelt.at DPD 6.95 EUR (no free-shipping threshold), BerryBase.at DHL Paket
+5.95 EUR (free from 200 EUR, not reached).
+
+| Shop | Item | Shop article no. | Qty | EUR |
+|---|---|---|---|---|
+| Reichelt.at | CM4 Lite 4 GB wireless (hub) | RPI CM4W 4GBLITE | 1 | 105.83 |
+| Reichelt.at | CM4 Lite 1 GB wireless (satellite) | RPI CM4W 1GBLITE | 1 | 50.82 |
+| Reichelt.at | Rubber feet 8 x 3 mm, 70 pieces | DELOCK 18308 | 1 | 4.89 |
+| Reichelt.at | Cellular rubber sheet 3 mm | JAMARA 059850 | 1 | 5.60 |
+| Reichelt.at | Charger 30 W | GOOBAY 79153 | 2 | 33.08 |
+| Reichelt.at | USB-C cable 1 m | SHVP BS20-75025 | 2 | 11.68 |
+| Reichelt.at | Shipping DPD | | | 6.95 |
+| | **Reichelt.at subtotal** | | | **218.85** |
+| BerryBase.at | Speaker | ADA3351 | 2 | 11.00 |
+| BerryBase.at | Heat sink set | RPI-2KKS | 2 | 2.60 |
+| BerryBase.at | microSD 64 GB High Endurance (hub) | 619659173081 | 1 | 28.90 |
+| BerryBase.at | microSD 32 GB SanDisk Ultra (satellite) | 619659184155 | 1 | 17.90 |
+| BerryBase.at | Screw M2.5 x 5 | D7985 | 20 | 1.20 |
+| BerryBase.at | Screw M2.5 x 8 | D7988 | 10 | 0.50 |
+| BerryBase.at | Shipping DHL Paket | | | 5.95 |
+| | **BerryBase.at subtotal** | | | **68.05** |
+| | **Hub + satellite, delivered** | | | **286.90** |
+
+Compared with two hubs (section 2, 352.91 EUR): 66.01 EUR less (55.01 for the module, 11.00 for the card).
+
+Additions to the same two parcels, no extra shipping:
+
+| Addition | Parcel | EUR | Total with it |
+|---|---|---|---|
+| Filament BL G00-W00-SPL 19.15 + screwdriver BERN 4 624 6.81 (one spool and one screwdriver for both) | Reichelt.at | 25.96 | 312.86 |
+| Bring-up tools of section 3 (chargers 20 W / 65 W, multimeter, USB-C meter) | both | 60.36 | 373.22 with filament and screwdriver |
+
+How to order: as in section 4.1, with the quantities of the table above. Put both compute modules into the
+Reichelt.at basket and check both article numbers (`RPI CM4W 4GBLITE`, `RPI CM4W 1GBLITE`) - with "W" (wireless)
+and "LITE". At BerryBase.at put both cards into the basket and check "Artikelnummer:" `619659173081` (64 GB, hub)
+and `619659184155` (32 GB, satellite).
+
+### 8.4 If a line is not available
+
+| Line | Fallback | Effect |
+|---|---|---|
+| 1S at Reichelt.at | CM4101000 at BerryBase.at, 51.00 EUR, "Sofort verfügbar · 14 Stück", [product page](https://www.berrybase.at/raspberry-pi-compute-module-4/ram-1gb/flash-ohne-lite-/wlan-bluetooth-ja) ("Artikelnummer:" `CM4101000`) | moves into the BerryBase parcel: Reichelt.at 168.03 + BerryBase.at 119.05 = 287.08 EUR, still two parcels |
+| 1S anywhere in the EU | CM4102000 (2 GB), BerryBase.at 69.00 EUR, "Sofort verfügbar · 16 Stück" | 305.08 EUR; works the same |
+| 4S | SanDisk Ultra 32 GB at Reichelt.at, `SDSQUA4032GGN6MA`, 17.91 EUR, "begrenzte Stückzahl" (S); or the endurance card SanDisk High Endurance 32 GB, BerryBase.at `619659173067`, 26.90 EUR (S) | any microSD card of 16 GB or more with A1 or endurance rating works |
+| Hub module | basket B of section 4.2 (Semaf, Vienna, 102.00 EUR, free shipping) | three parcels: Reichelt.at 113.02 + BerryBase.at 68.05 + Semaf 102.00 = 283.07 EUR |
+
+### 8.5 One satellite alone
+
+If the hub already exists: lines 1S, 2, 3, 4S, 5 to 10 = 109.49 EUR, plus shipping of the two parcels (12.90 EUR):
+**122.39 EUR delivered**, with the board from the JLCPCB order.
+
+### 8.6 Not verified for this section
+
+- Whether Reichelt.at limits the number of compute modules per customer (two modules in one basket).
+- Welectron's VAT rate at checkout for Austria; DigiKey's figures were read through a summarising web reader and its
+  75 EUR free-shipping threshold may be net or gross.
+- RAM use of the satellite software on a 1 GB module: derived from the published minimum, not measured.
