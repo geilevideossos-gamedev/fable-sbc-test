@@ -91,6 +91,18 @@ bridge with the switch slot in it (clear the slot after printing); the corner po
 the walls (cosmetic); the downstream USB lines of port 2 run 2.5 mm at 0.15 mm gap between two connector pins
 (78 ohm differential there, electrically short).
 
+### Review round 2 (the last round): re-check of the fixes
+
+The reviewers of round 1 measured their own findings again on the rebuilt board, the regenerated order package, the
+regenerated enclosure and the revised script, and looked for anything the fixes had introduced.
+
+| # | Area | Result | What was done |
+|---|---|---|---|
+| A2-49 | Radio / LEDs | All six findings fixed: no copper of any layer within 3.0 mm of the open end of the antenna (was 1.1 mm); LED intensities about 29 / 25 / 25 mcd typical (were 150 / 55 / 12); radio decoupling 1.8 mm from the supply pin; ERC 0, DRC 0, all 512 pins equal to the netlist. New: the microphone clock now runs 1.5 mm beside the feed end of the antenna where ground pour was before (no action) | Stale keep-out row in `hardware/README.md` corrected |
+| A2-50 | Enclosure | E1, E2, E4, E5, E7 fixed (pocket clearance 0.59 mm per side, 0.44 mm at maximum size; both meshes watertight; 76 of 89 grille holes over the cone whichever way round; all 154 solids of the board model clear of shell and base). New: the pad was squeezed 41 % instead of 35 % | Foam gap set to 2.0 mm (pedestal 18.5 mm below the top plate, as before the speaker change); heat sink in the 3D model of the CM4 is 7 mm like the part on the shopping list |
+| A2-51 | JLCPCB package | J-01 to J-07 fixed: copper 0.450 mm from the straight edges on all four layers, 53 BOM rows for 53 LCSC numbers, every comment equals JLCPCB's model name, no silkscreen stroke below 0.145 mm, no paste on unpopulated parts; all 135 parts with a JLCPCB footprint land pad-on-pad at the CPL angle again; Gerbers identical to a fresh export. New (low): the "GND" label stood diagonal to its test pad and nearer to a 3.3 V capacitor pad | The label is placed directly above its pad. A stray netlist file caused by a path substitution in `build.sh` is removed and the substitution fixed |
+| A2-52 | Flashing script | The reviewer applied its own fixes and re-ran 20 cases against the simulator with the real flashing tool: all pass, a successful default run prints exactly what it printed before | - |
+
 ### Exceptions to the owner's rules (deliberate, each explained above)
 
 - **Below 200 pieces at JLCPCB on 2026-11-12:** ADAU7002ACBZ-R7 (104), 61400826021 (116), RF-BM-2652P2 (126). No better-stocked
