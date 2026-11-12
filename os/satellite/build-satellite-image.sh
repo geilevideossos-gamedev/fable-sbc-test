@@ -42,6 +42,7 @@ COMPRESS=1
 WORK=""
 ROOT=""
 BOOT_MODE=""
+BINFMT_FLAGS=""
 LOOP=""
 MOUNTED=()
 GENERATED_PASSWORD=0
@@ -166,17 +167,25 @@ need() {
 }
 
 check_host() {
-    need xz sfdisk losetup mount umount chroot git curl sha256sum e2fsck resize2fs openssl python3 truncate partprobe
+    need xz sfdisk losetup partx mount umount chroot git curl sha256sum e2fsck resize2fs openssl python3 truncate partprobe
     if [ "$VERIFY" -eq 1 ]; then
         need dtc fdtoverlay
     fi
     if [ "$(uname -m)" != "aarch64" ]; then
+        if [ ! -e /proc/sys/fs/binfmt_misc/qemu-aarch64 ] && [ -f /usr/lib/binfmt.d/qemu-aarch64.conf ]; then
+            [ -e /proc/sys/fs/binfmt_misc/register ] || mount -t binfmt_misc binfmt_misc /proc/sys/fs/binfmt_misc 2>/dev/null || true
+            if [ -w /proc/sys/fs/binfmt_misc/register ]; then
+                log "registering the aarch64 emulation (binfmt_misc, /usr/lib/binfmt.d/qemu-aarch64.conf)"
+                cat /usr/lib/binfmt.d/qemu-aarch64.conf >/proc/sys/fs/binfmt_misc/register || true
+            fi
+        fi
         if [ ! -e /proc/sys/fs/binfmt_misc/qemu-aarch64 ]; then
             fail "aarch64 programs cannot run on this machine. Install the emulation, for example
   sudo apt install qemu-user-static binfmt-support
 and run the script again."
         fi
         grep -q '^enabled' /proc/sys/fs/binfmt_misc/qemu-aarch64 || fail "binfmt_misc entry qemu-aarch64 is disabled"
+        BINFMT_FLAGS="$(sed -n 's/^flags: //p' /proc/sys/fs/binfmt_misc/qemu-aarch64)"
     fi
 }
 
@@ -188,6 +197,7 @@ cleanup() {
         umount -l "${MOUNTED[$index]}" 2>/dev/null || true
     done
     if [ -n "$LOOP" ]; then
+        partx -d "$LOOP" 2>/dev/null || true
         losetup -d "$LOOP" 2>/dev/null || true
     fi
     if [ -n "$WORK" ] && [ "$KEEP" -eq 0 ]; then
@@ -232,6 +242,7 @@ prepare_image() {
     echo ", +" | sfdisk --no-reread --no-tell-kernel -q -N 2 "$IMG"
     LOOP="$(losetup -f --show -P "$IMG")"
     partprobe "$LOOP" 2>/dev/null || true
+    [ -b "${LOOP}p2" ] || partx -a "$LOOP" 2>/dev/null || true
     [ -b "${LOOP}p2" ] || fail "the partitions of $IMG did not appear as ${LOOP}p1 / ${LOOP}p2"
     e2fsck -p -f "${LOOP}p2" >/dev/null || [ "$?" -le 1 ] || fail "e2fsck found errors in the root file system"
     resize2fs -p "${LOOP}p2" >/dev/null
@@ -282,7 +293,7 @@ enter_chroot() {
     mount_at -t sysfs sysfs "$ROOT/sys"
     mount_at -t tmpfs tmpfs "$ROOT/run"
     mount_at -t tmpfs tmpfs "$ROOT/tmp"
-    if [ "$(uname -m)" != "aarch64" ] && ! grep -q '^flags:.*F' /proc/sys/fs/binfmt_misc/qemu-aarch64; then
+    if [ "$(uname -m)" != "aarch64" ] && [[ "${BINFMT_FLAGS:-}" != *F* ]]; then
         cp "$(command -v qemu-aarch64-static)" "$ROOT/usr/bin/qemu-aarch64-static"
     fi
     cp --remove-destination /etc/resolv.conf "$ROOT/etc/resolv.conf.voxhub-build"
@@ -308,7 +319,7 @@ in_root() {
         ca_env=(SSL_CERT_FILE=/tmp/voxhub-build-ca.crt PIP_CERT=/tmp/voxhub-build-ca.crt)
     fi
     chroot "$ROOT" /usr/bin/env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin HOME=/root \
-        LANG=C.UTF-8 DEBIAN_FRONTEND=noninteractive HTTPS_PROXY="${HTTPS_PROXY:-${https_proxy:-}}" \
+        LANG=C.UTF-8 DEBIAN_FRONTEND=noninteractive PIP_CONFIG_FILE=/dev/null HTTPS_PROXY="${HTTPS_PROXY:-${https_proxy:-}}" \
         https_proxy="${HTTPS_PROXY:-${https_proxy:-}}" "${ca_env[@]}" "$@"
 }
 
@@ -491,7 +502,7 @@ verify_image() {
     check "VoxHub modules import with the LVA interpreter (emulated)" 'in_root env PYTHONPATH=/opt/voxhub /opt/linux-voice-assistant/.venv/bin/python3 -c "import voxhub_satellite.launch, voxhub_satellite.peripherals, voxhub_satellite.hubwatch, websockets"'
     check "launcher reads the settings (emulated)" 'in_root env PYTHONPATH=/opt/voxhub /opt/linux-voice-assistant/.venv/bin/python3 -c "from pathlib import Path; from voxhub_satellite.launch import read_env_file, settings_from_env; s = settings_from_env(read_env_file(Path(\"/etc/voxhub/satellite.env\"))); assert s.name == \"$NAME\" and s.wake_word == \"$WAKE_WORD\""'
     check "wake word model $WAKE_WORD present" '[ -f "$ROOT/opt/linux-voice-assistant/wakewords/$WAKE_WORD.tflite" ]'
-    check "unattended-upgrades accepts the configuration (dry run, emulated)" 'in_root unattended-upgrade --dry-run >"$WORK/uu.txt" 2>&1'
+    check "automatic updates: Debian, Debian-Security and Raspberry Pi archive allowed, daily timers on" 'in_root apt-config dump >"$WORK/uu.txt" 2>&1 && grep -q "Origins-Pattern:: \"origin=Raspberry Pi Foundation,codename=\${distro_codename},label=Raspberry Pi Foundation\"" "$WORK/uu.txt" && grep -q "label=Debian-Security" "$WORK/uu.txt" && grep -q "Automatic-Reboot \"true\"" "$WORK/uu.txt" && [ -e "$ROOT/etc/systemd/system/timers.target.wants/apt-daily-upgrade.timer" ]'
     check "router firmware and cc2538-bsl for offline flashing" '[ "$(ls "$ROOT/usr/local/share/voxhub/radio" | wc -l)" -eq 2 ]'
     check "flashing tool: role satellite detected, local firmware used (dry run, emulated)" 'in_root bash /usr/local/sbin/voxhub-flash-zigbee --dry-run >"$WORK/flash.txt" 2>&1 && grep -q "^Role: satellite (this system is a VoxHub satellite" "$WORK/flash.txt" && grep -q "from the local copy" "$WORK/flash.txt" && grep -q "Dry run finished" "$WORK/flash.txt"'
     check "machine-id empty: first boot generates the SSH host keys" '[ ! -s "$ROOT/etc/machine-id" ] || grep -qx uninitialized "$ROOT/etc/machine-id"'
@@ -518,6 +529,7 @@ unmount_image() {
     umount "$ROOT"
     MOUNTED=()
     e2fsck -p -f "${LOOP}p2" >/dev/null || [ "$?" -le 1 ] || fail "e2fsck found errors after the build"
+    partx -d "$LOOP" 2>/dev/null || true
     losetup -d "$LOOP"
     LOOP=""
 }
