@@ -22,11 +22,12 @@ def _ycode(v):
 PARTS = {
     # --- passives -----------------------------------------------------------
     "C_100n":  ("Samsung Electro-Mechanics", "CL05B104KO5NNNC", "CAP CER 100nF 16V X7R 0402", C0402),
-    "C_1u":    ("Samsung Electro-Mechanics", "CL05A105KO5NNNC", "CAP CER 1uF 16V X5R 0402", C0402),
-    "C_4u7":   ("Samsung Electro-Mechanics", "CL10A475KO8NNNC", "CAP CER 4.7uF 16V X5R 0603", C0603),
-    "C_1u_35": ("Samsung Electro-Mechanics", "CL10A105KB8NNNC", "CAP CER 1uF 50V X5R 0603", C0603),
-    "C_100n_50": ("Samsung Electro-Mechanics", "CL10B104KB8NNNC", "CAP CER 100nF 50V X7R 0603", C0603),
-    "C_10u_35": ("Samsung Electro-Mechanics", "CL31A106KBHNNNE", "CAP CER 10uF 50V X5R 1206", C1206),
+    "C_1u":    ("TDK", "C1608X7R1C105K080AC", "CAP CER 1uF 16V X7R 0603", C0603),
+    "C_4u7":   ("TDK", "C1608X5R1E475K080AC", "CAP CER 4.7uF 25V X5R 0603", C0603),
+    "C_1u_35": ("TDK", "C1608X5R1H105K080AB", "CAP CER 1uF 50V X5R 0603", C0603),
+    "C_100n_50": ("KEMET", "C0603C104K5RACTU", "CAP CER 100nF 50V X7R 0603", C0603),
+    "C_220n_50": ("Murata", "GRM188R71H224KAC4D", "CAP CER 220nF 50V X7R 0603", C0603),
+    "C_10u_35": ("Samsung Electro-Mechanics", "CL31B106KBHNNNE", "CAP CER 10uF 50V X7R 1206", C1206),
     "C_22u":   ("Samsung Electro-Mechanics", "CL31A226KOHNNNE", "CAP CER 22uF 16V X5R 1206", C1206),
     "C_27p":   ("Samsung Electro-Mechanics", "CL05C270JB5NNNC", "CAP CER 27pF 50V C0G 0402", C0402),
     "C_22p":   ("Samsung Electro-Mechanics", "CL05C220JB5NNNC", "CAP CER 22pF 50V C0G 0402", C0402),
@@ -35,7 +36,7 @@ PARTS = {
                     "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B"),
     "L_6u8":   ("Bourns", "SRP7028A-6R8M", "IND 6.8uH 4.5A(rms) 8A(sat) 60mOhm shielded 7.3x6.6mm",
                 "Inductor_SMD:L_Bourns_SRP7028A_7.3x6.6mm"),
-    "Y_24M":   ("Abracon", "ABM8-24.000MHZ-B2-T", "XTAL 24MHz 18pF 20ppm 3.2x2.5mm",
+    "Y_24M":   ("Epson", "TSX-3225 24.0000MF18X-C0", "XTAL 24MHz 18pF 10ppm 3.2x2.5mm",
                 "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm"),
     # --- semiconductors -------------------------------------------------------
     "U_PD":    ("Infineon", "CYPD3177-24LQXQT", "USB-C PD sink controller (EZ-PD BCR) QFN-24",
@@ -57,7 +58,7 @@ PARTS = {
     "Q_N":     ("Nexperia", "2N7002,215", "MOSFET N-CH 60V 300mA SOT-23", SOT23),
     "D_TVS":   ("Littelfuse", "SMBJ22A", "TVS 22V 600W unidirectional SMB", "Diode_SMD:D_SMB"),
     "D_CC":    ("Littelfuse", "SD24C-01FTG", "ESD diode 24V bidirectional SOD-323", "Diode_SMD:D_SOD-323"),
-    "D_Z10":   ("onsemi", "MM3Z10VT1G", "Zener 10V 300mW SOD-323", "Diode_SMD:D_SOD-323"),
+    "D_Z10":   ("onsemi", "SZMM3Z10VT1G", "Zener 10V 300mW SOD-323 (AEC-Q101)", "Diode_SMD:D_SOD-323"),
     "LED_R":   ("Wurth Elektronik", "150060RS75000", "LED red 0603", LED0603),
     "LED_G":   ("Wurth Elektronik", "150060VS75000", "LED green 0603", LED0603),
     "LED_UG":  ("Wurth Elektronik", "156120GS75000", "LED green 1206 reverse mount", LEDREV),
@@ -80,5 +81,15 @@ PARTS = {
                 "Mounting_Wuerth:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151"),
 }
 
+# values that are cheaper / in stock in another 1 % 0402 thick-film series (live check 2026-11-11, see sourcing.py)
+RES_OTHER = {
+    "10k":   ("Walsin Technology", "WR04X1002FTL"),
+    "100k":  ("Stackpole Electronics", "RMCF0402FT100K"),
+    "49.9k": ("Stackpole Electronics", "RMCF0402FT49K9"),
+    "24.9k": ("Stackpole Electronics", "RMCF0402FT24K9"),
+}
+
 def res(v):
+    if v in RES_OTHER:
+        return (RES_OTHER[v][0], RES_OTHER[v][1], "RES %s 1%% 1/16W 0402" % v, R0402)
     return ("Yageo", "RC0402FR-07%sL" % _ycode(v), "RES %s 1%% 1/16W 0402" % v, R0402)

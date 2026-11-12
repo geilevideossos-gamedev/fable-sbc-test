@@ -8,16 +8,23 @@
 #                     Docker. The result keeps receiving official OTA updates.
 #   full              Clone the official HAOS build system at the latest release tag, add the
 #                     "voxhub" board definition from os/board + os/package and build from source
-#                     (needs Docker or a Buildroot-capable host, ~30 GB disk, 1-3 h).
+#                     (regular user with sudo + Docker, or VOXHUB_NO_DOCKER=1 on a Buildroot-capable
+#                     host; ~30 GB disk; 1-3 h on a fast machine, much longer on 4 cores).
 #
 # Options:
 #   --version X.Y       HAOS version (default: latest stable release tag)
 #   --out DIR           output directory (default: os/output)
 #   --wifi-ssid NAME --wifi-psk PASS [--wifi-country CC]
-#                       pre-seed a NetworkManager Wi-Fi profile (the board has no Ethernet/HDMI)
+#                       (repack) pre-seed a NetworkManager Wi-Fi profile (the board has no Ethernet/HDMI)
 #   --custom-overlay    (repack) also use os/overlay/voxhub-overlay.dts instead of stock overlays.
 #                       NOTE: HAOS deletes /overlays/* on OS updates -> not OTA-safe.
 #   --keep-work         keep the work directory
+#
+# Environment (full mode): VOXHUB_NO_DOCKER=1       build on the host instead of in the HAOS builder container
+#                          VOXHUB_GITHUB_VIA_GIT=1  fetch github.com "archive" sources with git (for networks
+#                                                   that block those tarball URLs); host builds only
+#                          VOXHUB_GOPROXY=URL       Go module proxy for the Go packages, e.g. https://proxy.golang.org
+#                                                   (Buildroot fetches every module from its own host otherwise)
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -36,11 +43,20 @@ while [ $# -gt 0 ]; do
         --wifi-country) WIFI_COUNTRY="$2"; shift ;;
         --custom-overlay) CUSTOM_OVERLAY=1 ;;
         --keep-work) KEEP=1 ;;
-        -h|--help) sed -n '2,24p' "$0"; exit 0 ;;
+        -h|--help) sed -n '2,27p' "$0"; exit 0 ;;
         *) echo "unknown argument: $1" >&2; exit 2 ;;
     esac
     shift
 done
+
+if [ "${MODE}" = full ] && [ -n "${WIFI_SSID}${WIFI_PSK}" ]; then
+    echo "--wifi-ssid / --wifi-psk are only supported in repack mode (the full build does not touch the boot partition contents)" >&2; exit 2
+fi
+# HAOS (scripts/enter.sh) and several Buildroot host packages refuse to build as root.  Checked before anything is
+# created, so that a first attempt with sudo does not leave a root-owned source tree behind.
+if [ "${MODE}" = full ] && [ "$(id -u)" = 0 ]; then
+    echo "the full build must run as a regular user (with sudo and docker access), not as root" >&2; exit 1
+fi
 
 need() { for t in "$@"; do command -v "$t" >/dev/null || { echo "missing tool: $t" >&2; exit 1; }; done; }
 log() { printf '\033[1m[voxhub-os]\033[0m %s\n' "$*"; }
@@ -52,10 +68,11 @@ latest_version() {
 }
 
 need git
-[ -n "${VERSION}" ] || VERSION="$(latest_version)"
+[ -n "${VERSION}" ] || VERSION="$(latest_version || true)"
 [ -n "${VERSION}" ] || { echo "could not determine the latest HAOS version" >&2; exit 1; }
 log "Home Assistant OS version: ${VERSION} (mode: ${MODE})"
 mkdir -p "${OUT}"
+OUT="$(cd "${OUT}" && pwd)"       # Buildroot runs in another directory: every path derived from OUT must be absolute
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/voxhub-os.XXXXXX")"
 cleanup() { [ "${KEEP}" = 1 ] || rm -rf "${WORK}"; }
 trap cleanup EXIT
@@ -163,6 +180,58 @@ repack() {
     log "flash with: xz -dc ${final} | sudo dd of=/dev/sdX bs=4M conv=fsync   (or Raspberry Pi Imager / balenaEtcher)"
 }
 
+# ---------------------------------------------------------------- github archives via git
+# Some networks (corporate proxies, CI sandboxes) refuse https://github.com/<owner>/<repo>/archive/...
+# tarball downloads although plain git access to the same public repositories works.  With
+# VOXHUB_GITHUB_VIA_GIT=1 every such source that Buildroot's own mirror (sources.buildroot.net) does not
+# carry is fetched with a shallow "git fetch" and packed with "git archive | gzip -n" (byte-identical to
+# the GitHub tarball) into a local directory that is handed to Buildroot as BR2_PRIMARY_SITE.
+# Buildroot still verifies each file against its .hash file, so a wrong tarball cannot slip in.
+github_via_git() {      # $1 = HAOS source tree, $2 = mirror directory
+    local src="$1" mirror="$2" info tmp dir file url rest owner repo ref spec want got pfx ok failed=""
+    need jq curl gzip sha256sum
+    info="$(mktemp)"; tmp="$(mktemp -d)"
+    make -s -C "${src}/buildroot" O="${src}/output" BR2_EXTERNAL="${src}/buildroot-external" show-info > "${info}"
+    jq -r '[.[] | (.dl_dir // .name) as $d | (.downloads // [])[]
+            | (.uris[] | select(test("github\\.com/[^/]+/[^/]+/archive"))) as $u
+            | [$d, .source, ($u | sub("^[^+]*\\+"; ""))] | @tsv] | unique[]' "${info}" > "${tmp}/list"
+    while IFS=$'\t' read -r dir file url; do
+        if [ -s "${BR2_DL_DIR}/${dir}/${file}" ] || [ -s "${mirror}/${dir}/${file}" ]; then continue; fi
+        if curl -sfIL -o /dev/null "https://sources.buildroot.net/${dir}/${file}"; then continue; fi   # backup mirror has it
+        rest="${url#https://github.com/}"; owner="${rest%%/*}"; rest="${rest#*/}"; repo="${rest%%/*}"
+        ref="${rest#*/archive}"; ref="${ref#/}"; [ -n "${ref}" ] || ref="${file%.tar.gz}"
+        if [[ "${ref}" =~ ^[0-9a-f]{40}$ ]]; then spec="${ref}"; else spec="refs/tags/${ref}"; fi
+        log "git: ${owner}/${repo} @ ${ref} -> ${dir}/${file}"
+        rm -rf "${tmp}/g"; git init -q "${tmp}/g"
+        git -C "${tmp}/g" fetch -q --depth 1 "https://github.com/${owner}/${repo}.git" "${spec}" \
+            || { echo "git fetch failed for ${owner}/${repo} ${ref}" >&2; failed="${failed} ${dir}/${file}(fetch)"; continue; }
+        mkdir -p "${mirror}/${dir}"
+        # expected hash (if the package has one for exactly this file; vendored -go/-cargo tarballs are
+        # produced and checked by Buildroot's post-processing step instead)
+        want="$(grep -rhs --include='*.hash' -F "  ${file}" "${src}/buildroot" "${src}/buildroot-external" \
+                | awk -v f="${file}" '$1 == "sha256" && $3 == f { print $2; exit }' || true)"
+        case "${file}" in *-go[0-9]*.tar.gz|*-cargo[0-9]*.tar.gz) want="" ;; esac
+        ok=0
+        for pfx in "${repo}-${ref#v}" "${repo}-${ref}"; do      # GitHub drops a leading "v" of the tag
+            pfx="${pfx//\//-}"
+            # written under a temporary name: an interrupted or mismatching tarball must never look finished
+            git -C "${tmp}/g" archive --format=tar --prefix="${pfx}/" FETCH_HEAD | gzip -n > "${mirror}/${dir}/${file}.part"
+            got="$(sha256sum "${mirror}/${dir}/${file}.part" | cut -d' ' -f1)"
+            if [ -z "${want}" ] || [ "${got}" = "${want}" ]; then ok=1; break; fi
+        done
+        if [ "${ok}" = 1 ]; then
+            mv "${mirror}/${dir}/${file}.part" "${mirror}/${dir}/${file}"
+        else
+            rm -f "${mirror}/${dir}/${file}.part"
+            echo "${file}: sha256 ${got} differs from the expected ${want}" >&2; failed="${failed} ${dir}/${file}(hash)"
+        fi
+    done < "${tmp}/list"
+    rm -rf "${tmp}" "${info}"
+    if [ -n "${failed}" ]; then     # stop now instead of hours into the build at the first of these packages
+        echo "could not prepare these GitHub sources:${failed}" >&2; exit 1
+    fi
+}
+
 # -------------------------------------------------------------------------------- full
 full() {
     need git make
@@ -171,7 +240,11 @@ full() {
         log "cloning ${HAOS_REPO} @ ${VERSION}"
         git clone --depth 1 -b "${VERSION}" --recurse-submodules --shallow-submodules "${HAOS_REPO}.git" "${src}"
     fi
-    local ext="${src}/buildroot-external"
+    local ext="${src}/buildroot-external" have
+    # an existing clone is reused: make sure it is the version the image will be named after
+    have="$(git -C "${src}" tag --points-at HEAD)"
+    echo "${have}" | grep -qx "${VERSION}" \
+        || { echo "${src} holds HAOS '${have}', not the requested ${VERSION}: remove it or pass the matching --version" >&2; exit 1; }
 
     log "installing the voxhub board definition into the HAOS tree"
     # board directory: start from the official rpi4-64 board, override meta / config
@@ -199,17 +272,53 @@ full() {
     echo 'BR2_PACKAGE_VOXHUB_OVERLAY=y' >> "${ext}/configs/voxhub_defconfig"
     cp "${ext}/configs/voxhub_defconfig" "${HERE}/board/voxhub_defconfig"   # keep a copy for review
 
+    # Buildroot vendors the Go modules of its Go packages with GOPROXY=direct, i.e. from each module's own host
+    # (gopkg.in, golang.org, github.com, ...).  Where one of those cannot be reached a module proxy does the job; go.sum
+    # and Buildroot's hash of the vendored tarball are checked exactly as before.
+    if [ -n "${VOXHUB_GOPROXY:-}" ]; then
+        sed -i "s|GOPROXY=[^ ]* \\\\$|GOPROXY=${VOXHUB_GOPROXY} \\\\|" "${src}/buildroot/package/pkg-golang.mk"
+        grep -q "GOPROXY=${VOXHUB_GOPROXY} " "${src}/buildroot/package/pkg-golang.mk" \
+            || { echo "could not set the Go module proxy in buildroot/package/pkg-golang.mk" >&2; exit 1; }
+    fi
     log "building (this takes a long time)"
     if command -v docker >/dev/null && docker info >/dev/null 2>&1 && [ -z "${VOXHUB_NO_DOCKER:-}" ]; then
         (cd "${src}" && ./scripts/enter.sh make voxhub)
     else
-        log "Docker not available - building directly on the host"
+        log "building directly on the host (VOXHUB_NO_DOCKER set or Docker not usable)"
+        # the tools the HAOS builder container provides; docker + sudo + loop devices are still
+        # needed at the very end (data partition: the Supervisor containers are imported with docker-in-docker)
+        need make gcc g++ bc cpio rsync unzip wget curl file perl patch bzip2 xz jq skopeo sudo docker \
+             qemu-img pigz zip automake help2man makeinfo flock python3
+        # The HAOS scripts expect the source tree at /build (where the builder container mounts it): the RAUC signing key
+        # and certificate are generated and read as /build/key.pem and /build/cert.pem (scripts/rauc.sh, genimage/*.cfg).
+        # On the host they go to the root of the cloned tree instead, which is the same place.
+        { grep -rlE '/build/(key|cert)\.pem' "${ext}/scripts" "${ext}/genimage" 2>/dev/null || true; } | while read -r f; do
+            sed -i -E "s|/build/(key\|cert)\.pem|${src}/\1.pem|g" "${f}"
+        done
+        # the HAOS defconfig points the download dir and ccache at /cache (a volume of the builder container)
+        export BR2_DL_DIR="${BR2_DL_DIR:-${OUT}/cache/dl}" BR_CACHE_DIR="${BR_CACHE_DIR:-${OUT}/cache/cc}"
+        mkdir -p "${BR2_DL_DIR}" "${BR_CACHE_DIR}"
+        (cd "${src}" && make voxhub-config)
+        if [ -n "${VOXHUB_GITHUB_VIA_GIT:-}" ]; then
+            local mirror="${OUT}/cache/github-mirror"; mkdir -p "${mirror}"
+            github_via_git "${src}" "${mirror}"
+            echo "BR2_PRIMARY_SITE=\"file://${mirror}\"" >> "${ext}/configs/voxhub_defconfig"
+        fi
+        # U-Boot's dtc enables YAML output when it finds /usr/include/yaml.h on the build host (Buildroot passes
+        # PKG_CONFIG_SYSROOT_DIR=/) and then asks Buildroot's own pkg-config for the library.  On a host with libyaml-dev
+        # installed the header is found and the library is not ("undefined reference to yaml_emitter_emit").  The HAOS
+        # builder container has no libyaml-dev; on such a host build Buildroot's host-libyaml first so that both exist.
+        if [ -e /usr/include/yaml.h ]; then
+            log "libyaml-dev is installed on this host: building host-libyaml first (U-Boot's dtc would not link otherwise)"
+            make -C "${src}/buildroot" O="${src}/output" BR2_EXTERNAL="${src}/buildroot-external" host-libyaml
+        fi
         (cd "${src}" && make voxhub)
     fi
     local built
-    built="$(ls "${src}"/output/images/haos_rpi4-64-*.img.xz 2>/dev/null | head -n1)"
+    built="$(ls "${src}"/output/images/haos_rpi4-64-*.img.xz 2>/dev/null | head -n1 || true)"
     [ -n "${built}" ] || { echo "build finished but no image was found" >&2; exit 1; }
     cp "${built}" "${OUT}/haos_voxhub-cm4-${VERSION}-full.img.xz"
+    (cd "${OUT}" && sha256sum "haos_voxhub-cm4-${VERSION}-full.img.xz" > "haos_voxhub-cm4-${VERSION}-full.img.xz.sha256")
     log "done: ${OUT}/haos_voxhub-cm4-${VERSION}-full.img.xz"
 }
 

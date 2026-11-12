@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-// Device tree overlay for the VoxHub CM4 carrier (rev A).
+// Device tree overlay for the VoxHub CM4 carrier (rev A1).
 //
 // Functionally equivalent to the stock-overlay combination in config/config-voxhub.txt,
 // but as one overlay with proper names (LED function/colour, EV_SW mute switch, named
@@ -120,8 +120,9 @@
 		};
 	};
 
-	/* Radio reset (GPIO24) and bootloader strap (GPIO25) have 10k pull-ups on the board and are
-	 * left as inputs; a flasher may drive them from user space (libgpiod). */
+	/* Radio reset (GPIO24, active HIGH: it drives an open-drain FET on the module's RESETn, 100k pull-down on the
+	 * board) and bootloader strap (GPIO25, active low, 10k pull-up) are left as inputs; a flasher may drive them
+	 * from user space (libgpiod). */
 
 	/* ---- I2C1: USB-PD controller (CYPD3177 HPI @ 0x08), read-only status ---- */
 	fragment@6 {

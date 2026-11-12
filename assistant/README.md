@@ -160,8 +160,8 @@ hardware/OS part of this repository).
    - *Add-on store -> ⋮ -> Repositories* and add
      `https://github.com/geilevideossos-gamedev/fable-sbc-test`. The Supervisor expects
      `repository.yaml` in the **root** of the Git repository and then finds add-on
-     folders anywhere below it, so `assistant/repository.yaml` must also be present at
-     the repository root (copy it there) for this method to work.
+     folders anywhere below it, so a copy of `assistant/repository.yaml` is kept at the
+     repository root for this method (it is already there).
    - **Local add-on:** copy the folder `assistant/voxhub_assistant` to `/addons/` on the
      device (Samba or SSH add-on), then *Add-on store -> ⋮ -> Check for updates*. It
      appears under *Local add-ons*.
@@ -298,7 +298,8 @@ scale, so after conversion to 16 bit the signal is quiet. Raise `mic_gain` (4 to
 normal range for this microphone) and/or the PulseAudio source volume
 (`ha audio volume input --index <n> --volume 100`). Set `log_level: debug` to see
 transcripts. Too much gain makes loud speech clip and hurts recognition. Also check the
-mute slide switch: when it is on, the microphones are unpowered and the red LED is lit.
+mute slide switch: when it is on, the microphone data line is disconnected from the CM4
+(capture is silent; the microphones themselves stay powered) and the red LED is lit.
 
 **Recording stops too early or too late.** Adjust `silence_seconds`. In a noisy room
 raise `vad_sensitivity`; if quiet speech is missed, lower it.
@@ -332,7 +333,7 @@ optional wheels were not available at build time; use `wake_word_engine: wyoming
 cd assistant
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements-dev.txt
-pytest                      # 85 tests, about 1 s
+pytest                      # 86 tests, about 1 s
 ruff check . && ruff format --check .
 python -m compileall -q voxhub_assistant/app
 ```

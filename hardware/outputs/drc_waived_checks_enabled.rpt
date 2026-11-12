@@ -1,16 +1,8 @@
 ** Drc report for voxhub.kicad_pcb **
-** Created on 2026-11-10T15:40:35+0000 **
+** Created on 2026-11-11T17:47:15+0000 **
 ** Report includes: Errors, Warnings, Exclusions **
 
 ** Found 10 DRC violations **
-[silk_edge_clearance]: Silkscreen clipped by board edge
-    Rule: board setup constraints silk; warning
-    @(197.0000 mm, 134.0000 mm): Segment on Edge.Cuts
-    @(117.4000 mm, 134.1500 mm): Segment of U11 on F.Silkscreen
-[silk_edge_clearance]: Silkscreen clipped by board edge
-    Rule: board setup constraints silk; warning
-    @(197.0000 mm, 134.0000 mm): Segment on Edge.Cuts
-    @(130.6000 mm, 134.1500 mm): Segment of U11 on F.Silkscreen
 [silk_edge_clearance]: Silkscreen clipped by board edge
     Rule: board setup constraints silk; warning
     @(103.0000 mm, 60.0000 mm): Segment on Edge.Cuts
@@ -19,6 +11,14 @@
     Rule: board setup constraints silk; warning
     @(103.0000 mm, 60.0000 mm): Segment on Edge.Cuts
     @(141.5600 mm, 58.0600 mm): Segment of J6 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(197.0000 mm, 134.0000 mm): Segment on Edge.Cuts
+    @(117.4000 mm, 134.1500 mm): Segment of U11 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(197.0000 mm, 134.0000 mm): Segment on Edge.Cuts
+    @(130.6000 mm, 134.1500 mm): Segment of U11 on F.Silkscreen
 [footprint_type_mismatch]: Footprint component type doesn't match footprint pads (expected 'Through hole'; actual 'SMD')
     Local override; warning
     @(108.5000 mm, 85.5000 mm): Footprint U2
@@ -33,12 +33,12 @@
     @(122.0000 mm, 103.2000 mm): PCB text 'github.com/geilevideossos-gamedev/fable-sbc-test' on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(109.9578 mm, 69.2700 mm): Segment of C4 on F.Silkscreen
+    @(114.5422 mm, 69.2700 mm): Segment of C6 on F.Silkscreen
     @(113.0000 mm, 69.2000 mm): PCB text 'USB-C PD 9-20V' on F.Silkscreen
 [silk_overlap]: Silkscreen overlap
     Rule: board setup constraints silk; warning
-    @(113.0000 mm, 69.2000 mm): PCB text 'USB-C PD 9-20V' on F.Silkscreen
-    @(114.8422 mm, 69.2700 mm): Segment of C5 on F.Silkscreen
+    @(122.0000 mm, 103.2000 mm): PCB text 'github.com/geilevideossos-gamedev/fable-sbc-test' on F.Silkscreen
+    @(109.7887 mm, 102.9100 mm): Segment of C17 on F.Silkscreen
 
 ** Found 0 unconnected pads **
 

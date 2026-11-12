@@ -4,7 +4,7 @@ import sys, os, json
 from kisch import Design, PROJECT
 from parts import PARTS, res as RES
 
-d = Design("VoxHub CM4 - Home Assistant voice hub carrier", "A", "2026-11-10", "VoxHub (open hardware)")
+d = Design("VoxHub CM4 - Home Assistant voice hub carrier", "A1", "2026-11-11", "VoxHub (open hardware)")
 L = d.lib
 _cnt = {}
 
@@ -128,7 +128,7 @@ def tp(sh, x, y, net, name):
              fields={"MPN": "", "Manufacturer": "", "PartDescription": "Test pad (no part)"})
 
 # =========================================================================
-# Sheet 2: POWER  (USB-C PD sink -> load switch -> 5.1 V buck)
+# Sheet 2: POWER  (USB-C PD sink -> load switch -> 5 V buck)
 # =========================================================================
 s = d.sheet("power", "Power: USB-C PD sink, 5 V buck")
 d.near = "U1"
@@ -149,6 +149,7 @@ s.place("CYPD3177-24LQ", "U1", "CYPD3177-24LQXQT", 150, 80,
          "18": "VBUS", "19": GND, "22": GND, "23": "PD_VDDD", "24": "PD_VCCD", "25": GND},
         footprint=PARTS["U_PD"][3], fields=F("U_PD"))
 cap(s, "C_1u", 112, 125, "PD_VDDD"); cap(s, "C_100n", 123, 125, "PD_VDDD"); cap(s, "C_1u", 134, 125, "PD_VCCD")
+cap(s, "C_100n", 101, 125, "PD_VDDD")        # datasheet: 1 uF + 2 x 100 nF on VDDD
 # strap dividers (values: see DECISIONS.md / datasheet table)
 STRAPS = [("PD_VMIN", "5.1k", "1k"), ("PD_VMAX", "0", None), ("PD_ICOARSE", "5.1k", "2.4k"), ("PD_IFINE", None, "0")]
 for i, (net, top, bot) in enumerate(STRAPS):
@@ -169,18 +170,18 @@ res(s, "150k", 95, 215, "PD_GATE", "PD_FET_EN")
 s.text("VBUS_FET_EN pulls low after a 9-20 V contract.\nVgs = -0.4 x VBUS (-3.6 V @ 9 V, -8 V @ 20 V),\n10 V zener clamps transients.", 70, 262, size=1.4)
 s.flag("VBUS", 30, 180); s.flag("VBUS_SW", 100, 180); s.flag(GND, 30, 265)
 d.near = "U2"
-s.box(135, 155, 405, 247, "5.1 V / 4 A synchronous buck (LMR33640, 400 kHz) - UVLO 7.0 V keeps it off at vSafe5V")
+s.box(135, 155, 405, 247, "5.0 V / 4 A synchronous buck (LMR33640, 400 kHz) - UVLO 7.0 V keeps it off at vSafe5V")
 s.place("LMR33640ADDA", "U2", "LMR33640ADDAR", 215, 205,
         {"1": GND, "2": "VBUS_SW", "3": "BUCK_EN", "4": "NC", "5": "BUCK_FB", "6": "BUCK_VCC", "7": "BUCK_BOOT", "8": "BUCK_SW", "9": GND},
         footprint=PARTS["U_BUCK"][3], fields=F("U_BUCK"))
 for i in range(2): cap(s, "C_10u_35", 150 + i * 11, 185, "VBUS_SW")
-cap(s, "C_100n_50", 172, 185, "VBUS_SW")
+cap(s, "C_220n_50", 172, 185, "VBUS_SW")     # CHF: 220 nF / 50 V / X7R is mandatory (LMR33640 datasheet 9.2.2.5)
 res(s, "470k", 160, 215, "VBUS_SW", "BUCK_EN"); res(s, "100k", 160, 225, "BUCK_EN", GND)
 cap(s, "C_1u", 195, 238, "BUCK_VCC")
 cap(s, "C_100n", 250, 185, "BUCK_BOOT", "BUCK_SW")
 r = ref("L"); s.place("L", r, "6.8uH", 275, 205, {"1": "BUCK_SW", "2": V5}, rot=90, footprint=PARTS["L_6u8"][3], fields=F("L_6u8"),
                       textpos=((0, -2.6, None), (0, 2.8, None)))
-res(s, "100k", 270, 225, V5, "BUCK_FB"); res(s, "24.3k", 270, 235, "BUCK_FB", GND)
+res(s, "100k", 270, 225, V5, "BUCK_FB"); res(s, "24.9k", 270, 235, "BUCK_FB", GND)
 cap(s, "C_22p", 300, 232, V5, "BUCK_FB", dnp=True)
 for i in range(4): cap(s, "C_22u", 315 + i * 11, 200, V5)
 cap(s, "C_100n", 359, 200, V5)
@@ -200,10 +201,10 @@ for n in range(1, 101):
     if CM4[n] == "GND": n1[n] = GND
     if CM4[n] == "+5V": n1[n] = V5
 n1.update({21: "ACT_LED_K", 25: "I2S_DOUT", 26: "I2S_LRCLK", 27: "I2S_DIN", 29: "AMP_SD", 30: "LED_B_EN", 34: "LED_G_EN",
-           38: "UART4_RTS", 39: "UART4_TX", 40: "UART4_RX", 41: "ZB_BOOT", 44: "UART4_CTS", 45: "ZB_NRST",
+           38: "UART4_RTS", 39: "UART4_TX", 40: "UART4_RX", 41: "ZB_BOOT", 44: "UART4_CTS", 45: "ZB_RST",
            46: "ZB_SWDIO", 47: "ZB_SWCLK", 48: "MUTE_SENSE", 49: "I2S_BCLK", 51: "DBG_RX", 55: "DBG_TX",
            56: "I2C_SCL", 58: "I2C_SDA", 57: "SD_CLK", 61: "SD_DAT3", 62: "SD_CMD", 63: "SD_DAT0", 67: "SD_DAT1",
-           69: "SD_DAT2", 75: "SD_PWR_ON", 78: V33, 84: V33, 86: V33, 93: "NRPIBOOT"})
+           69: "SD_DAT2", 75: "SD_PWR_ON", 78: V33, 84: V33, 86: V33, 93: "NRPIBOOT", 100: "HUB_RST_N"})
 s.place("CM4_J1", "J2", "DF40C-100DS-0.4V(51)", 70, 150, {str(k): v for k, v in n1.items()}, fields=F("J_CM4"))
 n2 = {n: "NC" for n in range(101, 201)}
 for n in range(101, 201):
@@ -259,7 +260,7 @@ s.place("USB2514B_Bi", "U4", "USB2514B-I/M2", 110, 130,
 s.place("Crystal_GND24", "Y1", "24MHz", 45, 215, {"1": "HUB_XI", "3": "HUB_XO", "2": GND, "4": GND}, footprint=PARTS["Y_24M"][3], fields=F("Y_24M"))
 cap(s, "C_27p", 30, 240, "HUB_XI"); cap(s, "C_27p", 60, 240, "HUB_XO")
 res(s, "12k", 40, 60, "HUB_RBIAS", GND); cap(s, "C_100n", 30, 85, "HUB_PLLFILT"); cap(s, "C_100n", 45, 85, "HUB_CRFILT")
-res(s, "10k", 40, 110, V33, "HUB_RST_N"); cap(s, "C_100n", 60, 110, "HUB_RST_N")
+s.text("RESET_N is driven by the CM4 (nEXTRST, pin 100):\nlow during reset, high once the SoC boots.", 22, 108, size=1.4)
 res(s, "100k", 40, 130, V33, "HUB_VBUSDET")
 for i, nn in enumerate(("HUB_CFG0", "HUB_CFG1", "HUB_NONREM0", "HUB_NONREM1")):
     res(s, "100k", 40, 150 + i * 10, nn, GND)
@@ -318,23 +319,26 @@ d.near = "U11"
 z = {n: "NC" for n in range(1, 37)}
 for n in (1, 14, 23, 32, 34, 35, 36): z[n] = GND
 z.update({15: V33, 31: "ZB_NRST", 8: "ZB_SWCLK", 9: "ZB_SWDIO", 10: "ZB_SWO", 12: "UART4_RX", 13: "UART4_TX",
-          16: "UART4_RTS", 17: "UART4_CTS", 22: "ZB_BOOT"})
+          16: "UART4_CTS", 17: "UART4_RTS", 22: "ZB_BOOT"})
 s.box(15, 20, 290, 150, "MGM240P network co-processor on CM4 UART4 (GPIO8-11, hardware flow control) + SWD")
 s.place("MGM240P", "U11", "MGM240PB32VNA3", 110, 85, {str(k): v for k, v in z.items()}, fields=F("U_ZB"))
-cap(s, "C_4u7", 30, 130, V33); cap(s, "C_100n", 41, 130, V33); cap(s, "C_100n", 60, 130, "ZB_NRST")
-res(s, "10k", 90, 135, V33, "ZB_NRST"); res(s, "10k", 90, 143, V33, "ZB_BOOT")   # GPIO24/25 default to pull-down at boot
+cap(s, "C_4u7", 30, 130, V33); cap(s, "C_100n", 41, 130, V33)
+res(s, "10k", 90, 143, V33, "ZB_BOOT")       # GPIO25 defaults to pull-down at boot; keep the bootloader strap high
+# RESETn has an internal pull-up and must only ever be pulled low (MGM240P datasheet, pin table): open-drain driver
+q = ref("Q"); s.place("2N7002", q, "2N7002", 262, 105, {"1": "ZB_RST", "2": GND, "3": "ZB_NRST"}, footprint=PARTS["Q_N"][3], fields=F("Q_N"))
+res(s, "100k", 255, 124, "ZB_RST", GND)      # radio runs while GPIO24 is low / floating / the module is absent
 s.place("Conn_ARM_SWD_TagConnect_TC2030-NL", "J8", "TC2030-NL (SWD)", 230, 80,
         {"1": V33, "2": "ZB_SWDIO", "3": "ZB_NRST", "4": "ZB_SWCLK", "5": GND, "6": "ZB_SWO"}, in_bom=False,
         fields={"MPN": "", "Manufacturer": "", "PartDescription": "Tag-Connect footprint (no part)"})
-s.text("UART: PA05 = module TX -> GPIO9 (RXD4), PA06 = module RX <- GPIO8 (TXD4),\nPA07 = module CTS <- GPIO11 (RTS4), PA08 = module RTS -> GPIO10 (CTS4).\n"
-       "PC00 = bootloader entry, active low (GPIO25), RESET = GPIO24. SWD also wired to GPIO22/23\nso the CM4 can flash the radio in-system (openocd bit-bang).", 150, 140, size=1.5)
+s.text("UART: PA05 = module TX -> GPIO9 (RXD4), PA06 = module RX <- GPIO8 (TXD4),\nPA07 = module RTS -> GPIO10 (CTS4), PA08 = module CTS <- GPIO11 (RTS4)  [datasheet fig. 5.1].\n"
+       "PC00 = bootloader entry, active low (GPIO25). Reset: GPIO24 HIGH pulls RESETn low (open drain).\nSWD also wired to GPIO22/23 so the CM4 can flash the radio in-system (openocd bit-bang).", 150, 141, size=1.4)
 
 # =========================================================================
 # Root sheet: mechanical items
 # =========================================================================
 s = d.root
 d.near = None
-s.text("VoxHub CM4 - Home Assistant voice hub\nUSB-C PD (9-20 V) -> 5.1 V buck -> CM4 Lite + USB hub + audio + Zigbee", 30, 40, size=3.0, bold=True)
+s.text("VoxHub CM4 - Home Assistant voice hub\nUSB-C PD (9-20 V) -> 5 V buck -> CM4 Lite + USB hub + audio + Zigbee", 30, 40, size=3.0, bold=True)
 for i in range(4):
     s.place("MountingHole", "H%d" % (i + 1), "M2.5 board mount", 40 + i * 30, 170, {}, footprint="MountingHole:MountingHole_2.7mm_M2.5",
             in_bom=False, fields={"MPN": "", "Manufacturer": "", "PartDescription": "PCB mounting hole"})

@@ -6,3 +6,5 @@ fp-info-cache
 *.lck
 .pytest_cache/
 .ruff_cache/
+media/work/
+hardware/freerouting-*.jar

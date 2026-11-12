@@ -1,3 +1,6 @@
+##### Full-build attempts, excerpts (paths relative to the repository root, long lines cut at 240 characters)
+
+##### first session, 2026-11-10: stopped at the first tarball download (proxy of that session)
   GEN     os/output/haos-src/output/Makefile
 #
 # configuration written to os/output/haos-src/output/.config
@@ -30,3 +33,155 @@ Proxy tunneling failed: ForbiddenUnable to establish SSL connection.
 make[1]: *** [package/pkg-generic.mk:179: os/output/haos-src/output/build/host-pkgconf-2.3.0/.stamp_downloaded] Error 1
 make[1]: Leaving directory 'os/output/haos-src/buildroot'
 make: *** [Makefile:56: voxhub] Error 2
+
+##### 2026-11-11 attempt 2: GitHub /archive/ URLs refused by the proxy (start 10:28:56Z, exit 10:45:48Z)
+>>> skeleton  Extracting
+>>> skeleton  Patching
+>>> skeleton  Configuring
+>>> skeleton  Building
+>>> skeleton  Installing to target
+>>> linux-headers custom Downloading
+wget -nd -t 3 --connect-timeout=10 -O 'os/output/haos-src/output/build/.9b488bc7a1e9b61713082f3e6c4361988d62f77b.tar.gz.DPdPox/output' 'https://github.com/raspberrypi/linux/archive/9b488bc7a1e9b61713082f3e6c4361988d62f77b.tar.gz' 
+--2026-11-11 10:45:46--  https://github.com/raspberrypi/linux/archive/9b488bc7a1e9b61713082f3e6c4361988d62f77b.tar.gz
+Connecting to 127.0.0.1:39445... connected.
+Proxy request sent, awaiting response... 403 Forbidden
+2026-11-11 10:45:46 ERROR 403: Forbidden.
+
+wget -nd -t 3 --connect-timeout=10 -O 'os/output/haos-src/output/build/.9b488bc7a1e9b61713082f3e6c4361988d62f77b.tar.gz.tOIa7C/output' 'https://sources.buildroot.net/linux/9b488bc7a1e9b61713082f3e6c4361988d62f77b.tar.gz' 
+--2026-11-11 10:45:46--  https://sources.buildroot.net/linux/9b488bc7a1e9b61713082f3e6c4361988d62f77b.tar.gz
+Connecting to 127.0.0.1:39445... connected.
+Proxy request sent, awaiting response... 404 Not Found
+2026-11-11 10:45:47 ERROR 404: Not Found.
+
+wget -nd -t 3 --connect-timeout=10 -O 'os/output/haos-src/output/build/.9b488bc7a1e9b61713082f3e6c4361988d62f77b.tar.gz.wig2cr/output' 'https://sources.buildroot.net/9b488bc7a1e9b61713082f3e6c4361988d62f77b.tar.gz' 
+--2026-11-11 10:45:47--  https://sources.buildroot.net/9b488bc7a1e9b61713082f3e6c4361988d62f77b.tar.gz
+Connecting to 127.0.0.1:39445... connected.
+Proxy request sent, awaiting response... 404 Not Found
+2026-11-11 10:45:48 ERROR 404: Not Found.
+
+make[2]: *** [package/pkg-generic.mk:179: os/output/haos-src/output/build/linux-headers-custom/.stamp_downloaded] Error 1
+make[1]: *** [Makefile:83: _all] Error 2
+make[1]: Leaving directory 'os/output/haos-src/buildroot'
+make: *** [Makefile:56: voxhub] Error 2
+=== exit 2 2026-11-11T10:45:48Z ===
+
+##### 2026-11-11 attempt 4: VOXHUB_GITHUB_VIA_GIT=1 (start 10:58:23Z, exit 13:58:42Z), 153 of 218 packages installed
+=== start 2026-11-11T10:58:23Z ===
+[voxhub-os] Home Assistant OS version: 18.5 (mode: full)
+[voxhub-os] installing the voxhub board definition into the HAOS tree
+[voxhub-os] building (this takes a long time)
+[voxhub-os] building directly on the host (VOXHUB_NO_DOCKER set or Docker not usable)
+=== Using voxhub_defconfig ===
+make -C os/output/haos-src/buildroot O=os/output/haos-src/output BR2_EXTERNAL=os/output/haos-src/buildroot-external "voxhub_defconfig"
+make[1]: Entering directory 'os/output/haos-src/buildroot'
+[... every 12th install step ...]
+>>> linux-headers custom Installing to target
+>>> host-python3 3.12.15 Installing to host directory
+>>> libapparmor 3.1.7 Installing to target
+>>> libargon2 20190702 Installing to target
+>>> kmod 33 Installing to target
+>>> readline 8.2 Installing to target
+>>> host-libopenssl 3.5.9 Installing to host directory
+>>> host-go 1.27.3 Installing to host directory
+>>> dropbear 2026.93 Installing to target
+>>> host-gptfdisk 1.0.10 Installing to host directory
+[...]
+libtool: warning: 'os/output/haos-src/output/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib/libkmod.la' seems to be moved
+libtool: warning: 'os/output/haos-src/output/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib/libuuid.la' seems to be moved
+/usr/bin/grep: os/output/haos-src/output/build/util-linux-2.40.4/libuuid.la: No such file or directory
+/usr/bin/sed: can't read os/output/haos-src/output/build/util-linux-2.40.4/libuuid.la: No such file or directory
+libtool: warning: 'os/output/haos-src/output/host/bin/../aarch64-buildroot-linux-gnu/sysroot/usr/lib/libblkid.la' seems to be moved
+libtool:   error: 'os/output/haos-src/output/build/util-linux-2.40.4/libuuid.la' is not a valid libtool archive
+make[6]: *** [Makefile:869: libbd_part.la] Error 1
+make[5]: *** [Makefile:1161: all-recursive] Error 1
+make[4]: *** [Makefile:440: all-recursive] Error 1
+make[3]: *** [Makefile:521: all-recursive] Error 1
+make[2]: *** [package/pkg-generic.mk:273: os/output/haos-src/output/build/libblockdev-3.3.1/.stamp_built] Error 2
+make[1]: *** [Makefile:83: _all] Error 2
+make[1]: Leaving directory 'os/output/haos-src/buildroot'
+make: *** [Makefile:56: voxhub] Error 2
+=== exit 2 2026-11-11T13:58:42Z ===
+
+##### 2026-11-11 attempt 5: restart after the util-linux / gnutls / dhcp rebuild (start 14:02:06Z, exit 16:21:19Z), 190 of 218 packages installed
+>>> host-util-linux 2.40.4 Installing to host directory
+>>> libdnet 1.18.0 Installing to target
+>>> linux-firmware 20260410 Installing to target
+>>> host-libevent 2.1.13 Installing to host directory
+>>> host-systemd 256.17 Installing to host directory
+>>> rauc 1.13 Installing to target
+>>> host-bzip2 1.0.8 Installing to host directory
+>>> runc 1.4.3 Installing to target
+>>> tzdata 2026e Installing to target
+>>> wpa_supplicant 2.12 Installing to target
+[...]
+>>> uboot 2026.04 Building
+  HOSTLD  scripts/dtc/dtc
+Package yaml-0.1 was not found in the pkg-config search path.
+Perhaps you should add the directory containing `yaml-0.1.pc'
+yamltree.c:(.text+0x178): undefined reference to `yaml_sequence_start_event_initialize'
+/usr/bin/ld: yamltree.c:(.text+0x183): undefined reference to `yaml_emitter_emit'
+/usr/bin/ld: yamltree.c:(.text+0x20d): undefined reference to `yaml_scalar_event_initialize'
+[... 37 more undefined references to libyaml functions ...]
+collect2: error: ld returned 1 exit status
+make[4]: *** [scripts/Makefile.host:105: scripts/dtc/dtc] Error 1
+make[3]: *** [Makefile:2385: scripts_dtc] Error 2
+make[2]: *** [package/pkg-generic.mk:273: os/output/haos-src/output/build/uboot-2026.04/.stamp_built] Error 2
+make[1]: *** [Makefile:83: _all] Error 2
+make[1]: Leaving directory 'os/output/haos-src/buildroot'
+make: *** [Makefile:56: voxhub] Error 2
+=== exit 2 2026-11-11T16:21:19Z ===
+
+##### 2026-11-11 attempt 6: host-libyaml built first (start 16:30:36Z, exit 16:37:40Z), 214 of 218 packages installed
+>>> uboot 2026.04 Building
+>>> uboot 2026.04 Installing to target
+>>> uboot 2026.04 Installing to images directory
+>>> host-tempio 2026.07.0 Downloading
+	github.com/stretchr/testify/assert/yaml imports
+	gopkg.in/yaml.v3: unrecognized import path "gopkg.in/yaml.v3": https fetch: Get "https://gopkg.in/yaml.v3?go-get=1": net/http: TLS handshake timeout
+cp -v 'os/output/cache/github-mirror/tempio-2026.07.0-go2.tar.gz' 'os/output/haos-src/output/build/.tempio-2026.07.0-go2.tar.gz.Z7UEiN/output' 
+cp: cannot stat 'os/output/cache/github-mirror/tempio-2026.07.0-go2.tar.gz': No such file or directory
+wget -nd -t 3 --connect-timeout=10 -O 'os/output/haos-src/output/build/.tempio-2026.07.0-go2.tar.gz.1Y4eZ7/output' 'https://github.com/home-assistant/tempio/archive/2026.07.0/tempio-2026.07.0-go2.tar.gz' 
+--2026-11-11 16:37:39--  https://github.com/home-assistant/tempio/archive/2026.07.0/tempio-2026.07.0-go2.tar.gz
+2026-11-11 16:37:39 ERROR 403: Forbidden.
+2026-11-11 16:37:40 ERROR 404: Not Found.
+2026-11-11 16:37:40 ERROR 404: Not Found.
+make[2]: *** [package/pkg-generic.mk:179: os/output/haos-src/output/build/host-tempio-2026.07.0/.stamp_downloaded] Error 1
+make[1]: *** [Makefile:83: _all] Error 2
+make: *** [Makefile:56: voxhub] Error 2
+=== exit 2 2026-11-11T16:37:40Z ===
+
+##### 2026-11-11 attempt 7: Go module proxy (start 16:39:39Z, exit 16:43:31Z) - all 218 packages built, stop in target-finalize
+>>> host-tempio 2026.07.0 Building
+>>> host-tempio 2026.07.0 Installing to host directory
+>>> voxhub-overlay 1.0 Building
+>>> voxhub-overlay 1.0 Installing to images directory
+>>>   Finalizing host directory
+>>>   Finalizing target directory
+make[2]: *** [Makefile:759: target-finalize] Error 2
+make[1]: *** [Makefile:83: _all] Error 2
+make: *** [Makefile:56: voxhub] Error 2
+=== exit 2 2026-11-11T16:43:31Z ===
+
+##### 2026-11-11 attempt 8: python3 rebuilt (start 16:44:40Z, exit 16:49:20Z) - stop in post-build.sh
+>>> python3 3.12.15 Installing to target
+>>>   Finalizing host directory
+>>>   Finalizing target directory
+>>>   Copying overlay os/output/haos-src/buildroot-external/rootfs-overlay
+>>>   Copying overlay os/output/haos-src/buildroot-external/board/raspberrypi/rootfs-overlay
+>>>   Executing post-build script os/output/haos-src/buildroot-external/scripts/post-build.sh
+Generating a self-signed certificate for development
+req: Can't open "/build/key.pem" for writing, No such file or directory
+make[2]: *** [Makefile:787: target-finalize] Error 1
+make[1]: *** [Makefile:83: _all] Error 2
+make: *** [Makefile:56: voxhub] Error 2
+=== exit 2 2026-11-11T16:49:20Z ===
+
+##### 2026-11-11 attempt 9: signing key paths redirected (start 16:50:35Z, exit 16:56:04Z) - COMPLETE
+>>>   Executing post-build script os/output/haos-src/buildroot-external/scripts/post-build.sh
+>>>   Generating root filesystems common tables
+>>>   Generating filesystem image rootfs.erofs
+>>>   Executing post-image script os/output/haos-src/buildroot-external/scripts/post-image.sh
+[voxhub-os] libyaml-dev is installed on this host: building host-libyaml first (U-Boot's dtc would not link otherwise)
+[voxhub-os] done: os/output/haos_voxhub-cm4-18.5-full.img.xz
+=== exit 0 2026-11-11T16:56:04Z ===
+sha256 81800897ea20893f8d794a55b1f032a91a5a070e502bd67a4b6deac9966df3dd  haos_voxhub-cm4-18.5-full.img.xz (332434544 bytes)
