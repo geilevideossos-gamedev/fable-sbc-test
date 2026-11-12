@@ -248,7 +248,7 @@ Home Assistant OS").
 | Total height | 16.5 +-0.5 mm | the pedestal of the base ends 18.5 mm below the inside of the top plate = 16.5 mm speaker + 2.0 mm compressed foam |
 | Sound opening | oblong, not dimensioned in the drawing | oblong grille 46 x 24 mm with a 1 mm deep relief behind it |
 | Impedance, power | 4.0 ohm +-15 %, rated 3 W, maximum 3.2 W | the amplifier MAX98357A delivers up to 3.2 W into 4 ohm |
-| Lead | 500 +-10 mm (the shop pages say 22.5 inch = 57 cm) | coiled in the speaker bay |
+| Lead | 500 +-10 mm (the shop pages say 22.5 inch = 57 cm) | folded into a bundle in the rear half of the speaker bay |
 | Plug | the drawing names it "XH2.54-2P"; Adafruit and BerryBase say "JST 2PH" | J7 is a JST-PH header, 2.0 mm contact spacing - see the check below |
 
 - **No substitute.** Any other speaker means re-drawing `enclosure/voxhub_enclosure.py` and printing again. The
@@ -364,7 +364,7 @@ from JST's catalogues, read 2026-11-12. Housings of other makers can differ by a
 What the board asks for: it negotiates USB Power Delivery and takes the **highest-voltage fixed profile (PDO) between
 9 V and 20 V that offers at least 2 A**. Programmable ranges (PPS) are ignored. If no profile qualifies, the board stays
 at 5 V, the red LED D4 "PD FAULT" on the board lights and nothing else starts. The theoretical peak demand at the
-USB-C socket is 19.5 W; realistic operation stays below 12 W. `README.md` asks for a charger of 27 W or more.
+USB-C socket is 19.2 W; realistic operation stays below 12 W. `README.md` asks for a charger of 27 W or more.
 
 Profiles of the chargers, from the manufacturer's data (Goobay data read from wentronic.com, Raspberry Pi product
 brief; N), and the contract that follows from the rule above (derived, not measured - no board exists yet; the
