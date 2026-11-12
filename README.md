@@ -11,7 +11,7 @@ Everything in this repository is generated from code - schematic, PCB, enclosure
 | ![PCB render](hardware/outputs/render_iso.png) | ![Enclosure](enclosure/renders/enclosure_rear.png) |
 | carrier with CM4 + heat sink (component side) | enclosure, rear view: USB-C PD in, 2 x USB-A, microSD |
 
-**Showcase animation:** [`media/voxhub_showcase.mp4`](media/voxhub_showcase.mp4) (1080p60, 21 s: closed device, exploded
+**Showcase animation (shows revision A1, not re-rendered for A2):** [`media/voxhub_showcase.mp4`](media/voxhub_showcase.mp4) (1080p60, 21 s: closed device, exploded
 view, orbit, reassembly, turntable) - rendered with Blender from the STEP files of this repository, see [`media/`](media/README.md).
 
 ![exploded view](media/voxhub_exploded.png)

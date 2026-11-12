@@ -54,7 +54,8 @@ JLCPCB order package (`/fab`)
 Final outputs
 - [x] Gerbers, drill, BOM, CPL, STEP, renders regenerated from the final board
 - [x] Enclosure regenerated: speaker pocket for the Adafruit 3351 (JST-PH plug, no soldering), 14 x 14 x 7 mm heat sink
-- [ ] Showcase video re-rendered from the final board and enclosure
+- [~] Showcase video and exploded still NOT re-rendered for A2 (skipped on the owner's decision); they show revision
+      A1. `media/build_showcase.sh` renders them from the A2 files when wanted (about 3 hours)
 
 ## Hardware (`/hardware`), revision A1 (history)
 - [x] Architecture + part selection (CM4 Lite SoM, see DECISIONS.md)

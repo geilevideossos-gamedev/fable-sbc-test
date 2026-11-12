@@ -11,7 +11,12 @@
 
 ![exploded view](voxhub_exploded.png)
 
-Status: video and still both show the final board. The video was first rendered before the review moved 53 of the 151
+**Status for revision A2: the video and the still show revision A1** (round 40 mm speaker, MGM240P radio module,
+reverse-mount status LEDs, A1 routing). Re-rendering them from the A2 board and enclosure was skipped on the owner's
+decision; the scripts are ready for it (`media/build_showcase.sh` with the A2 files renders all 1260 frames in about
+3 hours; a test still of the A2 exploded view was rendered and looked right). The text below describes the A1 render.
+
+A1 history: the video was first rendered before the review moved 53 of the 151
 footprints (the buck power stage, the two USB ESD parts, small parts around the PD controller and the hub) and re-routed
 the board. The 866 frames in which the PCB is visible (frames 150 to 1015) were rendered again from the final board
 (1 h 54 min); the 394 frames of the closed device at the start and at the end are from the first render - the printed

@@ -61,6 +61,7 @@ at zero including JLCPCB's rules, at most two review rounds, no questions, no co
 | A2-33 | **OS configuration: `dtoverlay=uart4` without `ctsrts`; ZHA radio type ZNP, 115200 baud, no flow control** | Follows A2-4 |
 | A2-34 | **KiCad 9.0.9 runs natively in this session (`KICAD_NATIVE=1 hardware/build.sh`)**; the Docker path is unchanged. The interpreter must import pcbnew, numpy and shapely | No Docker daemon here. Schematic, placement, routing and all outputs were regenerated from code; a full place + route + output run takes about 6 minutes |
 | A2-35 | **"No comments" rule:** new files have no comments or docstrings (usage is in the READMEs); in existing files no comment was added, existing ones were corrected or removed where the code under them changed | The owner's rule for this session |
+| A2-53 | **Showcase video and exploded still are not re-rendered for A2; they show revision A1** | The owner decided to skip the three-hour render. The pipeline was checked against the A2 files (model conversion, board textures, test stills of the closed and the exploded device with the enclosed speaker and the new radio module); `media/render_showcase.py` gives the enclosed speaker a plain black plastic material. `media/build_showcase.sh` renders the A2 version when wanted |
 
 ### Review round 1: six independent reviewers on the changed areas
 
