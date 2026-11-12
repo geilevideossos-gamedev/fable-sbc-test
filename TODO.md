@@ -2,6 +2,35 @@
 
 Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 
+## Two devices: hub and satellite (fourth session, 2026-11-12)
+
+Rules: PCB, BOM and JLCPCB order package unchanged; only software, documentation and the shopping list change.
+
+Assistant architecture
+- [x] Decision: Home Assistant's Assist pipeline with the official Anthropic integration for both devices; the
+      VoxHub Assistant add-on is not extended (DECISIONS.md S-1 to S-5)
+- [x] Exposure guard for locks and alarm panels (`assistant/voxhub_satellite/app/voxhub_satellite/guard.py`),
+      unit tests against a fake Home Assistant websocket
+- [ ] Hub add-on "VoxHub Satellite": launcher, LED / mute bridge, guard; Docker image build and a container run
+- [ ] Assistant documentation (add-on DOCS.md, `assistant/README.md`)
+
+Satellite image (`/os/satellite`)
+- [ ] Build script for a Raspberry Pi OS Lite 64-bit image with LVA, the VoxHub overlay block, LEDs / mute,
+      Wi-Fi and hub address at build time, discovery, automatic security updates
+- [ ] Image built once and verified
+
+Zigbee radio
+- [x] `tools/flash_zigbee.sh --role hub|satellite` (coordinator / router 20250403), router check by boot loader CRC,
+      `--rejoin`, refusal on Home Assistant OS, local copies of the downloads
+- [x] Radio simulator and test runner (`tools/test/`): 49 checks pass
+- [ ] Router firmware on real hardware (no board exists)
+
+Shopping list and documentation
+- [ ] `fab/SHOPPING_LIST.md`: satellite variant and combined basket hub + satellite
+- [ ] `fab/ASSEMBLY_AND_TEST.md`: hub / satellite setup, pairing, room assignment, Zigbee router, tests from both rooms
+- [ ] README.md, os/README.md updated
+- [ ] Independent review of the changes
+
 ## Revision A2: orderable at JLCPCB (third session, 2026-11-12)
 
 Parts

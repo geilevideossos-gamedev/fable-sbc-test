@@ -1,0 +1,49 @@
+name: VoxHub Satellite
+version: "0.1.0"
+slug: voxhub_satellite
+description: Makes the VoxHub hub an Assist voice satellite (Linux Voice Assistant) with status LEDs, the mute switch and a guard that keeps locks and alarm panels away from Assist
+url: https://github.com/geilevideossos-gamedev/fable-sbc-test/tree/main/assistant
+arch:
+  - aarch64
+  - amd64
+init: false
+startup: application
+boot: auto
+stage: experimental
+host_network: true
+audio: true
+homeassistant_api: true
+full_access: true
+options:
+  name: VoxHub Hub
+  wake_word: okay_nabu
+  mic_gain: 4.0
+  mic_auto_gain: 0
+  mic_noise_suppression: 0
+  volume_percent: 100
+  thinking_sound: false
+  leds: true
+  mute_switch: true
+  guard: true
+  protected_domains:
+    - lock
+    - alarm_control_panel
+  guard_interval: 300
+  log_level: info
+schema:
+  name: str
+  wake_word: list(okay_nabu|hey_jarvis|alexa|hey_mycroft|hey_luna|hey_morgan|hey_home_assistant|okay_computer|choo_choo_homie)
+  mic_gain: float(0.1,16)
+  mic_auto_gain: int(0,31)
+  mic_noise_suppression: int(0,4)
+  volume_percent: int(1,150)
+  thinking_sound: bool
+  input_device: str?
+  output_device: str?
+  leds: bool
+  mute_switch: bool
+  guard: bool
+  protected_domains:
+    - str
+  guard_interval: int(30,3600)
+  log_level: list(debug|info|warning|error)
