@@ -299,7 +299,7 @@ delivered for both devices without the boards, 66.01 EUR less than two hubs - [`
 | Two-device system: architecture | read in the Home Assistant source (2026.11.1): the Anthropic integration + Assist API cover tool use, room awareness and per-device answers, not a hard lock / alarm rule - hence the exposure guard | `DECISIONS.md` S-1 to S-5 |
 | Hub add-on VoxHub Satellite | 51 unit tests (guard, bridge, LEDs, mute switch, launcher, options); image built from the official LVA 1.1.18 image and run against PulseAudio with a real ESPHome API client: 7 / 7 checks, LVA only on 127.0.0.1, gain unchanged after a restart; not on Home Assistant OS | `assistant/voxhub_satellite`, `assistant/tests/` |
 | Satellite image | built and checked in emulation (overlays, settings, services, LVA and VoxHub modules start, unattended-upgrades dry run, offline radio flashing dry run); not booted (no hardware) | `os/satellite/`, `os/README.md` |
-| Radio roles | coordinator and router written into a simulated radio with the real cc2538-bsl, router detection by CRC, rejoin, refusals: 51 checks pass; not on hardware | `tools/test/` |
+| Radio roles | coordinator and router written into a simulated radio with the real cc2538-bsl, router detection by CRC over the programmed ranges, rejoin, refusals: 55 checks pass; not on hardware | `tools/test/` |
 
 ## License
 

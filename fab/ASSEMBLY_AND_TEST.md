@@ -1342,7 +1342,7 @@ No hardware exists yet, so nothing in this guide has been tried on a real board.
 - Nothing of chapter 7 has run on a board or on Home Assistant OS. What was run in the build environment on
   2026-11-12: the satellite image build with its checks (`os/README.md`, section "Satellite image: verification"),
   the hub add-on in a container against a PulseAudio container and a real ESPHome API client (7 checks), the unit
-  tests of the add-on, and `tools/flash_zigbee.sh` against a simulated radio in both roles (51 checks).
+  tests of the add-on, and `tools/flash_zigbee.sh` against a simulated radio in both roles (55 checks).
 - The Home Assistant labels of section 7.2 were read from the source (core 2026.11.1, frontend development branch),
   not from an installed release; the names of the discovered devices, the success dialog with the area field and
   the debug view are described from the source and the documentation.
