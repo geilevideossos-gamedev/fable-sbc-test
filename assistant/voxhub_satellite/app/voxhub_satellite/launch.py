@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import math
 import os
 import re
 import shlex
@@ -97,8 +98,12 @@ def wait_for_audio(runner: Runner = run_command, attempts: int = 60, delay: floa
     raise RuntimeError(f"the sound card did not appear in the audio server: {error}")
 
 
+def gain_db(factor: float) -> str:
+    return f"{20 * math.log10(factor):+.2f}dB"
+
+
 def apply_levels(settings: Settings, source: str, sink: str, runner: Runner = run_command) -> None:
-    runner(["pactl", "set-source-volume", source, f"{round(settings.mic_gain * 100)}%"])
+    runner(["pactl", "set-source-volume", source, gain_db(settings.mic_gain)])
     runner(["pactl", "set-sink-volume", sink, f"{settings.volume_percent}%"])
     for command in (["pactl", "set-source-mute", source, "0"], ["pactl", "set-sink-mute", sink, "0"]):
         try:

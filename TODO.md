@@ -11,8 +11,10 @@ Assistant architecture
       VoxHub Assistant add-on is not extended (DECISIONS.md S-1 to S-5)
 - [x] Exposure guard for locks and alarm panels (`assistant/voxhub_satellite/app/voxhub_satellite/guard.py`),
       unit tests against a fake Home Assistant websocket
-- [ ] Hub add-on "VoxHub Satellite": launcher, LED / mute bridge, guard; Docker image build and a container run
-- [ ] Assistant documentation (add-on DOCS.md, `assistant/README.md`)
+- [x] Hub add-on "VoxHub Satellite": launcher, LED / mute bridge, guard; 45 unit tests; image built from the
+      official LVA image and run in a container against PulseAudio and a real ESPHome API client (7 / 7 checks)
+- [x] Assistant documentation (add-on DOCS.md, `assistant/README.md`)
+- [~] Not run on Home Assistant OS or on the board (no hardware): Supervisor audio, LEDs, mute switch, discovery
 
 Satellite image (`/os/satellite`)
 - [ ] Build script for a Raspberry Pi OS Lite 64-bit image with LVA, the VoxHub overlay block, LEDs / mute,

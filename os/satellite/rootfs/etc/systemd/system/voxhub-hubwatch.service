@@ -1,0 +1,15 @@
+[Unit]
+Description=VoxHub hub address: firewall for the satellite API and hub check
+Documentation=https://github.com/geilevideossos-gamedev/fable-sbc-test/tree/main/os/satellite
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+Environment=PYTHONPATH=/opt/voxhub
+ExecStart=/opt/linux-voice-assistant/.venv/bin/python3 -m voxhub_satellite.hubwatch --env-file /etc/voxhub/satellite.env
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

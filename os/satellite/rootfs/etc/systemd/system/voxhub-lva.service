@@ -1,0 +1,23 @@
+[Unit]
+Description=VoxHub voice satellite (Linux Voice Assistant)
+Documentation=https://github.com/geilevideossos-gamedev/fable-sbc-test/tree/main/os/satellite
+Wants=network-online.target user@1000.service voxhub-hubwatch.service
+After=network-online.target user@1000.service voxhub-hubwatch.service sound.target
+
+[Service]
+Type=simple
+User=voxhub
+Group=voxhub
+SupplementaryGroups=audio
+StateDirectory=voxhub
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+Environment=PULSE_SERVER=unix:/run/user/1000/pulse/native
+Environment=PYTHONPATH=/opt/voxhub
+Environment=VOXHUB_LVA_DIR=/opt/linux-voice-assistant
+WorkingDirectory=/opt/linux-voice-assistant
+ExecStart=/opt/linux-voice-assistant/.venv/bin/python3 -m voxhub_satellite.launch --env-file /etc/voxhub/satellite.env --python /opt/linux-voice-assistant/.venv/bin/python3
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=VoxHub status LEDs and mute switch
+Documentation=https://github.com/geilevideossos-gamedev/fable-sbc-test/tree/main/os/satellite
+After=voxhub-lva.service
+
+[Service]
+Type=simple
+Environment=PYTHONPATH=/opt/voxhub
+ExecStart=/opt/linux-voice-assistant/.venv/bin/python3 -m voxhub_satellite.peripherals
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

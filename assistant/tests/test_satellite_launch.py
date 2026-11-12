@@ -9,6 +9,7 @@ from voxhub_satellite.launch import (
     Settings,
     apply_levels,
     find_devices,
+    gain_db,
     list_names,
     lva_command,
     pick,
@@ -68,7 +69,8 @@ def test_wait_for_audio_retries(monkeypatch):
 def test_levels():
     pactl = Pactl()
     apply_levels(Settings(mic_gain=4.0, volume_percent=90), "src", "snk", pactl)
-    assert ["pactl", "set-source-volume", "src", "400%"] in pactl.calls
+    assert ["pactl", "set-source-volume", "src", "+12.04dB"] in pactl.calls
+    assert gain_db(1.0) == "+0.00dB" and gain_db(0.5) == "-6.02dB"
     assert ["pactl", "set-sink-volume", "snk", "90%"] in pactl.calls
 
 

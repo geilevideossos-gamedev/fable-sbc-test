@@ -71,6 +71,7 @@ WRITTEN_OVER=""
 declare -A GPIO_HOLDER_PIDS=()
 ORIGINAL_ARGUMENTS=("$@")
 SCRIPT_PATH="${BASH_SOURCE[0]:-}"
+SCRIPT_NAME="$(basename "${SCRIPT_PATH:-flash_zigbee.sh}")"
 
 say() {
     printf '%s\n' "$*"
@@ -1185,16 +1186,15 @@ Run this script again with --force."
 
 print_router_steps() {
     cat <<NEXT
-The router joins the first Zigbee network that accepts new devices, every time it starts
-without a network. Open the hub's network for new devices now (or within a few minutes):
+The router searches for a Zigbee network once, right after it starts. Open the hub's
+network for new devices first, then let the router search again:
 
-Home Assistant ZHA (on the hub):
-  Settings -> Devices & services -> Zigbee Home Automation -> Add device
-  The satellite appears as "TexasInstruments ti.router" within about a minute.
-  If it does not: keep the hub in "Add device" and run on the satellite
-    sudo bash flash_zigbee.sh --role satellite --rejoin
+  1. On the hub (Home Assistant, ZHA): Settings -> Devices & services ->
+     Zigbee Home Automation -> Add device. Keep the page open while it searches.
+     Zigbee2MQTT: Permit join (All).
+  2. On the satellite: sudo bash $SCRIPT_NAME --role satellite --rejoin
+  3. The satellite appears as "TexasInstruments ti.router" within about a minute.
 
-Zigbee2MQTT (on the hub): Permit join (All), then the same as above.
 NEXT
 }
 
