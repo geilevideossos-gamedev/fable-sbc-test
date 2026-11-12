@@ -2,13 +2,17 @@
 
 Everything you must buy that is **not** on the assembled PCB from JLCPCB. Hardware revision A2.
 
-- The board itself is ordered with [`ORDER_GUIDE.md`](ORDER_GUIDE.md). What to do with the parts of this list is
-  described in [`ASSEMBLY_AND_TEST.md`](ASSEMBLY_AND_TEST.md).
+- The board itself is ordered with [`ORDER_GUIDE.md`](ORDER_GUIDE.md), starting at its section "2. Before ordering:
+  account and the parts that are short". The cost of that order is in its section "8. Cost estimate"; the parcel from
+  JLCPCB is checked with its section "10. Incoming inspection - before anything is plugged in".
+- What to do with the parts of this list is described in [`ASSEMBLY_AND_TEST.md`](ASSEMBLY_AND_TEST.md): section
+  "2. Tools and parts on the table" names every part by the line number of this list, section "3. Bring-up before
+  assembly" tests the board, section "4. Mechanical assembly" puts the device together.
 - Nothing on this list needs soldering or crimping.
 - All prices are in EUR **including VAT**, as the shop displayed them for Austria on **2026-11-12**. Shipping is to
   Austria.
-- Prices and stock change daily. On 2026-11-12 the compute module at Reichelt.at went from 103.16 EUR (07:34 UTC) to
-  105.83 EUR (08:52 UTC). The amount in your basket on the day you order is the one that counts.
+- Prices and stock change daily; the compute module at Reichelt.at rose by 2.67 EUR within the morning of
+  2026-11-12. The amount in your basket on the day you order is the one that counts.
 
 How each figure was obtained (column "Checked" in the tables below):
 
@@ -35,7 +39,7 @@ is the line number that the rest of this document refers to.
 | Item | Qty | Exact part number | Shop | Shop article no. | Price incl. VAT (EUR) | Link |
 |---|---|---|---|---|---|---|
 | **1** Raspberry Pi Compute Module 4 Lite, wireless, 4 GB RAM, no eMMC | 1 | Raspberry Pi CM4104000 | Reichelt.at | RPI CM4W 4GBLITE | 105.83 | [product page](https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_compute_modul_4_4gb_ram_lite_wlan-290539) |
-| **2** Speaker, enclosed, 4 ohm 3 W, 70 x 30 x 17 mm, with JST-PH 2-pin plug on a 57 cm lead | 1 | Adafruit 3351 | BerryBase.at | ADA3351 | 5.50 | [product page](https://www.berrybase.at/mono-gehaeuselautsprecher-3w-4-ohm) |
+| **2** Speaker, enclosed, 4 ohm 3 W, flange 70.1 x 30.7 mm, 16.5 mm high, with JST-PH 2-pin plug on a lead of about 50 cm | 1 | Adafruit 3351 | BerryBase.at | ADA3351 | 5.50 | [product page](https://www.berrybase.at/mono-gehaeuselautsprecher-3w-4-ohm) |
 | **3** Heat sink set, black: 14 x 14 x 7 mm (used) + 8.8 x 8.8 x 5 mm (not used), adhesive foil applied | 1 set | BerryBase RPI-2KKS | BerryBase.at | RPI-2KKS | 1.30 | [product page](https://www.berrybase.at/2-teiliges-kuehlkoerper-set-fuer-raspberry-pi-schwarz) |
 | **4** microSD card SanDisk High Endurance 64 GB, with SD adapter | 1 | SanDisk SDSQQNR-064G-GN6IA (EAN 0619659173081) | BerryBase.at | 619659173081 | 28.90 | [product page](https://www.berrybase.at/sandisk-high-endurance-microsdxc-uhs-i-u3-speicherkarte-adapter-64gb) |
 | **5** Screw M2.5 x 5 mm, pan head, cross recess PH1, steel zinc plated | 8 (buy 10) | DIN 7985 M2.5 x 5 | BerryBase.at | D7985 | 0.06 each, 10 pieces = 0.60 | [product page](https://www.berrybase.at/schraube-kopf-zylinder-m2-5x5) |
@@ -74,8 +78,13 @@ Totals for one device (basket A of section 4, two parcels):
 | Lines 11 and 12 (filament, screwdriver), same Reichelt parcel | 25.96 |
 | **One device with filament and screwdriver, delivered** | **214.36** |
 
-Assumed to be at hand, not on this list: the Bambu Lab printer, a computer with an SD card slot or a USB card reader
-(the microSD card comes with an SD adapter), scissors and a ruler for the foam.
+Lines 1 to 10 are the same articles, quantities and prices as `hardware/outputs/bom_system.csv` and as the cost table
+"Everything else for one device" in `README.md` (175.50 + 12.90 = 188.40 EUR).
+
+Assumed to be at hand, not on this list and not looked up: the Bambu Lab printer; a PC with a microSD or SD card
+reader (the card comes with an SD adapter); a Wi-Fi network; and the workshop and household items named in
+`ASSEMBLY_AND_TEST.md`, sections "2.2 Only for the bring-up test" and "2.3 Tools": a caliper, drill bits 2.0 mm and
+1.5 mm, a sharp knife or scissors, adhesive tape or one small cable tie, a USB memory stick, one Zigbee device.
 
 ## 2. Two devices
 
@@ -86,7 +95,8 @@ Total delivered: 352.91 EUR without lines 11 and 12, 378.87 EUR with them (baske
 
 ## 3. Optional: tools for the bring-up tests
 
-Only needed for the charger and voltage tests in `ASSEMBLY_AND_TEST.md`. The device works without them.
+Only needed for the tests of `ASSEMBLY_AND_TEST.md`, section "3. Bring-up before assembly". The device works
+without them.
 
 | Item | Qty | Exact part number | Shop | Shop article no. | Price incl. VAT (EUR) | Stock text | Checked | Link |
 |---|---|---|---|---|---|---|---|---|
@@ -97,8 +107,14 @@ Only needed for the charger and voltage tests in `ASSEMBLY_AND_TEST.md`. The dev
 
 Total of lines 13 to 16: 60.36 EUR. They travel in the same two parcels, so shipping does not change.
 
-- The 30 W charger of line 9 is the third test charger (15 V contract). Lines 13, 9 and 14 are the "20 W, 30 W, 65 W"
-  set of the bring-up test. The cable of line 10 is used with all three.
+| Tool | Used in `ASSEMBLY_AND_TEST.md`, section |
+|---|---|
+| Chargers 20 W and 65 W (lines 13 and 14) | "3.4 Test 4 - USB PD with a 20 W, a 30 W and a 65 W charger, and with a plain 5 V supply" |
+| USB-C power meter (line 15) | "3.3 Test 3 - first power from the 30 W charger" and the charger test above; it shows the voltage without probing |
+| Multimeter (line 16) | "3.2 Test 2 - no short circuit (no power, multimeter)", "3.3 Test 3 - first power from the 30 W charger", the charger test above, "3.7 Test 7 - 3.3 V rail" |
+
+- The 30 W charger of line 9 is the third test charger (15 V contract). Lines 13, 9 and 14 are the 20 W, 30 W and
+  65 W chargers of the charger test. The cable of line 10 is used with all three.
 - A fourth voltage (12 V) can be tested with the Raspberry Pi 27 W USB-C supply (Raspberry Pi SC1152, Reichelt.at
   article RPI PS 27W WT EU, 11.50 EUR, "ab Lager", R). It is not needed for the test plan.
 - Multimeter: use the 20 V DC range for the 5 V rail and for 9 V, 12 V and 15 V on VBUS. For the 20 V contract of the
@@ -164,6 +180,8 @@ How to order:
 9. Set the quantity - the screws are sold singly, enter 10 (for two devices 20 of D7985) - and press
    "In den Warenkorb".
 10. Choose "DHL Paket" (5.95 EUR) and pay.
+11. When the BerryBase.at parcel arrives, check the plug of the speaker before you do anything else with it:
+    section 5.2, "Check the plug when the parcel arrives".
 
 ### 4.2 Basket B - three parcels (compute module from Semaf, Vienna)
 
@@ -212,25 +230,60 @@ DigiKey sells the same module under the name SC0671 (base product number CM41040
 
 No Ethernet adapter or cable is on this list. Home Assistant's installation page calls an Ethernet connection
 "Required for installation"; for this board the Wi-Fi name and password are written into the OS image instead
-(`os/build-image.sh --wifi-ssid ... --wifi-psk ...`, see `ASSEMBLY_AND_TEST.md`).
+(`os/build-image.sh --wifi-ssid ... --wifi-psk ...`; `ASSEMBLY_AND_TEST.md`, section "3.6 Test 6 - first boot of
+Home Assistant OS").
 
 ### 5.2 Speaker (line 2)
 
-- Why this one: it is the only speaker with a factory-fitted JST-PH 2-pin plug, 4 ohm, 3 W, that was found in stock
-  at an EU shop. The plug goes into J7 on the board as delivered. The enclosure's speaker pocket was redrawn for
+- Why this one: it is the only speaker with a factory-fitted 2-pin JST-PH plug, 4 ohm, 3 W, that was found in stock
+  at an EU shop. The plug goes into J7 on the board as delivered. The speaker pocket of the enclosure is drawn for
   exactly this part.
-- **No substitute.** The enclosure depends on: outline 70 x 30 mm (locating frame 71.2 x 31.2 mm inside, 3 mm high),
-  depth 17 mm (the pedestal of the base ends 18.5 mm below the inside of the top plate = 17 mm speaker + 1.5 mm
-  compressed foam), sound opening inside the 40 x 24 mm grille. Any other speaker means re-drawing
-  `enclosure/voxhub_enclosure.py` and printing again. The research notes name one runner-up, Pimoroni COM1606
-  (UK shop, 3.95 EUR, N); it needs a square pocket and is therefore not an option for this build.
-- Electrical: 4 ohm, at least 3 W (the amplifier MAX98357A delivers up to 3.2 W into 4 ohm).
+- The maker's data sheet (C5282-001) is linked from the Adafruit product page:
+  https://cdn-shop.adafruit.com/product-files/3351/C5282-001_datasheet__1_.pdf (read 2026-11-12). The enclosure
+  follows it:
+
+| Property | Data sheet | Enclosure (`enclosure/voxhub_enclosure.py`) |
+|---|---|---|
+| Flange | 70.11 x 30.72 mm, +-0.3 mm | locating frame 71.3 x 31.9 mm inside (0.6 mm clearance per side), 3 mm high |
+| Total height | 16.5 +-0.5 mm | the pedestal of the base ends 18.5 mm below the inside of the top plate = 16.5 mm speaker + 2.0 mm compressed foam |
+| Sound opening | oblong, not dimensioned in the drawing | oblong grille 46 x 24 mm with a 1 mm deep relief behind it |
+| Impedance, power | 4.0 ohm +-15 %, rated 3 W, maximum 3.2 W | the amplifier MAX98357A delivers up to 3.2 W into 4 ohm |
+| Lead | 500 +-10 mm (the shop pages say 22.5 inch = 57 cm) | coiled in the speaker bay |
+| Plug | the drawing names it "XH2.54-2P"; Adafruit and BerryBase say "JST 2PH" | J7 is a JST-PH header, 2.0 mm contact spacing - see the check below |
+
+- **No substitute.** Any other speaker means re-drawing `enclosure/voxhub_enclosure.py` and printing again. The
+  research notes name one runner-up, Pimoroni COM1606 (UK shop, 3.95 EUR, N); it needs a square pocket and is
+  therefore not an option for this build.
 - Polarity does not matter: the amplifier output is bridge-tied, neither wire is ground. Plug it in as it comes.
-- Do not shorten the 57 cm lead - shortening means soldering. It is coiled next to the speaker.
+- Do not shorten the lead - shortening means soldering. Where the surplus goes: `ASSEMBLY_AND_TEST.md`, sections
+  "4.3 Speaker into its frame" and "4.5 Speaker lead".
 - **No separate speaker lead is needed.** Do **not** buy the JST-PH pigtail (BerryBase.at article AK-PH20-2P,
   "Kabel mit JST PH 2.0mm Steckverbinder, AWG26, 20cm", 0.33 EUR): it has bare wire ends and would have to be soldered
-  to a speaker. Do not buy the Same Sky CMS-4017-34SP of revision A1 either: it has solder terminals and no longer
-  fits the pocket.
+  to a speaker. Do not buy the Same Sky CMS-4017-34SP of revision A1 either: it has solder terminals and does not
+  fit the pocket.
+
+**Check the plug when the parcel arrives.** The drawing in the maker's data sheet names the plug "XH2.54-2P", a
+plug with 2.5 mm contact spacing. Adafruit and BerryBase sell the speaker with a JST-PH plug (2.0 mm), and the
+product photos show a small white PH housing. J7 on the board is JST-PH (2.0 mm). Which plug the delivered speaker
+has can only be seen on the part:
+
+1. Take the speaker out of its bag. At the end of the red and black lead is a small white plug with two contacts.
+2. Measure the width of the white plug across the two wires with a ruler or a caliper and compare:
+
+| | Right plug (JST-PH) | Wrong plug (XH) |
+|---|---|---|
+| Distance between the two contacts | 2.0 mm | 2.5 mm |
+| Width of the white housing | 5.8 mm (JST PHR-2) | 7.3 mm (JST XHP-2), visibly wider |
+| On J7 of the board | slides on with light finger pressure, one way round only | does not go on |
+
+3. Right plug: nothing to do. It is plugged into J7 in `ASSEMBLY_AND_TEST.md`, section
+   "3.5 Test 5 - fit the heat sink, the compute module, the card and the speaker".
+4. Wrong plug: **do not force it onto J7** and do not bend the two pins of J7. Return the speaker to the shop; the
+   article text promises a "JST 2PH" cable. Do not buy a pigtail, an adapter or a loose plug that needs soldering or
+   crimping. Note the result in the repository so that this list is corrected.
+
+The widths are JST's own dimensions for the 2-pin housings of the PH series (2.0 mm) and the XH series (2.5 mm),
+from JST's catalogues, read 2026-11-12. Housings of other makers can differ by a few tenths of a millimetre.
 
 ### 5.3 Heat sink (line 3)
 
@@ -242,6 +295,7 @@ No Ethernet adapter or cable is on this list. Home Assistant's installation page
   A heat sink without foil (for example Fischer ICK BGA 14 X 14 at Reichelt.at, 1.16 EUR, N) needs thermal tape and is
   not for this build. BerryBase PKKRPI (13 x 13.5 x 10 mm) is too tall.
 - No fan is needed.
+- Fitted in `ASSEMBLY_AND_TEST.md`, section "3.5 Test 5 - fit the heat sink, the compute module, the card and the speaker".
 
 ### 5.4 microSD card (line 4)
 
@@ -281,6 +335,8 @@ No Ethernet adapter or cable is on this list. Home Assistant's installation page
 | Drive | PH1 matches the screwdriver of line 12 | |
 
 - No nuts, no washers, no inserts.
+- Where they are used: `ASSEMBLY_AND_TEST.md`, sections "3.5 Test 5 - fit the heat sink, the compute module, the card and the speaker" (compute module),
+  "4.4 Board onto the bosses - 4 x M2.5 x 5" and "4.7 Base - 4 x M2.5 x 8".
 
 ### 5.6 Rubber feet (line 7)
 
@@ -289,14 +345,16 @@ No Ethernet adapter or cable is on this list. Home Assistant's installation page
   reach the vents in the base.
 - Must match if substituted: diameter 8 mm, height at least 2 mm, self-adhesive.
 - Does not fit: 3M Bumpon SJ5003 (11.1 mm diameter).
+- Stuck on in `ASSEMBLY_AND_TEST.md`, section "4.8 Feet".
 
 ### 5.7 Cellular rubber for the speaker pad (line 8)
 
 - What it is for: one piece of 40 x 18 mm is stuck onto the flat pedestal of the base (the pedestal is 40 x 18 mm).
-  When the base is closed the pad is squeezed from 3 mm to about 1.5 mm and presses the speaker into its frame.
+  When the base is closed the pad is squeezed from 3 mm to about 2 mm and presses the speaker into its frame
+  (`ASSEMBLY_AND_TEST.md`, section "4.2 Foam pad on the base").
 - One sheet (300 x 200 mm) is enough for many pads.
 - Must match if substituted: soft cellular rubber or closed-cell foam, 3 mm thick, self-adhesive. The gap between
-  the pedestal and the speaker is 1.5 mm: a pad thinner than that does not hold the speaker, and a hard pad of 3 mm
+  the pedestal and the speaker is 2.0 mm: a pad thinner than that does not hold the speaker, and a hard pad of 3 mm
   keeps the base from closing.
 - Not on the list on purpose: foam rings for the two microphone openings. `enclosure/README.md` calls them optional
   and not needed for a first build, and no shop that was searched sells closed-cell foam of 0.5 mm.
@@ -309,7 +367,8 @@ at 5 V, the red LED D4 "PD FAULT" on the board lights and nothing else starts. T
 USB-C socket is 19.5 W; realistic operation stays below 12 W. `README.md` asks for a charger of 27 W or more.
 
 Profiles of the chargers, from the manufacturer's data (Goobay data read from wentronic.com, Raspberry Pi product
-brief; N), and the contract that follows from the rule above (derived, not measured - no board exists yet):
+brief; N), and the contract that follows from the rule above (derived, not measured - no board exists yet; the
+measurement is `ASSEMBLY_AND_TEST.md`, section "3.4 Test 4 - USB PD with a 20 W, a 30 W and a 65 W charger, and with a plain 5 V supply"):
 
 | Charger | Fixed profiles | Contract the board gets | Verdict |
 |---|---|---|---|
@@ -347,18 +406,19 @@ Raspberry Pi 27 W supply has its cable attached and needs none.
 ### 5.9 Filament (line 11)
 
 - Why PETG: `enclosure/README.md` recommends it over PLA because the area around the voltage converter reaches
-  about 60 C.
+  about 60 C (`ASSEMBLY_AND_TEST.md`, section "1.3 Material").
 - Why white: the three status LEDs shine through a 0.4 mm skin of the top cover. A light colour keeps them visible.
 - Why this article: Bambu Lab's own PETG on a spool with RFID tag, in stock at Reichelt.at, in a parcel that is
   ordered anyway.
-- Amount (estimate, calculated from the STL files of this repository, not from a slicer): shell 51.2 cm3 + base
-  28.9 cm3 = 80.1 cm3 of solid plastic. At an assumed density of 1.27 g/cm3 that is at most about 100 g per
-  enclosure even at 100 % infill, so about 200 g for two. One 1 kg spool is enough several times over.
+- Amount (estimate, calculated from the STL files of this repository, not from a slicer): shell 50.9 cm3 + base
+  29.2 cm3 = about 80 cm3 of solid plastic. At 1.25 g/cm3, the density that `ASSEMBLY_AND_TEST.md`, section
+  "1.4 Print time and filament (estimates, not sliced)", takes from the Bambu PETG Basic preset, that is at most
+  about 100 g per enclosure even at 100 % infill, so about 200 g for two. One 1 kg spool is enough several times over.
 - Must match if substituted: PETG, 1.75 mm, light colour.
 
 ### 5.10 Screwdriver (line 12)
 
-All twelve screws have a PH1 cross recess. The Bernstein 4-624 is a PH1 x 80 mm screwdriver with an ESD-safe handle
+All twelve screws have a PH1 cross recess (`ASSEMBLY_AND_TEST.md`, section "2.3 Tools"). The Bernstein 4-624 is a PH1 x 80 mm screwdriver with an ESD-safe handle
 (blade diameter 4.5 mm, total length 180 mm; shop page, L). Any PH1 screwdriver does the job. A PH0 or PH2 tip does
 not fit the recess properly.
 
@@ -419,17 +479,19 @@ items. Conrad.at, Amazon.de, Geizhals.at, Cyberport.at and voelkner.at could not
    these shops is in this list.
 6. **Bambu Lab EU store:** not retrievable (every request is redirected to the US store). The filament price is
    Reichelt's, not Bambu Lab's.
-7. **Speaker dimensions:** Adafruit publishes no dimensioned drawing of the 3351. The enclosure pocket follows the
-   figures of the shop pages (30 x 70 x 17 mm, mounting holes 3.4 mm on 24 x 63 mm, 26.4 g, lead 22.5 inch). It has
-   not been checked against a real speaker.
+7. **Speaker plug:** the drawing in the maker's data sheet (C5282-001) names the plug "XH2.54-2P" (2.5 mm);
+   Adafruit and BerryBase describe a "JST 2PH" plug (JST-PH, 2.0 mm) and their photos show a small white PH housing.
+   The documents do not settle which plug the delivered speaker has - check it as described in section 5.2. The
+   data sheet and the shop pages also differ in the lead length (500 mm / 22.5 inch) and in the weight
+   (50 g / 26.4 g).
 8. **Charger profiles:** read from manufacturer pages (Goobay via wentronic.com because goobay.com was unreachable),
    not measured. The contract per charger is derived from these tables and the strap settings of the PD controller;
    no board exists yet. The profiles of the Apple 20 W charger and of the Anker Nano 3 30 W (A2337) were not
    verified, so neither is recommended here. The statement about multi-port chargers is general, not tested.
 9. **RAM use on a 2 GB module** (1.6 to 1.9 GB): an estimate of the research notes, neither measured nor documented
    by Home Assistant.
-10. **Filament amount:** an upper bound calculated from the STL volumes with an assumed density of 1.27 g/cm3, not a
-    slicer result.
+10. **Filament amount:** an upper bound calculated from the STL volumes with a density of 1.25 g/cm3 (not checked
+    against Bambu Lab's data sheet), not a slicer result.
 11. **Screw head in the base recess:** a DIN 7985 M2.5 head is 5.0 mm wide, the printed recess 5.2 mm. Whether the
     head enters without clearing the recess has not been tried on a print.
 12. **Quantity limits:** DigiKey states a purchase limit for the compute module. Whether Reichelt.at or Semaf limit

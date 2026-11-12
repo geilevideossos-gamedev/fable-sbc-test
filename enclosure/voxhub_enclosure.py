@@ -47,7 +47,7 @@ SPK_FLANGE_T, SPK_BODY_L = 2.0, 66.1
 SPK_CONE_L, SPK_CONE_W, SPK_RELIEF = 48.0, 28.0, 1.0         # pocket in front of the cone
 SPK_GRILLE_L, SPK_GRILLE_W = 46.0, 24.0
 SPK_PAD_L, SPK_PAD_W = 40.0, 18.0
-FOAM = 1.8                                   # compressed foam pad between speaker box and pedestal
+FOAM = 2.0                                   # compressed foam pad between speaker box and pedestal
 
 # screws: M2.5 x 5 (PCB) and M2.5 x 8 (base) machine screws; pilot hole for PLA/PETG
 PILOT_D, SCREW_CLEAR_D, SCREW_HEAD_D = 2.1, 2.9, 5.2

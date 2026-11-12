@@ -451,7 +451,8 @@ def place(netlist, outdir):
     tps = sorted((pcbnew.ToMM(fps[r].GetPosition().x) - OX, pcbnew.ToMM(fps[r].GetPosition().y) - OY, r) for r in fps if r.startswith("TP"))
     for x, y, ref in tps:
         side = -1 if x < tps[-1][0] - 0.1 else 1
-        legends.put(fps[ref].GetValue().replace("+", ""), pcbnew.F_SilkS, 1.0, (x + side * 3.2, y), reach=8.0)
+        top = any(abs(x2 - x) < 0.1 and y2 > y + 0.1 for x2, y2, _ in tps)
+        legends.put(fps[ref].GetValue().replace("+", ""), pcbnew.F_SilkS, 1.0, (x, y - 2.3) if top else (x + side * 3.2, y), reach=8.0)
     for mk in ("MK1", "MK2"):
         q = fps[mk].GetPosition()
         legends.put("MIC - NO WASH", pcbnew.B_SilkS, 1.0, (pcbnew.ToMM(q.x) - OX, pcbnew.ToMM(q.y) - OY + (-4.2 if mk == "MK1" else 4.2)), reach=14.0)

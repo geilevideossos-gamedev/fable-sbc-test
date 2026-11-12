@@ -25,7 +25,7 @@ if [ "${KICAD_NATIVE:-0}" = 1 ]; then
     [ -e "${NATIVE_HOME}/bin/python3" ] || { echo "no python3 that can import pcbnew, numpy and shapely (set KICAD_PYTHON)" >&2; exit 1; }
     kc() {
         local cmd="${*//\/work\/hardware/${HW}}"
-        (cd "${HW}" && HOME="${NATIVE_HOME}" PATH="${NATIVE_HOME}/bin:${PATH}" bash -c "${cmd//\/work\//${ROOT}/}")
+        (cd "${HW}" && HOME="${NATIVE_HOME}" PATH="${NATIVE_HOME}/bin:${PATH}" bash -c "${cmd// \/work\// ${ROOT}/}")
     }
 else
 kc() {   # run a command inside the KiCad container, repo mounted at /work

@@ -1,6 +1,6 @@
 # VoxHub CM4 carrier, revision A2 - ordering at JLCPCB, click by click
 
-Applies to commit `ce5d5a2` (hardware revision A2) and the files in `fab/jlcpcb/`.
+Applies to commit `6776424` (hardware revision A2, the board as rebuilt after the review) and the files in `fab/jlcpcb/`.
 Order: 5 PCBs, 2 of them fully assembled on both sides, delivery to Austria. You do not solder anything.
 
 Read the whole guide once before you start. Then work through sections 2 to 7 in order.
@@ -9,7 +9,7 @@ Read the whole guide once before you start. Then work through sections 2 to 7 in
 
 | Mark in this guide | Meaning |
 |---|---|
-| live | read on 2026-11-12 from JLCPCB's order form https://cart.jlcpcb.com/quote without login, or from JLCPCB's parts database. The prices of the chosen configuration (3.5, 4.3) and all stock figures were read between 08:51 and 09:05 UTC |
+| live | read on 2026-11-12 from JLCPCB's order form https://cart.jlcpcb.com/quote without login, or from JLCPCB's parts database. The form prices of the chosen configuration (3.5, 4.3, 8) were read at 09:05 and again at 10:06 UTC, all stock figures and part prices between 10:06 and 10:08 UTC |
 | help | JLCPCB help-centre article as fetched on 2026-11-12. Everything after the button **NEXT** needs a login and was documented from these articles only |
 | list | JLCPCB's assembly price list "PCB Assembly Cost: What Does the Price Include?", last updated 22 Oct 2026 |
 | estimate | arithmetic from the above; the real figure appears on JLCPCB's pages before you pay |
@@ -30,12 +30,12 @@ JLCPCB calls the side with almost all parts **Top** and the other side **Bottom*
 | File | Content | Where it goes |
 |---|---|---|
 | `gerbers.zip` | 13 files: 4 copper layers (`voxhub-F_Cu.gtl`, `voxhub-In1_Cu.g1`, `voxhub-In2_Cu.g2`, `voxhub-B_Cu.gbl`), 2 solder mask, 2 solder paste, 2 silkscreen, the outline (`voxhub-Edge_Cuts.gm1`), 2 drill files (`voxhub-PTH.drl`, `voxhub-NPTH.drl`) | **Add gerber file** on the order form (section 3) |
-| `bom_jlcpcb.csv` | parts list: 56 rows, 136 parts per board, 53 different JLCPCB part numbers. Columns `Comment, Designator, Footprint, LCSC Part #` | BOM upload (section 5) |
+| `bom_jlcpcb.csv` | parts list: 53 rows, one row per JLCPCB part number, 136 parts per board. Columns `Comment, Designator, Footprint, LCSC Part #`; `Comment` is JLCPCB's own name of the part | BOM upload (section 5) |
 | `cpl_jlcpcb.csv` | position and rotation of the same 136 parts: 132 on the top side, 4 on the bottom side. Columns `Designator, Mid X, Mid Y, Layer, Rotation` | CPL upload (section 5) |
 | `placement_report.csv` | one row per part: the rotation that was written into the CPL and how well JLCPCB's own footprint fits the pads of the board | not uploaded - it is your check list for the placement preview (section 5.4) |
 
 Nothing needs editing. Upload the three files exactly as they are.
-The counts and positions in this guide belong to the files generated on 2026-11-12 at 08:41 UTC (commit `ce5d5a2`). If the files in `fab/jlcpcb/` are newer than that, a count in sections 1, 5 or 8 may differ by a few; the procedure stays the same.
+The counts and positions in this guide belong to the files generated on 2026-11-12 at 10:00 UTC (commit `6776424`). If the files in `fab/jlcpcb/` are newer than that, a count in sections 1, 5 or 8 may differ by a few; the procedure stays the same.
 
 - Do not open the CSV files in a spreadsheet program and save them again. If you want to look at them, open a copy.
 - Do not rename the files inside `gerbers.zip` and do not re-pack the archive.
@@ -46,9 +46,10 @@ Facts about the board that the form will ask for or show:
 |---|---|
 | Size | 100 x 74 mm, corners rounded |
 | Layers | 4 |
-| Small holes | 302 holes of 0.30 mm: 294 vias (pads 0.5 mm and 0.6 mm) and 8 thermal holes in one exposed pad |
+| Small holes | 301 holes of 0.30 mm: 293 vias (pads 0.5 mm and 0.6 mm) and 8 thermal holes in one exposed pad. Five of the vias lie inside the exposed pads of U1, U4 and U10; no other via lies in or touches a pad (`hardware/outputs/via_in_pad.txt`) |
 | Other holes | plated: 4 slots 0.6 mm wide, 2 x 0.75 mm, 8 x 0.92 mm, 3 x 1.0 mm, 4 x 2.3 mm; not plated: 2 x 0.65 mm, 2 x 0.8 mm (microphone sound ports), 3 x 0.99 mm, 4 x 2.7 mm, 4 x 3.7 mm |
-| Silkscreen | polarity marks and a few texts only. There are **no reference designators** (R1, U4 ...) printed on the board; they exist only in the CPL file |
+| Copper to the board edge | 0.45 mm on all four layers along the straight edges (JLCPCB asks for 0.4 mm at an edge where a rail is scored off). Closer only at the four rounded corners (0.2 mm) and at two shield pads of the microSD socket on the rear edge (0.37 mm) |
+| Silkscreen | polarity marks and a few texts only; every line is 0.15 mm or wider, text is 1.0 mm high or more. There are **no reference designators** (R1, U4 ...) printed on the board; they exist only in the CPL file |
 
 ---
 
@@ -64,14 +65,15 @@ Facts about the board that the form will ask for or show:
 Rule of this project: a BOM line with fewer than 200 pieces in JLCPCB's assembly stock is "thin".
 `hardware/outputs/bom.csv` and `bom_summary.json` list three such lines; the live check gave the same numbers.
 
-| Part | Designator | JLCPCB Part # | JLCPCB stock (live 2026-11-12, 08:57 UTC) | Needed for 2 boards | Unit price (live) |
+| Part | Designator | JLCPCB Part # | JLCPCB stock (live 2026-11-12, 10:08 UTC) | Needed for 2 boards | Unit price (live) |
 |---|---|---|---|---|---|
 | ADAU7002ACBZ-R7 (microphone interface IC) | U9 | C481886 | 104 | 2 | 3.9059 USD |
 | RF-BM-2652P2 (Zigbee radio module) | U11 | C5440064 | 126 | 2 | 6.6325 USD |
 | 61400826021 (stacked USB-A connector) | J6 | C5366339 | 116 | 2 | 2.7594 USD |
 
 Every other line has more than 200 pieces. The next thinnest ones, for information: 9774015151R spacers (C5353804) 230, need 8;
-IM69D130V01 microphones (C536262) 392 at 08:57 UTC (427 six minutes earlier), need 4; CYPD3177-24LQXQT (C2952489) 806; DF40C-100DS-0.4V(51) (C597931) 1,056, need 4.
+IM69D130V01 microphones (C536262) 372, need 4 (427 at 08:51 UTC); CYPD3177-24LQXQT (C2952489) 806; DF40C-100DS-0.4V(51) (C597931) 1,047, need 4; USB2514B-I/M2 (C220679) 1,182 (1,683 at 08:51 UTC).
+Stock moves during the day. Look at the three thin parts again on the day you order.
 
 To see the stock of a part right now, open `https://jlcpcb.com/partdetail/C481886` (replace the C number).
 
@@ -146,9 +148,9 @@ Then go down the page. The tables follow the page order.
 | **Specify Layer Sequence** | **Yes**. A dialog **Layer Sequence** opens with four lists. Choose **L1(Top layer)** = `voxhub-F_Cu.gtl`, **L2(Inner layer1)** = `voxhub-In1_Cu.g1`, **L3(Inner layer2)** = `voxhub-In2_Cu.g2`, **L4(Bottom layer)** = `voxhub-B_Cu.gbl`, then **Confirm** | In1 is the ground plane directly under the USB tracks of the top layer; this removes any doubt about the order. Live: the lists show the file names of the uploaded archive; until you confirm, the row shows "This option is required." in red |
 | **Specify Stackup** | **Yes**. A dialog **Layer Stackup** opens. Choose **JLC04161H-3313**, then **Confirm** | the board was designed for this layer structure (0.0994 mm prepreg between top layer and ground plane). 0.00 USD (live). The dialog notes "This is a special stackup, and it doesn't support economic PCB assembly" - correct, this order is Standard assembly |
 | **Impedance Control** (appears after the stack-up is chosen) | **No requirement** | Naming the stack-up already makes JLCPCB build the exact layer structure of its own impedance calculator, in which the board's USB 2.0 pair (0.14 mm tracks, 0.16 mm gap) is 89.96 ohm; USB 2.0 accepts 76.5 to 103.5 ohm and the three USB runs are only 11 to 32 mm long. The paid choice "±10% (±5Ω if value≤50Ω)" (+33.08 USD, and it forces **Confirm Production file**) would add a guaranteed and tested impedance: JLCPCB's engineers adjust the track widths and need a table of the impedance tracks inside the Gerber archive - it does not give a different board |
-| **Via Covering** | **Epoxy Filled & Capped** | The board has thermal vias inside the exposed pads of U1, U2, U4 and U10. The free choice "Plugged" does not close vias that sit inside pads; they stay open and can draw solder away from the part during soldering, and nobody can rework these prototypes. Filled and capped vias are flat and closed. +17.58 USD at the size with rails (live). Runner-up: **Plugged** at 0 USD |
+| **Via Covering** | **Epoxy Filled & Capped** | The board has thermal vias inside the exposed pads of U1, U2, U4 and U10 (5 vias and 8 thermal holes; no other via touches a pad). The free choice "Plugged" does not close vias that sit inside pads; they stay open and can draw solder away from the part during soldering, and nobody can rework these prototypes. Filled and capped vias are flat and closed. +17.58 USD on the form (live; 17.55 for the 110 x 74 mm panel). Runner-up: **Plugged** at 0 USD |
 | **Via Plating Method** | nothing to click. The page sets **Horizontal Electroless Copper Plating** by itself when "Epoxy Filled & Capped" is chosen and greys out the other two | +3.41 USD (live); it belongs to the filled vias |
-| **Min via hole size/diameter** | **0.3mm/(0.4/0.45mm)** | all 302 small holes are 0.30 mm; this is the tier without surcharge. Do not click the smaller sizes even for a test: they switch on "FR4 TG155" (+3.49 USD) and "4-Wire Kelvin Test" (+17.03 USD), and both stay on when you go back |
+| **Min via hole size/diameter** | **0.3mm/(0.4/0.45mm)** | all 301 small holes are 0.30 mm; this is the tier without surcharge. Do not click the smaller sizes even for a test: they switch on "FR4 TG155" (+3.49 USD) and "4-Wire Kelvin Test" (+17.03 USD), and both stay on when you go back |
 | **Board Outline Tolerance** | **±0.2mm(Regular)** | default; "±0.1mm(Precision)" is greyed out as soon as PCB Assembly is on |
 | **Confirm Production file** | **Yes**. A dialog opens ("please confirm within 48 hours ... Otherwise, your order will be automatically confirmed"). Tick **Do not confirm automatically**, then **Confirm** | +1.05 USD. You see JLCPCB's production data before the boards are made, and production waits for you (section 7) |
 | **Mark on PCB** | **Remove Mark** | no order number is printed on the board; 0 USD; it is the default |
@@ -204,7 +206,7 @@ Below the PCB options is the block **PCB Assembly**. Switch it on with the toggl
 | **PCBA Type** | **Standard** | "Economic" is greyed out: it cannot do two sides, the 0.4 mm pitch chip U9 or this stack-up |
 | **Assembly Side** | **Both Sides** | 132 parts on top, 4 on the bottom (SW1, D7, D8, D9) |
 | **PCBA Qty** | type **2** into the field next to the button "5" (hint: "Qty from 2 to 5") | 2 assembled boards; the other 3 are delivered without parts |
-| **Edge Rails/Fiducials** | **Added by JLCPCB** (it is preselected) | Standard assembly needs 5 mm rails and fiducial marks; JLCPCB adds them. The page then says "The board size is modified to be 100mm*84mm due to adding two 5mm edge rails on the shorter sides." and **Dimensions** changes to 100 * 84, i.e. the form puts the rails on the two 100 mm edges. The board stays in the "Special Offer" price class. The rear edge carries the overhanging connectors; where the rails really go is decided by JLCPCB's engineers (remark 6.2 item 4, section 8 column "high") |
+| **Edge Rails/Fiducials** | **Added by JLCPCB** (it is preselected). The form offers no choice of edges; the request for the edges is in the remarks (6.1 item 4 and 6.2 item 4) | Standard assembly needs 5 mm rails and fiducial marks; JLCPCB adds them. The page then says "The board size is modified to be 100mm*84mm due to adding two 5mm edge rails on the shorter sides." and **Dimensions** changes to 100 * 84: the form assumes rails on the two 100 mm edges. This board needs them on the two 74 mm edges (panel 110 x 74 mm): J6 overhangs the rear 100 mm edge by 2.5 mm, the radio module U11 is flush with the front 100 mm edge and small parts (C23, Q2, Q3, D7 to D10, MK1) sit 1 to 2 mm from it, so a rail scored off along these edges is a risk. JLCPCB's engineer changes the panel after reading the remark. Until then the form keeps showing 100 * 84 and the price for it (section 4.3) |
 | **Confirm Parts Placement** | **Yes**. A dialog opens ("please confirm within 72 hours ... Otherwise, your order will be automatically confirmed"). Tick **Do not confirm automatically**, then **Confirm** | 0.45 USD (list). JLCPCB shows you its final placement drawing before it solders (section 7) |
 | **Stencil Storage** | **No** | only useful for a repeat order within 3 months |
 | **Fixture Storage** | **No** | same |
@@ -245,6 +247,8 @@ Leave the block **Stencil** ("Order together with PCB") below it switched off - 
    | **Calculated Price** (Web Price) | **$47.64** |
 
    The lines under **Standard PCBA Price** (Components, Feeders Loading fee, SMT Assembly, Hand-soldering labor fee, Manual Assembly) show "-" at this point; they are filled in after the parts list. "Desktop Price: From $45.64" next to it is the price in JLCPCB's desktop program; ignore it.
+
+   $47.64 is the price for rails on the 100 mm edges. For the panel that the remarks ask for (110 x 74 mm) the same form, with the same options and the size typed in by hand, showed $69.61 on 2026-11-12: Engineering fee $25.00, Board $5.10, Via Covering $17.55, Surface Finish $17.50, Via Plating Method $3.41, Confirm Production file $1.05. The size no longer falls under "Special Offer". You cannot select this on the form. Expect the difference of about 22 USD to appear when JLCPCB has reviewed the order (section 7.2).
 3. Scroll up once more and check that **Surface Finish** is still **ENIG**.
 4. Click **NEXT** (the button replaces "SAVE TO CART" when PCB Assembly is on). The login page appears; sign in.
 
@@ -268,12 +272,12 @@ Everything in this section is behind the login. The labels are taken from JLCPCB
 
 ### 5.3 The parts list page ("Matched Parts")
 
-The page lists the 56 rows of the BOM with the part JLCPCB matched to each. **Only rows with a ticked check box are placed and paid for.** At the end every one of the 56 rows must be ticked.
+The page lists the 53 rows of the BOM with the part JLCPCB matched to each. **Only rows with a ticked check box are placed and paid for.** At the end every one of the 53 rows must be ticked.
 
 | What you see | What it means | What you do |
 |---|---|---|
 | row ticked, JLCPCB part number equals the number in column `LCSC Part #` of `bom_jlcpcb.csv` | matched, in stock | nothing |
-| **yellow exclamation mark**, row not ticked | JLCPCB wants your confirmation. Hover over the mark to read why. Expected for this BOM on six rows: the same part number stands in two rows each (C125099 in the rows of D4 and of D9, C6848499 in the rows of D6 and of D10, C597931 in the rows of J2 and of J3) - JLCPCB calls this "Same Component Used Across Multiple Rows". Other rows may show it because the BOM text is not literally the part name or the footprint name is KiCad's | compare the JLCPCB part number in the row with the C number in `bom_jlcpcb.csv`. If equal, tick the row |
+| **yellow exclamation mark**, row not ticked | JLCPCB wants your confirmation; hover over the mark to read why (for example: the matched part name is not literally the BOM text, or the package differs from the footprint name). None is expected for this BOM: every part number stands in one row only and the column `Comment` is JLCPCB's own part name. The footprint names are KiCad's, so a package warning cannot be ruled out | compare the JLCPCB part number in the row with the C number in `bom_jlcpcb.csv`. If equal, tick the row |
 | **Shortfall** | JLCPCB's stock is lower than the quantity needed. Needed = 2 x parts per board plus a loss allowance, and at least a minimum quantity (for example 20 pieces for a 0402 resistor). Today no line is short | for J6 see section 2.4. For any other line: stop, do not order, report the part to the maintainer |
 | **No Part Selected** / listed under unmatched components | nothing was matched | click **Search**, enter the C number from `bom_jlcpcb.csv`, select the part, tick the row |
 | the row of U9, U11 or J6 | should show that the pieces come from your private stock (section 2.3) | if it shows a shortfall although **My Parts Lib** holds 3 pieces, stop and ask JLCPCB's support chat |
@@ -289,12 +293,12 @@ Parts that are missing from the list on purpose (they are in neither file, so th
 | J5 (3 holes in a row, x 80 to 85 / y 21.5, text "J5: GND TX RX") | debug header, "do not populate" |
 | J8 (6 small pads and 3 holes, x 36.5 / y 46) | contact field for a Tag-Connect cable, no part |
 | JP1 (two half-round pads, x 84.6 / y 69.7) | solder jumper, no part |
-| TP1 to TP5 (five round pads in a cross, x 81 to 87 / y 9 to 15) | test points, no part |
+| TP1, TP2, TP3 (three round pads at x 84.0 / y 12.0, x 80.8 / y 12.0 and x 84.0 / y 8.8, with the texts "5V", "3V3" and "GND" near them) | test pads, no part |
 | FID1 to FID3, H1 to H4 | fiducial marks and the four corner mounting holes |
 
 These are simply absent on the delivered boards. JLCPCB does not send unplaced parts along.
 
-When all 56 rows are ticked, click **Next**.
+When all 53 rows are ticked, click **Next**.
 
 ### 5.4 The placement preview ("Component Placements")
 
@@ -326,12 +330,12 @@ JLCPCB calls its red dot "a marking only", not pin 1. If a red dot is not where 
 | U6 | TPS2553DBVR, SOT-23-6 | 45.8 / 4.0 | 270 | triangle at the corner that is left and towards the front edge | red dot at that corner |
 | U7 | USBLC6-2SC6, SOT-23-6 | 35.25 / 18.6 | 180 | triangle at the corner that is right and towards the rear edge | red dot at that corner |
 | U8 | USBLC6-2SC6, SOT-23-6 | 31.75 / 17.8 | 180 | triangle at the corner that is right and towards the rear edge | red dot at that corner |
-| U9 | ADAU7002ACBZ-R7, 8 solder balls, 0.76 x 1.56 mm | 40.0 / 61.0 | 270 | one small dot (0.26 mm), left of the part at the end towards the rear edge. No outline | red dot at that corner; long side of the chip points from rear edge to front edge |
+| U9 | ADAU7002ACBZ-R7, 8 solder balls, 0.76 x 1.56 mm | 40.0 / 61.0 | 270 | one small dot (0.3 mm), left of the part at the end towards the rear edge. No outline | red dot at that corner; long side of the chip points from rear edge to front edge |
 | U10 | MAX98357AETE+T, TQFN-16 | 9.0 / 49.0 | 270 | four corner brackets; triangle left of the part, at the end towards the rear edge | red dot at the rear-left corner |
 | U11 | RF-BM-2652P2 radio module, 16.5 x 30 mm | 21.5 / 56.5 | 180 | line across the module end that faces the rear edge; dot (0.5 mm) right of the last pad of the right-hand pad row, at x 31.3 / y 62.0 | the end without pads (antenna) lies on the front edge of the board; pin 1 at the dot |
 | MK1 | IM69D130V01 microphone | 9.4 / 70.2 | 90 | rectangle around the part; small triangle outside its corner that is left and towards the rear edge; the round sound-hole pad is in the right half | red dot at the triangle corner; the round port of the part over the hole |
 | MK2 | IM69D130V01 microphone | 91.9 / 10.0 | 90 | same as MK1 | same as MK1 |
-| Y1 | 24 MHz crystal, 4 pads | 40.2 / 24.9 | 180 | an L-shaped line round the corner that is right and towards the rear edge | part covers all four pads. Turned by 180 degrees it is electrically the same |
+| Y1 | 24 MHz crystal, 4 pads | 42.4 / 25.0 | 180 | an L-shaped line round the corner that is right and towards the rear edge | part covers all four pads. Turned by 180 degrees it is electrically the same |
 
 **Transistors (top side).** A three-pin part cannot be reversed without missing its pads; check that the body covers all three pads.
 
@@ -397,10 +401,11 @@ All other parts (resistors, ceramic capacitors, the inductor L1) have no polarit
 ### 6.1 PCB Remark (section 3.4)
 
 ```
-1. Via Covering = Epoxy Filled & Capped: please fill and cap ALL 0.30 mm holes (302 holes: 294 vias and 8 thermal holes that are drawn as pads inside one exposed pad). Several of them are via-in-pad inside exposed pads of ICs - fill and cap these as well.
+1. Via Covering = Epoxy Filled & Capped: please fill and cap ALL 0.30 mm holes (301 holes: 293 vias and 8 thermal holes that are drawn as pads inside one exposed pad). 13 of them are via-in-pad inside the exposed pads of four ICs - fill and cap these as well.
 2. All holes of 0.60 mm and larger are component or mounting holes and must stay open.
 3. The two non-plated 0.80 mm holes at X110.18 Y-130.20 and X192.68 Y-70.00 (Gerber coordinates, mm) are sound ports of MEMS microphones: keep them open, no solder mask ink, no resin.
-4. Stack-up JLC04161H-3313 as selected. No impedance test required.
+4. Edge rails for the assembly: please add them to the two 74 mm edges (panel 110 x 74 mm), NOT to the two 100 mm edges. Connectors overhang one 100 mm edge and a module ends flush with the other. Copper keeps 0.45 mm from both 74 mm edges.
+5. Stack-up JLC04161H-3313 as selected. No impedance test required.
 ```
 
 ### 6.2 Assembly remark (section 4.2)
@@ -409,13 +414,13 @@ All other parts (resistors, ceramic capacitors, the inductor L1) have no polarit
 1. MK1 and MK2 (C536262, IM69D130V01) are bottom-port MEMS microphones. Each has a 0.8 mm sound hole through the PCB; the bottom silkscreen says "MIC - NO WASH" next to it. Board Cleaning = Caution for Special Parts: no washing, no solvent, no dry ice, no conformal coating, no liquid or flux into these two holes, no compressed air into them.
 2. The silkscreen carries no reference designators (they are in the CPL only). Polarity marks on the silkscreen: filled triangle or dot = pin 1 / A1 (ICs, module U11, microphones, transistors). Three-sided bracket around one end of a two-pin part = cathode of D1-D10, plus terminal of C38 and C41.
 3. If a CPL rotation disagrees with the silkscreen mark, the silkscreen is right. Please send the placement for my confirmation before assembly.
-4. Edge rails: J1 (USB-C), J4 (microSD) and J6 (stacked USB-A, through-hole) are on one 100 mm edge; J6 overhangs this edge by 2.5 mm. U11 ends flush with the opposite 100 mm edge. The two 74 mm edges have no overhanging parts. Please tell me before production if the rail position changes the price.
+4. EDGE RAILS - REQUEST: please add the 5 mm edge rails to the two 74 mm edges (panel 110 x 74 mm), NOT to the two 100 mm edges. Reason: J6 (stacked USB-A, through-hole) overhangs one 100 mm edge by 2.5 mm, J1 (USB-C) and J4 (microSD) end at the same edge; U11 ends flush with the other 100 mm edge and small parts sit 1 to 2 mm from it. The two 74 mm edges have no overhanging parts and copper keeps 0.45 mm from them. I accept the price difference for the larger panel.
 5. J6 (C5366339) and J7 (C131337) are through-hole parts for hand soldering. J6: USB openings face outward over the board edge, body flat on the board. J7: follow the silkscreen outline.
-6. Not populated on purpose: C13, J5, J8 (bare pads), JP1 (solder jumper), TP1-TP5 (test points).
+6. Not populated on purpose: C13, J5, J8 (bare pads), JP1 (solder jumper), TP1-TP3 (test pads).
 7. Please do not replace any part without asking me.
 ```
 
-If a remark field does not take the whole text, keep the items in the order given and drop from the end.
+If a remark field does not take the whole text, keep the items in the order given and drop from the end - but never drop item 4 of either remark (the edge rails).
 
 ---
 
@@ -439,7 +444,7 @@ If the checkout does not offer **Review Before Payment**, pay in the normal way.
 | Step | Status shown | What happens |
 |---|---|---|
 | 1 | **File Review**: Pending Review, then Reviewing, then Review Completed | JLCPCB's engineers check the files, the parts and the advanced options. The parts are reserved for you from the moment you submit, for up to 7 days |
-| 2 | **Approved** / **Awaiting Payment** | the amount is final. If the review changed a fee (rails on other edges, a step stencil, a fixture, special handling of a part), it is already included. An approved order cannot be changed any more |
+| 2 | **Approved** / **Awaiting Payment** | the amount is final. The price difference for the larger panel with rails on the 74 mm edges (about 22 USD, section 4.3) and any other fee the review changed (a step stencil, a fixture, special handling of a part) are already included. An approved order cannot be changed any more |
 | 3 | you pay | PayPal, card, Google Pay, Apple Pay, Klarna or JLCPCB balance. Compare the amount with section 8 first. If it is above the "high" column, ask JLCPCB's support what was added before you pay |
 | 4 | **Confirmed** | the normal production process starts |
 
@@ -451,11 +456,12 @@ Check your e-mail and the order page (**ACCOUNT** menu, order history) at least 
 
 | Message | When | Look at | Then |
 |---|---|---|---|
-| **Confirm Production file** (the PCB data JLCPCB will manufacture) | when the production file is ready; you have 48 hours, and with "Do not confirm automatically" it waits for you | 1. Size 100 x 74 mm plus the rails, and on which edges the rails are. 2. Four copper layers; layer 2 is an almost solid plane. 3. Stack-up JLC04161H-3313. 4. The two 0.8 mm holes under the microphones exist (x 10.2 / y 70.2 and x 92.7 / y 10.0). 5. The four slots of the USB-C socket and the four corner holes exist. 6. Both "MIC - NO WASH" texts are there. 7. No order number was added to the board | confirm if all seven points are right. If the engineers changed something you do not understand (track widths, removed pads, moved holes), do not confirm; ask them what and why, and ask the maintainer |
-| **Confirm Parts Placement** (JLCPCB's placement drawing after its own corrections) | some hours after the order is confirmed; you have 72 hours, and with "Do not confirm automatically" it waits for you | go through the tables of section 5.4 once more, top and bottom. JLCPCB: "For SMD parts, please check the placement and polarity in 2D production file. For through-hole parts, please check the placement in 3D production file." Check J6 and J7 in the 3D file: J6 openings outward, both on their holes. Count: 132 parts top, 4 bottom, nothing on C13, J5, J8, JP1, TP1 to TP5 | confirm if everything matches. Otherwise answer with the designator and what is wrong |
+| **Confirm Production file** (the PCB data JLCPCB will manufacture) | when the production file is ready; you have 48 hours, and with "Do not confirm automatically" it waits for you | 1. Size 100 x 74 mm plus the rails, and the rails are on the two 74 mm edges (panel 110 x 74 mm). 2. Four copper layers; layer 2 is an almost solid plane. 3. Stack-up JLC04161H-3313. 4. The two 0.8 mm holes under the microphones exist (x 10.2 / y 70.2 and x 92.7 / y 10.0). 5. The four slots of the USB-C socket and the four corner holes exist. 6. Both "MIC - NO WASH" texts are there. 7. No order number was added to the board | confirm if all seven points are right. If the rails are on the 100 mm edges, do not confirm; answer "please move the edge rails to the two 74 mm edges as requested in the remarks". If the engineers changed something you do not understand (track widths, removed pads, moved holes), do not confirm either; ask them what and why, and ask the maintainer |
+| **Confirm Parts Placement** (JLCPCB's placement drawing after its own corrections) | some hours after the order is confirmed; you have 72 hours, and with "Do not confirm automatically" it waits for you | go through the tables of section 5.4 once more, top and bottom. JLCPCB: "For SMD parts, please check the placement and polarity in 2D production file. For through-hole parts, please check the placement in 3D production file." Check J6 and J7 in the 3D file: J6 openings outward, both on their holes. Count: 132 parts top, 4 bottom, nothing on C13, J5, J8, JP1, TP1 to TP3 | confirm if everything matches. Otherwise answer with the designator and what is wrong |
 | question about a part: unclear polarity, footprint mismatch, parts too close | any time during data preparation | the designator they name, in section 5.4 | answer the same day. The standard answer for polarity is "follow the silkscreen mark" |
 | proposal for a **step stencil** with a price | during review | - | accept it. The board mixes 0.4 mm pitch parts (U9, J2, J3) with large parts; JLCPCB refunds the fee if the stencil later turns out to be unnecessary (help) |
-| request for a **fixture** or for rails on the other edges, with a price | during review | - | accept it (amounts in section 8, column "high") |
+| price difference for the 110 x 74 mm panel, or a request for a **fixture**, with a price | during review | - | accept it. The panel difference (about 22 USD) is in the "expected" column of section 8, the fixture in the "high" column |
+| a message that the rails stay on the 100 mm edges | during review | - | do not accept; repeat item 4 of the assembly remark. If JLCPCB insists, ask the maintainer before you confirm anything |
 | a supplement after you have paid | rare with Review Before Payment | the reason given | pay it only if the reason is in this guide; otherwise ask |
 | tax or duty demand from DHL at delivery | delivery | - | with a (DDP) shipment do not pay. JLCPCB: "If customer who has prepaid tax (VAT) receives the tax payment notice from the logistics supplier, please refuse to pay and contact us." |
 
@@ -463,15 +469,15 @@ Check your e-mail and the order page (**ACCOUNT** menu, order history) at least 
 
 ## 8. Cost estimate
 
-All amounts in USD unless marked. Date of all prices: 2026-11-12. "Low" assumes everything goes as planned and the new-customer coupon applies; "high" adds every supplement that JLCPCB's review can plausibly ask for.
+All amounts in USD unless marked. Date of all prices: 2026-11-12. "Low" assumes everything goes as planned, the new-customer coupon applies and JLCPCB does not charge for the larger panel; "high" adds every supplement that JLCPCB's review can plausibly ask for.
 
 | Line | Low | Expected | High | Source and assumption |
 |---|---|---|---|---|
-| PCB, 5 pieces, ENIG, JLC04161H-3313, epoxy filled and capped vias, with rails 100 x 84 mm | 47.64 | **47.64** | 69.64 | live quote: 8.00 + 17.60 + 17.58 + 3.41 + 1.05. High: +22.00 if the rails must go on the 74 mm edges (110 x 74 mm leaves the "Special Offer" class; estimate from the price measured without filled vias) |
+| PCB, 5 pieces, ENIG, JLC04161H-3313, epoxy filled and capped vias, panel 110 x 74 mm (rails on the 74 mm edges) | 47.64 | **69.61** | 69.61 | live quote, 10:06 UTC. 69.61 is what the form shows for 110 x 74 mm with the options of section 3 when the size is typed in by hand: 25.00 Engineering fee + 5.10 Board + 17.50 Surface Finish + 17.55 Via Covering + 3.41 Via Plating Method + 1.05 Confirm Production file. 47.64 is what the form shows during the order (rails on the 100 mm edges, 100 x 84 mm: 8.00 + 17.60 + 17.58 + 3.41 + 1.05); low: the difference is not charged |
 | Assembly setup, both sides | 51.12 | **51.12** | 51.12 | list |
 | Stencil, both sides | 16.42 | **16.42** | 16.42 | list |
 | SMT joints at 0.0016 | 2.08 | **2.08** | 2.40 | list; 649 SMD pads per board in the board file (637 top, 12 bottom) x 2 = 1,298. High: 1,500 if JLCPCB counts differently |
-| Feeder loading at 1.53 per part type | 78.03 | **78.03** | 85.68 | list; `bom_jlcpcb.csv` has 56 rows with 53 different part numbers, 51 of them machine-placed and 2 hand-soldered (J6, J7): 51 x 1.53. High: 56 x 1.53 if every BOM row is charged |
+| Feeder loading at 1.53 per part type | 78.03 | **78.03** | 81.09 | list; `bom_jlcpcb.csv` has 53 rows = 53 part numbers, 51 of them machine-placed and 2 hand-soldered (J6, J7): 51 x 1.53. High: 53 x 1.53 if the two hand-soldered parts are charged too |
 | Hand-soldering labor, per order | 3.58 | **3.58** | 3.58 | list |
 | Manual assembly at 0.0164 per joint | 0.46 | **0.46** | 0.59 | list; J6 has 12 joints (8 pins, 4 shell posts), J7 has 2: 14 x 2 boards = 28. High: 36 if the 4 shell posts of the USB-C socket J1 are hand-soldered too |
 | X-ray at 1.64 per piece (0.82 from 11 pieces) | 3.28 | **3.28** | 9.84 | list; only ADAU7002ACBZ-R7 carries JLCPCB's X-ray flag (live): 2 pieces. High: all six leadless parts per board (U1, U4, U9, U10, MK1, MK2) = 12 x 0.82 |
@@ -481,15 +487,15 @@ All amounts in USD unless marked. Date of all prices: 2026-11-12. "Low" assumes 
 | Board Cleaning "Caution for Special Parts" | 0 | **0** | 0 | fee not shown before login - assumed 0 |
 | Fixture, 2 pieces | 0 | **0** | 16.42 | list; only if the engineers ask for a carrier |
 | Step stencil | 0 | **0** | 61.79 | form text: $0.008 per pin + $9.4 + $47.2 labour, with 649 pins; only if the engineers recommend it |
-| Exchange-rate drift of the listed assembly fees | 0 | **0** | 7.55 | 3 % of the fee lines above; the list says prices "may vary slightly due to exchange rate fluctuations" |
-| Parts for 2 boards, with one spare each of the three thin parts | 101.29 | **103.21** | 129.01 | live prices of all 53 parts: 89.91 with JLCPCB's minimum and loss quantities (87.99 if only the minimum quantities are billed), plus 13.30 for the three spares of step 2.3. High: expected + 25 % for a substitute, a sourced part or price changes |
+| Exchange-rate drift of the listed assembly fees | 0 | **0** | 7.41 | 3 % of the fee lines above; the list says prices "may vary slightly due to exchange rate fluctuations" |
+| Parts for 2 boards, with one spare each of the three thin parts | 101.29 | **103.21** | 129.01 | live prices of all 53 parts (10:06 UTC): 89.91 with JLCPCB's minimum and loss quantities (87.99 if only the minimum quantities are billed), plus 13.30 for the three spares of step 2.3. High: expected + 25 % for a substitute, a sourced part or price changes |
 | Coupon | -10.00 | **0** | 0 | "$10 New User SMT Coupon", one coupon per order, not guaranteed |
-| **Goods total** | **296.55** | **309.67** | **457.89** | |
+| **Goods total** | **296.55** | **331.64** | **453.13** | |
 | Shipping DHL Express (DDP) to Austria | 23.52 | **23.52** | 26.97 | live; parcel up to 0.5 kg, high: 0.5 to 1 kg. JLCPCB's weight for the 5 PCBs alone: 0.26 kg; with the parts of two boards and packing about 0.35 to 0.45 kg (estimate) |
-| Austrian import VAT, 20 % of goods + shipping | 64.01 | **66.64** | 96.97 | estimate; EU customs duty for printed circuits and electronic assemblies is 0 % |
+| Austrian import VAT, 20 % of goods + shipping | 64.01 | **71.03** | 96.02 | estimate; EU customs duty for printed circuits and electronic assemblies is 0 % |
 | Import handling: carrier's disbursement fee + EU "Union Handling Fee" | 4.45 | **21.14** | 26.71 | expected: 15 EUR (DHL Austria minimum) + 2 declaration lines x 2 EUR. Low: fee waived by JLCPCB ("may be discounted"), 2 x 2 EUR. High: 18 EUR + 3 x 2 EUR |
-| **Total, USD** | **388.53** | **420.97** | **608.54** | |
-| **Total, EUR** | **349.17** | **378.33** | **546.89** | x 0.8987 |
+| **Total, USD** | **388.53** | **447.33** | **602.83** | |
+| **Total, EUR** | **349.17** | **402.02** | **541.76** | x 0.8987 |
 
 Notes on the table:
 
@@ -537,8 +543,8 @@ Pictures of the design to compare with: `hardware/outputs/render_top.png` and `h
 |---|---|
 | Count and colour | 3 boards, green, white print, gold pads |
 | Size | 100 x 74 mm, thickness about 1.6 mm (1.44 to 1.76 mm is within JLCPCB's tolerance) |
-| Edges | the rails are gone. Small rough spots on two opposite edges, where the rails were broken off, are normal: JLCPCB separates by hand and does not grind the edges |
-| Text, top | "VoxHub CM4  rev A2", "SPK", "J5: GND TX RX" |
+| Edges | the rails are gone. Small rough spots on the two 74 mm edges (left and right), where the rails were broken off, are normal: JLCPCB separates by hand and does not grind the edges |
+| Text, top | "VoxHub CM4  rev A2", "SPK", "J5: GND TX RX", and "5V", "3V3", "GND" at the three test pads |
 | Text, bottom | "VoxHub CM4 rev A2 - this side faces the top cover", the address of this repository, "MUTE", "USB-C PD 9-20V", twice "MIC - NO WASH". No order number anywhere |
 | Filled vias | hold a board against a lamp: no light comes through the 0.3 mm holes. The large pads in the middle of the footprints of U1, U2, U4 and U10 are flat gold without open holes |
 | Microphone holes | light passes through the two 0.8 mm holes at x 10.2 / y 70.2 and x 92.7 / y 10.0 |
@@ -556,7 +562,7 @@ Use a magnifier or the zoom of a phone camera. Go through the tables of section 
 |---|---|
 | Top side, large parts present | USB-C socket J1, double USB-A socket J6 and microSD socket J4 at the rear edge; radio module U11 (the largest part, 16.5 x 30 mm, its end without pads at the front edge); the two long CM4 sockets J2 and J3; four threaded spacers H5 to H8; speaker socket J7 at the left edge; inductor L1; microphone MK1 in the front-left corner and MK2 in the rear-right corner |
 | Bottom side | slide switch SW1 next to "MUTE"; three LEDs D7, D8, D9 in a row near the front edge; nothing else |
-| Empty on purpose | C13, J5 (3 holes), J8 (6 pads, 3 holes), JP1, TP1 to TP5 - compare with an empty board |
+| Empty on purpose | C13, J5 (3 holes), J8 (6 pads, 3 holes), JP1, the three test pads TP1 to TP3 - compare with an empty board |
 | J6 (USB-A) | sits flat on the board, not tilted; all 12 pins are soldered on the bottom side; both openings are free |
 | J7 (speaker socket) | sits flat; 2 pins soldered on the bottom side |
 | J2, J3 (CM4 sockets) | no solder between neighbouring contacts (0.4 mm apart), no bent contact, nothing inside the socket |
@@ -584,13 +590,13 @@ When both assembled boards pass 10.3, continue with `fab/ASSEMBLY_AND_TEST.md`. 
 
 | Point | Why | Where you will see the real answer |
 |---|---|---|
-| Every page after **NEXT** (BOM / CPL upload, parts list, placement preview, Quote & Order, cart, checkout): exact button and tab names; which rows of the parts list get a yellow mark beyond the six named in 5.3; how the preview draws each part, where its red dot is and whether it shows an angle; what it shows for J6 (no JLCPCB footprint record, confirmed live); the entries of the "product description" list; where the shortage preference is shown; whether the assembly remark can still be changed through **Edit Order** | login required; documented from JLCPCB's help articles of 9 and 23 Sep 2026 | on the pages themselves |
+| Every page after **NEXT** (BOM / CPL upload, parts list, placement preview, Quote & Order, cart, checkout): exact button and tab names; whether a row of the parts list gets a yellow mark; how the preview draws each part, where its red dot is and whether it shows an angle; what it shows for J6 (no JLCPCB footprint record, confirmed live); the entries of the "product description" list; where the shortage preference is shown; whether the assembly remark can still be changed through **Edit Order** | login required; documented from JLCPCB's help articles of 9 and 23 Sep 2026 | on the pages themselves |
 | The **Parts Manager** pages: where the menu entry is, the exact clicks on **Order Parts**, price and tax of the three parts there (step 2.3) | login required; documented from the help article | Parts Manager |
-| What the form detects from the real `gerbers.zip` | all live quotes of 2026-11-12 were made with a neutral test Gerber of the same size, layer count and hole sizes; the real design has not been uploaded to JLCPCB by anyone | the line "Detected 4 layer board of ..." after the upload |
-| The assembly fee lines of this very order: number of feeders, joints and X-ray pieces; whether removing the rails is charged for 1 or 5 panels (1.70 or 2.90 USD); fee and extra time of **Board Cleaning: Caution for Special Parts** | computed after the BOM upload; the cleaning fee is not shown before login; the two research notes differ on the panel count | Quote & Order page, before you pay |
-| On which edges JLCPCB puts the rails (overhanging connectors on one 100 mm edge, radio module flush with the other); whether it asks for a step stencil or a fixture; the board price at 110 x 74 mm with filled vias (the +22 USD of the "high" column was measured without filled vias) | decided by JLCPCB's engineers in the review | review result and **Confirm Production file** |
+| What the form detects from the real `gerbers.zip` | all live quotes of 2026-11-12 were made with a neutral test Gerber of the same size, layer count and hole sizes, or with the size typed in; the real design has not been uploaded to JLCPCB by anyone | the line "Detected 4 layer board of ..." after the upload |
+| Whether JLCPCB puts the rails on the two 74 mm edges as requested, and what it then charges: 69.61 USD is the form price for a 110 x 74 mm board, but how and when the difference to the 47.64 USD of the form is collected is not documented | decided by JLCPCB's engineers in the review | review result and **Confirm Production file** |
+| The assembly fee lines of this very order: number of feeders, joints and X-ray pieces; whether removing the rails is charged for 1 or 5 panels (1.70 or 2.90 USD); fee and extra time of **Board Cleaning: Caution for Special Parts**; whether JLCPCB asks for a step stencil or a fixture | computed after the BOM upload and in the review; the cleaning fee is not shown before login; the two research notes differ on the panel count | Quote & Order page and review result, before you pay |
 | The checkout: whether **Review Before Payment** and the "$10 New User SMT Coupon" are offered for this order; the tax lines of a (DDP) shipment (VAT base, disbursement fee, number of 2 EUR handling-fee lines); how long the review takes | checkout needs login and address; JLCPCB says coupons "may also depend on the shipping address and payment method" and states no review time | checkout page, order status |
 | The customs tariff number JLCPCB declares for assembled boards | it is on the invoice only; the duty is 0 % for all plausible numbers | invoice of the order |
-| Surcharge of the "±10%" impedance option and of the smaller via sizes at the size with rails | measured at 100 x 74 mm only; not selected in this order | - |
+| Surcharge of the "±10%" impedance option and of the smaller via sizes at the panel size | measured at 100 x 74 mm only; not selected in this order | - |
 | How long JLCPCB accepts complaints after delivery | not in the research notes | JLCPCB's terms |
 | The inspection criteria of section 10 | no board has been built; written from the board file, JLCPCB's option texts and general handling practice | the delivered boards |

@@ -128,8 +128,8 @@ How the board is produced:
 | Non-plated holes | 2 x 0.8 mm (microphone ports), 2 x 0.65 mm (J1 locating pegs), 3 x 0.99 mm (Tag-Connect J8), 4 x 2.7 mm (mounting), 4 x 3.7 mm (SMT spacers). No non-plated slots |
 | Finish | **ENIG** (0.22 mm pads of the 0.4 mm pitch WLCSP, 0.4 mm pitch mezzanine connectors) |
 | Mask / silk | green / white; silkscreen is clipped by the mask openings (`--subtract-soldermask`); smallest text 1.0 mm |
-| Copper to board edge | >= 0.45 mm for tracks, vias and pours (edge connectors' own pads excepted); JLCPCB limits: 0.2 mm at a routed edge, 0.4 mm at a V-cut edge |
-| Keep-outs | no copper on any layer under the antenna of the radio module (11.75..31.25 x 68.0..74.0) and under the CM4 antenna (91..100 x 44.5..59.5: the 6.5 x 11 mm "Wireless Cutout" of CM4 datasheet fig. 4 enlarged to the recommended 8 x 15 mm and out to the board edge); no foreign copper on the component side in the strips 0.75..1.19 mm from the centre line of each CM4 socket |
+| Copper to board edge | >= 0.45 mm from the four straight edges for tracks, vias and pours (edge connectors' own pads excepted: the shield pads of J4 are 0.37 mm from the rear edge); 0.2 mm around the four rounded corners. JLCPCB limits: 0.2 mm at a routed edge, 0.4 mm at a V-cut edge |
+| Keep-outs | no copper on any layer under the antenna of the radio module (11.75..31.25 x 68.0..74.0) and under the copper-free pocket beside its open end (21.0..31.25 x 64.0..68.0), and under the CM4 antenna (91..100 x 44.5..59.5: the 6.5 x 11 mm "Wireless Cutout" of CM4 datasheet fig. 4 enlarged to the recommended 8 x 15 mm and out to the board edge); no foreign copper on the component side in the strips 0.75..1.19 mm from the centre line of each CM4 socket |
 | Impedance control | not ordered: the stack-up is specified and the geometry comes from JLCPCB's calculator |
 | Panel | fiducials FID1-3 are on the board; JLCPCB adds edge rails and its own fiducials. Ask for the rails on the two 74 mm edges: J6 overhangs the rear 100 mm edge by 2.5 mm, J1 ends flush with it, the radio module ends flush with the front edge and small parts sit 1 to 2 mm from it |
 
@@ -193,5 +193,6 @@ Every check is an error except two that compare the board with KiCad's library a
 - SD card lines are 59-69 mm long with up to 11 mm mismatch: fine for 50 MHz high-speed mode (about 70 ps against a
   20 ns period); UHS-I SDR104 is not guaranteed.
 - Three BOM lines are below 200 pieces at JLCPCB (ADAU7002ACBZ-R7, 61400826021, RF-BM-2652P2) - see the order guide.
-- The speaker (Adafruit 3351) has no dimensioned drawing; the enclosure pocket follows the shop dimensions.
+- The plug of the speaker (Adafruit 3351) has to be checked on delivery: the maker's data sheet names an XH 2.5 mm plug, the
+  shops sell it with the JST-PH 2.0 mm plug that J7 needs.
 - No hardware has been built or measured.

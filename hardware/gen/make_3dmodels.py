@@ -31,7 +31,7 @@ def usb_a():
 
 def cm4():
     # CM4 Lite wireless (datasheet fig. 4): 55 x 40 x 1.2 mm on a 1.5 mm stack, SoC centre 31.99 / 16.98 mm from the
-    # antenna-end / pin-101 edges, 14 x 14 x 6 mm heat sink.  Origin = module centre, z = 0 = carrier surface,
+    # antenna-end / pin-101 edges, 14 x 14 x 7 mm heat sink.  Origin = module centre, z = 0 = carrier surface,
     # +x = antenna end, +y = pins 101-200 side.
     pcb = cbox(55.0, 40.0, 1.2, 1.5).edges("|Z").fillet(3.0)
     for sx in (-24.0, 24.0):
@@ -42,7 +42,7 @@ def cm4():
     soc = cbox(15.0, 15.0, 0.6, 2.7, sx, sy).union(cbox(12.5, 12.5, 1.8, 3.3, sx, sy).edges("|Z").fillet(1.0))
     hs = cbox(14.0, 14.0, 1.6, 5.1, sx, sy)
     for i in range(7):
-        hs = hs.union(cbox(1.0, 14.0, 4.4, 6.7, sx - 6.5 + i * 13.0 / 6, sy))
+        hs = hs.union(cbox(1.0, 14.0, 5.4, 6.7, sx - 6.5 + i * 13.0 / 6, sy))
     chips = (cbox(10.0, 14.5, 1.0, 2.7, -19.0, 3.0)            # LPDDR4
              .union(cbox(5.0, 5.0, 0.9, 2.7, 8.0, -9.5))       # PMIC
              .union(cbox(6.0, 6.0, 0.9, 2.7, -19.5, -12.5))    # Ethernet PHY

@@ -30,19 +30,26 @@ Layout
 - [x] ERC 0 / DRC 0 with JLCPCB's design rules (`gen/project_settings.json`, `hardware/voxhub.kicad_dru`)
 - [x] Found on the way: Hirose's restricted strips at the CM4 sockets kept free of foreign copper (gate
       `gen/check_df40.py`), 81 % paste aperture on the socket pads, boot-strap pull-up 2.2k
-- [ ] Independent review of the changed areas (at most two rounds)
+- [x] Found by the review: hub decoupling at the pins, crystal lines, antenna pocket keep-out, no via in a pad (gate
+      `gen/check_vias.py`), no 20 V test pads, copper 0.45 mm from the edge
+- [x] Independent review of the changed areas, round 1: six reviewers, no high finding, 10 medium and 30 low, all
+      fixed or accepted with a reason (DECISIONS.md A2-36 to A2-48)
+- [ ] Review round 2 (last round): re-check of the fixes
 
 JLCPCB order package (`/fab`)
-- [x] `fab/jlcpcb/gerbers.zip`, `bom_jlcpcb.csv`, `cpl_jlcpcb.csv`; rotations fitted to JLCPCB's own footprints and
-      listed per part in `placement_report.csv` (135 of 136 placements; the last is the hand-soldered USB-A)
+- [x] `fab/jlcpcb/gerbers.zip`, `bom_jlcpcb.csv` (one row per LCSC number), `cpl_jlcpcb.csv`; rotations fitted to JLCPCB's
+      own footprints and listed per part in `placement_report.csv` (135 of 136 placements; the last is the hand-soldered
+      USB-A); confirmed by an independent re-computation in the review
 - [x] Everything machine- or hand-assembled by JLCPCB: SW1 and the three status LEDs on side B (Standard PCBA, both
       sides), J6 and J7 as hand-soldered THT parts, no reverse-mount parts left
-- [ ] `fab/ORDER_GUIDE.md`
-- [ ] `fab/SHOPPING_LIST.md`
-- [ ] `fab/ASSEMBLY_AND_TEST.md`
+- [x] `fab/ORDER_GUIDE.md`: every option of the order form, remarks to paste, placement check, cost estimate
+- [x] `fab/SHOPPING_LIST.md`: EU shops, article numbers, prices, baskets with shipping to Austria
+- [x] `fab/ASSEMBLY_AND_TEST.md`: print settings, bring-up tests, assembly, radio flashing
 - [x] `tools/flash_zigbee.sh`: one command flashes the Zigbee coordinator firmware from the CM4 (ROM serial boot
       loader, JTAG fallback)
-- [~] the flashing script ran end to end against a simulated radio only
+- [~] the flashing script ran end to end against a simulated radio only (author's runs and the reviewer's 20 cases)
+- [~] JLCPCB's pages behind the login (BOM / CPL matching, placement preview, final price) could not be opened; the
+      guide describes them from JLCPCB's help articles
 
 Final outputs
 - [x] Gerbers, drill, BOM, CPL, STEP, renders regenerated from the final board

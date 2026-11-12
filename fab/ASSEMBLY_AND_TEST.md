@@ -15,9 +15,10 @@ expected value below comes from the schematic (`hardware/gen/design.py`), the bo
 data sheet, not from a measurement. Values marked "estimate" are estimates. Part numbers, on-screen labels and
 software versions were read on 2026-11-12; the source is named where it matters.
 
-All positions on the board were read from `hardware/voxhub.kicad_pcb` as committed in `ce5d5a2`. If the board is
-generated again, the parts that the generator places by itself can move: D4, D6, D10, C38, C41, JP1, C13 and the
-five test pads. Their coordinates in this guide then have to be read again.
+All positions on the board were read from `hardware/voxhub.kicad_pcb` as committed in `6776424` (the board as
+rebuilt after the first review round). If the board is generated again, the parts that the generator places by
+itself can move: D4, D6, D10, C38, C41, JP1, C13 and the three test pads. Their coordinates in this guide then have
+to be read again.
 
 ## Conventions used in this guide
 
@@ -37,8 +38,9 @@ millimetres from the **left** board edge, `y` from the **rear** edge towards you
 socket is then in the rear left corner. A position is written as (x / y), for example D1 at (4.2 / 12.3).
 
 **Reference designators are not printed on the board.** Names such as D1, L1 or C38 exist only in the schematic.
-The only texts on the component side are `VoxHub CM4  rev A2`, `J5: GND TX RX` and `SPK`. Find a part by its
-coordinates, by the description in the table and by this map (1 character = 2 mm wide, 1 line = 4 mm):
+The only texts on the component side are `VoxHub CM4  rev A2`, `J5: GND TX RX`, `SPK` and the three test-pad labels
+`5V`, `3V3` and `GND`. Find a part by its coordinates, by the description in the table and by this map
+(1 character = 2 mm wide, 1 line = 4 mm):
 
 ```
         x = 0        20        40        60        80       100 mm
@@ -68,30 +70,31 @@ coordinates, by the description in the table and by this map (1 character = 2 mm
 Rendered pictures of both sides (the render shows the compute module and its heat sink already fitted):
 [component side](../hardware/outputs/render_top.png), [bare side](../hardware/outputs/render_bottom.png).
 
-**The five test pads (TP).** To the right of the microSD socket there are five bare round pads, 1.5 mm in diameter,
-arranged as a cross. They are not labelled. The centre pad is at (84.0 / 12.0).
+**The three test pads (TP).** To the right of the microSD socket there are three bare round pads, 1.5 mm in
+diameter. Each has a label printed next to it. There is no test pad for the charger voltage, on purpose: that
+voltage is measured on the large pads of D1 and of C8 / C9 (see "Probe points" in chapter 3).
 
 ```
-                     rear edge of the board
+                rear edge of the board
 
-                         TP3 (+5V)
-        TP2 (VBUS_SW)    TP1 (VBUS)      TP5 (GND)
-                         TP4 (+3V3)
-  J5: GND TX RX                              <- printed text
-        [O]         O           O            <- the three holes of J5: square = GND, then TX, then RX
+                                          GND       <- label of the rear pad: up and to the right of its pad
+                               (O)                 <- pad GND
+      3V3           (O)        (O)         5V      <- pad 3V3 (label on its left), pad 5V (label on its right)
+
+            J5: GND TX RX                          <- printed text
+                 [O]       O        O              <- the three holes of J5: square = GND, then TX, then RX
 ```
 
-| Pad | Place in the cross | (x / y) | Net | Voltage when the board runs |
-|---|---|---|---|---|
-| TP3 | rear, nearest to the board edge | (84.0 / 8.8) | +5V | 5 V |
-| TP2 | left, towards the microSD socket | (80.8 / 12.0) | VBUS_SW | 9 to 20 V |
-| TP1 | centre | (84.0 / 12.0) | VBUS | 9 to 20 V |
-| TP5 | right | (87.2 / 12.0) | GND | 0 V |
-| TP4 | front, nearest to the three holes of J5 | (84.0 / 15.2) | +3V3 | 3.3 V |
+| Pad | Printed label, and where it is | Pad at (x / y) | Label at (x / y) | Net | Voltage when the board runs |
+|---|---|---|---|---|---|
+| TP1 | `5V`, directly to the right of the pad | (84.0 / 12.0) | (87.5 / 12.0) | +5V | 5 V |
+| TP2 | `3V3`, directly to the left of the pad | (80.8 / 12.0) | (76.9 / 12.0) | +3V3 | 3.3 V |
+| TP3 | `GND`, about 3 mm to the right of the pad and 3 mm nearer to the rear edge | (84.0 / 8.8) | (87.2 / 5.6) | GND | 0 V |
 
-The centre pad carries the charger voltage (up to 20 V) and its neighbours are only 1.7 mm away. This guide
-therefore uses the cross only without power and for one measurement on TP4 (test 7). All other live measurements
-are made on large pads elsewhere.
+Read it like this: the two pads that lie side by side are `3V3` (left) and `5V` (right); the third pad, behind
+the `5V` pad, is ground. The `GND` label is not beside its pad but diagonally behind it; no other test pad is near
+that label. The pads `3V3` and `5V` are only 1.7 mm apart. A probe tip that touches both at once puts 5 V on the 3.3 V
+parts and can damage them, so the guide uses the `3V3` pad for one live measurement only (test 7).
 
 **The six LEDs**
 
@@ -104,9 +107,10 @@ are made on large pads elsewhere.
 | D8 | blue | bare side, front edge | (38.6 / 71.2) | the 5 V rail, switched by GPIO6 | software decides (status) |
 | D9 | red | bare side, front edge | (43.2 / 71.2) | the 3.3 V rail through the mute switch, no software involved | the microphones are muted |
 
-In the closed case D7, D8 and D9 shine through the top cover. D4, D6 and D10 are inside. Their glow can be seen
-through ventilation slots: D4 and D6 through the four short slots of the base next to the speaker side, D10
-through the slots of the front wall.
+In the closed case D7, D8 and D9 shine through the top cover. They are meant to look about equally bright; their
+series resistors were chosen for that (5.1 kOhm for green and 2.2 kOhm for blue from 5 V, 150 Ohm for red from
+3.3 V). D4, D6 and D10 are inside. Their glow can be seen through ventilation slots: D4 and D6 through the four
+short slots of the base next to the speaker side, D10 through the slots of the front wall.
 
 ## 1. Print the enclosure
 
@@ -130,7 +134,7 @@ The labels are those of Bambu Studio (read from its source on 2026-11-12); the d
 
 | Label in Bambu Studio | Set to | Preset default | Why |
 |---|---|---|---|
-| Filament | **Bambu PETG Basic**, white (line 11 of `fab/SHOPPING_LIST.md`); for PETG of another brand the preset **Generic PETG** | - | see 1.3 |
+| Filament | **Bambu PETG Basic**, white (the filament of `fab/SHOPPING_LIST.md`); for PETG of another brand the preset **Generic PETG** | - | see 1.3 |
 | **Bed type** | **Textured PEI Plate** | - | the PETG presets print at 70 C on this plate; the Cool Plate is not released for PETG (plate temperature 0 in the preset) |
 | **Layer height** | 0.2 | 0.2 | the diffuser skin over the LEDs is 0.4 mm = exactly two layers |
 | **Initial layer height** | 0.2 | 0.2 | same reason |
@@ -170,14 +174,14 @@ thread into printed 2.1 mm holes, and a PLA boss cracks more easily when that ha
 Use a light colour. The three LEDs shine through a 0.4 mm skin of the top cover; through black material they are
 hard to see.
 
-The filament of the shopping list is Bambu Lab PETG Basic, white, 1 kg (line 11 of `fab/SHOPPING_LIST.md`). Any
-other PETG in a light colour works with the **Generic PETG** preset.
+The filament of the shopping list is Bambu Lab PETG Basic, white, 1 kg (`fab/SHOPPING_LIST.md`, table "Required
+for one device"). Any other PETG in a light colour works with the **Generic PETG** preset.
 
 ### 1.4 Print time and filament (estimates, not sliced)
 
 | | Shell | Base | Both |
 |---|---|---|---|
-| Solid volume of the model (computed from the STL files) | 51.2 cm3 | 28.9 cm3 | 80.1 cm3 |
+| Solid volume of the model (computed from the STL files as regenerated on 2026-11-12) | 50.9 cm3 | 29.1 cm3 | 80.0 cm3 |
 | Filament, upper limit = solid volume x 1.25 g/cm3 (density in the Bambu PETG Basic preset) | 64 g | 36 g | 100 g |
 | Filament, estimate with 15 % infill in the few thick places | | | 85 to 100 g |
 | Print time, estimate (the preset limits this filament to 13 mm3/s on an A1) | | | 3.5 to 5 hours |
@@ -212,8 +216,8 @@ print (assumption).
 |---|---|---|---|
 | 1 | Shell, outside length x width x height | 158.8 x 79.2 x 28.0 mm | within 0.3 mm |
 | 2 | Base, length x width | 154.3 x 74.7 mm | the base drops into the open side of the shell without force and lies on the four posts |
-| 3 | Base plate thickness / height over the pedestal | 2.4 mm / 7.5 mm | within 0.2 mm |
-| 4 | Speaker frame inside the shell, opening | 71.2 x 31.2 mm, 3 mm high | the speaker (70 x 30 mm) drops in and has a little play |
+| 3 | Base plate thickness / height over the pedestal | 2.4 mm / 7.5 mm (the pedestal itself is 5.1 mm high) | within 0.2 mm |
+| 4 | Speaker frame inside the shell, opening | 71.3 x 31.9 mm, 3 mm high | the speaker (70.1 x 30.7 mm) drops in and has about half a millimetre of play on every side |
 | 5 | Distance between the centres of the two rear board bosses | 93.0 mm | within 0.3 mm |
 | 6 | Distance between the centres of the rear left and front left board boss | 67.0 mm | within 0.3 mm |
 | 7 | Height of the four board bosses above the inside of the top cover | 4.0 mm | within 0.2 mm, all four equal |
@@ -226,26 +230,39 @@ to the front. This is intended.
 
 ## 2. Tools and parts on the table
 
-Shops, shop article numbers and prices are in `fab/SHOPPING_LIST.md`; "line" below is the line number of that
-list. The order and the incoming inspection of the boards are in `fab/ORDER_GUIDE.md`. The part numbers were read on
-2026-11-12.
+Shops, shop article numbers and prices are in `fab/SHOPPING_LIST.md`: the parts of 2.1 in its table "Required for
+one device", the test equipment of 2.2 in its table "Optional: tools for the bring-up tests". The order and the
+incoming inspection of the boards are in `fab/ORDER_GUIDE.md`. The part numbers were read on 2026-11-12.
 
 ### 2.1 Parts for one device
 
 | Qty | Part | Identification | Used in |
 |---|---|---|---|
-| 1 | Assembled VoxHub board, revision A2 | from JLCPCB; text `VoxHub CM4  rev A2` | everything |
-| 1 | Raspberry Pi Compute Module 4 Lite with wireless, 4 GB | CM4104000 (line 1) | 3.5 |
-| 1 | Heat sink 14 x 14 x 7 mm with adhesive foil | the larger one of the set RPI-2KKS (line 3) | 3.5 |
-| 1 | microSD card | SanDisk High Endurance 64 GB (line 4) | 3.5, 3.6 |
-| 1 | Enclosed speaker 4 Ohm 3 W with JST-PH plug, 70 x 30 x 17 mm | Adafruit 3351 (line 2) | 3.5, 4 |
-| 8 | Screw M2.5 x 5, pan head, cross recess PH1, DIN 7985 | line 5 | 4 for the compute module, 4 for the board |
-| 4 | Screw M2.5 x 8, pan head, cross recess PH1, DIN 7985 | line 6 | base |
-| 4 | Self-adhesive rubber foot 8 x 3 mm | Delock 18308 (line 7) | 4 |
-| 1 | Piece of self-adhesive cellular rubber, 3 mm thick, 40 x 18 mm | cut from the sheet Jamara 059850 (line 8) | 4 |
-| 1 | USB-C PD charger 30 W | Goobay 79153 (line 9) | permanent supply; test 3 |
-| 1 | USB-C to USB-C cable, 60 W, 1 m | Shiverpeaks BS20-75025 (line 10) | |
+| 1 | Assembled VoxHub board, revision A2 | from JLCPCB; text `VoxHub CM4  rev A2`. The order brings 2 assembled boards and 3 boards without parts; only the assembled ones are used here | everything |
+| 1 | Raspberry Pi Compute Module 4 Lite with wireless, 4 GB | CM4104000 | 3.5 |
+| 1 | Heat sink 14 x 14 x 7 mm with adhesive foil | the larger one of the set RPI-2KKS | 3.5 |
+| 1 | microSD card | SanDisk High Endurance 64 GB | 3.5, 3.6 |
+| 1 | Enclosed speaker 4 Ohm 3 W, 70.1 x 30.7 x 16.5 mm, with a 2-pin plug on a lead of about 50 cm | Adafruit 3351 | 3.5, 4 |
+| 8 | Screw M2.5 x 5, pan head, cross recess PH1, DIN 7985 | | 4 for the compute module, 4 for the board |
+| 4 | Screw M2.5 x 8, pan head, cross recess PH1, DIN 7985 | | base |
+| 4 | Self-adhesive rubber foot 8 x 3 mm | Delock 18308 | 4 |
+| 1 | Piece of self-adhesive cellular rubber, 3 mm thick, 40 x 18 mm | cut from the sheet Jamara 059850 | 4 |
+| 1 | USB-C PD charger 30 W | Goobay 79153 | permanent supply; test 3 |
+| 1 | USB-C to USB-C cable, 60 W, 1 m | Shiverpeaks BS20-75025 | |
 | 1 + 1 | Printed shell and base | chapter 1 | 4 |
+
+**Check the plug of the speaker as soon as it arrives.** The header J7 on the board is a JST-PH type with 2.0 mm
+between its two pins. Adafruit and BerryBase sell the speaker with a "JST-PH" plug, and their photo shows such a
+plug, but the maker's data sheet of the speaker names the plug "XH2.54-2P", which would be a larger plug with
+2.5 mm pitch. Two checks:
+
+1. Measure the width of the white plug across the two wires. The right plug (JST-PH) is 5.8 mm wide, the wrong
+   one (XH) 7.3 mm (JST's dimensions, quoted from the notes on the speaker in `fab/SHOPPING_LIST.md`).
+2. With the board unpowered, push the plug onto J7 (white 2-pin header, text `SPK`, left board edge). It must slide
+   in with light finger pressure, one way round only, and sit firmly.
+
+If the plug does not go into the header, it is the 2.5 mm type: stop, do not force it, do not bend the pins of J7,
+do not cut anything, and return the speaker. Pull a fitting plug off again by its white body, never by the wires.
 
 Keep the 5 mm and the 8 mm screws in two separate cups. They look alike, and an 8 mm screw in the wrong place
 breaks through the top cover.
@@ -254,11 +271,11 @@ breaks through the top cover.
 
 | Item | Identification | Needed for |
 |---|---|---|
-| USB-C PD charger 20 W | Goobay 79151 (line 13) | test 4 (9 V contract) |
-| USB-C PD charger 65 W | Goobay 79155 (line 14) | test 4 (20 V contract) |
+| USB-C PD charger 20 W | Goobay 79151 | test 4 (9 V contract) |
+| USB-C PD charger 65 W | Goobay 79155 | test 4 (20 V contract) |
 | A supply that delivers only 5 V | any phone charger with a USB-A socket and a USB-A to USB-C cable, or a USB port of a PC | test 4 |
-| Digital multimeter with DC voltage, resistance and continuity ranges and pointed probes | PeakTech P 1070 (line 16) or any other | tests 2, 3, 4, 7 |
-| USB-C power meter (optional) | KWS-1902C (line 15); plugs between cable and board and shows the negotiated voltage | tests 3, 4 without probing |
+| Digital multimeter with DC voltage, resistance and continuity ranges and pointed probes | PeakTech P 1070 or any other | tests 2, 3, 4, 7 |
+| USB-C power meter (optional) | KWS-1902C; plugs between cable and board and shows the negotiated voltage | tests 3, 4 without probing |
 | USB memory stick | any | test 8 |
 | One Zigbee device, factory reset | for example a Zigbee plug or lamp | test 13 |
 | PC with a microSD card reader, Linux or Windows with WSL2 (Ubuntu) | | 3.6 |
@@ -272,7 +289,7 @@ the 65 W charger.
 
 | Tool | Note |
 |---|---|
-| Cross-recess screwdriver PH1 (line 12 of the shopping list) | for all twelve screws |
+| Cross-recess screwdriver PH1 (on the shopping list) | for all twelve screws |
 | Caliper | chapter 1.6 |
 | Drill bits 2.0 mm and 1.5 mm, used by hand | chapter 1.5 |
 | Sharp knife or scissors | windows, cellular rubber |
@@ -305,8 +322,8 @@ rests on the mute slider of the bare side and rocks a little. That is harmless a
 
 ### Probe points
 
-Use only these points. Apart from TP4 they are large pads without a dangerous neighbour. Never probe the pins of a
-chip or the small parts around them.
+Use only these points. They are large pads; the charger voltage is found on D1 and on C8 / C9 only. Never probe
+the pins of a chip or the small parts around them.
 
 | Net | Part | Touch here | (x / y) | How to recognise it |
 |---|---|---|---|---|
@@ -318,13 +335,16 @@ chip or the small parts around them.
 | +5V | C14 and C16, output capacitors | their **left** ends | (4.3 / 39.6) and (4.3 / 42.0) | the left two of four brown capacitors that form a 2 x 2 block directly in front of L1; the right ends are GND |
 | supply of one USB-A port | C38, polymer capacitor | its **left** end (the end with the printed bar) | (43.3 / 17.8) | moulded block 3.5 x 2.8 mm, the right one of two, directly in front of the USB-A socket; right end = GND |
 | supply of the other USB-A port | C41, polymer capacitor | its **rear** end (the end with the printed bar) | (40.1 / 16.9) | same kind of block, the left one, at right angles to C38; front end = GND |
-| +3V3 | TP4 | the **front** pad of the cross | (84.0 / 15.2) | see "The five test pads" above |
-| GND next to TP4 | J5, empty 3-hole footprint | the **left, square** hole | (80.0 / 21.5) | three gold holes in a row, 4 mm in front of the text `J5: GND TX RX`; the probe tip sits in the hole and cannot slip |
+| +3V3 | TP2, test pad | the round pad with the label `3V3` on its left | (80.8 / 12.0) | see "The three test pads" above; the pad `5V` is 1.7 mm to its right |
+| +5V | TP1, test pad | the round pad with the label `5V` on its right | (84.0 / 12.0) | same group of pads |
+| GND | TP3, test pad | the round pad behind the `5V` pad; its label `GND` is printed diagonally behind it | (84.0 / 8.8) | same group of pads |
+| GND next to the test pads | J5, empty 3-hole footprint | the **left, square** hole | (80.0 / 21.5) | three gold holes in a row, 4 mm in front of the text `J5: GND TX RX`; the probe tip sits in the hole and cannot slip |
 
 ### 3.1 Test 1 - visual inspection (no power)
 
-The thorough incoming inspection with a magnifier is section 10.3 of `fab/ORDER_GUIDE.md`. If you have done it, this
-test is a short repetition of the points that matter before power is applied.
+The thorough incoming inspection with a magnifier is in `fab/ORDER_GUIDE.md`, section "Incoming inspection - before
+anything is plugged in". If you have done it, this test is a short repetition of the points that matter before
+power is applied.
 
 1. Component side: the three sockets at the rear edge (USB-C, double USB-A, microSD) sit straight and flat.
 2. The two sockets for the compute module (two black strips, 100 contacts each, at y = 31 and y = 65) are clean:
@@ -339,7 +359,7 @@ test is a short repetition of the points that matter before power is applied.
 8. No part is tilted, lifted at one end ("tombstone") or missing compared with the
    [render](../hardware/outputs/render_top.png).
 
-These places are empty **on purpose**: the three holes of J5, the five test pads, six small round pads with three
+These places are empty **on purpose**: the three holes of J5, the three test pads, six small round pads with three
 holes at (36.5 / 46.0) (J8), two small pads side by side at (84.6 / 69.7) (JP1, must **not** be bridged), and one
 unpopulated tiny footprint at (3.8 / 28.2) (C13).
 
@@ -356,7 +376,7 @@ goes to the supply point. With the probes swapped the protection diodes conduct 
 |---|---|---|---|
 | VBUS to GND | D1 rear pad | D1 front pad | no continuous beep; a steady reading above 1 kOhm or "OL" |
 | +5V to GND | C14 left end | C14 right end | a beep of at most two seconds, then a reading that climbs for several seconds while 180 uF of capacitors charge; it must pass 1 kOhm |
-| +3V3 to GND | TP4 (front pad of the cross) | TP5 (right pad of the cross) | no continuous beep; a steady reading above 100 Ohm |
+| +3V3 to GND | test pad `3V3` | test pad `GND` (the pad behind the `5V` pad) | no continuous beep; a steady reading above 100 Ohm |
 | VBUS to +5V | D1 rear pad | C14 left end | no continuous beep; a steady reading above 1 kOhm or "OL" |
 
 | Expected | If not |
@@ -474,8 +494,9 @@ Card and speaker:
 
 11. Put the board back on the cardboard. Push the microSD card into the socket at the rear edge, contacts towards
     the board (label up), until it clicks. To take it out, push it in again and let it come out.
-12. Plug the speaker into J7 (white header, text `SPK`, left edge). The plug fits one way only. Lay the speaker
-    beside the board with its sound opening up, not on the board.
+12. Plug the speaker into J7 (white header, text `SPK`, left edge). The plug fits one way only and must slide in
+    without force. If it does not fit, it is the wrong plug type (see the check in 2.1): stop and do not force it.
+    Lay the speaker beside the board with its sound opening up, not on the board.
 
 Rules for the compute module:
 
@@ -486,7 +507,7 @@ Rules for the compute module:
 
 | Expected | If not |
 |---|---|
-| Module flat on four spacers, four screws seated, card clicked in, speaker plugged in | (a) The module does not go down: it is offset by one contact or rotated - lift it and start again, never use force. (b) A screw does not catch: it is not straight in the spacer - back it out and start it by hand. (c) The card does not click: it is upside down. |
+| Module flat on four spacers, four screws seated, card clicked in, speaker plugged in | (a) The module does not go down: it is offset by one contact or rotated - lift it and start again, never use force. (b) A screw does not catch: it is not straight in the spacer - back it out and start it by hand. (c) The card does not click: it is upside down. (d) The speaker plug does not go into J7: it is a plug with 2.5 mm pitch instead of the JST-PH plug with 2.0 mm - return the speaker; tests 9 to 11 can be done only with a fitting speaker. |
 
 ### 3.6 Test 6 - first boot of Home Assistant OS
 
@@ -575,20 +596,20 @@ Repeating flash patterns of D10 (Raspberry Pi documentation, read 2026-11-12; lo
 
 The 3.3 V rail is produced by the compute module and feeds the USB hub, the card, the radio and the microphones.
 
-This is the one live measurement on the test-pad cross. **The centre pad, 1.7 mm behind the pad you want, carries the
-charger voltage. A probe that touches both pads at once destroys the compute module.** Rest your hand on the desk,
-come from the front edge, and touch only the front pad.
+This is the one live measurement on the test pads. **The pad `5V` is 1.7 mm to the right of the pad `3V3`. A probe
+tip that touches both pads at once puts 5 V on the 3.3 V parts and can damage them.** Rest your hand on the desk,
+come from the left, from the side of the label `3V3`, and touch only that pad.
 
 1. The board is running (D6 on).
-2. Multimeter on DC voltage. Put the black probe into the left, square hole of J5.
-3. Touch the front pad of the cross (TP4) with the red probe.
+2. Multimeter on DC voltage, 20 V range. Put the black probe into the left, square hole of J5.
+3. Touch the pad `3V3` with the red probe.
 
 Check without a multimeter: push the mute slider to the other position and look at the bare side. In one of the
 two positions the red LED D9 lights. It is fed from the 3.3 V rail, so a lit D9 proves that the rail exists.
 
 | Expected | If not |
 |---|---|
-| 3.30 V, allowed 3.22 to 3.38 V (compute module data sheet: 3.3 V plus or minus 2.5 %) | **0 V:** you are on the wrong pad, or the module is not seated. **Below 3.2 V:** the rail is overloaded - unplug everything from the USB-A sockets and measure again; if it stays low, a part on the 3.3 V rail is faulty. **5 V:** you are on the rear pad. **9 to 20 V:** you are on the centre or the left pad - take the probe away at once. |
+| 3.30 V, allowed 3.22 to 3.38 V (compute module data sheet: 3.3 V plus or minus 2.5 %) | **0 V:** the red probe is on the pad `GND` (the pad behind the `5V` pad), or the module is not seated. **About 5 V:** the red probe is on the pad `5V`; move it one pad to the left. **Below 3.2 V:** the rail is overloaded - unplug everything from the USB-A sockets and measure again; if it stays low, a part on the 3.3 V rail is faulty. |
 
 ### 3.8 Test 8 - both USB-A ports
 
@@ -719,6 +740,15 @@ loader through GPIO25 and GPIO24, writes, verifies, restarts the radio and asks 
 boot loader does not answer, it continues on its own with a second method (JTAG through four other GPIO lines).
 The script has been run against a simulated radio only, never on a real board.
 
+Three things to know before you start:
+
+- **Every write erases the whole chip**, including the Zigbee network that a coordinator has stored. On a new board
+  there is nothing to lose. If you ever write the firmware again on a radio that already runs your network, all
+  devices have to be paired again unless you restore a backup of ZHA or Zigbee2MQTT.
+- If the script is stopped or fails after it has touched the radio, it restarts the radio by itself and says so:
+  `The radio was restarted (reset pulse on GPIO24) so that it is not left in reset or in its bootloader.`
+- `--probe-only` only asks the radio which firmware answers. It downloads no firmware and drives no GPIO line.
+
 **Path 1 (use this one): from Home Assistant OS**
 
 1. No Zigbee integration may use the radio yet. On a fresh installation none does.
@@ -734,21 +764,27 @@ The script has been run against a simulated radio only, never on a real board.
    file is reachable under this address. Once revision A2 has been merged, replace
    `claude/voxhub-cm4-a2-production-t2luce` in the address by `main`.) The script must be a file; piping the
    download straight into `bash` does not work, because the script copies itself into a container.
-3. Run it, without any option:
+3. Rehearsal without touching the radio:
+
+   ```
+   bash flash_zigbee.sh --dry-run
+   ```
+
+   The script fetches a small Debian system (`debian:bookworm-slim`), runs itself inside it, installs its tools,
+   downloads and checks the flashing tool and the firmware and prints every hardware step as a line that contains
+   `[dry-run] would`.
+   It must end with `Dry run finished. No GPIO was driven and nothing was written to the radio.` If it does, the
+   terminal app, `docker` and the internet connection are in order.
+4. Write the firmware. Run the script without any option:
 
    ```
    bash flash_zigbee.sh
    ```
 
-4. Wait for the line that starts with `SUCCESS`. The research estimates one to two minutes: the script first
-   fetches a small Debian system (`debian:bookworm-slim`) and runs itself inside it.
+5. Wait for the line that starts with `SUCCESS`. The research estimates one to two minutes.
 
-Do not use the option `--dry-run` on Home Assistant OS: read from the script, it stops there with
-`ERROR: The dry run needs python3 to unpack and check the firmware.` To ask the radio which firmware it runs
-without writing anything, use `bash flash_zigbee.sh --probe-only`.
-
-Expected output on Home Assistant OS, put together from the messages in the script (not captured on a real board;
-`...` stands for the output of the package installation and of the flashing tool):
+Expected output of step 4 on Home Assistant OS, put together from the messages in the script (not captured on a
+real board; `...` stands for the output of the package installation and of the flashing tool):
 
 ```
 ==> Starting a temporary debian:bookworm-slim container that has access to the serial port and the GPIOs
@@ -803,14 +839,18 @@ Zigbee2MQTT (configuration.yaml):
     adapter: zstack
 ```
 
-Two places can look different on your board without being a fault. Under the heading
-`Asking the radio which firmware it runs now` the script names a firmware if the module was delivered with one.
-And if the boot loader does not answer, the
-lines `The bootloader did not answer at 500000 baud.` and `The bootloader did not answer at 115200 baud.` are followed
-by the section `Writing the firmware through JTAG (OpenOCD bit-bang on GPIO22, 23, 7 and 17)`, which must end with
-`OpenOCD wrote and verified the image.`
+Three places can look different on your board without being a fault:
 
-The options of the script, as printed by `bash tools/flash_zigbee.sh --help` on 2026-11-12:
+- Under the heading `Asking the radio which firmware it runs now` the script names a firmware if the module was
+  delivered with one.
+- If the boot loader does not answer, the lines `The bootloader did not answer at 500000 baud.` and
+  `The bootloader did not answer at 115200 baud.` are followed by `The serial bootloader is not reachable.` and by
+  the section `Writing the firmware through JTAG (OpenOCD bit-bang on GPIO22, 23, 7 and 17)`, which must end with
+  `OpenOCD wrote and verified the image.`
+- If the radio already runs this firmware, the script writes nothing and says
+  `The wanted firmware is already installed. Use --force to write it again.` Go on with test 13.
+
+The options of the script, as printed by `bash tools/flash_zigbee.sh --help` on 2026-11-12 (commit `6776424`):
 
 ```
 flash_zigbee.sh - write firmware to the VoxHub radio module (RF-BM-2652P2, TI CC2652P)
@@ -828,6 +868,9 @@ Options:
                       jtag: OpenOCD bit-bang JTAG only (erases the whole chip first)
   --port PATH         serial port of the radio (default /dev/ttyAMA4)
   --force             write even if the wanted firmware already answers
+                      Every write erases the whole chip, including a coordinator's stored
+                      Zigbee network: the devices must be paired again unless a ZHA or
+                      Zigbee2MQTT backup is restored.
   --probe-only        only report which firmware answers on the serial port
   --container         run inside a Debian container even if this system has apt-get
   --dry-run           show every step, download and check the files, touch no hardware
@@ -837,8 +880,11 @@ Board wiring used: UART4 on GPIO8/9, GPIO24 high = radio in reset, GPIO25 low at
 reset = ROM bootloader, JTAG TMS GPIO22, TCK GPIO23, TDO GPIO17, TDI GPIO7.
 ```
 
-What the download and checking part really prints was captured with `bash tools/flash_zigbee.sh --dry-run` on a PC
-on 2026-11-12 (no board connected; the three downloads and all checksums were correct on that day):
+What the script really prints up to the point where it would touch the hardware was captured with
+`bash tools/flash_zigbee.sh --dry-run` on a PC on 2026-11-12 (commit `6776424`, no board connected; the downloads
+and all checksums were correct on that day). On Home Assistant OS the first lines are those of the container
+(`Starting a temporary ... container`, `Running inside the temporary container.`, `Installing: ...`) instead of
+`Running directly on this system`:
 
 ```
 Running directly on this system (apt-get is available).
@@ -865,7 +911,7 @@ CC1352P2_CC2652P_launchpad_coordinator_20250321.hex SHA256 matches: c2d3a05fe714
 Using /dev/ttyAMA4
 
 ==> Selecting how to drive GPIO24 (reset) and GPIO25 (bootloader strap)
-GPIO method: dry-run 
+GPIO method: dry-run
 
 ==> Asking the radio which firmware it runs now
   [dry-run] would ask the radio on /dev/ttyAMA4 which firmware it runs (looking for: any)
@@ -915,16 +961,27 @@ On Raspberry Pi OS the output starts with `Running directly on this system (apt-
 container lines. The USB-A sockets do not work under Raspberry Pi OS with this card; that is expected (the line
 `otg_mode=1` is not set there).
 
-| Expected | If the script prints this instead | Do this |
+**If the script does not end with `SUCCESS`**
+
+Nothing is written to the radio before the section `Writing the firmware ...` starts. Every message below is quoted
+from the script.
+
+| The script prints | What it means | Do this |
 |---|---|---|
-| `SUCCESS: the radio runs the Zigbee coordinator firmware 20250321.` | `This looks like Home Assistant OS, but the docker command does not work here.` | switch **Protection mode** off on the **Info** tab of the terminal app, restart the app, run the script again |
-| | `The serial port /dev/ttyAMA4 is in use by:` | an integration already uses the radio: disable Zigbee Home Automation or stop Zigbee2MQTT, run the script, enable it again |
-| | `The serial port /dev/ttyAMA4 does not exist.` | the line `dtoverlay=uart4` is missing: the card was not made with `os/build-image.sh` from the A2 branch |
-| | `Could not download ... with the expected checksum. Nothing was written to the radio.` | no internet access, or a file was changed at its source; nothing has happened to the radio; try again later |
-| | `The serial bootloader is not reachable.` followed by lines about JTAG | nothing to do: the script continues with the second method by itself |
-| | `Neither the serial bootloader nor JTAG could program the radio.` | the radio does not react on any path: (a) run the script once more after a power cycle; (b) the module or one of its control lines is not soldered - report the board. A locked chip needs a TI XDS110 probe on the pads J8, which is outside this guide |
-| | `The firmware was written and verified, but it does not answer on /dev/ttyAMA4.` | wait a minute and run `bash flash_zigbee.sh --probe-only`; if it still does not answer, report the board |
-| | `WARNING: GPIO25 reads low although it is released.` | the pull-up resistor of the boot strap (R45, 2.2 kOhm) is missing or the line is shorted - report the board |
+| `This looks like Home Assistant OS, but the docker command does not work here.` | protection mode of the terminal app is on | switch **Protection mode** off on the **Info** tab of the terminal app, restart the app, run the script again |
+| `ERROR: The temporary container could not be started (docker exit status ...).` | the Debian image could not be fetched from Docker Hub or started | check the internet connection of the board and run the script again; nothing was written |
+| `The serial port /dev/ttyAMA4 is in use by:` | an integration already uses the radio | disable Zigbee Home Automation or stop Zigbee2MQTT, run the script, enable it again |
+| `The serial port /dev/ttyAMA4 does not exist.` | the line `dtoverlay=uart4` is missing | the card was not made with `os/build-image.sh` from the A2 branch: make it again (3.6 part A) |
+| `Could not download ... with the expected checksum. Nothing was written to the radio.` | no internet access, or a file was changed at its source | try again later; nothing has happened to the radio |
+| `Could not drive GPIO24.` or `Could not drive GPIO25. Another program or driver is using this line.` | helper programs of an earlier run that was killed still hold the line | on Home Assistant OS restart the board with `ha host reboot` and run the script again; on Raspberry Pi OS run `sudo pkill gpioset` first |
+| `The serial bootloader is not reachable.` followed by `Falling back to JTAG.` | the module was delivered with a firmware that keeps its boot loader closed | nothing to do: the script continues with the second method by itself |
+| `cc2538-bsl could not write the firmware through the serial bootloader (see the messages above). Falling back to JTAG.` | the boot loader answered but the write failed | nothing to do at once: the script continues with JTAG. If that fails too, copy the messages above this line into your report |
+| `Neither the serial bootloader nor JTAG could program the radio.` | the radio reacts on neither path | (a) shut down, unplug, plug in, run the script once more; (b) the module or one of its control lines is not soldered - report the board. A locked chip needs a TI XDS110 probe on the pads J8, which is outside this guide |
+| `The firmware was written and verified, but it does not answer on /dev/ttyAMA4.` followed by `The UART itself works ...` | written through the serial boot loader, but the new firmware is silent | make sure no integration uses the port, wait a minute, run `bash flash_zigbee.sh --probe-only`; if it still does not answer, report the board |
+| `The firmware was written and verified, but it does not answer on /dev/ttyAMA4.` followed by `Check the UART wiring ...` | written through JTAG; the serial lines between compute module and radio do not work | report the board |
+| `WARNING: GPIO25 reads low although it is released. The radio will stay in its bootloader.` and `Check the 2.2k pull-up R45 on the ZB_BOOT net.` | the pull-up resistor R45 of the boot strap is missing or the line is shorted | report the board |
+| `The radio was restarted (reset pulse on GPIO24) so that it is not left in reset or in its bootloader.` | the run was stopped or failed after it had touched the radio; the radio runs again with whatever it contains | read the `ERROR` line above it and act on that |
+| `The radio could not be restarted. If it does not answer afterwards, switch the board off and on again.` | the same, but the restart did not work | `ha host shutdown`, wait 30 seconds, unplug the charger, plug it in again |
 
 ### 3.13 Test 13 - add the radio to Home Assistant (ZHA) and pair one device
 
@@ -983,7 +1040,7 @@ Board number: ______  Date: ______
 | 5 | Heat sink, compute module, card, speaker fitted | module flat, 4 screws | | [ ] |
 | 6a | First boot: D10 | flickers irregularly | | [ ] |
 | 6b | First boot: web page | reachable on port 8123 | | [ ] |
-| 7 | +3V3 at TP4 | 3.22 to 3.38 V | | [ ] |
+| 7 | +3V3 at the test pad `3V3` | 3.22 to 3.38 V | | [ ] |
 | 8a | USB stick, upper socket | `/dev/sda` appears | | [ ] |
 | 8b | USB stick, lower socket | `/dev/sda` appears | | [ ] |
 | 9a | Sound card | `snd_rpi_googlevoicehat_soundcar` listed | | [ ] |
@@ -1040,18 +1097,21 @@ an 8 mm screw comes out through the top cover.
    high). It covers the pedestal completely.
 3. Put the base aside.
 
-The model leaves 1.5 mm between the pedestal and the back of the speaker. The 3 mm pad is squeezed to half its
-thickness and holds the speaker against the top cover. If the base cannot be pressed flat onto its posts with two
-fingers in step 4.7, the pad is too stiff: cut it down to 20 x 18 mm and stick it in the middle of the pedestal.
+In the closed case the top of the pedestal is 2.0 mm away from the back of the speaker (1.5 to 2.5 mm, because the
+height of the speaker is 16.5 mm plus or minus 0.5 mm). The 3 mm pad is therefore squeezed by about a third and
+holds the speaker against the top cover. If the base cannot be pressed flat onto its posts with two fingers in
+step 4.7, the pad is too stiff: cut it down to 20 x 18 mm and stick it in the middle of the pedestal.
 
 ### 4.3 Speaker into its frame
 
-1. On the inside of the top cover, in the left bay, is a low rectangular frame (opening 71.2 x 31.2 mm, 3 mm high)
+1. On the inside of the top cover, in the left bay, is a low rectangular frame (opening 71.3 x 31.9 mm, 3 mm high)
    around the oblong grille.
-2. Lay the speaker into the frame with its **sound opening down, towards the grille**. The closed back of the
-   speaker box faces you.
-3. If the lead leaves the speaker at one of its ends, turn that end to the rear wall (away from you).
-4. The speaker lies flat on the top cover and cannot slide.
+2. Look at the speaker: the lead leaves the box in the middle of one of its two short end faces. Turn the speaker
+   so that **this end points to the rear wall**, the wall with the three windows, away from you.
+3. Lay the speaker into the frame with its **sound opening down, towards the grille**. The closed back of the
+   speaker box faces you. The four holes in the corners of the speaker are not used.
+4. The speaker lies flat on the top cover and has about half a millimetre of play on every side. The sound opening
+   is not in the middle of the speaker (about 3 mm off centre); the grille is long enough for that.
 
 ### 4.4 Board onto the bosses - 4 x M2.5 x 5
 
@@ -1075,28 +1135,36 @@ No foam rings are fitted on the two microphone tubes in this build. The tubes en
 
 ### 4.5 Speaker lead
 
-The lead is 57 cm long; the way from the speaker to J7 is about 5 cm. The rest has to be stored where it cannot be
-pinched and does not lie on the electronics.
+The lead is about 50 cm long; the way from the speaker to J7 is much shorter. The rest has to be stored where it
+cannot be pinched, where the foam pad does not press on it and where it is far from the antenna of the radio
+module, which is at the front edge of the board. That place is the **rear half of the speaker bay**, the half
+next to the USB sockets.
 
-1. If the plug is not in J7: plug it in (white header, text `SPK`, at the left edge of the board). It fits one way.
+1. If the plug is not in J7: plug it in (white header, text `SPK`, at the left edge of the board). It fits one way
+   and without force (check in 2.1).
    **Polarity does not matter:** there is only one speaker, and the amplifier drives both wires in opposite
    directions (a bridge output), so neither wire is ground. For the same reason never let a speaker wire touch
    ground or any metal part of the board.
-2. Starting at the speaker, fold the surplus lead back and forth into a bundle about 45 mm long (about ten layers).
-   Leave about 10 cm free at the plug end. Hold the bundle together with a strip of adhesive tape or a cable tie.
-3. Stand the bundle on edge in the gap between the speaker and the **left** side wall and push it towards the
-   **rear** corner post. That gap is about 7 mm wide and 60 mm long between the two corner posts. The surplus
-   belongs in the rear half of the bay, away from the front wall: the antenna of the radio module is at the front
-   edge of the board.
-4. Lead the free end forward along the same gap, then across the back of the speaker about 15 mm from its front
-   end, straight towards J7. Do not lead it across the middle 40 mm of the speaker: the pedestal of the base
-   presses there.
-5. Check: no wire lies on the end face of a corner post, on the rim of the shell, on the inductor or on the
-   compute module.
+2. The lead leaves the rear end face of the speaker in the narrow space in front of the rear wall. The corner post
+   stands close to the corner of the speaker there, so do not squeeze the lead past the post. Lead it up and over
+   the rear end of the speaker's back, within the first 10 mm (the foam pad begins 13 mm from this end), into the
+   gap between the speaker and the **left** side wall.
+3. Fold the surplus back and forth into a bundle about 30 mm long (about eleven layers). Leave about 12 cm free at
+   the plug end. Hold the bundle together with a strip of adhesive tape or a cable tie.
+4. Stand the bundle on edge in that gap, pushed against the **rear** corner post. The gap is about 7 mm wide. The
+   bundle must not reach further forward than the middle of the speaker.
+5. Lead the free end forward along the same gap and then across the back of the speaker **about 8 mm from the
+   front end of the speaker box**, straight towards J7. The foam pad of the base ends 13 mm from that end, so the
+   lead passes 5 mm in front of the pad. Do not lead it across the speaker anywhere further back: the pad would
+   press on it.
+6. Check: no wire lies on the end face of a corner post, on the rim of the shell, under the place of the foam pad
+   (the middle 40 mm of the speaker's back), on the inductor or on the compute module, and no slack lies along
+   the front wall.
 
 ### 4.6 Last look before closing
 
 - Card clicked in; you can see its edge in the microSD window.
+- Speaker plug fully in J7; the lead lies as described in 4.5.
 - Heat sink firmly on the processor.
 - Four screws in the compute module, four in the board.
 - No loose screw, no cut-off plastic, no tool inside.
@@ -1166,11 +1234,12 @@ charger). 20 V DC is not dangerous to touch. The dangers are different ones:
 
 | Net | Parts | Area |
 |---|---|---|
-| VBUS | USB-C socket J1, diode D1, capacitors C1 and C2, load switch Q1, PD controller U1, test pad TP1 (centre of the cross) | rear left, x below 26, y below 22; and the single pad at (84.0 / 12.0) |
-| VBUS_SW | capacitors C8, C9, C10, regulator U2, test pad TP2 (left pad of the cross) | left edge, y 17 to 30; and the single pad at (80.8 / 12.0) |
-| switching node, jumps between 0 V and the charger voltage 400,000 times per second | right terminal of the inductor L1, regulator U2 | left edge, y 22 to 37 |
+| VBUS | USB-C socket J1, diode D1, capacitors C1 and C2, load switch Q1, PD controller U1 | rear left corner: x below 19, y 7 to 15 |
+| VBUS_SW | load switch Q1, capacitors C8, C9, C10, regulator U2, PD controller U1 | x 4 to 23, y 14 to 24 |
+| switching node, jumps between 0 V and the charger voltage 400,000 times per second | right terminal of the inductor L1, regulator U2 | x 9 to 12, y 28 to 37 |
 
-Everything else on the board carries 5 V or 3.3 V.
+Everything else on the board carries 5 V or 3.3 V. The three test pads carry 5 V, 3.3 V and ground; there is no
+test pad with the charger voltage.
 
 **Rules**
 
@@ -1195,7 +1264,7 @@ No hardware exists yet, so nothing in this guide has been tried on a real board.
 
 - All voltages, resistances, LED states and times in chapter 3. The resistance values of test 2, the "one second"
   in test 3, the ten minutes in test 6 and the playback volumes in test 9 are estimates.
-- The positions of parts were read from the board file of commit `ce5d5a2`. They have to be read again if the
+- The positions of parts were read from the board file of commit `6776424`. They have to be read again if the
   board is generated again (see the note at the top).
 - The allowed ranges for VBUS (5 % around the contract voltage; 4.75 to 5.5 V without a contract) are the general
   USB limits, not values from the project's research notes.
@@ -1214,7 +1283,9 @@ No hardware exists yet, so nothing in this guide has been tried on a real board.
   answer of the real firmware, the JTAG fallback and the access to `docker`, `/dev/ttyAMA4` and the GPIO lines from
   the terminal app of Home Assistant OS are untested. It is not known whether RF-star delivers the module empty or
   with a firmware; that decides whether the first write goes through the serial boot loader or through JTAG.
-- That `--dry-run` fails on Home Assistant OS was read from the script, not tried.
+- That `--dry-run` works inside the container of Home Assistant OS, that `--probe-only` touches no GPIO line and
+  that a stopped run restarts the radio was read from the revised script (commit `6776424`) and, according to
+  DECISIONS.md, tried against the simulator; none of it was tried on Home Assistant OS.
 - The Home Assistant OS image made by `os/build-image.sh repack` was built and inspected (os/README), never booted.
   The import of the Wi-Fi profile was read from the source of Home Assistant OS; Wi-Fi names or passwords with
   unusual characters, the use under WSL2 and the duration of the first start over Wi-Fi are untested.
@@ -1231,9 +1302,12 @@ No hardware exists yet, so nothing in this guide has been tried on a real board.
 
 - Print time and filament are estimates from the volume of the models; nothing was sliced.
 - No test print exists. Whether an M2.5 machine screw holds in the printed 2.1 mm holes in PETG, and how much force
-  a 40 x 18 mm pad of 3 mm cellular rubber needs to be squeezed to 1.5 mm, is untested.
-- The Adafruit 3351 speaker is known from its catalogue data only (70 x 30 x 17 mm, 57 cm lead). Where the lead
-  leaves the box, how thick it is and whether the bundle fits into the 7 mm gap is unknown.
+  a 40 x 18 mm pad of 3 mm cellular rubber needs to be squeezed from 3 mm to 2 mm, is untested.
+- **The plug of the speaker.** The dimensions of the Adafruit 3351 come from its maker's data sheet (C5282-001,
+  read on 2026-11-12: 70.11 x 30.72 mm, 16.5 mm high, lead 500 mm of AWG 26 wire leaving one short end). That sheet
+  names the plug "XH2.54-2P"; Adafruit and BerryBase sell the speaker with a JST-PH plug of 2.0 mm pitch, which is
+  what J7 needs. Which plug is really fitted is known only when the speaker is on the table (check in 2.1).
+- Whether the folded bundle of the lead fits into the 7 mm gap beside the speaker has not been tried.
 - The lips of the USB-A socket flange are scaled from the drawing rather than dimensioned, and the drawing of the
   mute switch gives no tolerance for its body (enclosure/README.md).
 - The Bambu Lab EU store could not be read on 2026-11-12 (research notes). The filament named here is the one
