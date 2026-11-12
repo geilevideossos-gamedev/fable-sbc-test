@@ -275,13 +275,13 @@ write_back_boot() {
         MTOOLS_SKIP_CHECK=1 mmd -D s -i "${LOOP}p1" "::$(dirname "/$path")" 2>/dev/null || true
         MTOOLS_SKIP_CHECK=1 mcopy -o -p -i "${LOOP}p1" "$ROOT/boot/firmware/$path" "::/$path"
         count=$((count + 1))
-    done < <(comm -13 "$WORK/boot-before.sha256" "$WORK/boot-after.sha256" | sed 's/^[0-9a-f]*  //')
+    done < <(LC_ALL=C comm -13 <(LC_ALL=C sort "$WORK/boot-before.sha256") <(LC_ALL=C sort "$WORK/boot-after.sha256") | sed 's/^[0-9a-f]*  //')
     while IFS= read -r path; do
         path="${path#./}"
         [ -e "$ROOT/boot/firmware/$path" ] && continue
         MTOOLS_SKIP_CHECK=1 mdel -i "${LOOP}p1" "::/$path"
         count=$((count + 1))
-    done < <(comm -23 "$WORK/boot-before.sha256" "$WORK/boot-after.sha256" | sed 's/^[0-9a-f]*  //')
+    done < <(LC_ALL=C comm -23 <(LC_ALL=C sort "$WORK/boot-before.sha256") <(LC_ALL=C sort "$WORK/boot-after.sha256") | sed 's/^[0-9a-f]*  //')
     log "boot partition: $count file(s) written back"
     find "$ROOT/boot/firmware" -mindepth 1 -delete
 }
