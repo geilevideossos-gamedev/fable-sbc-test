@@ -23,13 +23,16 @@ Parametric CadQuery model of the VoxHub CM4 case: `voxhub_enclosure.py`.
     microSD (14.0 x 7.2 including the finger notch, centred on the card, not on the socket body);
   - two microphone chimneys: 5 mm tube from the top plate down to the PCB, 1.5 mm bore, total acoustic path
     1.6 (PCB) + 4.0 + 2.0 = 7.6 mm;
-  - three LED light pipes above the reverse-mount LEDs, closed by a 0.4 mm skin that acts as a diffuser;
+  - three LED light pipes (3 mm bores) over the status LEDs, which sit on the PCB side that faces the top; closed by a
+    0.4 mm skin that acts as a diffuser;
   - slot (6.4 x 2.6 mm) + finger dish (16 x 10 x 1.4 mm) for the mute slider (SW1 is on the PCB side that faces the top);
     the slider stands 0.9..1.0 mm proud of the dish floor and stays 0.4..0.5 mm below the outer surface;
-  - four PCB bosses (2.1 mm pilot for 2.5 mm thread-forming screws) and four base posts;
-  - speaker locating ring (40.8 mm for the 40 +-0.3 mm frame) + grille with a 1 mm deep, 35.6 mm wide relief in front of
-    the cone (the speaker's mounting notice asks for at least 0.8 mm); a 13..21 mm ring pedestal on the base clamps the
-    23 mm yoke through a foam pad;
+  - four PCB bosses and four base posts with 2.1 mm pilot holes: M2.5 machine screws form their own thread in them
+    (thread-forming 2.5 mm screws for plastic work as well, but are hard to buy in small packs);
+  - speaker: rectangular locating frame (71.3 x 31.9 mm inside, 3 mm high) for the 70.1 x 30.7 mm flange of the Adafruit
+    3351 enclosed speaker, oblong grille (46 x 24 mm) with a 1 mm deep relief in front of the cone; a flat pedestal
+    (40 x 18 mm) on the base clamps the back of the speaker box through a foam pad. The speaker comes with a JST-PH plug
+    on a lead of about 50 cm - nothing is soldered;
   - vents: base slots under the CM4 and the power stage, wall slots next to the CM4.
 
 ## Printing (Bambu Lab X1 / P1 / A1, 0.4 mm nozzle)
@@ -51,16 +54,22 @@ should be clearly visible.
 
 ## Assembly
 
-1. Stick 0.5 mm foam rings (5 mm OD / 2 mm ID) on the two microphone chimneys (acoustic seal).
-2. Fit the CM4 on the carrier (4 x M2.5 x 5 into the SMT spacers), stick the heat sink on the SoC, insert the SD card.
-3. Solder 80 mm leads to the speaker, crimp/plug the JST-PH housing; drop the speaker into its ring (cone down in
-   print orientation, i.e. facing the grille).
-4. The PCB cannot be lowered straight onto the bosses: the stacked USB-A connector overhangs the board edge by 2.5 mm and
+The complete procedure with tests is in [`../fab/ASSEMBLY_AND_TEST.md`](../fab/ASSEMBLY_AND_TEST.md). In short:
+
+1. Fit the CM4 on the carrier (4 x M2.5 x 5 into the SMT spacers), stick the heat sink on the SoC, insert the SD card.
+2. Lay the shell upside down. Drop the speaker into its frame, cone towards the grille. Fold the lead into a loose
+   bundle in the rear half of the speaker bay (the half with the USB sockets), away from the front wall: the radio
+   antenna is at the front edge of the PCB.
+3. The PCB cannot be lowered straight onto the bosses: the stacked USB-A connector overhangs the board edge by 2.5 mm and
    its flange reaches 1.9 mm into the rear wall. Hold the PCB component side towards you with the front edge raised,
    push the rear connectors (USB-A, USB-C, microSD) into their windows first, then swing the front edge down onto the four
-   bosses. Make sure the mute slider enters its slot, fasten with 4 x 2.5 x 6 mm thread-forming screws. Plug the speaker
-   into J7.
-5. Put the foam pad on the base pedestal, close the base, fasten with 4 x 2.5 x 8 mm screws, stick on the feet.
+   bosses. Make sure the mute slider enters its slot, fasten with 4 x M2.5 x 5. Plug the speaker into J7 (either way
+   round: the amplifier output is bridge-tied).
+4. Stick a 40 x 18 mm piece of 3 mm cellular rubber on the base pedestal, close the base, fasten with 4 x M2.5 x 8,
+   stick the four 8 mm feet into their recesses.
+
+Optional: 0.5 mm foam rings (5 mm outside, 2 mm hole) on the two microphone chimneys improve the acoustic seal. With the
+closed speaker box they are not needed for a first build.
 
 ## Verification
 
@@ -72,16 +81,18 @@ should be clearly visible.
 ## Dimensions checked against the manufacturer drawings
 
 Revision A assumed three part dimensions; they were checked against the drawings on 2026-11-11 (sources in
-DECISIONS.md section 9) and the constants at the top of `voxhub_enclosure.py` were updated:
+DECISIONS.md section 9) and the constants at the top of `voxhub_enclosure.py` were updated. Revision A2 changed the
+speaker and the heat sink:
 
 | Part | Drawing says | Model |
 |---|---|---|
 | Wurth 61400826021 (stacked USB-A) | shell 13.1 x 17.0 mm, 15.34 mm high; front flange 14.5 +-0.2 x 15.5 +-0.2 with lips 0.45 and 15.95 mm above the PCB; front face 2.5 mm beyond the PCB edge | overhang 2.5 mm confirmed; window 15.6 x 17.0 mm (was 15.2 x 16.5); 2.4 mm left to the base at maximum material |
 | GCT USB4105-GF-A (USB-C) | shell 8.94 x 3.31 mm, ends flush with the PCB edge, i.e. 2.6 mm inside the wall | window 13.4 x 7.5 mm so that a 12.35 x 6.5 mm plug overmould can enter (was 12.4 x 6.3) |
 | C&K JS202011JCQN (mute switch) | body 9.0 x 3.6 x 3.5 mm, actuator 1.5 x 1.5 mm, 2.0 mm high, 2 mm travel | `GAP_TOP` = 4.0 mm confirmed; dish 16 x 10 x 1.4 mm |
-| Same Sky CMS-4017-34SP (speaker) | dia 40 +-0.3, depth 17.5 +-0.3, yoke dia 23, baffle opening dia 35.6 with >= 0.8 mm free in front of the diaphragm | ring 40.8 mm, relief 35.6 x 1.0 mm, pedestal 13..21 mm; terminals sit 4..8.8 mm behind the flange, clear of the 3 mm ring |
+| Adafruit 3351 (speaker, revision A2) | maker's data sheet C5282-001 linked from the Adafruit product page: flange 70.11 x 30.72 mm (+-0.3), height 16.5 +-0.5 mm, box 66.1 mm long, holes 3.4 mm on 24.11 x 63.79 mm, cone opening 38.5 x 26.8 mm about 3 mm off centre, lead 500 mm leaving one short end 8 mm below the front face. The sheet names the plug "XH2.54-2P", Adafruit and BerryBase say JST-PH 2.0 mm (the photo shows a PH housing) | frame 71.3 x 31.9 mm (0.6 mm clearance per side), grille and relief long enough for the cone offset in either direction, pedestal top 18.5 mm below the top plate (16.5 mm speaker + 2.0 mm compressed foam) |
 | Hirose DM3AT (microSD) | card centre 0.425 mm off the body centre; locked card 1.6 mm behind the outer wall face | window shifted by 0.425 mm; eject = push the card in by 0.8 mm with a fingernail |
-| CM4 + heat sink | SoC 2.378 +-0.11 mm, centre 31.99 / 16.98 mm from the module edges; 1.5 mm stack | heat sink position corrected in the fit model; 6.7 mm left under the heat sink |
+| CM4 + heat sink | SoC 2.378 +-0.11 mm, centre 31.99 / 16.98 mm from the module edges; 1.5 mm stack | heat sink 14 x 14 x 7 mm in the fit model; 5.8 mm left under it |
 
-Still to be measured on real parts: the USB-A flange lips were scaled from the drawing (not dimensioned), and the C&K
-drawing has no body tolerance. A first test print for fit is still the right next step.
+Still to be checked on real parts: the plug of the speaker (it must be a JST-PH with 2.0 mm pitch to fit J7 - see the
+table), the USB-A flange lips (scaled from the drawing, not dimensioned) and the C&K body (no tolerance in the drawing).
+A first test print for fit is still the right next step.

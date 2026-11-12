@@ -1,44 +1,23 @@
 ** Drc report for voxhub.kicad_pcb **
-** Created on 2026-11-11T17:47:15+0000 **
+** Created on 2026-11-12T10:55:50+0000 **
 ** Report includes: Errors, Warnings, Exclusions **
 
-** Found 10 DRC violations **
-[silk_edge_clearance]: Silkscreen clipped by board edge
-    Rule: board setup constraints silk; warning
-    @(103.0000 mm, 60.0000 mm): Segment on Edge.Cuts
-    @(128.9400 mm, 66.0300 mm): Segment of J6 on F.Silkscreen
-[silk_edge_clearance]: Silkscreen clipped by board edge
-    Rule: board setup constraints silk; warning
-    @(103.0000 mm, 60.0000 mm): Segment on Edge.Cuts
-    @(141.5600 mm, 58.0600 mm): Segment of J6 on F.Silkscreen
-[silk_edge_clearance]: Silkscreen clipped by board edge
-    Rule: board setup constraints silk; warning
-    @(197.0000 mm, 134.0000 mm): Segment on Edge.Cuts
-    @(117.4000 mm, 134.1500 mm): Segment of U11 on F.Silkscreen
-[silk_edge_clearance]: Silkscreen clipped by board edge
-    Rule: board setup constraints silk; warning
-    @(197.0000 mm, 134.0000 mm): Segment on Edge.Cuts
-    @(130.6000 mm, 134.1500 mm): Segment of U11 on F.Silkscreen
-[footprint_type_mismatch]: Footprint component type doesn't match footprint pads (expected 'Through hole'; actual 'SMD')
+** Found 5 DRC violations **
+[lib_footprint_mismatch]: Footprint 'C_0402_1005Metric' does not match copy in library 'Capacitor_SMD'.
     Local override; warning
-    @(108.5000 mm, 85.5000 mm): Footprint U2
+    @(103.7900 mm, 88.2000 mm): Footprint C13
+[lib_footprint_mismatch]: Footprint 'USB_A_Wuerth_61400826021_Horizontal_Stacked' does not match copy in library 'Connector_USB'.
+    Local override; warning
+    @(138.7500 mm, 73.1100 mm): Footprint J6
+[lib_footprint_mismatch]: Footprint 'microSD_HC_Hirose_DM3AT-SF-PEJM5' does not match copy in library 'Connector_Card'.
+    Local override; warning
+    @(156.0000 mm, 68.7000 mm): Footprint J4
 [lib_footprint_mismatch]: Footprint 'USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal' does not match copy in library 'Connector_USB'.
     Local override; warning
     @(113.0000 mm, 63.6700 mm): Footprint J1
-[silk_over_copper]: Silkscreen clipped by solder mask
+[footprint_type_mismatch]: Footprint component type doesn't match footprint pads (expected 'Through hole'; actual 'SMD')
     Local override; warning
-    @(113.0000 mm, 69.2000 mm): PCB text 'USB-C PD 9-20V' on F.Silkscreen
-[silk_over_copper]: Silkscreen clipped by solder mask
-    Local override; warning
-    @(122.0000 mm, 103.2000 mm): PCB text 'github.com/geilevideossos-gamedev/fable-sbc-test' on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(114.5422 mm, 69.2700 mm): Segment of C6 on F.Silkscreen
-    @(113.0000 mm, 69.2000 mm): PCB text 'USB-C PD 9-20V' on F.Silkscreen
-[silk_overlap]: Silkscreen overlap
-    Rule: board setup constraints silk; warning
-    @(122.0000 mm, 103.2000 mm): PCB text 'github.com/geilevideossos-gamedev/fable-sbc-test' on F.Silkscreen
-    @(109.7887 mm, 102.9100 mm): Segment of C17 on F.Silkscreen
+    @(108.5000 mm, 85.5000 mm): Footprint U2
 
 ** Found 0 unconnected pads **
 

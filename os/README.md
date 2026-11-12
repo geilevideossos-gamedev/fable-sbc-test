@@ -48,7 +48,7 @@ describe it completely:
 |---|---|---|
 | USB hub / USB-A | `otg_mode=1` (in `[cm4]`) | xHCI host on the CM4 USB2 pins |
 | Microphones + speaker | `dtoverlay=googlevoicehat-soundcard` | ALSA card `sndrpigooglevoi`, capture + playback, amp enable on GPIO16 |
-| Zigbee radio | `dtoverlay=uart4,ctsrts` | `/dev/ttyAMA4` on GPIO8-11 (the kernel of HAOS 18.5 has fixed aliases: `serial4 = &uart4`) |
+| Zigbee radio | `dtoverlay=uart4` | `/dev/ttyAMA4` on GPIO8 / GPIO9, no flow control (the kernel of HAOS 18.5 has fixed aliases: `serial4 = &uart4`) |
 | Status LEDs | `dtoverlay=gpio-led,gpio=5,label=voxhub-green` (and GPIO6 blue) | `/sys/class/leds/voxhub-green`, `voxhub-blue` |
 | Mute switch sense | `dtoverlay=gpio-key,gpio=27,keycode=248,...` | input event `KEY_MICMUTE` while muted |
 | PD controller status | `dtparam=i2c_arm=on` | CYPD3177 at 0x08 on `i2c-1` |
@@ -167,8 +167,11 @@ image has not been booted - there is no hardware.
 
 ## First boot
 
-1. Flash the image, insert the card, plug in a USB-C PD charger (>= 20 W, 9 V capable). Green PWR LED on;
+1. Flash the image, insert the card, plug in a USB-C PD charger (30 W recommended; it must offer a 9 to 20 V profile
+   with at least 2 A). Green PWR LED on;
    red PD-FAULT LED means the charger offers no 9-20 V profile.
 2. Wait ~5 minutes on first boot, open `http://homeassistant.local:8123`.
 3. Settings -> System -> Hardware should list the `sndrpigooglevoi` sound card and `/dev/ttyAMA4`.
-4. Continue with `assistant/README.md`.
+4. Flash the radio module once with `tools/flash_zigbee.sh` (one command, see `fab/ASSEMBLY_AND_TEST.md`), then add
+   ZHA with radio type ZNP, `/dev/ttyAMA4`, 115200 baud, no flow control (Zigbee2MQTT: `adapter: zstack`).
+5. Continue with `assistant/README.md`.

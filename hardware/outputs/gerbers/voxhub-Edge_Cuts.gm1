@@ -1,18 +1,18 @@
-%TF.GenerationSoftware,KiCad,Pcbnew,9.0.9*%
-%TF.CreationDate,2026-11-11T17:45:48+00:00*%
-%TF.ProjectId,voxhub,766f7868-7562-42e6-9b69-6361645f7063,rev?*%
-%TF.SameCoordinates,Original*%
-%TF.FileFunction,Profile,NP*%
+G04 #@! TF.GenerationSoftware,KiCad,Pcbnew,9.0.9-9.0.9~ubuntu24.04.1*
+G04 #@! TF.CreationDate,2026-11-12T10:54:31+00:00*
+G04 #@! TF.ProjectId,voxhub,766f7868-7562-42e6-9b69-6361645f7063,rev?*
+G04 #@! TF.SameCoordinates,Original*
+G04 #@! TF.FileFunction,Profile,NP*
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW 9.0.9) date 2026-11-11 17:45:48*
+G04 Created by KiCad (PCBNEW 9.0.9-9.0.9~ubuntu24.04.1) date 2026-11-12 10:54:31*
 %MOMM*%
 %LPD*%
 G01*
 G04 APERTURE LIST*
-%TA.AperFunction,Profile*%
+G04 #@! TA.AperFunction,Profile*
 %ADD10C,0.100000*%
-%TD*%
+G04 #@! TD*
 G04 APERTURE END LIST*
 D10*
 X100000000Y-63000000D02*

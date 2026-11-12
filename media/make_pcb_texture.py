@@ -12,6 +12,7 @@ Writes board_F.png / board_B.png (colour) and board_F_metal.png / board_B_metal.
 Pixel (0, 0) is the board corner x = 0, y = 0 (KiCad coordinates, y pointing down).
 """
 import os, subprocess, sys
+import shutil
 import numpy as np
 import fitz                      # PyMuPDF
 from PIL import Image
@@ -23,11 +24,20 @@ IMG = os.environ.get("KICAD_IMAGE", "kicad/kicad:9.0")
 
 def plot(root, work):
     os.makedirs(work, exist_ok=True)
+    export = ("kicad-cli pcb export svg --mode-multi --layers %s --black-and-white --page-size-mode 2 "
+              "--exclude-drawing-sheet --drill-shape-opt 2 -o %%s voxhub.kicad_pcb" % ",".join(LAYERS))
+    if os.environ.get("KICAD_NATIVE") == "1":
+        home = os.path.join(work, "kihome")
+        cfg = os.path.join(home, ".config", "kicad", "9.0")
+        os.makedirs(cfg, exist_ok=True)
+        for t in ("fp-lib-table", "sym-lib-table"):
+            shutil.copyfile(os.path.join("/usr/share/kicad/template", t), os.path.join(cfg, t))
+        subprocess.run(["bash", "-c", export % (work + "/")], check=True, stdout=subprocess.DEVNULL,
+                       cwd=os.path.join(root, "hardware"), env=dict(os.environ, HOME=home))
+        return
     cmd = ("mkdir -p /tmp/kihome/.config/kicad/9.0 && cp /usr/share/kicad/template/fp-lib-table "
            "/usr/share/kicad/template/sym-lib-table /tmp/kihome/.config/kicad/9.0/ && "
-           "kicad-cli pcb export svg --mode-multi --layers %s --black-and-white --page-size-mode 2 "
-           "--exclude-drawing-sheet --drill-shape-opt 2 -o /plots/ voxhub.kicad_pcb && chown -R %d:%d /plots"
-           % (",".join(LAYERS), os.getuid(), os.getgid()))
+           + export % "/plots/" + " && chown -R %d:%d /plots" % (os.getuid(), os.getgid()))
     subprocess.run(["docker", "run", "--rm", "-u", "0", "-e", "HOME=/tmp/kihome", "-v", root + ":/work:ro",
                     "-v", work + ":/plots", "-w", "/work/hardware", IMG, "bash", "-c", cmd],
                    check=True, stdout=subprocess.DEVNULL)

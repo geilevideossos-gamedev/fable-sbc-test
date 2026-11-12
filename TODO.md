@@ -2,7 +2,63 @@
 
 Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 
-## Hardware (`/hardware`), revision A1
+## Revision A2: orderable at JLCPCB (third session, 2026-11-12)
+
+Parts
+- [x] Every BOM line looked up live in JLCPCB's assembly library and at LCSC: LCSC number, library type, stock, price
+      (`hardware/gen/sourcing_jlc.json`, `hardware/outputs/bom.csv`); DigiKey columns kept as the second source
+- [x] Out-of-stock and thin parts replaced without lowering a rating: radio module (MGM240P -> RF-BM-2652P2), inductor,
+      polymer capacitors, 22 uF and 1 uF capacitors, crystal + load capacitors, Zener, status LEDs, resistors
+- [x] LMR33640ADDAR, TPS2553DBVR, 2N7002, 10 uF X7R 1206, 220 nF C10: in stock at JLCPCB under the same part number
+- [~] Three lines below 200 pieces at JLCPCB with no better-stocked equal part: ADAU7002ACBZ-R7 (104), 61400826021 (116),
+      RF-BM-2652P2 (126) - reserve them first (`fab/ORDER_GUIDE.md`)
+- [~] Radio module rated -40..+85 C (the MGM240P was +105 C): no stocked module reaches 105 C
+- [x] Extended parts named with the reason (DECISIONS.md A2-9); in Standard PCBA they cost the same as Basic parts
+- [x] Nine data sheets requested again from the manufacturers: two served (Hirose), seven still refuse scripts and
+      were read from distributor copies; differences noted (DECISIONS.md, A2 log)
+
+Layout
+- [x] PGND of the buck tied to the exposed pad on the component side, own ground vias for PGND and every input / output capacitor
+- [x] Feed from the load switch and the VBUS necks widened to 1.2 - 1.6 mm; every high-current path measured by
+      `gen/check_power.py` (`hardware/outputs/power_paths.txt`), gate in the build
+- [x] No via in or touching a lead pad (U1 pin 19 and U10 pin 7 fixed by rule, not by hand)
+- [x] URL text clear of C17; silkscreen legends placed by a search; all silkscreen checks are errors: 0 overlaps
+- [x] USB: upstream pair routed as a real coupled pair (0.14 / 0.16 mm); downstream lines kept as matched 45 ohm lines,
+      with the reason (DECISIONS.md A2-22); skew 0.00 / 0.00 / 0.00 mm, no vias, no stubs
+- [x] Stack-up JLC04161H-3313 (offered by JLCPCB at no charge); width and gap from JLCPCB's impedance calculator:
+      89.96 ohm differential (`hardware/outputs/usb_impedance.txt`)
+- [x] ERC 0 / DRC 0 with JLCPCB's design rules (`gen/project_settings.json`, `hardware/voxhub.kicad_dru`)
+- [x] Found on the way: Hirose's restricted strips at the CM4 sockets kept free of foreign copper (gate
+      `gen/check_df40.py`), 81 % paste aperture on the socket pads, boot-strap pull-up 2.2k
+- [x] Found by the review: hub decoupling at the pins, crystal lines, antenna pocket keep-out, no via in a pad (gate
+      `gen/check_vias.py`), no 20 V test pads, copper 0.45 mm from the edge
+- [x] Independent review of the changed areas, round 1: six reviewers, no high finding, 10 medium and 30 low, all
+      fixed or accepted with a reason (DECISIONS.md A2-36 to A2-48)
+- [x] Review round 2 (last round): all fixes confirmed by the reviewers' own measurements; no high or medium finding;
+      the new low findings fixed or accepted with a reason (DECISIONS.md A2-49 to A2-54)
+
+JLCPCB order package (`/fab`)
+- [x] `fab/jlcpcb/gerbers.zip`, `bom_jlcpcb.csv` (one row per LCSC number), `cpl_jlcpcb.csv`; rotations fitted to JLCPCB's
+      own footprints and listed per part in `placement_report.csv` (135 of 136 placements; the last is the hand-soldered
+      USB-A); confirmed by an independent re-computation in the review
+- [x] Everything machine- or hand-assembled by JLCPCB: SW1 and the three status LEDs on side B (Standard PCBA, both
+      sides), J6 and J7 as hand-soldered THT parts, no reverse-mount parts left
+- [x] `fab/ORDER_GUIDE.md`: every option of the order form, remarks to paste, placement check, cost estimate
+- [x] `fab/SHOPPING_LIST.md`: EU shops, article numbers, prices, baskets with shipping to Austria
+- [x] `fab/ASSEMBLY_AND_TEST.md`: print settings, bring-up tests, assembly, radio flashing
+- [x] `tools/flash_zigbee.sh`: one command flashes the Zigbee coordinator firmware from the CM4 (ROM serial boot
+      loader, JTAG fallback)
+- [~] the flashing script ran end to end against a simulated radio only (author's runs and the reviewer's 20 cases)
+- [~] JLCPCB's pages behind the login (BOM / CPL matching, placement preview, final price) could not be opened; the
+      guide describes them from JLCPCB's help articles
+
+Final outputs
+- [x] Gerbers, drill, BOM, CPL, STEP, renders regenerated from the final board
+- [x] Enclosure regenerated: speaker pocket for the Adafruit 3351 (JST-PH plug, no soldering), 14 x 14 x 7 mm heat sink
+- [~] Showcase video and exploded still NOT re-rendered for A2 (skipped on the owner's decision); they show revision
+      A1. `media/build_showcase.sh` renders them from the A2 files when wanted (about 3 hours)
+
+## Hardware (`/hardware`), revision A1 (history)
 - [x] Architecture + part selection (CM4 Lite SoM, see DECISIONS.md)
 - [x] Schematic generated from code (`hardware/gen/design.py`), 6 sheets
 - [x] ERC: 0 errors, 0 warnings (`hardware/outputs/erc.rpt`)
@@ -86,9 +142,9 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 
 - [x] Third, focused round on the power-stage change (3 + 3): split pour gone, USB confirmed with a fourth parser,
       12 low findings - texts and scripts fixed, board items documented (log no. 30)
-- [ ] Before a production spin (documented, deliberately not changed any more): tie PGND to the exposed pad / own vias,
-      widen the 0.4 mm feed from the load switch and the VBUS necks, move two fan-out vias out of QFN lead pads
-      (U1 pin 19, U10 pin 7), move the URL text clear of C17
+- [x] Before a production spin: tie PGND to the exposed pad / own vias, widen the 0.4 mm feed from the load switch
+      and the VBUS necks, move two fan-out vias out of QFN lead pads (U1 pin 19, U10 pin 7), move the URL text clear
+      of C17 - all done in revision A2 (above)
 
 ## Documentation
 - [x] DECISIONS.md (decision log of revision A1, datasheet verification table, sourcing decisions, open items)

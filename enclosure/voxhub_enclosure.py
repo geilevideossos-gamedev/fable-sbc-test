@@ -5,9 +5,9 @@ Two printed parts, both support-free on a Bambu Lab printer (0.4 mm nozzle, 0.2 
 
   shell  top + four walls, printed UPSIDE DOWN (top face on the build plate).  All bosses,
          posts, mic chimneys and LED light pipes grow straight up from the top plate; the
-         connector windows in the rear wall are short bridges (<= 15.2 mm).
+         connector windows in the rear wall are short bridges (<= 15.6 mm).
   base   flat bottom plate with vents, a pedestal that clamps the speaker against the
-         grille (through a foam pad) and four countersunk screw holes.  Printed flat.
+         grille (through a foam pad) and four counterbored screw holes.  Printed flat.
 
 Coordinate system ("device frame"): X/Y are the PCB coordinates of the KiCad board
 (origin = rear-left corner seen from the component side, X to the right, Y towards the
@@ -39,16 +39,17 @@ POST_BAY = 7.6                               # extra interior width on the right
 CORNER_R = 5.0                               # outer vertical corner radius
 FIT = 0.25                                   # general printing clearance
 
-# speaker: Same Sky CMS-4017-34SP (datasheet drawing): frame dia 40 +-0.3, depth 17.5 +-0.3, yoke dia 23,
-# baffle opening dia 35.6 with at least 0.8 mm free in front of the diaphragm, 4 ohm 3 W, 25 g
-SPK_D, SPK_DEPTH = 40.0, 17.5
-SPK_FIT = 0.8                                # diametral clearance of the locating ring (frame tolerance 0.3 + 2 x 0.25)
-SPK_BAFFLE_D, SPK_RELIEF = 35.6, 1.0         # pocket in front of the cone ("at least 0.8 for diaphragm moving")
-SPK_YOKE_D = 23.0
-SPK_GRILLE_D = 34.0
-FOAM = 1.5                                   # compressed foam pad between speaker magnet and pedestal
+# speaker: Adafruit 3351 enclosed speaker with JST-PH plug (maker's data sheet C5282-001: flange 70.11 x 30.72 mm,
+# 16.5 +-0.5 mm high, box 66.11 mm long, cone opening 38.5 x 26.8 mm about 3 mm off centre), 4 ohm 3 W
+SPK_L, SPK_W, SPK_DEPTH = 70.1, 30.7, 16.5
+SPK_FIT = 0.6                                # clearance per side of the locating frame
+SPK_FLANGE_T, SPK_BODY_L = 2.0, 66.1
+SPK_CONE_L, SPK_CONE_W, SPK_RELIEF = 48.0, 28.0, 1.0         # pocket in front of the cone
+SPK_GRILLE_L, SPK_GRILLE_W = 46.0, 24.0
+SPK_PAD_L, SPK_PAD_W = 40.0, 18.0
+FOAM = 2.0                                   # compressed foam pad between speaker box and pedestal
 
-# screws: M2.5 x 6 thread-forming (PCB) and M2.5 x 8 (base); pilot hole for PLA/PETG
+# screws: M2.5 x 5 (PCB) and M2.5 x 8 (base) machine screws; pilot hole for PLA/PETG
 PILOT_D, SCREW_CLEAR_D, SCREW_HEAD_D = 2.1, 2.9, 5.2
 BOSS_D, POST_D = 6.0, 7.2
 
@@ -62,7 +63,7 @@ Z_BOTTOM = Z_FLOOR - BASE_T                  # table
 # interior footprint
 X0, X1 = -SPK_BAY - EDGE_GAP, PCB_W + EDGE_GAP + POST_BAY
 Y0, Y1 = -EDGE_GAP, PCB_H + EDGE_GAP
-SPK_X, SPK_Y = -SPK_BAY / 2 - 0.5, PCB_H / 2
+SPK_X, SPK_Y = -22.0, PCB_H / 2
 
 def at(ref):
     x, y, rot, side = PLACEMENT[ref]
@@ -77,7 +78,7 @@ HOLES = [at(r)[:2] for r in ("H1", "H2", "H3", "H4")]            # PCB mounting 
 MICS = []
 for r in ("MK1", "MK2"):                                          # acoustic port = footprint-local (0.68, 0)
     x, y, rot, _ = at(r); dx, dy = rot_pt(0.68, 0.0, rot); MICS.append((x + dx, y + dy))
-LEDS = [v[:2] for k, v in sorted(PLACEMENT.items()) if k.startswith("D") and abs(v[1] - 71.2) < 0.01 and 30 < v[0] < 46]
+LEDS = [at(r)[:2] for r in ("D7", "D8", "D9")]
 SW = at("SW1")[:2]
 POSTS = [(X0 + POST_D / 2 + 0.2, Y0 + POST_D / 2 + 0.2), (X0 + POST_D / 2 + 0.2, Y1 - POST_D / 2 - 0.2),
          (X1 - POST_D / 2 - 0.2, Y0 + POST_D / 2 + 0.2), (X1 - POST_D / 2 - 0.2, Y1 - POST_D / 2 - 0.2)]
@@ -115,7 +116,7 @@ def make_shell():
     # base screw posts
     for x, y in POSTS:
         s = s.union(cyl(x, y, Z_FLOOR, Z_TOP_IN + 0.01, POST_D)).cut(cyl(x, y, Z_FLOOR - 0.1, Z_FLOOR + 10.0, PILOT_D))
-    # microphone chimneys: 1.5 mm bore, land 0.2 mm above the PCB (closed-cell foam gasket ring recommended)
+    # microphone chimneys: 1.5 mm bore, land 0.2 mm above the PCB (closed-cell foam gasket ring optional)
     for x, y in MICS:
         s = s.union(cyl(x, y, 0.2, Z_TOP_IN + 0.01, 5.0)).cut(cyl(x, y, 0.0, Z_TOP_OUT + 0.1, 1.5))
         s = s.cut(cyl(x, y, Z_TOP_OUT - 0.5, Z_TOP_OUT + 0.1, 2.6))            # small countersink on the outside
@@ -132,18 +133,20 @@ def make_shell():
     # face; the dish floor is 1.4 mm down, so the slider stands 0.9..1.0 mm proud of it and cannot be moved by accident
     dish = (cq.Workplane("XY").slot2D(16.0, 10.0).extrude(1.4).translate((sx, sy, Z_TOP_OUT - 1.4)))
     s = s.cut(dish)
-    # speaker: locating ring + hexagonal grille
-    ring = cyl(SPK_X, SPK_Y, Z_TOP_IN - 3.0, Z_TOP_IN + 0.01, SPK_D + SPK_FIT + 3.2).cut(
-        cyl(SPK_X, SPK_Y, Z_TOP_IN - 3.1, Z_TOP_IN + 0.1, SPK_D + SPK_FIT))
-    s = s.union(ring)
-    # free space for the moving diaphragm in front of the cone (speaker datasheet mounting notice)
-    s = s.cut(cyl(SPK_X, SPK_Y, Z_TOP_IN - 0.01, Z_TOP_IN + SPK_RELIEF, SPK_BAFFLE_D))
+    # speaker: locating frame + hexagonal grille
+    hx, hy = SPK_W / 2 + SPK_FIT, SPK_L / 2 + SPK_FIT
+    frame = box(SPK_X - hx - 1.6, Y0 - 0.01, Z_TOP_IN - 3.0, SPK_X + hx + 1.6, Y1 + 0.01, Z_TOP_IN + 0.01).cut(
+        box(SPK_X - hx, SPK_Y - hy, Z_TOP_IN - 3.1, SPK_X + hx, SPK_Y + hy, Z_TOP_IN + 0.1))
+    s = s.union(frame)
+    # free space for the moving diaphragm in front of the cone
+    s = s.cut(cq.Workplane("XY").slot2D(SPK_CONE_L, SPK_CONE_W, 90).extrude(SPK_RELIEF + 0.01).translate((SPK_X, SPK_Y, Z_TOP_IN - 0.01)))
     pitch, hole = 3.4, 2.2
     pts = []
+    half = (SPK_GRILLE_L - SPK_GRILLE_W) / 2
     for i in range(-8, 9):
-        for j in range(-8, 9):
+        for j in range(-14, 15):
             px, py = i * pitch + (j % 2) * pitch / 2, j * pitch * 0.866
-            if math.hypot(px, py) <= SPK_GRILLE_D / 2 - hole / 2:
+            if math.hypot(px, py - min(max(py, -half), half)) <= SPK_GRILLE_W / 2 - hole / 2:
                 pts.append((SPK_X + px, SPK_Y + py))
     grille = cq.Workplane("XY").pushPoints(pts).circle(hole / 2).extrude(TOP_T + 0.4).translate((0, 0, Z_TOP_IN - 0.2))   # 1 mm of plate left
     s = s.cut(grille)
@@ -165,23 +168,18 @@ def make_base():
     for x, y in POSTS:
         b = b.cut(cyl(x, y, Z_BOTTOM - 0.1, Z_FLOOR + 0.1, SCREW_CLEAR_D))
         b = b.cut(cyl(x, y, Z_BOTTOM - 0.1, Z_BOTTOM + 1.4, SCREW_HEAD_D))     # recess for the pan head
-    # speaker pedestal (ring) - presses the magnet towards the grille through a foam pad
+    # speaker pedestal - presses the speaker box towards the grille through a foam pad
     z_spk_back = Z_TOP_IN - SPK_DEPTH
     ped_top = z_spk_back - FOAM
     if ped_top > Z_FLOOR + 0.5:
-        # ring 13..21 mm: bears on the flat back of the dia 23 yoke (flat part about dia 21)
-        b = b.union(cyl(SPK_X, SPK_Y, Z_FLOOR - 0.01, ped_top, 21.0).cut(cyl(SPK_X, SPK_Y, Z_FLOOR, ped_top + 0.1, 13.0)))
+        b = b.union(box(SPK_X - SPK_PAD_W / 2, SPK_Y - SPK_PAD_L / 2, Z_FLOOR - 0.01, SPK_X + SPK_PAD_W / 2, SPK_Y + SPK_PAD_L / 2, ped_top))
     # vents under the CM4 / heat sink and under the power stage
     for i in range(9):
         x = 48.0 + i * 5.6
-        b = b.cut(box(x, 32.0, Z_BOTTOM - 0.1, x + 2.4, 64.0, Z_FLOOR + 0.1))
+        b = b.cut(box(x, 32.0, Z_BOTTOM - 0.1, x + 2.4, 60.0, Z_FLOOR + 0.1))
     for i in range(4):
         x = 4.0 + i * 5.6
         b = b.cut(box(x, 20.0, Z_BOTTOM - 0.1, x + 2.4, 42.0, Z_FLOOR + 0.1))
-    # bass relief holes behind the speaker
-    for a in range(0, 360, 60):
-        b = b.cut(cyl(SPK_X + 15.5 * math.cos(math.radians(a)), SPK_Y + 15.5 * math.sin(math.radians(a)),
-                      Z_BOTTOM - 0.1, Z_FLOOR + 0.1, 3.0))
     # recesses for four 8 mm stick-on feet
     for x, y in ((X0 + 16, Y0 + 9), (X0 + 16, Y1 - 9), (X1 - 16, Y0 + 9), (X1 - 16, Y1 - 9)):
         b = b.cut(cyl(x, y, Z_BOTTOM - 0.1, Z_BOTTOM + 0.5, 8.6))
@@ -191,12 +189,12 @@ def make_base():
 # (reference, body size x, y, height, footprint-local centre offset) - simplified keep-in solids
 BODIES = {
     "J1": (8.94, 7.35, 3.31, (0, 0.0)), "J6": (14.5, 17.0, 16.0, (3.5, 7.11)), "J4": (13.85, 15.95, 1.68, (0, 0.15)),
-    "L1": (7.3, 6.6, 2.8, (0, 0)), "U11": (12.9, 15.0, 2.2, (0, 0)), "J7": (5.9, 4.5, 6.0, (1.0, 0.55)),
+    "L1": (7.3, 6.6, 3.0, (0, 0)), "U11": (16.5, 30.0, 2.3, (0, 0)), "J7": (5.9, 4.5, 6.0, (1.0, 0.55)),
     "J5": (2.54, 7.62, 8.5, (0, 2.54)), "U4": (6, 6, 0.9, (0, 0)), "U2": (4.9, 6.0, 1.7, (0, 0)), "U1": (4, 4, 0.6, (0, 0)),
 }
 # CM4 datasheet fig. 4: 55 x 40 mm, PCB 1.2 mm, SoC 2.378 +-0.11 mm high, SoC centre 31.99 / 16.98 mm from the module
-# edges, 1.5 mm stacking height on DF40C-100DS-0.4V; heat sink Same Sky HSB03-141406 = 14 x 14 x 6 mm
-CM4 = dict(x0=44.0, y0=28.0, w=55.0, h=40.0, stack=1.5, pcb=1.2, comp=2.5, hs=(14.0, 14.0, 6.0), soc=(67.0, 45.0))
+# edges, 1.5 mm stacking height on DF40C-100DS-0.4V; heat sink 14 x 14 x 7 mm with adhesive foil
+CM4 = dict(x0=44.0, y0=28.0, w=55.0, h=40.0, stack=1.5, pcb=1.2, comp=2.5, hs=(14.0, 14.0, 7.0), soc=(67.0, 45.0))
 
 def make_pcb_assembly():
     pcb = box(0, 0, -PCB_T, PCB_W, PCB_H, 0).edges("|Z").fillet(3.0)
@@ -221,11 +219,9 @@ def make_pcb_assembly():
     # travel -> swept volume 3.5 x 1.5 mm, top 5.6 mm above the PCB
     sx, sy = SW
     parts = parts.union(box(sx - 4.5, sy - 1.8, 0, sx + 4.5, sy + 1.8, 3.6)).union(box(sx - 1.75, sy - 0.75, 3.6, sx + 1.75, sy + 0.75, 5.6))
-    # speaker (frame + magnet)
-    # speaker: flange 1.7, basket to 11.3, yoke dia 23 to 17.5 mm (max. material: frame dia 40.3)
-    spk = (cyl(SPK_X, SPK_Y, Z_TOP_IN - 1.7, Z_TOP_IN, SPK_D + 0.3)
-           .union(cq.Workplane("XY").circle(19.0).workplane(offset=-9.6).circle(SPK_YOKE_D / 2 + 3.0).loft(combine=True).translate((SPK_X, SPK_Y, Z_TOP_IN - 1.7)))
-           .union(cyl(SPK_X, SPK_Y, Z_TOP_IN - SPK_DEPTH, Z_TOP_IN - 11.3, SPK_YOKE_D)))
+    # speaker (flange + closed box)
+    spk = (box(SPK_X - SPK_W / 2, SPK_Y - SPK_L / 2, Z_TOP_IN - SPK_FLANGE_T, SPK_X + SPK_W / 2, SPK_Y + SPK_L / 2, Z_TOP_IN)
+           .union(box(SPK_X - SPK_W / 2, SPK_Y - SPK_BODY_L / 2, Z_TOP_IN - SPK_DEPTH, SPK_X + SPK_W / 2, SPK_Y + SPK_BODY_L / 2, Z_TOP_IN - SPK_FLANGE_T)))
     return pcb, parts, spk
 
 def summary():

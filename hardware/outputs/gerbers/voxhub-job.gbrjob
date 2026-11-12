@@ -3,9 +3,9 @@
     "GenerationSoftware": {
       "Vendor": "KiCad",
       "Application": "Pcbnew",
-      "Version": "9.0.9"
+      "Version": "9.0.9-9.0.9~ubuntu24.04.1"
     },
-    "CreationDate": "2026-11-11T17:45:48+00:00"
+    "CreationDate": "2026-11-12T10:54:31+00:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
@@ -19,7 +19,8 @@
     },
     "LayerNumber": 4,
     "BoardThickness": 1.6,
-    "Finish": "None"
+    "Finish": "ENIG",
+    "ImpedanceControlled": true
   },
   "DesignRules": [
     {
@@ -27,9 +28,9 @@
       "PadToPad": 0.12,
       "PadToTrack": 0.12,
       "TrackToTrack": 0.12,
-      "MinLineWidth": 0.15,
-      "TrackToRegion": 0.2,
-      "RegionToRegion": 0.2
+      "MinLineWidth": 0.12,
+      "TrackToRegion": 0.25,
+      "RegionToRegion": 0.25
     },
     {
       "Layers": "Inner",
@@ -42,57 +43,57 @@
   ],
   "FilesAttributes": [
     {
-      "Path": "voxhub-F_Cu.gbr",
+      "Path": "voxhub-F_Cu.gtl",
       "FileFunction": "Copper,L1,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "voxhub-In1_Cu.gbr",
+      "Path": "voxhub-In1_Cu.g1",
       "FileFunction": "Copper,L2,Inr",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "voxhub-In2_Cu.gbr",
+      "Path": "voxhub-In2_Cu.g2",
       "FileFunction": "Copper,L3,Inr",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "voxhub-B_Cu.gbr",
+      "Path": "voxhub-B_Cu.gbl",
       "FileFunction": "Copper,L4,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "voxhub-F_Paste.gbr",
+      "Path": "voxhub-F_Paste.gtp",
       "FileFunction": "SolderPaste,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "voxhub-B_Paste.gbr",
+      "Path": "voxhub-B_Paste.gbp",
       "FileFunction": "SolderPaste,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "voxhub-F_Silkscreen.gbr",
+      "Path": "voxhub-F_Silkscreen.gto",
       "FileFunction": "Legend,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "voxhub-B_Silkscreen.gbr",
+      "Path": "voxhub-B_Silkscreen.gbo",
       "FileFunction": "Legend,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "voxhub-F_Mask.gbr",
+      "Path": "voxhub-F_Mask.gts",
       "FileFunction": "SolderMask,Top",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "voxhub-B_Mask.gbr",
+      "Path": "voxhub-B_Mask.gbs",
       "FileFunction": "SolderMask,Bot",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "voxhub-Edge_Cuts.gbr",
+      "Path": "voxhub-Edge_Cuts.gm1",
       "FileFunction": "Profile",
       "FilePolarity": "Positive"
     }
@@ -108,7 +109,7 @@
     },
     {
       "Type": "SolderMask",
-      "Thickness": 0.01,
+      "Thickness": 0.015,
       "Name": "Top Solder Mask"
     },
     {
@@ -118,32 +119,38 @@
     },
     {
       "Type": "Dielectric",
-      "Thickness": 0.48,
-      "Material": "FR4",
+      "Thickness": 0.0994,
+      "Material": "3313 RC57%",
+      "DielectricConstant": "4.1",
+      "LossTangent": "0.02",
       "Name": "F.Cu/In1.Cu",
       "Notes": "Type: dielectric layer 1 (from F.Cu to In1.Cu)"
     },
     {
       "Type": "Copper",
-      "Thickness": 0.035,
+      "Thickness": 0.0152,
       "Name": "In1.Cu"
     },
     {
       "Type": "Dielectric",
-      "Thickness": 0.48,
-      "Material": "FR4",
+      "Thickness": 1.265,
+      "Material": "FR4 TG155",
+      "DielectricConstant": "4.42",
+      "LossTangent": "0.02",
       "Name": "In1.Cu/In2.Cu",
       "Notes": "Type: dielectric layer 2 (from In1.Cu to In2.Cu)"
     },
     {
       "Type": "Copper",
-      "Thickness": 0.035,
+      "Thickness": 0.0152,
       "Name": "In2.Cu"
     },
     {
       "Type": "Dielectric",
-      "Thickness": 0.48,
-      "Material": "FR4",
+      "Thickness": 0.0994,
+      "Material": "3313 RC57%",
+      "DielectricConstant": "4.1",
+      "LossTangent": "0.02",
       "Name": "In2.Cu/B.Cu",
       "Notes": "Type: dielectric layer 3 (from In2.Cu to B.Cu)"
     },
@@ -154,7 +161,7 @@
     },
     {
       "Type": "SolderMask",
-      "Thickness": 0.01,
+      "Thickness": 0.015,
       "Name": "Bottom Solder Mask"
     },
     {

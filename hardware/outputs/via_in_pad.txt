@@ -1,0 +1,3 @@
+Vias against SMD pads (a via land may only overlap the exposed pad of an IC)
+286 vias, 5 of them inside exposed pads, 0 overlapping another pad
+result: no via in or touching a lead pad
