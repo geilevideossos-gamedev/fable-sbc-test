@@ -16,7 +16,6 @@ import prewire
 MM = pcbnew.FromMM
 W, H = 100.0, 74.0            # board size
 OX, OY = 100.0, 60.0          # board origin on the KiCad page
-SYS_FP = "/usr/share/kicad/footprints"
 POWER = ("GND", "+5V", "+3V3")
 VIA_DRILL = 0.3
 
@@ -258,19 +257,17 @@ def place(netlist, outdir):
     for ref in sorted(comps):
         c = comps[ref]
         lib, name = c["footprint"].split(":")
-        libdir = os.path.join(outdir, "voxhub.pretty") if lib == "voxhub" else os.path.join(SYS_FP, lib + ".pretty")
-        fp = pcbnew.FootprintLoad(libdir, name)
+        fp = pcbnew.FootprintLoad(os.path.join(outdir, lib + ".pretty"), name)
         if fp is None:
             raise RuntimeError("footprint not found: " + c["footprint"])
         fp.SetFPID(pcbnew.LIB_ID(lib, name))
         fp.SetReference(ref); fp.SetValue(c["value"])
         fp.SetPath(pcbnew.KIID_PATH(c["sheet_tstamps"].rstrip("/") + "/" + c["tstamp"]))
         fp.SetSheetname(c["sheet_name"]); fp.SetSheetfile(c["props"].get("Sheetfile", ""))
-        for k in ("MPN", "Manufacturer", "PartDescription"):
-            v = c["fields"].get(k) or model.get(ref, {}).get("fields", {}).get(k, "")
-            if v:
+        for k, v in c["fields"].items():
+            if k != "Footprint":
                 fp.SetField(k, v)
-                fp.GetFieldByName(k).SetVisible(False)
+                fp.GetField(k).SetVisible(False)
         m = model.get(ref, {})
         if m.get("dnp"):
             fp.SetDNP(True)
@@ -285,14 +282,6 @@ def place(netlist, outdir):
                 pad.SetNet(net(n))
             if ep and pad.GetNumber() in SOLID_PADS.get(ref, (ep,)) and n == "GND":
                 pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
-        # 3D models: use the copies / stand-ins shipped in hardware/3dmodels (the KiCad docker image has none)
-        mdls = [m_ for m_ in fp.Models()]
-        fp.Models().clear()
-        for mdl in mdls:               # (Models() hands out copies - rebuild the list)
-            fn = mdl.m_Filename.replace("${KICAD9_3DMODEL_DIR}/", "").replace(".wrl", ".step")
-            if not fn.startswith("${KIPRJMOD}"):
-                mdl.m_Filename = "${KIPRJMOD}/3dmodels/" + fn
-            fp.Models().push_back(mdl)
         if ref == "J2":      # the CM4 itself (module + heat sink) rides on its socket footprint
             m3 = pcbnew.FP_3DMODEL()
             m3.m_Filename = "${KIPRJMOD}/3dmodels/RaspberryPi_CM4_with_heatsink.step"
@@ -850,7 +839,7 @@ def poly_zone(board, pts, layers, netname=None, keepout=False, name="", prio=0, 
     z.SetZoneName(name)
     if keepout:
         z.SetIsRuleArea(True)
-        z.SetDoNotAllowCopperPour(True); z.SetDoNotAllowTracks(True); z.SetDoNotAllowVias(True)
+        z.SetDoNotAllowZoneFills(True); z.SetDoNotAllowTracks(True); z.SetDoNotAllowVias(True)
         z.SetDoNotAllowPads(False); z.SetDoNotAllowFootprints(False)
     else:
         z.SetNetCode(board.GetNetcodeFromNetname(netname))
@@ -951,6 +940,25 @@ def add_planes(board):
     poly_zone(board, full, (pcbnew.F_Cu,), "GND", name="GND_F")
     poly_zone(board, full, (pcbnew.B_Cu,), "GND", name="GND_B")
 
+VIA_SNAP = 0.001
+
+def snap_to_vias(tracks):
+    vias = {}
+    for tr in tracks:
+        if tr.Type() == pcbnew.PCB_VIA_T:
+            vias.setdefault(tr.GetNetname(), []).append(tr.GetPosition())
+    n = 0
+    for tr in tracks:
+        if tr.Type() == pcbnew.PCB_VIA_T or tr.IsLocked():
+            continue
+        for get, put in ((tr.GetStart, tr.SetStart), (tr.GetEnd, tr.SetEnd)):
+            q = get()
+            for v in vias.get(tr.GetNetname(), ()):
+                if (q.x, q.y) != (v.x, v.y) and max(abs(q.x - v.x), abs(q.y - v.y)) <= MM(VIA_SNAP):
+                    put(pcbnew.VECTOR2I(v.x, v.y)); n += 1
+                    break
+    return n
+
 def finish(outdir):
     board = pcbnew.LoadBoard(os.path.join(outdir, "voxhub.kicad_pcb"))
     ses = os.path.join(outdir, "gen", "work", "voxhub.ses")
@@ -960,6 +968,7 @@ def finish(outdir):
         if not ok:
             raise SystemExit("the autorouter session gen/work/voxhub.ses could not be imported")
     tracks = sorted_tracks(board); _KEEP.append(tracks)
+    print("track ends moved onto the via centre they miss by less than %g mm: %d" % (VIA_SNAP, snap_to_vias(tracks)))
     # the USB data lines are laid pad to pad through the ESD parts by the patch router (USB rules in patch());
     # whatever the autorouter drew for them is discarded
     n_usb = 0

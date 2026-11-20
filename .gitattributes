@@ -1,0 +1,38 @@
+* text=auto eol=lf
+*.kicad_pro text eol=lf
+*.kicad_sch text eol=lf
+*.kicad_sym text eol=lf
+*.kicad_mod text eol=lf
+*.kicad_pcb text eol=lf
+*.kicad_dru text eol=lf
+fp-lib-table text eol=lf
+sym-lib-table text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.json text eol=lf
+*.ses text eol=lf
+*.rpt text eol=lf
+*.dxf text eol=lf
+Dockerfile text eol=lf
+*.gbr text eol=lf
+*.gbrjob text eol=lf
+*.drl text eol=lf
+*.gtl text eol=lf
+*.gbl text eol=lf
+*.g1 text eol=lf
+*.g2 text eol=lf
+*.gto text eol=lf
+*.gbo text eol=lf
+*.gts text eol=lf
+*.gbs text eol=lf
+*.gtp text eol=lf
+*.gbp text eol=lf
+*.gm1 text eol=lf
+*.csv -text
+*.step binary
+*.png binary
+*.pdf binary
+*.zip binary
+*.stl binary
+*.3mf binary
+*.mp4 binary

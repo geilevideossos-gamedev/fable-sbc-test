@@ -41,23 +41,68 @@ def _atom(a):
         return str(a)
     return '"' + str(a).replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n') + '"'
 
-def dump(node, indent=0):
+def _compact(node):
     if not isinstance(node, list):
         return _atom(node)
-    simple = all(not isinstance(c, list) for c in node)
-    if simple:
-        return "(" + " ".join(_atom(c) for c in node) + ")"
-    flat = "(" + " ".join(dump(c) for c in node) + ")"
-    if len(flat) < 100 and flat.count("(") < 6:
-        return flat
-    pad = "\t" * (indent + 1)
-    out = ["(" + _atom(node[0])]
-    i = 1
-    while i < len(node) and not isinstance(node[i], list):
-        out[0] += " " + _atom(node[i]); i += 1
-    for c in node[i:]:
-        out.append(pad + dump(c, indent + 1))
-    return "\n".join(out) + "\n" + "\t" * indent + ")"
+    return "(" + " ".join(_compact(c) for c in node) + ")"
+
+_WS = " \t\n\r"
+
+def prettify(src):
+    out = []
+    n = len(src)
+    depth = 0
+    last = ""
+    in_quote = has_space = multi = in_xy = False
+    column = 0
+    backslashes = 0
+    i = 0
+    while i < n:
+        c = src[i]
+        if c in _WS and not in_quote:
+            j = i
+            while j < n and src[j] in _WS:
+                j += 1
+            nxt = src[j] if j < n else ""
+            if not has_space and depth > 0 and last != "(" and nxt != ")" and nxt != "(":
+                if in_xy or column < 72:
+                    out.append(" "); column += 1
+                else:
+                    out.append("\n" + "\t" * depth); column = depth; multi = True
+                has_space = True
+        else:
+            has_space = False
+            if c == "(" and not in_quote:
+                is_xy = src.startswith("(xy ", i)
+                if not out:
+                    out.append("("); column += 1
+                elif in_xy and is_xy and column < 99:
+                    out.append(" ("); column += 2
+                else:
+                    out.append("\n" + "\t" * depth + "("); column = depth + 1
+                in_xy = is_xy
+                depth += 1
+            elif c == ")" and not in_quote:
+                if depth > 0:
+                    depth -= 1
+                if last == ")" or multi:
+                    out.append("\n" + "\t" * depth + ")"); column = depth + 1; multi = False
+                else:
+                    out.append(")"); column += 1
+            else:
+                if c == "\\":
+                    backslashes += 1
+                elif c == '"' and backslashes % 2 == 0:
+                    in_quote = not in_quote
+                if c != "\\":
+                    backslashes = 0
+                out.append(c); column += 1
+            last = c
+        i += 1
+    return "".join(out) + "\n"
+
+def dump(node):
+    return prettify(_compact(node))
 
 def find(node, key):
     return [c for c in node if isinstance(c, list) and c and c[0] == key]

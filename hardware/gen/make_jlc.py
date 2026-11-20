@@ -159,7 +159,7 @@ def main(pcb, sourcing_path, fp_path, out):
     rows, report, groups, problems = [], [], {}, []
     for fp in sorted(board.GetFootprints(), key=lambda q: natural(q.GetReference())):
         ref = fp.GetReference()
-        mpn = fp.GetFieldText("MPN") if fp.HasFieldByName("MPN") else ""
+        mpn = fp.GetFieldText("MPN") if fp.HasField("MPN") else ""
         if not mpn or fp.IsDNP() or (fp.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM):
             continue
         part = src.get(mpn)

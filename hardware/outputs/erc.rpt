@@ -1,4 +1,4 @@
-ERC report (2026-11-12T10:43:01+0000, Encoding UTF8)
+ERC report (2026-11-20T23:46:47, Encoding UTF8)
 Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /
@@ -14,3 +14,9 @@ Report includes: Errors, Warnings, Exclusions
 ***** Sheet /Zigbee / Thread radio (RF-BM-2652P2, CC2652P)/
 
  ** ERC messages: 0  Errors 0  Warnings 0
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Four connection points are joined together
+    - SPICE model issue
+    - Assigned footprint doesn't match footprint filters

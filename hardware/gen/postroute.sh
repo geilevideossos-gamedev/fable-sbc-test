@@ -7,14 +7,14 @@ cd "$HW"
 RPT=gen/work/drc_iter.rpt
 BAD="clearance|shorting_items|tracks_crossing|hole_clearance|hole_to_hole|copper_edge_clearance|track_dangling|via_dangling|items_not_allowed|solder_mask_bridge|track_width"
 
-settle() {      # iterate DRC -> repair -> patch until clean; returns 0 when clean
+settle() {      # iterate DRC -> repair -> patch; returns 0 when nothing is open and no violation of a track or via is left
     local i unc err sig seen=""
     for i in $(seq 1 "$1"); do
         rm -f "$RPT"
         kicad-cli pcb drc --schematic-parity --severity-all --format report -o "$RPT" voxhub.kicad_pcb >/dev/null 2>&1
         [ -s "$RPT" ] || { echo "  DRC did not run"; return 1; }      # never judge by the report of an earlier round
         unc=$(grep -c "^\[unconnected_items\]" "$RPT")
-        err=$(grep -c -E "^\[($BAD)\]" "$RPT")
+        err=$(awk -v bad="^\\[($BAD)\\]" '/^\[/ { blk = ($0 ~ bad) } blk && /^ +@\(.*\): (Track|Via) \[/ { n++; blk = 0 } END { print n + 0 }' "$RPT")
         echo "  round $i: unconnected=$unc repairable_violations=$err"
         if [ "$unc" = 0 ] && [ "$err" = 0 ]; then return 0; fi
         # the loop is deterministic: the very same list of violations a second time means it will not get any further
@@ -31,4 +31,5 @@ echo "== completing the autorouted board"
 settle "$MAX" || { echo "could not reach a clean board"; exit 1; }
 cp gen/project_settings.json voxhub.kicad_pro
 python3 gen/build_pcb.py stats "$HW" > /dev/null || { echo "USB pairs not matched or not traceable pad to pad"; exit 1; }
-echo "clean"
+rest=$(grep -c -E "^\[($BAD)\]" "$RPT")
+if [ "$rest" = 0 ]; then echo "clean"; else echo "routing complete; $rest violation(s) that involve no track or via are left to the final DRC"; fi

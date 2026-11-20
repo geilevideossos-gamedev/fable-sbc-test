@@ -3,23 +3,24 @@
 #
 #   hardware/build.sh [all|sch|pcb|route|outputs]
 #
-# Needs: docker (KiCad 9 image), python3, zip, Java >= 21 + freerouting-2.0.1.jar for the "route" step.
-#   KICAD_IMAGE   docker image with KiCad 9 (default kicad/kicad:9.0)
+# Needs: docker (KiCad 10 image), python3, zip, Java >= 21 + freerouting-2.0.1.jar for the "route" step.
+#   KICAD_IMAGE   docker image with KiCad 10, numpy and shapely (default voxhub-kicad:10.0, built from hardware/docker when missing)
 #   FREEROUTING   path to freerouting jar (default ./freerouting-2.0.1.jar, see hardware/README.md)
 #   SKIP_ROUTE=1  re-use the checked-in autorouter session gen/routed/voxhub.ses (reproducible result)
 set -euo pipefail
 HW="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(dirname "${HW}")"
-IMG="${KICAD_IMAGE:-kicad/kicad:9.0}"
+IMG="${KICAD_IMAGE:-voxhub-kicad:10.0}"
 FR="${FREEROUTING:-${HW}/freerouting-2.0.1.jar}"
 STEP="${1:-all}"
 case "${STEP}" in all|outputs) command -v zip > /dev/null || { echo "missing tool: zip" >&2; exit 1; } ;; esac
 if [ "${KICAD_NATIVE:-0}" = 1 ]; then
-    command -v kicad-cli > /dev/null || { echo "KICAD_NATIVE=1 needs kicad-cli (KiCad 9) on the PATH" >&2; exit 1; }
+    command -v kicad-cli > /dev/null || { echo "KICAD_NATIVE=1 needs kicad-cli (KiCad 10) on the PATH" >&2; exit 1; }
+    case "$(kicad-cli version)" in 10.*) ;; *) echo "KICAD_NATIVE=1 needs KiCad 10, kicad-cli on the PATH is $(kicad-cli version)" >&2; exit 1 ;; esac
     NATIVE_HOME="$(mktemp -d)"; trap 'rm -rf "${NATIVE_HOME}"' EXIT
-    mkdir -p "${NATIVE_HOME}/bin" "${NATIVE_HOME}/.config/kicad/9.0"
-    cp /usr/share/kicad/template/fp-lib-table /usr/share/kicad/template/sym-lib-table "${NATIVE_HOME}/.config/kicad/9.0/"
-    for py in "${KICAD_PYTHON:-}" python3 python3.12 python3.11; do
+    mkdir -p "${NATIVE_HOME}/bin" "${NATIVE_HOME}/.config/kicad/10.0"
+    cp /usr/share/kicad/template/fp-lib-table /usr/share/kicad/template/sym-lib-table "${NATIVE_HOME}/.config/kicad/10.0/"
+    for py in "${KICAD_PYTHON:-}" python3 python3.13 python3.12; do
         [ -n "${py}" ] && "${py}" -c "import pcbnew, numpy, shapely" 2> /dev/null && { ln -s "$(command -v "${py}")" "${NATIVE_HOME}/bin/python3"; break; }
     done
     [ -e "${NATIVE_HOME}/bin/python3" ] || { echo "no python3 that can import pcbnew, numpy and shapely (set KICAD_PYTHON)" >&2; exit 1; }
@@ -28,15 +29,18 @@ if [ "${KICAD_NATIVE:-0}" = 1 ]; then
         (cd "${HW}" && HOME="${NATIVE_HOME}" PATH="${NATIVE_HOME}/bin:${PATH}" bash -c "${cmd// \/work\// ${ROOT}/}")
     }
 else
+if [ -z "${KICAD_IMAGE:-}" ] && ! docker image inspect "${IMG}" > /dev/null 2>&1; then
+    docker build -t "${IMG}" "${HW}/docker"
+fi
 kc() {   # run a command inside the KiCad container, repo mounted at /work
     docker run --rm -u 0 -e HOME=/tmp/kihome -v "${ROOT}:/work" -w /work/hardware "${IMG}" bash -c \
-        "mkdir -p /tmp/kihome/.config/kicad/9.0 && cp /usr/share/kicad/template/fp-lib-table /usr/share/kicad/template/sym-lib-table /tmp/kihome/.config/kicad/9.0/ && { python3 -c 'import shapely' 2> /dev/null || pip3 install -q --break-system-packages shapely; } && $*"
+        "mkdir -p /tmp/kihome/.config/kicad/10.0 && cp /usr/share/kicad/template/fp-lib-table /usr/share/kicad/template/sym-lib-table /tmp/kihome/.config/kicad/10.0/ && $*"
 }
 fi
 OUT="${HW}/outputs"; mkdir -p "${OUT}" "${HW}/gen/work"
 
 sch() {
-    kc "KICAD_SYM_DIR=/usr/share/kicad/symbols python3 gen/design.py . && python3 gen/make_footprints.py voxhub.pretty \
+    kc "python3 gen/design.py . && python3 gen/make_footprints.py voxhub.pretty \
         && kicad-cli sch erc --severity-all --exit-code-violations --format report -o outputs/erc.rpt voxhub.kicad_sch \
         && mkdir -p gen/work && kicad-cli sch export netlist --format kicadsexpr -o gen/work/voxhub.net voxhub.kicad_sch \
         && kicad-cli sch export pdf -o outputs/voxhub_schematic.pdf voxhub.kicad_sch"
@@ -74,12 +78,12 @@ route() {
 outputs() {
     # the final DRC gates everything below: no Gerbers from a board with violations
     kc "kicad-cli pcb drc --schematic-parity --severity-all --exit-code-violations --format report -o outputs/drc.rpt voxhub.kicad_pcb \
-        && rm -rf outputs/gerbers && mkdir -p outputs/gerbers \
+        && rm -rf outputs/gerbers && mkdir -p outputs/gerbers outputs/pcb_layers \
         && kicad-cli pcb export gerbers -o outputs/gerbers/ --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,B.Paste,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts --subtract-soldermask --no-x2 --no-netlist voxhub.kicad_pcb \
         && kicad-cli pcb export drill -o outputs/gerbers/ --format excellon --excellon-separate-th --excellon-zeros-format decimal --excellon-oval-format alternate --generate-map --map-format gerberx2 --drill-origin absolute voxhub.kicad_pcb \
         && kicad-cli pcb export pos -o outputs/voxhub_pos.csv --format csv --units mm --side both --exclude-dnp voxhub.kicad_pcb \
         && kicad-cli pcb export dxf -o outputs/voxhub_outline.dxf --layers Edge.Cuts,User.Drawings,F.CrtYd,B.CrtYd --output-units mm --mode-single voxhub.kicad_pcb \
-        && kicad-cli pcb export pdf -o outputs/pcb_layers --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.SilkS,B.SilkS,F.Fab,B.Fab,Edge.Cuts --mode-multipage voxhub.kicad_pcb \
+        && kicad-cli pcb export pdf -o outputs/pcb_layers/voxhub.pdf --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.SilkS,B.SilkS,F.Fab,B.Fab,Edge.Cuts --mode-multipage voxhub.kicad_pcb \
         && kicad-cli pcb export step -o outputs/voxhub_pcb.step --subst-models --no-dnp --force voxhub.kicad_pcb \
         && kicad-cli pcb render -o outputs/render_top.png --side top --width 2000 --height 1500 --quality high voxhub.kicad_pcb \
         && kicad-cli pcb render -o outputs/render_bottom.png --side bottom --width 2000 --height 1500 --quality high voxhub.kicad_pcb \
