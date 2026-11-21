@@ -18,8 +18,9 @@ Everything you must buy that is **not** on the assembled PCB from JLCPCB. Hardwa
 - The shops of this list were read twice and not again: on 2026-11-12 and on 2026-11-20 between 23:01 and
   23:28 UTC. Nothing here was read on 2026-11-21. The part prices of the JLCPCB order are a separate matter with
   two reads of their own, which `ORDER_GUIDE.md` uses: the read of 2026-11-20, which ended at 00:07 UTC on
-  2026-11-21, and the read of 2026-11-21 at 09:57 UTC, from which its prices and totals come. No article of this
-  list is part of those two reads. The one JLCPCB figure here, the compute module in JLCPCB's parts library
+  2026-11-21, and the read of 2026-11-21 at 09:57 UTC, from which its prices and totals come (a third read of the
+  stock at 18:53 UTC on 2026-11-21 changed no price). No article of this
+  list is part of those reads. The one JLCPCB figure here, the compute module in JLCPCB's parts library
   (section 6), was looked up together with the shops on 2026-11-20 (mark R).
 - Corrected on 2026-11-21 after a design review, without a new reading of the shops: the charger advice of section
   5.8 (a 9 V contract is for loads up to about 12 W only) and the clearance under the heat sink in section 5.3

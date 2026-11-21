@@ -27,7 +27,8 @@ view, orbit, reassembly, turntable) - rendered with Blender from the STEP files 
 > that [`fab/ORDER_GUIDE.md`](fab/ORDER_GUIDE.md) asks for on the day of the order: the stock of the parts on that
 > day, the price boxes of the order form, and JLCPCB's parts list and placement preview, which lie behind the login
 > and could not be opened from here. Every part was in stock in JLCPCB's assembly library on 2026-11-21 at
-> 09:57 UTC (`hardware/gen/sourcing_jlc.json` stores the date), ERC and DRC pass against JLCPCB's design rules under
+> 18:53 UTC, in the last of three reads (`hardware/gen/sourcing_jlc.json` stores the date), ERC and DRC pass
+> against JLCPCB's design rules under
 > KiCad 10.0.8, and the order files are in [`fab/jlcpcb/`](fab/jlcpcb). Two lines are thin and have no alternate:
 > ADAU7002ACBZ-R7 (63 pieces) and RF-BM-2652P2 (126 pieces), 2 of each are needed for two boards - reserve them
 > first as the order guide says. No line is below twice the need. No soldering is planned: order the boards, print
@@ -445,7 +446,9 @@ and shipping). Line by line: [`hardware/outputs/bom.csv`](hardware/outputs/bom.c
 The part prices were read twice. The first read began on 2026-11-20 and ended on 2026-11-21 at 00:07 UTC; this file
 calls it the read of 2026-11-20. The second read is the one of 2026-11-21, 09:57 UTC, and every part price and
 every total in this file comes from it. The time is that of the end of the read; the sourcing file stores the date
-only.
+only. A third read at the end of the session, on 2026-11-21 from 18:52 to 18:53 UTC, was made for the stock: no
+price had changed since 09:57 UTC, no line was below twice the need, and the stock columns of the sourcing file,
+of `bom.csv` and of `order_cost.csv` are from it (DECISIONS.md, F-6).
 
 | Group | Lines | Placements | 1 board | per board at 100 |
 |---|---|---|---|---|
@@ -490,7 +493,8 @@ was read.
 - The parts of one board cost 39.84 USD at JLCPCB. Revision A2 cost 41.78 USD on 2026-11-12, the DigiKey parts of
   revision A1 74.79 USD. The radio module alone costs 8.68 USD (6.63 USD on 2026-11-12; the DigiKey module of A1 cost
   11.47 USD), the PDM-to-I2S converter 2.48 USD (3.91 USD on 2026-11-12).
-- Thin stock at JLCPCB on 2026-11-21 (09:57 UTC): ADAU7002ACBZ-R7 (63) and RF-BM-2652P2 (126); neither has an
+- Thin stock at JLCPCB on 2026-11-21 (18:53 UTC, the same as at 09:57 UTC): ADAU7002ACBZ-R7 (63) and RF-BM-2652P2
+  (126); neither has an
   alternate. The order guide says how to reserve them. The three lines that had run low by 2026-11-20 were replaced
   (DECISIONS.md, F-1 to F-3): the USB hub is ordered on tape and reel (USB2514BT-I/M2), the stacked USB-A connector
   is the Jing Extension 907-112A1022D10200, the microphones are IM72D128V01. The BOM names the old parts as
@@ -519,7 +523,7 @@ was read.
 | Enclosure fit | part dimensions from the manufacturer drawings; 0 mm^3 interference PCB assembly vs. printed parts | `enclosure/voxhub_enclosure.py`, `enclosure/README.md` |
 | Power budget / thermal estimate | above; corrected in revision A3 and again in review round 1 (temperatures of the regulator and of the load switch, charger advice, USB port budget); calculation and model, nothing measured | `DECISIONS.md` N-2 to N-4, R-5, R-6 |
 | Editing by hand in KiCad 10 | overwrite guard, `build.sh outputs` on an edited project, jobset and Plot dialog compared with the files of the build: tested with KiCad 10.0.8 on Linux in automated runs (KiCad windows driven by scripts on a virtual display), first by their author, then by an independent test that found two high, one medium and eight low problems - all fixed or decided on 2026-11-21 - and by a second independent test of the fixes, which found no high or medium problem. In the second test the guard stopped the generating steps in 17 of 17 combinations of an edit (a changed, added or deleted file) and a step, in 8 of 8 runs with a missing or incomplete record and in 8 of 8 runs with KiCad's project manager open; a step that was cut short was reported as unfinished by the next run; `build.sh outputs` wrote none of the 47 project files. Left open and stated: a file saved while a step writes that same file is lost without a message (66.7 s of a 229 s build). Nothing on Windows, no `KICAD_NATIVE=1` outside the build container, no save from the symbol or footprint editor | `hardware/README.md`, `DECISIONS.md` K-11 to K-15 and review round 1, second part |
-| Sourcing | every BOM line in stock in JLCPCB's assembly library on 2026-11-21 (09:57 UTC); two lines below 200 pieces (ADAU7002ACBZ-R7 63, RF-BM-2652P2 126), none below twice the need of two boards; DigiKey data of 2026-11-11 as the second source | `hardware/outputs/bom.csv`, `bom_summary.json`, `order_cost.json`, `hardware/gen/sourcing_jlc.json` |
+| Sourcing | every BOM line in stock in JLCPCB's assembly library on 2026-11-21 (third read, 18:53 UTC; prices of 09:57 UTC, unchanged in the third read); two lines below 200 pieces (ADAU7002ACBZ-R7 63, RF-BM-2652P2 126), none below twice the need of two boards; DigiKey data of 2026-11-11 as the second source | `hardware/outputs/bom.csv`, `bom_summary.json`, `order_cost.json`, `hardware/gen/sourcing_jlc.json` |
 | Radio flashing | one command; run end to end against a simulated radio with the real flashing tool, dry run in this repository; not on hardware | `tools/flash_zigbee.sh`, `fab/ASSEMBLY_AND_TEST.md` |
 | OS image | repack image built from HAOS 18.5 and verified; from-source build (`build-image.sh full`) ran to the end on the ninth attempt, image inspected; not booted (no hardware). These results are of 2026-11-12 or earlier: no image has been built or inspected with the pull-down of the mute input of 2026-11-21 (`gpio_pull=down`); the overlay source with it was compiled and applied to a device tree again (`os/README.md`, "Verification status") | `os/README.md` |
 | Assistant | 93 tests of VoxHub Assistant pass (144 tests in the folder together with the 51 of VoxHub Satellite). Since review round 1 they also cover the capture path and the pipeline with the constant level of the new microphones (DECISIONS.md, R-4). One test came with the gain default of 32 in the second part of that round: a tone at the level of 60 dBSPL speech on top of the constant level is recorded at the default gain and not at gain 8. That test accepts any default from 17 to 64; it does not hold the value 32. All of this is simulation with synthetic signals, not a test with speech or on a board | `assistant/tests/` |

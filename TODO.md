@@ -62,7 +62,11 @@ Final stock and price check
       parts of review round 1
 - [x] `fab/ORDER_GUIDE.md` rewritten for revision A3 with the old and the new cost estimate; the order package was
       reviewed (see Reviews)
-- [ ] Final stock read of every BOM line at the end of this session (stock only; prices are not read again)
+- [x] Final stock read of every BOM line at the end of this session, 2026-11-21 from 18:52 to 18:53 UTC (all 48
+      parts of `hardware/gen/sourcing_jlc.json`): no line below twice the need, the two thin lines unchanged (63
+      and 126), the stock of 30 of the 44 lines moved by 2.7 % at most; no price, library type, minimum or loss
+      quantity changed. Nothing was replaced; the stock columns of the sourcing file, `bom.csv` and
+      `order_cost.csv` are from this read (DECISIONS.md, F-6)
 
 Software
 - [x] VoxHub Assistant add-on: constant level of the new microphones removed before the gain (W-1)

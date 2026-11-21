@@ -14,7 +14,9 @@ the generating build steps from overwriting project files that were edited in Ki
 to R-43, section 6a). The default microphone gain of the VoxHub Assistant add-on is 32 (log R-27), and the test suite
 has 144 tests, 93 for the VoxHub Assistant add-on and 51 for the VoxHub Satellite add-on. Stock and prices were read
 twice, in the read of 2026-11-20 and in the read of 2026-11-21, 09:57 UTC (log, "Final stock and price check");
-every price and total of the current-state sections comes from the second. No board has been built. Every figure in
+every price and total of the current-state sections comes from the second. A third read at the end of the session
+(2026-11-21, 18:52 to 18:53 UTC) found no price changed and no line below twice the need; the stock figures are
+from it (log F-6). No board has been built. Every figure in
 this document is calculated, simulated, read from a data sheet or measured in the generated files; nothing was
 tested on hardware or on Windows, and where windows of KiCad were needed they ran on a virtual display on Linux and
 were operated by a script, not by a person.
@@ -93,9 +95,9 @@ microphones, R-19), and the board file got the title block of the schematic (R-2
 
 The figures below are those of the first reading, which led to the part changes. The sourcing file, the BOM and the
 order cost were read again after the changes. That repetition ended at 00:07 UTC on 2026-11-21; the documents call the
-two together the read of 2026-11-20. All 44 lines and two of the three replaced parts (the Wurth connector and the IM69D130V01; the tray part of the
-hub, C220679, was last read on 2026-11-20) were read once more on 2026-11-21 at 09:57
-UTC in review round 1, after R41 had changed (`hardware/gen/sourcing_jlc.json`, field `checked`); every price and
+two together the read of 2026-11-20. All 44 lines and two of the three replaced parts (the Wurth connector and the
+IM69D130V01; the tray part of the hub, C220679, was last read on 2026-11-20) were read once more on 2026-11-21 at
+09:57 UTC in review round 1, after R41 had changed (`hardware/gen/sourcing_jlc.json`, field `checked`); every price and
 total of the current-state sections comes from this second read. No line is below twice the need; the thin lines are
 unchanged (ADAU7002ACBZ-R7 63, RF-BM-2652P2 126). JLCPCB's USD prices had moved up by about 0.24 % on almost every
 line since the reading before (exchange rate): RF-BM-2652P2 is 8.6843 USD at 1 piece and 7.4785 at 10, ADAU7002ACBZ-R7
@@ -103,7 +105,8 @@ line since the reading before (exchange rate): RF-BM-2652P2 is 8.6843 USD at 1 p
 single-piece prices, 29.30 USD at 100-piece prices; order of two boards 79.68 USD at the needed quantities, 83.22 USD
 with minimum quantities, 84.99 USD with minimum and loss quantities. Section 10 carries this reading. The prices of
 JLCPCB's order form (PCB, assembly fees) were read on 2026-11-20, the shipping prices on 2026-11-20 and on
-2026-11-21 between 00:30 and 01:00 UTC; none of them was read again with the parts at 09:57 UTC.
+2026-11-21 between 00:30 and 01:00 UTC; none of them was read again with the parts at 09:57 UTC. The third read,
+at the end of the session, is row F-6.
 
 | # | Decision | Why |
 |---|---|---|
@@ -112,6 +115,7 @@ JLCPCB's order form (PCB, assembly fees) were read on 2026-11-20, the shipping p
 | F-3 | **The microphones are ordered as Infineon IM72D128V01XTMA1 (C5119248)**, the IM69D130V01 becomes the alternate; C43 / C44 at their supply pins become 1 uF 25 V X5R 0402 (CL05A105KA5NQNC, C52923, Basic) | The IM69D130V01 fell from 392 to 43 pieces in eight days and Infineon lists it as not for new designs; the IM72D128 (623 pieces) has the same land pattern (package PG-LLGA-5-3 against PG-LLGA-5-1), pin-out, timing and -36 dBFS sensitivity and the same 2.9 to 3.3 MHz clock window (the other windows are narrower: the sound card must stay at 48 kHz, which the googlevoicehat codec driver enforces), 72 instead of 69 dB SNR, overload point 128 instead of 130 dBSPL, absolute maximum 3.6 V instead of 4.0 V on the 3.3 V rail (at most 3.38 V). Two consequences: its data sheet asks for 1 uF at VDD "to ensure best SNR performance" (one new BOM line), and the microphone with SELECT = VDD (MK2, right channel) puts a constant level of typically -40 dBFS into its data stream, which the ADAU7002 passes on - see W-1. The clock input limit (VDD + 0.3 V) is the same as before, but the absolute maximum on the clock pin fell from 4.0 V to 3.6 V with the part, and the new data sheet gives no hysteresis figure. This entry had quoted only the nominal result of the clock simulation with the old R41 = 33 ohm (3.52 V at a 3.30 V rail). Review round 1 showed that the same simulation gives 3.81 / 3.94 V at MK1 / MK2 in its fast corner; R41 is 75 ohm since then: 3.41 V nominal and 3.53 / 3.54 V in the fast corner, with assumed driver data (R-1), to be measured on the first board (open item 12). The cheaper IM73D122 (875 pieces) was not taken: it is 10 dB more sensitive and every gain default and gain advice of the software would have to move |
 | F-4 | **Two thin lines remain and have no alternate:** ADAU7002ACBZ-R7 (63 pieces, was 104; price 2.47 USD, was 3.91) and RF-BM-2652P2 (126 pieces; price 8.66 USD, was 6.63). Reserve them first as the order guide says | No other PDM-to-I2S converter is stocked. The only other stocked CC2652P module with this footprint, RF-BM-2652P2I (C5440077, 165 pieces on 2026-11-21), has a socket for an external antenna in place of the printed antenna and is not an alternate for the board as it is (order guide, section 2.4; corrected in review round 2, R-47). The spacers 9774015151R are back at 2,091 pieces |
 | F-5 | **The board is revision A3** (title block, silkscreen "VoxHub CM4  rev A3") | Values, part numbers and three land patterns (K-6) differ from A2; a board must say which BOM belongs to it |
+| F-6 | **Third read at the end of the session (2026-11-21, 18:52 to 18:53 UTC, after review round 2): nothing is replaced.** The stock columns of `gen/sourcing_jlc.json`, `outputs/bom.csv` and `outputs/order_cost.csv` are those of this read; BOM lines, part numbers, CPL, prices and totals are unchanged | All 48 parts of the sourcing file were read again with `gen/jlc_lookup.py refresh` (the 44 lines of the parts list, the two parts that are not fitted and the two alternates in the file). No line is below twice the quantity JLCPCB bills for two boards; the thinnest are unchanged: ADAU7002ACBZ-R7 63 (billed 2), RF-BM-2652P2 126 (2), IM72D128V01XTMA1 613 (4), CYPD3177-24LQXQT 729 (2), SMBJ22A 1,834 (5), 9774015151R 2,071 (8). The stock of 30 of the 44 lines moved, the largest fall being 2.7 % (KT-0603B, 56,075 -> 54,538). No price at any quantity, no library type and no minimum or loss quantity changed against the read of 09:57 UTC, so `order_cost.json`, `bom_summary.json` and every total stay as they are. The two replaced parts in the file are where they were (61400826021: 18, IM69D130V01: 43) |
 
 ### Software
 
@@ -1130,8 +1134,9 @@ line was read live from that library and from lcsc.com (`gen/jlc_lookup.py refre
 `gen/sourcing_jlc.json`). The check of all lines of revision A2 ran on 2026-11-20 between 22:23 and 22:46 UTC and led
 to the decisions F-1 to F-4. All 44 lines and two of the three replaced parts (not the tray part of the hub,
 C220679, last read on 2026-11-20) were read again on 2026-11-21 at 09:57 UTC in review
-round 1, after R41 had changed; the file, the BOM and the order cost hold that reading, and every figure of this
-paragraph and of the A3 column below comes from it. `hardware/outputs/bom.csv` has 46 lines - 44 assembled and 2 not
+round 1, after R41 had changed; every price and total of this paragraph comes from that reading. A third read at
+the end of the session (18:52 to 18:53 UTC, log F-6) found every price, library type, minimum and loss quantity
+unchanged; the stock figures of the file, of the BOM, of this paragraph and of the A3 column below are from it. `hardware/outputs/bom.csv` has 46 lines - 44 assembled and 2 not
 populated (C13, J5) - and 136 placements, 132 on the component side and 4 on the side that faces the top cover. The
 parts of one board cost 39.84 USD at JLCPCB's single-piece prices and 29.30 USD at its 100-piece prices (A2 on
 2026-11-12: 41.78 and 30.03 USD). Of the 44 assembled lines 12 are Basic, 2 are Preferred Extended (49.9k and 75 ohm)
@@ -1154,18 +1159,18 @@ Lines that changed from revision A2 to revision A3 (53 -> 44 assembled lines):
 | USB hub U4 | Microchip USB2514B-I/M2, tray (C220679; 1,182, on 2026-11-20: 2) | USB2514BT-I/M2, tape and reel (C510949, 6,206) | 2 pieces left of the tray part; same device under its other ordering code (F-1) |
 | Stacked USB-A J6 | Wurth 61400826021 (C5366339; 116, on 2026-11-20: 18) | Jing Extension 907-112A1022D10200 (C29780026, 2,434) | stock; 0.36 instead of 2.76 USD; fits the Wurth land pattern at nominal dimensions (within 0.12 mm; the shell stakes are 0.0 to 0.1 mm clear in the smallest hole and may need light pressure); no temperature range on its drawing (F-2) |
 | Microphones MK1, MK2 | Infineon IM69D130V01 (C536262; 392, on 2026-11-20: 43) | Infineon IM72D128V01XTMA1 (C5119248, 613) | stock, and "not for new designs"; same footprint, pin-out and sensitivity; constant level on MK2; 3.6 V instead of 4.0 V absolute maximum, hence R41 = 75 ohm (F-3, W-1, R-1) |
-| Microphone bypass C43, C44 | two of the 23 pieces of the 100 nF 16 V X7R 0402 line (C1525) | Samsung CL05A105KA5NQNC 1 uF 25 V X5R 0402 (C52923, Basic, 9.20 M) | the data sheet of the new microphone asks for 1 uF at VDD; the one new line (F-3). Alternates: any 0402 1 uF X5R or X7R rated 25 V or more - the 10 V and 16 V parts keep less than half at 3.3 V (R-6) |
-| 0603 capacitors C1, C2, C3, C5, C11 | C1: Samsung CL10A105KB8NNNC 1 uF 50 V X5R (C15849); C2: Yageo CC0603KRX7R9BB104 100 nF 50 V X7R (C14663); C3, C5, C11: Samsung CL10B105KA8NNNC 1 uF 25 V X7R (C29936) | Samsung CL10B105KB8NQNC 1 uF 50 V X7R 0603 (C5199872, 2.53 M) | three lines become one; no rating goes down, more capacitance under bias (C-5) |
+| Microphone bypass C43, C44 | two of the 23 pieces of the 100 nF 16 V X7R 0402 line (C1525) | Samsung CL05A105KA5NQNC 1 uF 25 V X5R 0402 (C52923, Basic, 9.17 M) | the data sheet of the new microphone asks for 1 uF at VDD; the one new line (F-3). Alternates: any 0402 1 uF X5R or X7R rated 25 V or more - the 10 V and 16 V parts keep less than half at 3.3 V (R-6) |
+| 0603 capacitors C1, C2, C3, C5, C11 | C1: Samsung CL10A105KB8NNNC 1 uF 50 V X5R (C15849); C2: Yageo CC0603KRX7R9BB104 100 nF 50 V X7R (C14663); C3, C5, C11: Samsung CL10B105KA8NNNC 1 uF 25 V X7R (C29936) | Samsung CL10B105KB8NQNC 1 uF 50 V X7R 0603 (C5199872, 2.67 M) | three lines become one; no rating goes down, more capacitance under bias (C-5) |
 | Gate capacitor C7 | Samsung CL05B103KB5NNNC 10 nF 50 V X7R 0402 (C15195) | one more piece of the 100 nF 16 V X7R 0402 line CL05B104KO5NNNC (C1525, Basic, 33.5 M; 22 pieces per board) | 100 nF slows the turn-on of the load switch; one line less (C-3) |
-| Red LEDs D4, D9 | Lite-On LTST-C191KRKT (C125099) | Hubei KENTO KT-0603R (C2286, Basic, 8.43 M) | brighter part, run at 1.4 mA instead of 9 mA with R22 = 1k; its lower ratings (25 mA, 40 mW) are accepted at that load (C-6) |
+| Red LEDs D4, D9 | Lite-On LTST-C191KRKT (C125099) | Hubei KENTO KT-0603R (C2286, Basic, 8.41 M) | brighter part, run at 1.4 mA instead of 9 mA with R22 = 1k; its lower ratings (25 mA, 40 mW) are accepted at that load (C-6) |
 | Green LEDs D6, D10 | Wurth 150060VS75000 (C6848499) | Hubei KENTO KT-0603G, the part of D7 (C12624, 205 k; 3 pieces per board) | one line less; R15 = 10k (C-6) |
-| Resistors 0402 1 % | 15 values: 0, 33, 150, 1k, 2.2k, 2.4k, 5.1k, 10k, 12k, 20k, 24.9k, 49.9k, 100k, 150k, 470k | 9 values: 75, 1k, 2.2k, 10k, 12k, 20k, 24.9k, 49.9k, 100k (UNI-ROYAL 0402WGF as before; the 75 ohm part is 0402WGF750JTCE, C25133, Preferred Extended, 994 k) | strap, gate, enable and LED resistors recalculated with values the board carries anyway (C-2, C-3, C-4, C-6); R19, R21 and R28 changed for margin, without effect on the BOM (C-7, C-12); R41 in the PDM clock changed in review round 1 to 75 ohm, with the same number of lines (R-1) |
+| Resistors 0402 1 % | 15 values: 0, 33, 150, 1k, 2.2k, 2.4k, 5.1k, 10k, 12k, 20k, 24.9k, 49.9k, 100k, 150k, 470k | 9 values: 75, 1k, 2.2k, 10k, 12k, 20k, 24.9k, 49.9k, 100k (UNI-ROYAL 0402WGF as before; the 75 ohm part is 0402WGF750JTCE, C25133, Preferred Extended, 993 k) | strap, gate, enable and LED resistors recalculated with values the board carries anyway (C-2, C-3, C-4, C-6); R19, R21 and R28 changed for margin, without effect on the BOM (C-7, C-12); R41 in the PDM clock changed in review round 1 to 75 ohm, with the same number of lines (R-1) |
 
 Not replaced although a Basic part exists: the 4.7 uF line (the Basic part is rated 16 V instead of 25 V) and the
 2N7002 (the Basic part is a 115 mA / +-20 V type) - in a Standard PCBA order a Basic part saves no fee (log C-1,
 C-10). The lines revision A1 had flagged are unchanged and in stock: LMR33640ADDAR (2,073 pieces at JLCPCB),
-TPS2553DBVR (43,794), 2N7002,215 (300 k), CL31B106KBHNNNE (206 k) and GRM188R71H224KAC4D (3,204; the BOM names two
-alternates). The CM4 socket DF40C-100DS-0.4V(51), at 1,052 pieces in the A2 BOM, has 18,839; the spacers 9774015151R
+TPS2553DBVR (43,731), 2N7002,215 (299 k), CL31B106KBHNNNE (205 k) and GRM188R71H224KAC4D (3,204; the BOM names two
+alternates). The CM4 socket DF40C-100DS-0.4V(51), at 1,052 pieces in the A2 BOM, has 18,858; the spacers 9774015151R
 have 2,071 (A2: 230). Three part numbers lost 85 to 99.8 % of their stock in the eight days between the checks of
 2026-11-12 and 2026-11-20 (USB2514B-I/M2, IM69D130V01, 61400826021): run the lookup once more on the day of the
 order.
@@ -1311,13 +1316,14 @@ Closed in the fifth session (revision A3):
 
 13. ~~Thin stock of the stacked USB-A connector, the spacers and the CM4 socket~~ - J6 is ordered as the Jing part
     with 2,434 pieces in stock (log F-2); the spacers 9774015151R are back at 2,071 pieces, the socket
-    DF40C-100DS-0.4V(51) at 18,839 pieces at JLCPCB and 18,780 at LCSC (reading of 2026-11-21).
+    DF40C-100DS-0.4V(51) at 18,858 pieces at JLCPCB and 18,000 at LCSC (third reading of 2026-11-21).
 14. ~~Flange lip of the Wurth USB-A connector (scaled)~~ - that connector is the alternate now; the scaled dimensions
     of the Jing part are item 3 below.
 
 Still open (state of revision A3, 2026-11-21):
 
-1. **Thin stock at JLCPCB on 2026-11-21:** ADAU7002ACBZ-R7 (63; 104 on 2026-11-12) and RF-BM-2652P2 (126). Neither has
+1. **Thin stock at JLCPCB on 2026-11-21 (the same in the reads of 09:57 and 18:53 UTC):** ADAU7002ACBZ-R7 (63; 104
+   on 2026-11-12) and RF-BM-2652P2 (126). Neither has
    a stocked alternate (log F-4): buy them into the JLCPCB parts library before ordering (`fab/ORDER_GUIDE.md`).
    Stock moves fast - USB2514B-I/M2 went from 1,182 to 2 pieces, IM69D130V01 from 392 to 43 and 61400826021 from 116
    to 18 in eight days - so run `gen/jlc_lookup.py refresh` again on the day of the order.

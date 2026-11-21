@@ -36,10 +36,10 @@
      0.0011
     ]
    ],
-   "jlc_stock": 1284263,
+   "jlc_stock": 1282830,
    "jlc_type": "Basic",
    "lcsc": "C1548",
-   "lcsc_stock": 629400,
+   "lcsc_stock": 619600,
    "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
@@ -80,10 +80,10 @@
      0.0008
     ]
    ],
-   "jlc_stock": 2197089,
+   "jlc_stock": 2195046,
    "jlc_type": "Basic",
    "lcsc": "C1555",
-   "lcsc_stock": 927900,
+   "lcsc_stock": 913800,
    "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
@@ -124,10 +124,10 @@
      0.0006
     ]
    ],
-   "jlc_stock": 29498631,
+   "jlc_stock": 29484708,
    "jlc_type": "Basic",
    "lcsc": "C11702",
-   "lcsc_stock": 16188300,
+   "lcsc_stock": 16035000,
    "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
@@ -168,10 +168,10 @@
      0.0006
     ]
    ],
-   "jlc_stock": 34960362,
+   "jlc_stock": 34942859,
    "jlc_type": "Basic",
    "lcsc": "C25744",
-   "lcsc_stock": 12816400,
+   "lcsc_stock": 12542900,
    "loss": 15,
    "min_order": 20,
    "special_fee": 0.0,
@@ -212,10 +212,10 @@
      0.0005
     ]
    ],
-   "jlc_stock": 12018752,
+   "jlc_stock": 12002157,
    "jlc_type": "Basic",
    "lcsc": "C25741",
-   "lcsc_stock": 3997400,
+   "lcsc_stock": 3869700,
    "loss": 12,
    "min_order": 20,
    "special_fee": 0.0,
@@ -256,10 +256,10 @@
      0.0006
     ]
    ],
-   "jlc_stock": 693588,
+   "jlc_stock": 693041,
    "jlc_type": "Basic",
    "lcsc": "C25752",
-   "lcsc_stock": 261600,
+   "lcsc_stock": 249500,
    "loss": 15,
    "min_order": 20,
    "special_fee": 0.0,
@@ -300,10 +300,10 @@
      0.0005
     ]
    ],
-   "jlc_stock": 2563954,
+   "jlc_stock": 2576793,
    "jlc_type": "Basic",
    "lcsc": "C25765",
-   "lcsc_stock": 885700,
+   "lcsc_stock": 885100,
    "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
@@ -344,10 +344,10 @@
      0.0006
     ]
    ],
-   "jlc_stock": 2778041,
+   "jlc_stock": 2774632,
    "jlc_type": "Basic",
    "lcsc": "C25879",
-   "lcsc_stock": 957000,
+   "lcsc_stock": 935000,
    "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
@@ -388,7 +388,7 @@
      0.0007
     ]
    ],
-   "jlc_stock": 67658,
+   "jlc_stock": 67678,
    "jlc_type": "Extended",
    "lcsc": "C25874",
    "lcsc_stock": 35200,
@@ -432,10 +432,10 @@
      0.0007
     ]
    ],
-   "jlc_stock": 767770,
+   "jlc_stock": 767760,
    "jlc_type": "Preferred Extended",
    "lcsc": "C25897",
-   "lcsc_stock": 652100,
+   "lcsc_stock": 650800,
    "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
@@ -476,10 +476,10 @@
      0.0006
     ]
    ],
-   "jlc_stock": 994323,
+   "jlc_stock": 993375,
    "jlc_type": "Preferred Extended",
    "lcsc": "C25133",
-   "lcsc_stock": 554500,
+   "lcsc_stock": 548200,
    "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
@@ -520,10 +520,10 @@
      0.0089
     ]
    ],
-   "jlc_stock": 299526,
+   "jlc_stock": 299244,
    "jlc_type": "Extended",
    "lcsc": "C65189",
-   "lcsc_stock": 299500,
+   "lcsc_stock": 299200,
    "loss": 5,
    "min_order": 10,
    "special_fee": 0.0,
@@ -776,10 +776,10 @@
      0.0442
     ]
    ],
-   "jlc_stock": 1210912,
+   "jlc_stock": 1206223,
    "jlc_type": "Basic",
    "lcsc": "C15127",
-   "lcsc_stock": 693025,
+   "lcsc_stock": 654660,
    "loss": 4,
    "min_order": 5,
    "special_fee": 0.0,
@@ -820,10 +820,10 @@
      0.0202
     ]
    ],
-   "jlc_stock": 262194,
+   "jlc_stock": 261858,
    "jlc_type": "Extended",
    "lcsc": "C131337",
-   "lcsc_stock": 239180,
+   "lcsc_stock": 235840,
    "loss": 1,
    "min_order": 2,
    "special_fee": 0.0,
@@ -864,10 +864,10 @@
      0.0028
     ]
    ],
-   "jlc_stock": 9198904,
+   "jlc_stock": 9174443,
    "jlc_type": "Basic",
    "lcsc": "C52923",
-   "lcsc_stock": 238000,
+   "lcsc_stock": 113100,
    "loss": 12,
    "min_order": 20,
    "special_fee": 0.0,
@@ -908,10 +908,10 @@
      0.0012
     ]
    ],
-   "jlc_stock": 33539347,
+   "jlc_stock": 33485072,
    "jlc_type": "Basic",
    "lcsc": "C1525",
-   "lcsc_stock": 2659100,
+   "lcsc_stock": 2327100,
    "loss": 15,
    "min_order": 20,
    "special_fee": 0.0,
@@ -952,10 +952,10 @@
      0.0172
     ]
    ],
-   "jlc_stock": 599042,
+   "jlc_stock": 598338,
    "jlc_type": "Extended",
    "lcsc": "C69335",
-   "lcsc_stock": 392000,
+   "lcsc_stock": 384730,
    "loss": 8,
    "min_order": 20,
    "special_fee": 0.0,
@@ -996,10 +996,10 @@
      0.0068
     ]
    ],
-   "jlc_stock": 2533438,
+   "jlc_stock": 2669498,
    "jlc_type": "Extended",
    "lcsc": "C5199872",
-   "lcsc_stock": 2263720,
+   "lcsc_stock": 2383980,
    "loss": 12,
    "min_order": 20,
    "special_fee": 0.0,
@@ -1040,10 +1040,10 @@
      0.0589
     ]
    ],
-   "jlc_stock": 2571894,
+   "jlc_stock": 2570029,
    "jlc_type": "Basic",
    "lcsc": "C12891",
-   "lcsc_stock": 961160,
+   "lcsc_stock": 952720,
    "loss": 4,
    "min_order": 5,
    "special_fee": 0.0,
@@ -1084,10 +1084,10 @@
      0.1113
     ]
    ],
-   "jlc_stock": 205925,
+   "jlc_stock": 205492,
    "jlc_type": "Extended",
    "lcsc": "C89632",
-   "lcsc_stock": 19715,
+   "lcsc_stock": 14015,
    "loss": 2,
    "min_order": 1,
    "special_fee": 0.0,
@@ -1172,10 +1172,10 @@
      0.715
     ]
    ],
-   "jlc_stock": 18839,
+   "jlc_stock": 18858,
    "jlc_type": "Extended",
    "lcsc": "C597931",
-   "lcsc_stock": 18780,
+   "lcsc_stock": 18000,
    "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
@@ -1216,10 +1216,10 @@
      0.7657
     ]
    ],
-   "jlc_stock": 13844,
+   "jlc_stock": 13783,
    "jlc_type": "Extended",
    "lcsc": "C114218",
-   "lcsc_stock": 13689,
+   "lcsc_stock": 13403,
    "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
@@ -1436,10 +1436,10 @@
      0.0051
     ]
    ],
-   "jlc_stock": 56075,
+   "jlc_stock": 54538,
    "jlc_type": "Extended",
    "lcsc": "C2288",
-   "lcsc_stock": 48600,
+   "lcsc_stock": 47250,
    "loss": 14,
    "min_order": 20,
    "special_fee": 0.0,
@@ -1480,10 +1480,10 @@
      0.0058
     ]
    ],
-   "jlc_stock": 204724,
+   "jlc_stock": 204770,
    "jlc_type": "Extended",
    "lcsc": "C12624",
-   "lcsc_stock": 192350,
+   "lcsc_stock": 187300,
    "loss": 16,
    "min_order": 20,
    "special_fee": 0.0,
@@ -1524,10 +1524,10 @@
      0.0036
     ]
    ],
-   "jlc_stock": 8426566,
+   "jlc_stock": 8411492,
    "jlc_type": "Basic",
    "lcsc": "C2286",
-   "lcsc_stock": 5915000,
+   "lcsc_stock": 5782200,
    "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
@@ -1571,7 +1571,7 @@
    "jlc_stock": 2073,
    "jlc_type": "Extended",
    "lcsc": "C2836966",
-   "lcsc_stock": 2010,
+   "lcsc_stock": 2000,
    "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
@@ -1612,10 +1612,10 @@
      0.7396
     ]
    ],
-   "jlc_stock": 24134,
+   "jlc_stock": 24121,
    "jlc_type": "Extended",
    "lcsc": "C910544",
-   "lcsc_stock": 24144,
+   "lcsc_stock": 24121,
    "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
@@ -1744,10 +1744,10 @@
      0.0987
     ]
    ],
-   "jlc_stock": 8596,
+   "jlc_stock": 8554,
    "jlc_type": "Extended",
    "lcsc": "C207246",
-   "lcsc_stock": 8595,
+   "lcsc_stock": 8550,
    "loss": 2,
    "min_order": 5,
    "special_fee": 0.0,
@@ -1791,7 +1791,7 @@
    "jlc_stock": 4449,
    "jlc_type": "Extended",
    "lcsc": "C207841",
-   "lcsc_stock": 4285,
+   "lcsc_stock": 4275,
    "loss": 1,
    "min_order": 2,
    "special_fee": 0.0,
@@ -1920,10 +1920,10 @@
      0.3093
     ]
    ],
-   "jlc_stock": 43794,
+   "jlc_stock": 43731,
    "jlc_type": "Extended",
    "lcsc": "C55266",
-   "lcsc_stock": 43627,
+   "lcsc_stock": 42733,
    "loss": 0,
    "min_order": 5,
    "special_fee": 0.0,
@@ -2008,10 +2008,10 @@
      0.5498
     ]
    ],
-   "jlc_stock": 12497,
+   "jlc_stock": 12401,
    "jlc_type": "Extended",
    "lcsc": "C3020560",
-   "lcsc_stock": 8809,
+   "lcsc_stock": 8250,
    "loss": 0,
    "min_order": 1,
    "special_fee": 0.03,
@@ -2052,10 +2052,10 @@
      0.0781
     ]
    ],
-   "jlc_stock": 43423,
+   "jlc_stock": 42853,
    "jlc_type": "Extended",
    "lcsc": "C7519",
-   "lcsc_stock": 42655,
+   "lcsc_stock": 40105,
    "loss": 2,
    "min_order": 5,
    "special_fee": 0.0,
@@ -2096,10 +2096,10 @@
      0.0467
     ]
    ],
-   "jlc_stock": 292258,
+   "jlc_stock": 292452,
    "jlc_type": "Extended",
    "lcsc": "C70590",
-   "lcsc_stock": 222800,
+   "lcsc_stock": 220935,
    "loss": 4,
    "min_order": 5,
    "special_fee": 0.0,
