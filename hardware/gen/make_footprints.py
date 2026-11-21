@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Generate the project footprint library (voxhub.pretty), KiCad 10 format.
 
-* every footprint of gen/stock/stock.pretty (the KiCad 9.0.9 library footprints revision A2 was designed with), three of them with LAND_FIXES
 * CM4_J1/J2_DF40C-100DS : KiCad's Hirose DF40C-100DS land pattern, pads renumbered to the
   CM4 datasheet numbering (J2 = pins 101..200) so schematic pin numbers equal module pin numbers; paste aperture
   0.17 x 0.67 mm = 81 % of the land (Hirose: 80 % at a 0.12 mm stencil).

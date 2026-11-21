@@ -11,8 +11,9 @@ step that generates files; the reason is given there.
 
 Revision A3 is the revision that is ordered fully assembled from JLCPCB. The order files are in
 [`../fab/jlcpcb/`](../fab/jlcpcb), the ordering steps in [`../fab/ORDER_GUIDE.md`](../fab/ORDER_GUIDE.md). Against
-revision A2 the placement, the nets and the routing are the same; values, part numbers, three land patterns (two of
-them with their solder paste apertures) and the toolchain changed. What changed and why is in the A3 log at the top
+revision A2 the placement, the nets and the routing are the same; values, part numbers, three land patterns with
+their solder paste apertures (for two of them the paste was corrected in the second part of review round 1) and
+the toolchain changed. What changed and why is in the A3 log at the top
 of [`../DECISIONS.md`](../DECISIONS.md) (K-1 to K-10: KiCad 10, C-1 to C-12: fewer part numbers, N-1 to N-6:
 findings on the existing design, F-1 to F-5: stock check, K-11 to K-15: editing by hand, R-1 to R-7: first part of
 review round 1 of 2026-11-21, R-8 and following: its second part with the build guard, the solder paste of two
@@ -45,7 +46,9 @@ land patterns and the microphone gain of the hub add-on), what changed from A1 t
   parity against the schematic on disk), writes Gerbers, drill files, positions, renders and the JLCPCB BOM and CPL
   from that board, and never writes a project file (K-12). It may run while KiCad has the project open. It still
   writes `outputs/bom.csv` and `outputs/order_cost.*` from `gen/model_netlist.json`, the part list of the last
-  generator run, not from an edited schematic.
+  generator run, not from an edited schematic. The JLCPCB BOM names the part of each footprint by its field
+  `MPN`, not by its value: a changed value needs a changed `MPN`, and a part to be fitted that has no such field
+  stops the run (see "What `outputs` refreshes and what it does not").
 - Without Docker, `voxhub.kicad_jobset` makes reports and fabrication files from the KiCad 10 project manager, and
   *File > Plot* writes the same Gerbers as the build, because the board file stores the plot settings of `build.sh`.
   The drill dialog has no project settings: take the drill files from the jobset or from `build.sh outputs` (K-13,
@@ -204,7 +207,8 @@ How the board is produced:
 6. `build.sh outputs`: the DRC gates everything; Gerbers, drill, STEP, renders; `stats` fails if a USB pair is more than
    3.8 mm apart or cannot be measured; `check_power.py`, `check_df40.py` and `check_vias.py` fail on a narrow current
    path, on foreign copper in the socket strips or on a via that touches a lead pad; BOM and order cost; `make_jlc.py`
-   fails if a rotation fit does not match.
+   fails if a rotation fit does not match, if `gen/sourcing_jlc.json` has no LCSC number for an `MPN`, or if a part
+   that is to be fitted has no field `MPN`.
 
 ## Editing the project by hand (KiCad 10)
 
@@ -313,7 +317,13 @@ The step was stopped: the files it had already regenerated stay as they are. The
 For an open KiCad the second line of the message then begins with `The step was stopped: the files it had already
 regenerated stay as they are. Close KiCad`. The first check of a step says "Nothing was written.", and so does the
 check by hand, `python3 gen/guard.py check . sch pcb` in `hardware/`, which only reads and does not report an
-unfinished step.
+unfinished step. "Nothing was written." speaks of the step that prints it, not of the whole command. In
+`build.sh all` the steps before it have written their files: at a stop at the first check of the `route` part
+the sheets, the libraries and the project file are regenerated and the board is the unrouted placement of the
+`pcb` part (run `all` or `route` again; `outputs` stops at its DRC until then). In `route` without
+`SKIP_ROUTE=1` the second check comes after the autorouter: at a stop there `gen/routed/voxhub.ses` already
+is the new session, and `git checkout hardware/gen/routed/voxhub.ses` brings the committed one back (the first
+case was tried with the real build, the second with a stand-in for the autorouter).
 
 **Which step checks which files.**
 
@@ -382,8 +392,10 @@ run says depends on where the step was stopped:
 - A generator command that failed, for example with a Python error while `gen/` is being changed: the same.
 - A step stopped after its last generator command (in `sch`: during ERC, netlist export or PDF), and a stopped
   `outputs`: nothing is unfinished, and the next run starts normally.
-- `outputs` after a stopped `pcb` or `route`: it stops at its DRC with exit code 5, because the board is
-  incomplete.
+- `outputs` after a stopped `pcb` or `route`: when the step had already written the board, it stops at its DRC
+  with exit code 5, because the board is incomplete. The placement writes the board only about 23 s after the
+  step has started (measured in one build); a step stopped before that leaves the board of the last finished
+  run, and `outputs` works on that board.
 
 SIGQUIT is ignored (tried once: the step ran to its end). SIGKILL of `build.sh` itself cannot be handled: the
 container then runs on until its command has ended (read from the code, not tried).
@@ -428,6 +440,19 @@ gate reports and the JLCPCB BOM / CPL are made from the board as it is on disk. 
 - `outputs/usb_impedance.txt`: written by `gen/jlc_impedance.py`, which is run by hand.
 - `outputs/bom.csv`, `bom_system.csv` and `order_cost.*` are written again, but from the code model
   `gen/model_netlist.json`, not from an edited schematic.
+- `../fab/jlcpcb/bom_jlcpcb.csv` and `cpl_jlcpcb.csv` are written from the board, but the part of a footprint
+  comes from its field `MPN` alone, looked up in `gen/sourcing_jlc.json`; the value is not read. The field is
+  hidden in the schematic and on the board; it is in the properties of the symbol and of the footprint. A value
+  that is changed in KiCad without the field `MPN` leaves the old part in the order files, and no message says
+  so (tried with a script that changed R41 from 75 to 100 in sheet and board: exit code 0, the BOM line of R41
+  is still `0402WGF750JTCE`, C25133). Change the field `MPN` together with the value, to a part number that
+  `gen/sourcing_jlc.json` lists (tried with 1k and `0402WGF1001TCE`: R41 moves to the BOM line of C11702). A
+  part that is to be fitted and has no field `MPN` - every symbol placed new from `voxhub.kicad_sym` has none -
+  ends the run with `PROBLEM: <reference>: no field MPN, ...` and exit code 1. An `MPN` that
+  `gen/sourcing_jlc.json` does not list ends it with `PROBLEM: <reference>: no LCSC number for <MPN>` and exit
+  code 1. Both were tried on R41. After a `PROBLEM:` line the two files are already written without that part:
+  do not order with them. A footprint on which nothing is fitted (test pad, hole, fiducial) needs *Exclude from
+  bill of materials*. A part that is to stay belongs in `gen/design.py` and `gen/parts.py`.
 
 When the DRC of `outputs` finds a violation, the run stops before it plots: `outputs/gerbers/`,
 `outputs/voxhub_gerbers.zip` and `../fab/jlcpcb/gerbers.zip` are then still the files of the previous run.
@@ -488,6 +513,21 @@ under Git Bash is untested: the `docker run` call is protected against MSYS path
 (`MSYS_NO_PATHCONV=1`), but Git for Windows has no `zip`, and `python3` (and Java for a new autoroute) must be on
 the PATH.
 
+Because none of this was run, check three things on the Windows machine before the first edit, in a checkout
+without changes. All three are safe there: `build.sh sch` on an unchanged checkout writes the same bytes again.
+What each check should show comes from runs on Linux.
+
+1. `hardware/build.sh sch` in the WSL shell ends with exit code 0, and `git status --short` then lists only
+   `hardware/outputs/erc.rpt` and `hardware/outputs/voxhub_schematic.pdf` (their dates). If the script does not
+   start (`Permission denied`, or `'bash\r': No such file or directory`), the checkout has lost the executable
+   bit or the LF line endings of the scripts: clone again with Git inside WSL.
+2. Open the project in KiCad for Windows and run `hardware/build.sh sch` again. It must stop with
+   `KiCad has the project open: lock file ...`. If it runs through, the build does not see KiCad's lock files in
+   this set-up, and only closing KiCad yourself protects a save.
+3. Save once from the schematic editor and once from the board editor without a change, close KiCad and run
+   `python3 gen/guard.py check . sch pcb` in `hardware/`. It must print nothing. If KiCad wrote CR LF,
+   `git status` lists the saved files as modified although `git diff` is empty; `git add` clears the entries.
+
 **Not tested.**
 
 - Windows in any form: KiCad's editors there, a save with CR LF, the jobset, Docker Desktop, the build under WSL2
@@ -543,10 +583,11 @@ the PATH.
 - J6 is the Jing Extension 907-112A1022D10200 (C29780026) since revision A3; the Wurth 61400826021 is the alternate.
   The footprint is still the one drawn for the Wurth part. The Jing part fits it at nominal dimensions: the pins are
   within 0.12 mm, the shell stakes are 0.0 to 0.1 mm clear in the smallest hole. That is less than the part and hole
-  tolerances, so the stakes may need light pressure. JLCPCB's footprint record of the part carries the Wurth pattern:
-  it confirms position, rotation and pin 1, and the fit of the real part rests on the Jing drawing alone. That
+  tolerances, so the stakes may need light pressure. JLCPCB's footprint record of the part is not exactly the Wurth
+  pattern: its pin rows are 2.71 mm apart, those of the board 2.62 mm (0.045 mm per row at the CPL point). It
+  confirms position, rotation and pin 1, and the fit of the real part rests on the Jing drawing alone. That
   drawing states no temperature range, and four of its dimensions are scaled from it, not dimensioned (DECISIONS.md,
-  F-2, R-6).
+  F-2, R-6, R-23).
 - U4 is ordered as USB2514BT-I/M2 (C510949), the tape-and-reel ordering code of the same device (F-1).
 - U9 ADAU7002: WLCSP-8, 0.4 mm pitch, NSMD pads 0.22 mm - X-ray is part of JLCPCB's Standard PCBA for such parts.
 - U11 (radio module, MSL 3, at most two reflow passes) and J2 / J3 (0.4 mm mezzanine sockets): reflow only. J2 / J3

@@ -160,7 +160,10 @@ def main(pcb, sourcing_path, fp_path, out):
     for fp in sorted(board.GetFootprints(), key=lambda q: natural(q.GetReference())):
         ref = fp.GetReference()
         mpn = fp.GetFieldText("MPN") if fp.HasField("MPN") else ""
-        if not mpn or fp.IsDNP() or (fp.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM):
+        if fp.IsDNP() or (fp.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM):
+            continue
+        if not mpn:
+            problems.append("%s: no field MPN, the part is in neither the BOM nor the CPL (set the field, or tick 'Exclude from bill of materials' if nothing is fitted there)" % ref)
             continue
         part = src.get(mpn)
         if part is None or not part.get("lcsc"):

@@ -46,7 +46,7 @@ Code (`voxhub_satellite/app/voxhub_satellite/`, shared with the satellite image)
 | File | Contents |
 |---|---|
 | `__main__.py` | add-on entry point: options, sound card, Linux Voice Assistant, bridge, guard |
-| `launch.py` | finds the googlevoicehat source and sink with `pactl`, sets the microphone gain in dB, builds the Linux Voice Assistant command line; `python -m voxhub_satellite.launch` on the satellite |
+| `launch.py` | finds the googlevoicehat source and sink with `pactl`, sets the microphone gain as the volume of the source (a linear factor, 4 = +12 dB), builds the Linux Voice Assistant command line; `python -m voxhub_satellite.launch` on the satellite |
 | `bridge.py` | LED patterns and mute from the events of Linux Voice Assistant's peripheral WebSocket API |
 | `hardware.py` | sysfs LEDs `voxhub-green` / `voxhub-blue`, mute switch input device (`KEY_MICMUTE` or `SW_MUTE_DEVICE`) |
 | `guard.py` | the exposure guard (Home Assistant websocket API) |

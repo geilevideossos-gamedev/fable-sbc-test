@@ -9,7 +9,13 @@ NAME = sys.argv[3] if len(sys.argv) > 3 else "VoxHub Test"
 
 
 def leds():
-    return tuple((LEDS / name / "brightness").read_text().strip() for name in ("voxhub-green", "voxhub-blue"))
+    for _ in range(1000):
+        values = tuple(
+            (LEDS / name / "brightness").read_text().strip() for name in ("voxhub-green", "voxhub-blue")
+        )
+        if all(values):
+            break
+    return values
 
 
 async def wait_for(expected, seconds=10.0):

@@ -120,7 +120,7 @@ route() {
     # always start from a fresh placement so that this step is repeatable
     kc "${START} pcb && python3 gen/build_pcb.py place gen/work/voxhub.net /work/hardware && ${RECORD} pcb && ${SURE} pcb \
         && python3 gen/build_pcb.py finish /work/hardware && ${RECORD} pcb && ${SURE} pcb \
-        && gen/postroute.sh /work/hardware 30 && ${SURE} pcb && ${FINISH} pcb"
+        && bash gen/postroute.sh /work/hardware 30 && ${SURE} pcb && ${FINISH} pcb"
 }
 outputs() {
     # the final DRC gates everything below: no Gerbers from a board with violations

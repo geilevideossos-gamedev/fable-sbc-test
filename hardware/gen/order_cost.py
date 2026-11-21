@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import csv, json, os, re, sys
 
 def natural(ref):

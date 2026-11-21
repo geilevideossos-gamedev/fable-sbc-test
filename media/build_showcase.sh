@@ -3,8 +3,7 @@
 #
 #   media/build_showcase.sh [work dir]          (default: media/work, not tracked by git)
 #
-# Needs: python3 with cadquery + pymupdf + pillow + numpy, Docker with the KiCad 10 image voxhub-kicad:10.0 (board textures;
-#        built from hardware/docker when missing, KICAD_IMAGE names another one, KICAD_NATIVE=1 uses the host's kicad-cli),
+# Needs: python3 with cadquery + pymupdf + pillow + numpy, Docker with the KiCad 10 image voxhub-kicad:10.0 (board textures),
 #        Blender 4.2 - 4.5 (BLENDER=/path/to/blender; 5.x has a different animation API and is refused), ffmpeg.
 # Environment: SAMPLES (default 4, Cycles samples per pixel before denoising), THREADS, FRAMES="start end"
 #

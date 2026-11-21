@@ -207,7 +207,9 @@ image has not been booted - there is no hardware.
    with at least 2 A). Green PWR LED on;
    red PD-FAULT LED means the charger offers no 9-20 V profile.
 2. Wait ~5 minutes on first boot, open `http://homeassistant.local:8123`.
-3. Settings -> System -> Hardware should list the `sndrpigooglevoi` sound card and `/dev/ttyAMA4`.
+3. Settings -> System -> Hardware should list `/dev/ttyAMA4`. The sound card (ALSA card `sndrpigooglevoi`) does not
+   appear there under that name: `ha hardware audio` in the terminal app should list an input and an output whose
+   names contain `soc_sound` (`fab/ASSEMBLY_AND_TEST.md`, test 9).
 4. Flash the radio module once with `tools/flash_zigbee.sh` (one command, see `fab/ASSEMBLY_AND_TEST.md`), then add
    ZHA with radio type ZNP, `/dev/ttyAMA4`, 115200 baud, no flow control (Zigbee2MQTT: `adapter: zstack`).
 5. Continue with `assistant/README.md`.

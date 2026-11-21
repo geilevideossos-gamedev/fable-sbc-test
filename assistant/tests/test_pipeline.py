@@ -129,9 +129,9 @@ async def captured(pcm: bytes, gain: float, filtered: bool) -> bytes:
     reader.feed_eof()
     mic = Microphone(gain=gain)
     if not filtered:
-        mic._dc.process = lambda chunk, gain=1.0: apply_gain(chunk, gain)  # type: ignore[method-assign]
+        mic._dc.process = lambda chunk, gain=1.0: apply_gain(chunk, gain)
     mic._queue = asyncio.Queue(maxsize=1000)
-    await mic._reader(SimpleNamespace(stdout=reader, returncode=0))  # type: ignore[arg-type]
+    await mic._reader(SimpleNamespace(stdout=reader, returncode=0))
     out = []
     while (chunk := mic._queue.get_nowait()) is not None:
         out.append(chunk)

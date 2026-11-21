@@ -574,7 +574,7 @@ with a good charger and the 1 m cable it must not happen.
 5. End the load in the same terminal:
 
    ```
-   kill $P
+   kill $(echo $P)
    ```
 
    If this line prints an error instead, leave it at that: the four processes then run until the shutdown of
@@ -582,10 +582,12 @@ with a good charger and the 1 m cable it must not happen.
 6. Shut the system down, unplug the 20 W charger and continue with the 30 W charger.
 
 The multimeter shows an average. Short dips can be seen only with an oscilloscope (`DECISIONS.md`, open item 9).
-The load recipe of steps 3 and 5 was not run on a hub or on a satellite. It was only tried for two seconds in
-the shells `bash` and `dash` of the build environment (x86 Linux), where it started four processes and ended them
-again; it does not use job control, so it does not depend on the kind of shell.
-Whether the web terminal of Home Assistant OS accepts the line of step 5 is not known, and neither is how much
+The load recipe of steps 3 and 5 was not run on a hub or on a satellite. It was only tried for a few seconds in
+the shells `bash`, `dash` and `zsh` 5.9 of the build environment (x86 Linux), where it started four processes and
+ended them again. The web terminal app uses `zsh` unless its option `zsh` is switched off (documentation of the
+Advanced SSH & Web Terminal app, read on 2026-11-21), which is why step 5 is written as `kill $(echo $P)`: a
+plain `kill $P` works in `bash` and `dash`, but in `zsh` it prints "illegal pid" and ends nothing.
+Whether the web terminal itself accepts the line of step 5 is not known, and neither is how much
 power the load draws. With the optional USB-C power meter between cable and board you can read the current: 12 W
 on the 5 V rail are about 1.5 A at 9 V, the theoretical peak would be about 2.2 A (both calculated).
 
@@ -798,8 +800,13 @@ All commands are typed into the web terminal of test 6, step 7.
    ha hardware audio
    ```
 
-   Expected: a card named `snd_rpi_googlevoicehat_soundcar` (short name `sndrpigooglevoi`). It is created by the
-   line `dtoverlay=googlevoicehat-soundcard` and serves both the microphones and the speaker.
+   Expected: under `input` and under `output` one entry each whose name contains `soc_sound` (expected:
+   `alsa_input.platform-soc_sound.stereo-fallback` and `alsa_output.platform-soc_sound.stereo-fallback`), each
+   followed by the description the sound server gives it (by the sources of the sound server most likely
+   `Built-in Audio Stereo`; not seen on a board). The command lists the inputs and outputs of Home Assistant's
+   sound server; it does not print the name of the sound card (`snd_rpi_googlevoicehat_soundcar`, short name
+   `sndrpigooglevoi`). The card is created by the line `dtoverlay=googlevoicehat-soundcard` and serves both the
+   microphones and the speaker.
 3. Read the names under which Home Assistant's sound server knows the microphones and the speaker and keep them in
    two variables:
 
@@ -873,7 +880,7 @@ sound dead. What the constant level means for the voice software is described in
 
 | Expected | If not |
 |---|---|
-| You hear your voice in step 5 and in step 6. Each microphone hears both halves of the recording; the half spoken next to it is the louder one. Some hiss is normal, and so are the thump and the harsher sound of MK2 described above | **Step 2 shows no such card or `$SRC` is empty:** the VoxHub block is missing in `config.txt` - the card was not made with `os/build-image.sh`. **Silence in steps 5 and 6:** (a) do test 10 first to prove the speaker; (b) the microphones are muted - D9 is lit; (c) the converter chip U9 (a very small chip at (40.0 / 61.0), between the radio module and the compute module) is not soldered correctly - report the board. **One channel has a voice, the other is silent or only crackles:** that microphone (MK1 or MK2) is defective or was washed - report the board. If it is MK2, repeat step 6 with `--volume=131072` first: a volume above 262144 silences a healthy MK2, and so does 262144 after the VoxHub Satellite app has run (see above). **Noise, drop-outs or a wrong level on one channel, other than the differences of MK2 described above:** this points to the clock line of the microphones (series resistor R41, 75 Ohm). Measuring it needs a fast oscilloscope (about 1 GHz, with a short ground spring), which is not among the tools of this guide: write the symptom into the results table and report it (`DECISIONS.md`, open item 12). |
+| You hear your voice in step 5 and in step 6. Each microphone hears both halves of the recording; the half spoken next to it is the louder one. Some hiss is normal, and so are the thump and the harsher sound of MK2 described above | **Step 2 shows no entry with `soc_sound`, or `$SRC` is empty:** the VoxHub block is missing in `config.txt` - the card was not made with `os/build-image.sh`. **Silence in steps 5 and 6:** (a) do test 10 first to prove the speaker; (b) the microphones are muted - D9 is lit; (c) the converter chip U9 (a very small chip at (40.0 / 61.0), between the radio module and the compute module) is not soldered correctly - report the board. **One channel has a voice, the other is silent or only crackles:** that microphone (MK1 or MK2) is defective or was washed - report the board. If it is MK2, repeat step 6 with `--volume=131072` first: a volume above 262144 silences a healthy MK2, and so does 262144 after the VoxHub Satellite app has run (see above). **Noise, drop-outs or a wrong level on one channel, other than the differences of MK2 described above:** this points to the clock line of the microphones (series resistor R41, 75 Ohm). Measuring it needs a fast oscilloscope (about 1 GHz, with a short ground spring), which is not among the tools of this guide: write the symptom into the results table and report it (`DECISIONS.md`, open item 12). |
 
 ### 3.10 Test 10 - speaker
 
@@ -1254,7 +1261,7 @@ Board number: ______  Date: ______
 | 7 | +3V3 at the test pad `3V3` | 3.22 to 3.38 V | | [ ] |
 | 8a | USB stick, upper socket | `/dev/sda` appears | | [ ] |
 | 8b | USB stick, lower socket | `/dev/sda` appears | | [ ] |
-| 9a | Sound card | `snd_rpi_googlevoicehat_soundcar` listed | | [ ] |
+| 9a | Sound card | an input and an output with `soc_sound` in the name listed | | [ ] |
 | 9b | Microphone MK1 (left channel) | voice audible | | [ ] |
 | 9c | Microphone MK2 (right channel) | voice audible | | [ ] |
 | 10 | Speaker | "Front Center" loud and clear | | [ ] |

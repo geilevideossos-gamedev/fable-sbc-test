@@ -43,7 +43,8 @@ docker run -d --name "$NAME-addon" --network "$NAME" -v "$NAME-audio:/run/audio"
     voxhub-satellite:test >/dev/null
 
 for _ in $(seq 1 60); do
-    docker logs "$NAME-addon" 2>&1 | grep -q "Connected to the voice satellite" && break
+    LOG="$(docker logs "$NAME-addon" 2>&1)"
+    [[ "$LOG" == *"Connected to the voice satellite"* && "$LOG" == *"Server started"* ]] && break
     sleep 1
 done
 docker logs "$NAME-addon" 2>&1 | sed -n '1,40p'
