@@ -14,7 +14,7 @@ dtoverlay=uart4
 dtoverlay=gpio-led,gpio=5,label=voxhub-green,trigger=none
 dtoverlay=gpio-led,gpio=6,label=voxhub-blue,trigger=none
 # Hardware mute switch sense (high = muted) -> input event KEY_MICMUTE (248)
-dtoverlay=gpio-key,gpio=27,label=voxhub-mute,keycode=248,active_low=0,gpio_pull=off
+dtoverlay=gpio-key,gpio=27,label=voxhub-mute,keycode=248,active_low=0,gpio_pull=down
 # I2C1 (GPIO2/3): USB-PD controller status (CYPD3177 HPI @ 0x08)
 dtparam=i2c_arm=on
 # Serial console on the debug header (GPIO14/15) - uncomment for bring-up

@@ -38,7 +38,7 @@
 			voxhub_mute_pins: voxhub_mute_pins {
 				brcm,pins = <27>;
 				brcm,function = <0>;	/* input */
-				brcm,pull = <0>;	/* external 100k pull-down */
+				brcm,pull = <1>;	/* internal pull-down in parallel with the external 100k */
 			};
 		};
 	};
