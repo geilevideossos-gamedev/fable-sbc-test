@@ -19,7 +19,10 @@ Cost reduction (milestone 2, hardware revision A3)
 - [x] BOM 53 -> 44 lines, machine-placed part types 51 -> 42; every changed value verified against the data sheets
       before it was changed (DECISIONS.md C-1 to C-10); copper, placement and nets unchanged
 - [x] ERC 0 / 0, DRC 0 / 0 / 0, all gates; 136 of 136 placements fitted to JLCPCB's own footprints
-- [ ] Via covering: "Epoxy Filled & Capped" against "Plugged" re-evaluated with a thermal model
+- [x] Via covering re-evaluated with a thermal model, JLCPCB's rules and a built layout variant: "Epoxy Filled &
+      Capped" stays - "Plugged" would save 20.96 USD but costs temperature at the regulator and the amplifier and
+      needs solder mask strips under two QFN packages (C-11)
+- [x] Findings on the existing design documented (N-1 to N-6); VBUS_DET pull-up 10k (C-12)
 - [ ] Old and new cost estimate in `fab/ORDER_GUIDE.md`
 
 Final stock and price check

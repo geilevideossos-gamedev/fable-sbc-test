@@ -2154,9 +2154,9 @@
  "R28": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1003TCE",
+   "MPN": "0402WGF1002TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 100k 1% 1/16W 0402"
+   "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -2168,7 +2168,7 @@
   "pos": null,
   "ref": "R28",
   "sheet": "usb",
-  "value": "100k"
+  "value": "10k"
  },
  "R29": {
   "dnp": false,

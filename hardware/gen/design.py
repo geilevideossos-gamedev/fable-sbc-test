@@ -262,7 +262,7 @@ s.place("Crystal_GND24", "Y1", "24MHz CL12pF", 45, 215, {"1": "HUB_XI", "3": "HU
 cap(s, "C_xtal", 30, 240, "HUB_XI"); cap(s, "C_xtal", 60, 240, "HUB_XO")
 res(s, "12k", 40, 60, "HUB_RBIAS", GND); cap(s, "C_100n", 30, 85, "HUB_PLLFILT"); cap(s, "C_100n", 45, 85, "HUB_CRFILT")
 s.text("RESET_N is driven by the CM4 (nEXTRST, pin 100):\nlow during reset, high once the SoC boots.", 22, 108, size=1.4)
-res(s, "100k", 40, 130, V33, "HUB_VBUSDET")
+res(s, "10k", 40, 130, V33, "HUB_VBUSDET")
 for i, nn in enumerate(("HUB_CFG0", "HUB_CFG1", "HUB_NONREM0", "HUB_NONREM1")):
     res(s, "100k", 40, 150 + i * 10, nn, GND)
 for i, nn in enumerate(("HUB_DIS3M", "HUB_DIS3P", "HUB_DIS4M", "HUB_DIS4P")):

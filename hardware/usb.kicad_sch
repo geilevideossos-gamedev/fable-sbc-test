@@ -6397,7 +6397,7 @@
 				)
 			)
 		)
-		(property "Value" "100k"
+		(property "Value" "10k"
 			(at 39.37 132.14 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6451,7 +6451,7 @@
 				)
 			)
 		)
-		(property "MPN" "0402WGF1003TCE"
+		(property "MPN" "0402WGF1002TCE"
 			(at 39.37 129.54 0)
 			(hide yes)
 			(show_name no)
@@ -6462,7 +6462,7 @@
 				)
 			)
 		)
-		(property "PartDescription" "RES 100k 1% 1/16W 0402"
+		(property "PartDescription" "RES 10k 1% 1/16W 0402"
 			(at 39.37 129.54 0)
 			(hide yes)
 			(show_name no)
