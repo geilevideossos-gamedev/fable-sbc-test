@@ -70,7 +70,7 @@ configuration:
     description: Advanced. Command that reads raw PCM from stdin; {rate}, {channels} and {format} are substituted. Empty uses pacat.
   mic_gain:
     name: Microphone gain
-    description: Software gain applied to the microphone signal. The VoxHub I2S microphones are quiet; try 4 to 8.
+    description: Software gain of the microphone signal. 32 suits the VoxHub microphones (calculated, not measured). Use 64 if the log says "No speech heard", 16 if loud speech is misunderstood, 1 with another microphone.
   volume:
     name: Speaker volume
     description: Software volume from 0.0 to 1.0.

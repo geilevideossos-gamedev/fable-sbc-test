@@ -12,6 +12,13 @@
 - The filter works on buffers of any length (in blocks of at most 4096 samples) and
   rejects a pole outside 0..1. The gain is applied before the single rounding to 16 bit.
 - Tests cover the filter, the microphone reader and the pipeline with a constant level.
+- The default of **Microphone gain** is 32 instead of 1: the end-pointing counts speech
+  only above 120 counts after the gain, and speech of 60 dBSPL at the VoxHub microphones
+  is about 7.3 counts rms before it, so with a gain of 1 to 8 the add-on heard the wake
+  word and then logged "No speech heard" or cut the request short. The value is
+  calculated and simulated, not measured on a board; with another microphone start at 1.
+  An installation that was configured with an earlier version may keep its stored value:
+  check that **Microphone gain** shows 32 on the Configuration tab.
 
 ## 0.1.0
 

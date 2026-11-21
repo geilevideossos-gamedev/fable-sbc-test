@@ -176,7 +176,7 @@ def write_stackup(path):
     open(path, "w").write(txt[:i] + block + txt[i:])
 
 def write_project(outdir):
-    """pcbnew's Save() rewrites voxhub.kicad_pro with default rules - put ours back."""
+    """Write our project settings to voxhub.kicad_pro after every Save() (pcbnew of KiCad 10 leaves the file alone)."""
     import shutil
     shutil.copyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "project_settings.json"),
                     os.path.join(outdir, "voxhub.kicad_pro"))
@@ -219,7 +219,10 @@ def load_netlist(path):
         name = first(n, "name")[1]
         for nd in find(n, "node"):
             comps[first(nd, "ref")[1]]["pins"][first(nd, "pin")[1]] = name
-    return comps
+    block = first(next(s for s in find(first(t, "design"), "sheet") if first(s, "name")[1] == "/"), "title_block")
+    title = {k: first(block, k)[1] for k in ("title", "rev", "date", "company")}
+    title["comments"] = [first(c, "value")[1] for c in find(block, "comment")]
+    return comps, title
 
 def crt_bbox(fp):
     """Courtyard bounding box (mm, board coords); falls back to pads."""
@@ -244,9 +247,13 @@ def overlap(a, b, m=0.0):
 PLOT_LAYERS = ("F_Paste", "B_Paste", "F_SilkS", "B_SilkS", "F_Mask", "B_Mask", "Edge_Cuts")
 
 def place(netlist, outdir):
-    comps = load_netlist(netlist)
+    comps, title = load_netlist(netlist)
     model = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "model_netlist.json")))
     board = pcbnew.CreateEmptyBoard()
+    block = board.GetTitleBlock()
+    block.SetTitle(title["title"]); block.SetRevision(title["rev"]); block.SetDate(title["date"]); block.SetCompany(title["company"])
+    for i, text in enumerate(title["comments"]):
+        block.SetComment(i, text)
     board.SetCopperLayerCount(4)
     board.SetFileName(os.path.join(outdir, "voxhub.kicad_pcb"))
     plot, plot_layers = board.GetPlotOptions(), pcbnew.LSET(pcbnew.LSET.AllCuMask())

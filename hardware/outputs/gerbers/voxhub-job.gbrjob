@@ -5,13 +5,13 @@
       "Application": "Pcbnew",
       "Version": "10.0.8"
     },
-    "CreationDate": "2026-11-21T09:57:36+00:00"
+    "CreationDate": "2026-11-21T15:23:39+00:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
       "Name": "voxhub",
       "GUID": "766f7868-7562-42e6-9b69-6361645f7063",
-      "Revision": "rev?"
+      "Revision": "A3"
     },
     "Size": {
       "X": 100.1,

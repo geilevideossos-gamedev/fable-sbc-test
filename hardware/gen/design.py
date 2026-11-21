@@ -4,7 +4,7 @@ import sys, os, json
 from kisch import Design, PROJECT
 from parts import PARTS, res as RES
 
-d = Design("VoxHub CM4 - Home Assistant voice hub carrier", "A3", "2026-11-20", "VoxHub (open hardware)")
+d = Design("VoxHub CM4 - Home Assistant voice hub carrier", "A3", "2026-11-21", "VoxHub (open hardware)")
 L = d.lib
 _cnt = {}
 

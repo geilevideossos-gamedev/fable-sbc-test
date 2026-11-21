@@ -7,6 +7,14 @@ cd "$HW"
 RPT=gen/work/drc_iter.rpt
 BAD="clearance|shorting_items|tracks_crossing|hole_clearance|hole_to_hole|copper_edge_clearance|track_dangling|via_dangling|items_not_allowed|solder_mask_bridge|track_width"
 
+write_board() {
+    local pat="$1" rc
+    shift
+    OVERWRITE=0 python3 gen/guard.py recheck . pcb || exit 1
+    python3 gen/build_pcb.py "$@" 2>&1 | grep -E "$pat"
+    rc="${PIPESTATUS[0]}"
+    [ "$rc" != 0 ] || python3 gen/guard.py record . pcb || exit 1
+}
 settle() {      # iterate DRC -> repair -> patch; returns 0 when nothing is open and no violation of a track or via is left
     local i unc err sig seen=""
     for i in $(seq 1 "$1"); do
@@ -22,14 +30,15 @@ settle() {      # iterate DRC -> repair -> patch; returns 0 when nothing is open
         sig=$(grep -E "^\[|^ +@\(" "$RPT" | sort | cksum | cut -d" " -f1)
         case " $seen " in *" $sig "*) echo "  no progress - giving up on this attempt"; return 1 ;; esac
         seen="$seen $sig"
-        if [ "$err" != 0 ]; then python3 gen/build_pcb.py repair "$HW" "$RPT" 2>&1 | grep "^repair"; fi
-        python3 gen/build_pcb.py patch "$HW" 2>&1 | grep -E "FAILED|^patch"
+        if [ "$err" != 0 ]; then write_board "^repair" repair "$HW" "$RPT"; fi
+        write_board "FAILED|^patch" patch "$HW"
     done
     return 1
 }
 echo "== completing the autorouted board"
 settle "$MAX" || { echo "could not reach a clean board"; exit 1; }
-cp gen/project_settings.json voxhub.kicad_pro
+OVERWRITE=0 python3 gen/guard.py recheck . pcb || exit 1
+cp gen/project_settings.json voxhub.kicad_pro && python3 gen/guard.py record . project || exit 1
 python3 gen/build_pcb.py stats "$HW" > /dev/null || { echo "USB pairs not matched or not traceable pad to pad"; exit 1; }
 rest=$(grep -c -E "^\[($BAD)\]" "$RPT")
 if [ "$rest" = 0 ]; then echo "clean"; else echo "routing complete; $rest violation(s) that involve no track or via are left to the final DRC"; fi

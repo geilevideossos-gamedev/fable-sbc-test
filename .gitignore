@@ -11,3 +11,4 @@ _autosave-*
 .ruff_cache/
 media/work/
 hardware/freerouting-*.jar
+hardware/outputs/voxhub-all-pos.csv

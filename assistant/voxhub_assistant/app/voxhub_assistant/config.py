@@ -62,7 +62,7 @@ class Config:
     output_device: str = ""
     mic_command: str = ""
     speaker_command: str = ""
-    mic_gain: float = 1.0
+    mic_gain: float = 32.0
     volume: float = 0.7
     # End-pointing
     silence_seconds: float = 0.8
