@@ -17,16 +17,19 @@ written), board 2 the **satellite**: chapters 1 and 2, chapter 3 tests 1 to 5 an
 section 7.3 instead of part A of test 6), sections 7.3 and 7.4 (its software tests), then chapter 4 and the rest
 of chapter 7.
 
-Status of this text: it was written on 2026-11-12 and brought to hardware revision A3 on 2026-11-20. **No board has
-been built yet.** Every expected value below comes from the schematic (`hardware/gen/design.py`), the board file,
-the enclosure model or a data sheet, not from a measurement. Values marked "estimate" are estimates. The parts and
-values of the board are those of 2026-11-20; on-screen labels and software versions were read on 2026-11-12; the
-source is named where it matters.
+Status of this text: it was written on 2026-11-12, brought to hardware revision A3 on 2026-11-20 and corrected
+after the first review round on 2026-11-21 (`DECISIONS.md`, R-1 to R-7). **No board has been built yet.** Every
+expected value below comes from the schematic (`hardware/gen/design.py`), the board file, the enclosure model, a
+data sheet, a calculation or a simulation, not from a measurement. Values marked "estimate" are estimates. The
+parts and values of the board are those of 2026-11-21; on-screen labels and software versions were read on
+2026-11-12; the source is named where it matters.
 
 All positions on the board were read from `hardware/voxhub.kicad_pcb` as committed in `aa97fd3` (revision A3) and
-compared with `fab/jlcpcb/placement_report.csv` of the same commit. If the board is generated again, the parts that
-the generator places by itself can move: D4, D6, D10, C38, C41, JP1, C13 and the three test pads. Their coordinates
-in this guide then have to be read again.
+compared with `fab/jlcpcb/placement_report.csv` of the same commit. The changes made since then (the values of R28
+and R41, the ground ring of the microphone footprint) moved no part: the position file
+`hardware/outputs/voxhub_pos.csv` of 2026-11-21 differs from that commit only in these two values. If the board is
+generated again, the parts that the generator places by itself can move: D4, D6, D10, C38, C41, JP1, C13 and the
+three test pads. Their coordinates in this guide then have to be read again.
 
 ## Conventions used in this guide
 
@@ -119,10 +122,10 @@ The six LEDs are three parts of one maker (Hubei KENTO): the red KT-0603R, the g
 KT-0603B.
 
 In the closed case D7, D8 and D9 shine through the top cover. Their series resistors were chosen for similar
-brightness; from the curves of the data sheets that is 27 to 55 mcd for green (0.27 mA), 23 to 57 mcd for blue and
-13 to 27 mcd for red (1.44 mA), so the red dot is the weakest of the three. D4, D6 and D10 are inside. Their glow can
-be seen through ventilation slots: D4 and D6 through the four short slots of the base next to the speaker side, D10
-through the slots of the front wall.
+brightness; estimated from the curves of the data sheets that is about 10 to 55 mcd for green (0.27 mA, which is
+below the range of the data sheet curve), 23 to 57 mcd for blue and about 11 to 27 mcd for red (1.44 mA). D4, D6
+and D10 are inside. Their glow can be seen through ventilation slots: D4 and D6 through the four short slots of
+the base next to the speaker side, D10 through the slots of the front wall.
 
 What to expect from the three LEDs inside (calculated from the data sheets, not measured):
 
@@ -314,7 +317,7 @@ breaks through the top cover.
 | A supply that delivers only 5 V | any phone charger with a USB-A socket and a USB-A to USB-C cable, or a USB port of a PC | test 4 |
 | Digital multimeter with DC voltage, resistance and continuity ranges and pointed probes | PeakTech P 1070 or any other | tests 2, 3, 4, 7 |
 | USB-C power meter (optional) | KWS-1902C; plugs between cable and board and shows the negotiated voltage | tests 3, 4 without probing |
-| USB memory stick | any | test 8 |
+| USB memory stick | any | test 8, second part of test 4 |
 | One Zigbee device, factory reset | for example a Zigbee plug or lamp | test 13 |
 | PC with a microSD card reader, Linux or Windows with WSL2 (Ubuntu) | | 3.6 |
 | Wi-Fi network with WPA2 password and internet access | the board has no Ethernet and no monitor output | 3.6 onwards |
@@ -357,6 +360,7 @@ protects the parts that are added in the next one. Write the results into the ta
 Setup for tests 1 to 4: a sheet of cardboard on the desk, the board on it with the component side up, the rear edge
 away from you. **No compute module, no microSD card, nothing in the USB-A sockets, speaker not connected.** The board
 rests on the mute slider of the bare side and rocks a little. That is harmless as long as you do not press down on it.
+(Test 4 has a second part that is done later, after test 10, with everything fitted.)
 
 ### Probe points
 
@@ -452,7 +456,7 @@ LEDs in this state (charger with a valid contract, no compute module):
 
 | Expected | If not |
 |---|---|
-| D6 on, D4 off, all three voltages in range | **Nothing lights and VBUS is 0 V:** (a) plug not fully inserted or charger without mains; (b) turn the USB-C plug by 180 degrees - if it works only one way round, one contact row of the socket J1 is not soldered. **D4 red on, D6 off, VBUS about 5 V:** no contract, see test 4, last row. **VBUS 15 V, but D6 off and +5V is 0 V:** measure VBUS_SW. 0 V there: the load switch Q1 or its gate network is faulty. 15 V there: the regulator U2 does not start or the 5 V rail is shorted (repeat test 2). **+5V outside 4.86 to 5.23 V:** stop; do not fit the compute module; the regulator or its two feedback resistors are faulty. **A part gets hot or smells:** unplug at once. |
+| D6 on, D4 off, all three voltages in range | **Nothing lights and VBUS is 0 V:** (a) plug not fully inserted or charger without mains; (b) turn the USB-C plug by 180 degrees - if it works only one way round, one contact row of the socket J1 is not soldered. **D4 red on, D6 off, VBUS about 5 V:** no contract, see test 4, last row. **VBUS 15 V, but D6 off and +5V is 0 V:** measure VBUS_SW. 0 V there: the load switch Q1 or its gate network is faulty (test 4 lists the gate voltages of a healthy board). 15 V there: the regulator U2 does not start or the 5 V rail is shorted (repeat test 2). **+5V outside 4.86 to 5.23 V:** stop; do not fit the compute module; the regulator or its two feedback resistors are faulty. **A part gets hot or smells:** unplug at once. |
 
 ### 3.4 Test 4 - USB PD with a 20 W, a 30 W and a 65 W charger, and with a plain 5 V supply
 
@@ -471,7 +475,21 @@ It goes through the charger's fixed offers from the highest voltage downwards an
 20 V that offers at least 2 A (DECISIONS.md, section 2). Adjustable (PPS) offers are ignored. Only when such a
 contract exists does it close the load switch Q1. The 5 V regulator behind the switch starts when its input has
 risen above 7.39 V and stops when it falls below 6.79 V (typical values; 7.08 to 7.69 V and 6.49 to 7.08 V over
-tolerance). If no offer fits, the controller stays at 5 V, sets its FAULT pin (red LED D4) and leaves Q1 open.
+tolerance). The stop values assume the regulator's typical hysteresis of 100 mV, the only figure its data sheet
+gives; with 70 mV the regulator could stop at up to 7.26 V. If no offer fits, the controller stays at 5 V, sets its
+FAULT pin (red LED D4) and leaves Q1 open.
+
+How the switch is closed: the controller pulls one of its pins to ground, and two 100 kOhm resistors (R9, R10) then
+hold the gate of Q1 at half of VBUS. On a healthy board the voltage between gate and source of Q1 is therefore
+about half the contract voltage (calculated, with the tolerance of the contract voltage):
+
+| Contract | 9 V | 12 V | 15 V | 20 V |
+|---|---|---|---|---|
+| Gate-source voltage of Q1 | 4.2 to 4.8 V | 5.6 to 6.4 V | 6.9 to 8.0 V | 9.0 to 10.6 V |
+
+At 20 V the lower values mean that the 10 V Zener diode D5 at the gate is clamping, which is normal. This guide
+does not ask you to measure the gate: its parts are too small to probe by hand. The values are for the measurements
+of `DECISIONS.md`, open item 9, and for whoever looks for a fault in the load switch.
 
 For each supply: plug it in, wait two seconds, note the LEDs, measure VBUS at the rear pad of D1 and +5V at L1 or
 C14 (black probe on the USB-A shell), unplug, wait until D6 is dark. For the 65 W charger set the multimeter to the
@@ -489,13 +507,58 @@ What the plain 5 V supply looks like: only the red LED D4 next to the square chi
 VBUS_SW at C8 / C9 is 0 V, the 5 V rail is 0 V, nothing gets warm. With a compute module fitted nothing would
 start. This is the intended behaviour: the board stays off instead of running on too little power.
 
-The 20 W charger is a test case, not a supply for daily use: 9 V x 2.2 A = 19.8 W is only 0.2 W above the
-theoretical peak demand of about 19.6 W at the USB-C socket (17.3 W on the 5 V rail plus about 2.3 W of losses in
-the regulator, the inductor and the load switch).
+The 20 W charger is a test case, not a supply for daily use, for two reasons. First, 9 V x 2.2 A = 19.8 W is only
+0.2 W above the theoretical peak demand of about 19.6 W at the USB-C socket (17.3 W on the 5 V rail plus about
+2.3 W of losses in the regulator, the inductor and the load switch; the 0.28 W of the load switch in this sum is
+its loss at 25 C, at operating temperature it loses 0.4 to 0.6 W). Second, on a 9 V contract the load switch Q1
+carries the highest current and becomes the hottest part of the board: the thermal model gives about 100 to 120 C
+inside it at 12 W on the 5 V rail and more than its 150 C limit at the theoretical peak, and Q1 has no thermal
+protection. On a 9 V contract keep the 5 V rail at or below about 12 W (`DECISIONS.md`, N-2).
 
 | Expected | If not |
 |---|---|
 | The four contract voltages of the table; +5V the same in all cases; with 5 V only: red on, green off | **D4 red with a PD charger:** (a) the charger has no fixed offer of at least 2 A between 9 and 20 V - the smallest offer that works is 9 V / 2 A (18 W); (b) a cable with a USB-A plug at one end; (c) wrong strap resistors on the board (R1 to R6) - then every charger fails. **A different contract voltage than in the table:** the charger's offers differ from the manufacturer's table; check with the USB-C meter or another charger. Any contract between 9 and 20 V is acceptable as long as +5V is in range. **D6 green on a plain 5 V supply:** the load switch Q1 is shorted; do not use the board. |
+
+**Second part of test 4, done after test 10 - the 9 V contract under load**
+
+This is the one measurement of test 4 that needs the running system. Do it when the compute module, the card and
+the speaker are fitted and tests 6 to 10 have passed (on the satellite board: after test S10).
+
+Why: on a 9 V contract the input of the 5 V regulator has the least reserve. The lowest voltage that a valid 9 V
+contract can have at the USB-C socket is 7.30 V. The load switch Q1 and the copper take another 0.2 to 0.3 V, and
+the regulator stops at up to 7.08 V (7.26 V if its hysteresis is 70 mV). By calculation no margin is left at the
+theoretical peak, and 0.34 V or more at 12 W on the 5 V rail. If the input falls below the stop value, the
+regulator stops, its input recovers and it starts again: the device restarts in a loop. That does no damage, but
+with a good charger and the 1 m cable it must not happen.
+
+1. Shut the system down (`ha host shutdown`, wait 30 seconds; on the satellite `sudo poweroff`), unplug the 30 W
+   charger and wait until D6 is dark.
+2. Plug in the 20 W charger and wait until the system runs again. Plug the USB memory stick into one USB-A socket.
+3. Put the compute module under load for two minutes. In the web terminal:
+
+   ```
+   docker run --rm debian:bookworm-slim sh -c 'for i in 1 2 3 4; do yes > /dev/null & done; sleep 120'
+   ```
+
+   It is one line. It keeps all four processor cores busy and ends by itself. On the satellite, over SSH:
+   `for i in 1 2 3 4; do timeout 120 yes > /dev/null & done`
+4. While the load runs: multimeter on DC voltage, 20 V range, black probe on the shell of the USB-A socket, red
+   probe on the inner ends of C8 / C9 (VBUS_SW, see "Probe points"). Touch only these two ends, as in test 3. Read
+   the value several times.
+5. Shut the system down, unplug the 20 W charger and continue with the 30 W charger.
+
+The multimeter shows an average. Short dips can be seen only with an oscilloscope (`DECISIONS.md`, open item 9).
+The load of step 3 is a starting point that was not tried on a board; how much it draws is not known. With the
+optional USB-C power meter between cable and board you can read it: 12 W on the 5 V rail are about 1.5 A at 9 V,
+the theoretical peak would be about 2.2 A.
+
+This set-up - the 20 W charger, a 9 V contract - is also the one in which the load switch Q1 gets hottest. If you
+measure temperatures on the first board (chapter 6), measure Q1 here, at about 12 W on the 5 V rail. Never hold
+the full theoretical peak on a 9 V contract.
+
+| Expected | If not |
+|---|---|
+| VBUS_SW stays above about 7.5 V during the whole load, and the system does not restart | **Below about 7.5 V:** too little reserve. The cable is too long or too thin, or a plug has a bad contact: a restart loop is possible from about 0.5 Ohm of resistance in the whole path (cable out and back, plugs, load switch). Repeat with the 1 m cable of the shopping list, plugged in firmly. **The system restarts under load:** the input fell below the stop value of the regulator; same causes. If either happens with the 1 m cable as well, write down the reading and report it (`DECISIONS.md`, C-4 and open item 9). With the 30 W charger the contract is 15 V and this margin does not matter. |
 
 ### 3.5 Test 5 - fit the heat sink, the compute module, the card and the speaker
 
@@ -573,11 +636,16 @@ rights and no loop devices, so it should also run in WSL2 with Ubuntu on Windows
    ```
 
    No `git checkout` line is needed: the two-device version (hub + satellite) has been in the branch `main` since
-   2026-11-12. State on 2026-11-20: hardware revision A3, this version of the guide and version 0.1.1 of the
+   2026-11-12. State on 2026-11-21: hardware revision A3, this version of the guide and version 0.1.1 of the
    VoxHub Assistant app are in the branch `claude/zen-babbage-20rn9n` until it is merged into `main`. The scripts
    this guide runs (`os/build-image.sh`, `os/satellite/build-satellite-image.sh`, `tools/flash_zigbee.sh`) and the
-   VoxHub Satellite app are the same in both branches. Keep the single quotes around the Wi-Fi name and the
-   password. `AT` is the country code for Austria; without the option the script sets `US`.
+   VoxHub Satellite app are the same in both branches. One file that both image scripts copy into the card is
+   not: since 2026-11-21 `os/config/config-voxhub.txt` switches on the internal pull-down of the mute input
+   (`gpio_pull=down`; `DECISIONS.md`, R-3). A card made from `main` before the merge still has `gpio_pull=off`:
+   it works, but if every tolerance goes against it the software can show "muted" while the switch is off (the
+   hardware mute and the red LED are not affected). To get the new setting before the merge, add the line
+   `git checkout claude/zen-babbage-20rn9n` after the `cd` line. Keep the single quotes around the Wi-Fi name and
+   the password. `AT` is the country code for Austria; without the option the script sets `US`.
 2. Wait about two minutes (os/README: 93 seconds on the build machine, 310 MB). The last lines name the result:
    `os/output/haos_voxhub-cm4-18.5.img.xz`. 18.5 was the newest stable Home Assistant OS on 2026-11-12; a later
    version changes the number in the file name.
@@ -668,7 +736,9 @@ two positions the red LED D9 lights. It is fed from the 3.3 V rail, so a lit D9 
 3. Pull the stick out. The entry disappears (close and reopen the list).
 4. Plug the stick into the lower socket and repeat step 2.
 
-Each port is limited to about 1.3 A by its own switch (U5, U6).
+Each port is limited to about 1.3 A by its own switch (U5, U6). That limit is short-circuit protection, not an
+allowance: the power budget of the board counts both USB-A ports together at about 1 A (2 x 500 mA). Devices that
+draw more can pull the 5 V rail down and restart the compute module, and a larger charger does not cure that.
 
 | Expected | If not |
 |---|---|
@@ -731,6 +801,19 @@ built for very loud sound, so normal speech is recorded at a low level; this is 
 distorted use `--volume=131072`. Do not use a higher value than 262144 (the reason follows). These values are
 starting values, not measured ones.
 
+**If the VoxHub Satellite app has already run on this hub** (section 7.2; for example when you repeat this test
+later), the recording is no longer made at its original level: the app sets the volume of the microphone source to
+4.0 (+12 dB), and nothing sets it back when the app stops (the normal behaviour of the sound server; not checked on
+Home Assistant OS). Then use `--volume=164619` in steps 5 and 6, as in test S9, or set the source volume back to
+100 % before step 4:
+
+```
+docker exec hassio_audio pactl set-source-volume "$SRC" 100%
+```
+
+The app sets its own gain again the next time it starts. With the +12 dB in the recording, `--volume=262144` would
+put the constant level of MK2 (next paragraph) at 2.56 times the full range, and a healthy MK2 would sound dead.
+
 **MK2 sounds different from MK1, and that is normal.** The microphones are Infineon IM72D128V01. The one of the
 right channel, MK2, adds a constant level to its signal: typically -40 dBFS, about 1 % of full scale (data sheet,
 for the microphone whose SELECT pin is tied to 3.3 V; MK1 has typically -80 dBFS, which cannot be heard). Played 64
@@ -747,7 +830,7 @@ sound dead. What the constant level means for the voice software is described in
 
 | Expected | If not |
 |---|---|
-| You hear your voice in step 5 and in step 6. Each microphone hears both halves of the recording; the half spoken next to it is the louder one. Some hiss is normal, and so are the thump and the harsher sound of MK2 described above | **Step 2 shows no such card or `$SRC` is empty:** the VoxHub block is missing in `config.txt` - the card was not made with `os/build-image.sh`. **Silence in steps 5 and 6:** (a) do test 10 first to prove the speaker; (b) the microphones are muted - D9 is lit; (c) the converter chip U9 (a very small chip at (40.0 / 61.0), between the radio module and the compute module) is not soldered correctly - report the board. **One channel has a voice, the other is silent or only crackles:** that microphone (MK1 or MK2) is defective or was washed - report the board. If it is MK2, repeat step 6 with `--volume=131072` first: a volume above 262144 silences a healthy MK2. |
+| You hear your voice in step 5 and in step 6. Each microphone hears both halves of the recording; the half spoken next to it is the louder one. Some hiss is normal, and so are the thump and the harsher sound of MK2 described above | **Step 2 shows no such card or `$SRC` is empty:** the VoxHub block is missing in `config.txt` - the card was not made with `os/build-image.sh`. **Silence in steps 5 and 6:** (a) do test 10 first to prove the speaker; (b) the microphones are muted - D9 is lit; (c) the converter chip U9 (a very small chip at (40.0 / 61.0), between the radio module and the compute module) is not soldered correctly - report the board. **One channel has a voice, the other is silent or only crackles:** that microphone (MK1 or MK2) is defective or was washed - report the board. If it is MK2, repeat step 6 with `--volume=131072` first: a volume above 262144 silences a healthy MK2, and so does 262144 after the VoxHub Satellite app has run (see above). **Noise, drop-outs or a wrong level on one channel, other than the differences of MK2 described above:** this points to the clock line of the microphones (series resistor R41, 75 Ohm). Measuring it needs a fast oscilloscope (about 1 GHz, with a short ground spring), which is not among the tools of this guide: write the symptom into the results table and report it (`DECISIONS.md`, open item 12). |
 
 ### 3.10 Test 10 - speaker
 
@@ -760,6 +843,9 @@ sound dead. What the constant level means for the voice software is described in
 
 The amplifier (U10, MAX98357A) has no volume control. Loudness is set in software only.
 
+When this test has passed, the system runs with everything fitted: this is the moment for the second part of
+test 4 (the 9 V contract under load, results line 4d). It can also be done after test 13.
+
 | Expected | If not |
 |---|---|
 | A voice says "Front Center", loud and clear | **Silence:** (a) the speaker plug is not fully in J7; (b) `$SNK` is empty or names another output - run `docker exec hassio_audio pactl list short sinks` and look for the line with `soc_sound`; (c) the amplifier U10 or its enable line (GPIO16) - report the board. **Rattling or distortion:** the speaker lies on its sound opening or against something; if it stays, play with `--volume=32768`. **Error "No such file":** the container of this Home Assistant version has no test sounds; use step 5 of test 9 as the speaker test. |
@@ -769,8 +855,11 @@ The amplifier (U10, MAX98357A) has no volume control. Loudness is set in softwar
 What the switch does electrically (`hardware/gen/design.py`): SW1 is a slide switch with two separate contact
 sets. One set sits in the **data line** from the microphone converter U9 to the compute module (GPIO20). In the mute
 position this line is opened and the input of the compute module is tied to ground, so the compute module receives
-only zeros. The other set connects 3.3 V to the red LED D9 and to GPIO27, so software can see that mute is on. The
-microphone clock and the microphone supply stay on. Software cannot undo the mute.
+only zeros. The other set connects 3.3 V to the red LED D9 and, through 10 kOhm, to GPIO27, so software can see
+that mute is on. That input is pulled down by 100 kOhm on the board and, since 2026-11-21, by its own internal
+pull-down, which the VoxHub lines in `config.txt` switch on: it sees about 2.5 V when muted (2.21 V in the worst
+case) and at most 0.42 V when not (calculated; `DECISIONS.md`, R-3). The microphone clock and the microphone supply
+stay on. Software cannot undo the mute.
 
 1. Push the slider to its other position. Expected direction (from the drawing of the switch): muted = slider
    towards the right board edge when you look at the component side; in the finished device, seen from the front,
@@ -1112,6 +1201,7 @@ Board number: ______  Date: ______
 | 4a | 20 W charger: VBUS / +5V | 8.55 to 9.45 V / 4.86 to 5.23 V | | [ ] |
 | 4b | 65 W charger: VBUS / +5V | 19.0 to 21.0 V / 4.86 to 5.23 V | | [ ] |
 | 4c | 5 V supply | VBUS about 5 V, +5V 0 V, D4 on, D6 off | | [ ] |
+| 4d | 20 W charger, system under load (second part of test 4, done after test 10): VBUS_SW at C8 / C9 | above about 7.5 V, no restart | | [ ] |
 | 5 | Heat sink, compute module, card, speaker fitted | module flat, 4 screws | | [ ] |
 | 6a | First boot: D10 | flickers irregularly | | [ ] |
 | 6b | First boot: web page | reachable on port 8123 | | [ ] |
@@ -1196,7 +1286,7 @@ the top cover.
 
 1. Hold the board by its left and right edges, component side up, rear edge with the three sockets away from you.
 2. Tilt it: rear edge down, front edge about 2 cm up. The board cannot be lowered straight in, because the USB-A
-   socket overhangs the board edge by about 2.5 mm.
+   socket overhangs the board edge by about 2.5 to 2.85 mm.
 3. Push the three sockets into their windows in the rear wall, the tall USB-A socket first. Its flange has only
    half a millimetre of air on each side: if it catches on the window, do not force it; take the board out and
    trim the window (1.5 step 5, 1.6).
@@ -1206,7 +1296,8 @@ the top cover.
    are stiff because the thread is being cut. Stop when the head touches the board. The screw at the front right
    corner sits very close to the edge of the compute module; keep the screwdriver vertical.
 7. Lift the shell and check from the outside: the mute slider stands in its slot in the oval dish and can be moved
-   both ways; the USB-C and USB-A openings are centred in their windows.
+   both ways; the USB-C and USB-A openings are centred in their windows. The front of the USB-A socket ends about
+   flush with the outer wall or stands up to about 0.25 mm proud of it; both are in order.
 
 No foam rings are fitted on the two microphone tubes in this build. The tubes end 0.2 mm above the board.
 
@@ -1285,7 +1376,7 @@ waiting for the wake word, blue = listening, blinking blue = thinking, green and
 | Nothing happens after plugging in | (a) the supply is not a USB PD charger or offers less than 2 A at 9 to 20 V; (b) cable with a USB-A plug; (c) cable not fully in | Lift the device and look through the four short vent slots of the base next to the speaker. A red glow: the supply is unsuitable - use the 30 W charger. A green glow: the board has power, go on with the next line. No glow: no power arrives |
 | Green glow inside, but the device never appears in the network | (a) the compute module came loose; (b) the card was pushed out; (c) the Wi-Fi changed | Open the base, check module and card. For (c) make a new image (3.6 part A) |
 | It worked on the desk but not in the case | (a) the speaker lead is pinched or pulled the plug out of J7; (b) the base is on turned by 180 degrees; (c) a board screw is missing and the board hangs on the sockets | Open the base and check 4.5 to 4.7 |
-| Restarts when a USB device is plugged in or during loud playback | charger too weak (a 20 W charger is a test case only) | Use the 30 W charger |
+| Restarts when a USB device is plugged in or during loud playback | (a) charger too weak (a 20 W charger is a test case only); (b) a 9 V contract with a long or thin cable: the input of the 5 V regulator falls below its stop value and the regulator restarts - possible from about 0.5 Ohm in the whole path, no damage; (c) the USB devices draw more than the about 1 A (2 x 500 mA) that the power budget allows for both ports together - the 1.3 A limit per port is short-circuit protection, not an allowance | (a), (b) Use the 30 W charger with the 1 m cable. (c) A larger charger does not cure this: use USB devices that draw at most 500 mA each |
 | The red, green or blue dot cannot be seen through the cover | (a) dark filament; (b) printed with thicker layers, so the skin is thicker than 0.4 mm; (c) green and blue are off because no app drives them | (a), (b) reprint the shell in a light colour with 0.2 mm layers; (c) see 4.9 |
 | Mute slider stiff or blocked | (a) strings in the slot; (b) the board does not sit on all four bosses | Clear the slot; loosen the four board screws, seat the board, tighten again |
 | Voice recognition poor, microphones quiet in the case | (a) a microphone hole of the cover is closed by print residue; (b) the device stands with its top against something | Open the two 1.5 mm holes with a drill bit by hand **before** the board is in the shell; never poke into the hole with the board fitted |
@@ -1334,9 +1425,12 @@ test pad with the charger voltage.
 6. Do not feed power into the USB-A sockets (no powered hub that feeds back, no Y cable). They are outputs.
 7. The two speaker wires are both live outputs of the amplifier. Never connect one of them to ground.
 8. The heat sink can reach 60 to 80 C in operation, and the 5 V regulator U2 and the parts around it get as hot
-   or hotter: the thermal model gives about 76 C inside the regulator at typical load and 125 C or more at the
-   theoretical peak, with 50 C around the board. These are estimates that have to be measured on the first board.
-   Let the device cool down before you open it.
+   or hotter: with 50 C around the board the thermal model gives about 76 C inside the regulator at typical load,
+   about 100 to 113 C at 12 W on the 5 V rail and about 150 to 165 C at the theoretical peak, where the regulator
+   is expected to switch itself off and on again (thermal shutdown at 165 C, back on at 148 C). On a 9 V contract
+   the load switch Q1 is the hottest part: about 100 to 120 C inside it at 12 W and more than its 150 C limit at
+   the theoretical peak, without any thermal protection. So never hold the full peak on a 9 V contract. These
+   are estimates that have to be measured on the first board. Let the device cool down before you open it.
 
 ## 6. What could not be verified
 
@@ -1346,15 +1440,25 @@ No hardware exists yet, so nothing in this guide has been tried on a real board.
 
 - All voltages, resistances, LED states and times in chapter 3. The resistance values of test 2, the "one second"
   in test 3, the ten minutes in test 6 and the playback volumes in test 9 are estimates.
-- The brightness of the LEDs is calculated from the typical curves of their data sheets. That D10 lights on every
-  board rests on these curves, not on a guaranteed limit: at the data sheet's test current its forward voltage can
-  be higher than the 3.3 V rail leaves for it.
+- The brightness of the LEDs is estimated from the typical curves of their data sheets; the 0.27 mA of the green
+  LEDs D6 and D7 is below the range of the curve. That D10 lights on every board rests on these curves, not on a
+  guaranteed limit: at the data sheet's test current its forward voltage can be higher than the 3.3 V rail leaves
+  for it.
 - How long D6 takes to fade, the 2.3 V at which it goes dark and the minute the 5 V rail needs to drain without a
   compute module (rule 1 in 5.2) are estimates from the values of the schematic.
-- The temperatures of the 5 V regulator (about 76 C at typical load, 125 C or more at the theoretical peak) come
-  from a thermal model of the board alone, without the compute module and the case, for 50 C around the board; the
-  result depends strongly on how well the board is cooled. Measure the regulator U2, the inductor L1 and the load
-  switch Q1 at full load on the first board.
+- The temperatures of the 5 V regulator (about 76 C at typical load, about 100 to 113 C at 12 W on the 5 V rail,
+  about 150 to 165 C at the theoretical peak) and of the load switch Q1 (on a 9 V contract about 100 to 120 C at
+  12 W and more than its 150 C limit at the theoretical peak; on a 15 V contract 116 to 124 C at the theoretical
+  peak) come from a thermal model of the board alone, without the compute module and the case, for 50 C around the
+  board; the result depends strongly on how well the board is cooled. Measure the regulator U2, the inductor L1
+  and the load switch Q1 on the first board, at typical load and at about 12 W on the 5 V rail. Q1 has to be
+  measured on a 9 V contract, with the 20 W charger of the test kit, at about 12 W (second part of test 4): that
+  is where it gets hottest. Do not hold the full theoretical peak on a 9 V contract, because Q1 has no thermal
+  protection. The tool list of chapter 2 contains no thermometer.
+- The second part of test 4 is new (2026-11-21). Its limit of about 7.5 V and the 0.5 Ohm of the restart loop are
+  calculations; the load command and the current figures for the USB-C power meter were not tried on a board.
+- The gate-source voltages of Q1 in test 4 are calculated from the resistor values and the data sheet of the
+  Zener diode D5.
 - The positions of parts were read from the board file of commit `aa97fd3`. They have to be read again if the
   board is generated again (see the note at the top).
 - The allowed ranges for VBUS (5 % around the contract voltage; 4.75 to 5.5 V without a contract) are the general
@@ -1370,6 +1474,13 @@ No hardware exists yet, so nothing in this guide has been tried on a real board.
 - The constant level of the microphone MK2 (-40 dBFS) is a typical value of the data sheet, which gives no spread.
   How it sounds in the playback of tests 9 and S9 (the thump, the distortion on loud speech) is derived from that
   value; how the amplifier treats a constant level was not checked.
+- The clock line of the microphones was simulated, not measured, and the data of the driver and of the microphone
+  inputs in that simulation are assumptions. With the series resistor R41 = 75 Ohm the peak at the microphones is
+  3.41 V nominal and 3.53 / 3.54 V (MK1 / MK2) in the fast corner at a 3.30 V rail. At 3.3825 V, the top of the
+  rail tolerance, the fast corner is 3.62 / 3.63 V without track loss; a second model, which includes track loss,
+  gives 3.55 V. The microphone allows 3.6 V on any pin. A check needs an oscilloscope of about 1 GHz with a short
+  ground spring, which is not in the tool list of chapter 2, and a bad result cannot be repaired on an assembled
+  board (`DECISIONS.md`, R-1 and open item 12). Without the oscilloscope watch the symptom named in tests 9 and S9.
 - That the glow of D4, D6 and D10 can be seen through the vent slots follows from the model only.
 
 **Software**
@@ -1405,8 +1516,10 @@ No hardware exists yet, so nothing in this guide has been tried on a real board.
 - Whether the folded bundle of the lead fits into the 7 mm gap beside the speaker has not been tried.
 - The USB-A socket Jing Extension 907-112A1022D10200 is known from one drawing only; no sample was measured. The
   heights of its flange lips above the board and the distance from its pins to its front face (how far it reaches
-  into the wall) are scaled from that drawing rather than dimensioned. The drawing of the mute switch gives no
-  tolerance for its body (enclosure/README.md).
+  into the wall) are scaled from that drawing rather than dimensioned, and the drawing is not consistent in itself
+  (overall length 17.30 mm labelled, 17.06 mm drawn). The front face is therefore expected about 2.5 to 2.85 mm
+  beyond the board edge: about flush with the outer wall or up to about 0.25 mm proud of it, which is cosmetic.
+  The drawing of the mute switch gives no tolerance for its body (enclosure/README.md).
 - The Bambu Lab EU store could not be read on 2026-11-12 (research notes). The filament named here is the one
   `fab/SHOPPING_LIST.md` found in stock at Reichelt.at.
 - No foam rings for the microphone tubes are used, because no shop that was searched sells 0.5 mm foam; the
@@ -1576,7 +1689,8 @@ sudo os/satellite/build-satellite-image.sh --wifi-ssid 'NAME OF YOUR WIFI' --wif
 
 - `--hub` is the fixed address of the hub from section 7.1. `--room` gives the device its name ("VoxHub
   Downstairs"). The room itself is assigned in Home Assistant in section 7.5.
-- As for the Home Assistant OS image, the branch `main` is the right one; no `git checkout` line is needed.
+- As for the Home Assistant OS image, the branch `main` is the right one and no `git checkout` line is needed.
+  The one exception is the same as there: the internal pull-down of the mute input (test 6, part A, step 1).
 - The script runs about 25 minutes (packages are installed into the image in emulation) and ends with
   `[voxhub-satellite] all checks passed` and `done: .../os/output/voxhub-satellite-2026-10-06-lva1.1.18.img.xz`.
 - Write the file to a microSD card with Raspberry Pi Imager: **Choose OS > Use custom**, the `.img.xz` file, the
@@ -1627,7 +1741,9 @@ The first `paplay` plays MK1 (left channel), the second MK2 (the channels swappe
 already contains the +12 dB of the satellite's microphone gain; `--volume=164619` adds 24 dB, so it plays about as
 loud as test 9. Expected and faults: as test 9. The constant level of MK2 is in this recording too: at this volume
 it takes about two thirds of the range (0.63 of full scale), so the second `paplay` can start and end with a soft
-thump and can distort on loud speech. Neither is a fault. Do not raise `--volume` above 164619.
+thump and can distort on loud speech. Neither is a fault. Do not raise `--volume` above 164619. As in test 9,
+noise, drop-outs or a wrong level on one channel point to the clock line of the microphones (R41, 75 Ohm);
+measuring it needs a fast oscilloscope.
 
 **Test S10 - speaker.**
 
@@ -1635,7 +1751,8 @@ thump and can distort on loud speech. Neither is a fault. Do not raise `--volume
 paplay --device="$SNK" /usr/share/sounds/alsa/Front_Center.wav
 ```
 
-A voice says "Front Center". Faults: as test 10.
+A voice says "Front Center". Faults: as test 10. The system now runs with everything fitted: this is the moment
+for the second part of test 4 (the 9 V contract under load, results line 4d) on this board.
 
 **Test S11 - mute switch.** Push the slider to the mute position: D9 (red) on. Repeat test S9: silence. Push it
 back: D9 off, voice back. The status LEDs are tested in section 7.8 (they need the hub).

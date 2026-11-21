@@ -4,9 +4,9 @@
  "part_types": 44,
  "machine_placed_part_types": 42,
  "hand_soldered_part_types": 2,
- "parts_usd_needed_only": 79.49,
- "parts_usd_with_minimum": 83.02,
- "parts_usd_with_minimum_and_loss": 84.78,
+ "parts_usd_needed_only": 79.68,
+ "parts_usd_with_minimum": 83.22,
+ "parts_usd_with_minimum_and_loss": 84.99,
  "stock_below_twice_the_need": [],
  "stock_below_200": [
   "ADAU7002ACBZ-R7 (63)",

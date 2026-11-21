@@ -2,7 +2,7 @@
 
 Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 
-## Revision A3: cheaper order, KiCad 10, final check (fifth session, 2026-11-20)
+## Revision A3: cheaper order, KiCad 10, final check (fifth session, 2026-11-20 and 2026-11-21)
 
 KiCad 10 migration (milestone 1)
 - [x] Generators, `build.sh`, `postroute.sh` and the Docker image ported to KiCad 10.0.8 (`hardware/docker/Dockerfile`,
@@ -25,20 +25,36 @@ Cost reduction (milestone 2, hardware revision A3)
       Capped" stays - "Plugged" would save 20.96 USD but costs temperature at the regulator and the amplifier and
       needs solder mask strips under two QFN packages (C-11)
 - [x] Findings on the existing design documented (N-1 to N-6); VBUS_DET pull-up 10k (C-12)
-- [ ] Old and new cost estimate in `fab/ORDER_GUIDE.md`
+- [x] Old and new cost estimate in `fab/ORDER_GUIDE.md` (sections 8.1 and 8.2)
+
+Local editing in KiCad 10 (milestone 3, 2026-11-21)
+- [x] Local-editing package merged: guard that stops a build step before it overwrites a manual edit
+      (`OVERWRITE=1` discards the edit), `build.sh outputs` leaves the project file as it found it,
+      `hardware/voxhub.kicad_jobset`, plot settings stored in the board file, every ERC / DRC check an error except
+      four ignored ones, stand-in 3D model of the CM4 sockets (K-11 to K-15)
+- [~] Tested by its author with KiCad 10.0.8 on Linux only. Not tested: anything on Windows, `KICAD_NATIVE=1`, a
+      fresh autoroute without `SKIP_ROUTE=1`
+- [ ] Independent test of the package (running on 2026-11-21, result not yet known)
 
 Final stock and price check
 - [x] Every BOM line read live on 2026-11-20 (`hardware/gen/sourcing_jlc.json`); replaced: USB hub (tape-and-reel
       part), stacked USB-A connector, microphones (F-1 to F-3)
+- [x] All 44 lines and the old parts read live again on 2026-11-21: no line below twice the need; JLCPCB's USD
+      prices about 0.24 % higher; parts of one board 39.84 USD (29.30 USD at 100)
 - [~] Two thin lines without an alternate: ADAU7002ACBZ-R7 (63), RF-BM-2652P2 (126) - reserve first (F-4)
 - [x] `fab/SHOPPING_LIST.md`: shop prices and stock re-read on 2026-11-20 (no price changed)
 - [x] README files and the current-state sections of DECISIONS.md updated to revision A3 (section 9: 40 rows,
       37 verified against a data sheet; section 10: A2 -> A3 part table; open items 8 to 12 added)
-- [ ] `fab/ORDER_GUIDE.md` rewritten for revision A3 with the old and the new cost estimate
-- [ ] Stock read once more at the end of the session
+- [~] `fab/ORDER_GUIDE.md` rewritten for revision A3 with the old and the new cost estimate; the review of the order
+      package is still open (see Reviews)
+- [ ] Final stock read at the end of the session, and once more on the day of the order
 
 Software
-- [x] VoxHub Assistant add-on: constant level of the new microphones removed before the gain; 139 tests pass (W-1)
+- [x] VoxHub Assistant add-on: constant level of the new microphones removed before the gain (W-1)
+- [x] Capture filter hardened after review round 1: long buffers, pole check, gain before the single rounding,
+      tests of the capture path and of the pipeline; 143 tests pass (92 VoxHub Assistant + 51 VoxHub Satellite),
+      ruff clean (R-4)
+- [x] Mute sense input GPIO27: internal pull-down switched on in the OS configuration and the overlay (R-3)
 - [x] `fab/ASSEMBLY_AND_TEST.md` and the add-on documents follow the changed parts and values; add-on 0.1.1
 - [x] Enclosure: USB-A window 15.6 x 17.3 mm for the new connector; shell regenerated, interference 0 mm3,
       meshes watertight; stand-in model of the connector updated
@@ -46,7 +62,23 @@ Software
 - [x] CM4 pin map of the software unchanged (25 signals compared between A2 and A3)
 
 Reviews
-- [ ] Independent reviews of the changed areas (at most two rounds)
+- [x] Review round 1 (2026-11-21), four independent reviewers on the changed hardware and software: no high
+      finding. Changed because of it: R41, the series resistor of the PDM clock, is 75 ohm (R-1); the ground ring of
+      the microphone land pattern starts 0.21 mm from the sound hole (R-2); mute sense pull-down (R-3); capture
+      filter and its tests (R-4). The other findings are corrections of the documents (R-5, R-6); four options were
+      not taken (R-7)
+- [ ] Round 1, still pending: the results for the tooling (local-editing package) and for the order package, and
+      the second check of the software findings SW-1 / SW-2 (nothing was changed for them yet)
+- [ ] Review round 2 (the last round)
+
+Open for the owner on the first boards, added by review round 1 (DECISIONS.md, open items 9, 11 and 12)
+- [ ] PDM clock at MK1 / MK2: oscilloscope of about 1 GHz with a short ground spring; cannot be repaired on
+      assembled boards (R-1)
+- [ ] Temperature of the load switch Q1 on a 9 V contract (20 W charger) at about 12 W; do not hold the full peak
+      on 9 V (R-5)
+- [ ] VBUS_SW at C8 / C9 on the 20 W charger with the module under load: must stay above about 7.5 V (test 4 of
+      `fab/ASSEMBLY_AND_TEST.md`)
+- [ ] Wake word from both devices with noise suppression 0 and 1 (from SW-1, which is still being checked)
 
 ## Two devices: hub and satellite (fourth session, 2026-11-12)
 

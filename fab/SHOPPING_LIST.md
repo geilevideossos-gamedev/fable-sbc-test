@@ -15,6 +15,9 @@ Everything you must buy that is **not** on the assembled PCB from JLCPCB. Hardwa
   Austria. The list was first written with the prices of 2026-11-12; on 2026-11-20 the shop pages were read again
   (DigiKey.at could not be read, mark D below). No price of the numbered lines (1 to 16, 1S, 4S) and no shipping
   fee had changed, so every total is the one of 2026-11-12. Several stock figures had changed.
+- Corrected on 2026-11-21 after a design review, without a new reading of the shops: the charger advice of section
+  5.8 (a 9 V contract is for loads up to about 12 W only) and the clearance under the heat sink in section 5.3
+  (5.8 mm).
 - **Order the BerryBase.at parcel first.** The speaker of line 2 has no substitute, and its stock fell from 67 to
   19 pieces between 2026-11-12 and 2026-11-20 (section 5.2).
 - Prices and stock change daily; the compute module at Reichelt.at rose by 2.67 EUR within the morning of
@@ -317,7 +320,7 @@ from JST's catalogues, read 2026-11-12. Housings of other makers can differ by a
   the large chip (BCM2711) of the compute module. 1.30 EUR in the BerryBase parcel.
 - The small 8.8 x 8.8 x 5 mm heat sink of the set is not used.
 - Must match if substituted: base 14 x 14 mm, height not more than 9.5 mm including the adhesive, adhesive foil
-  included. The enclosure model leaves 5.7 mm of air under the 7 mm heat sink (`enclosure/README.md`).
+  included. The enclosure model leaves 5.8 mm of air under the 7 mm heat sink (`enclosure/README.md`).
   A heat sink without foil (for example Fischer ICK BGA 14 X 14 at Reichelt.at, 1.16 EUR, R; not in stock on
   2026-11-20) needs thermal tape and is not for this build. BerryBase PKKRPI (13 x 13.5 x 10 mm) is too tall.
 - No fan is needed.
@@ -391,7 +394,14 @@ What the board asks for: it negotiates USB Power Delivery and takes the **highes
 9 V and 20 V that offers at least 2 A**. Programmable ranges (PPS) are ignored. If no profile qualifies, the board stays
 at 5 V, the red LED D4 "PD FAULT" on the board lights and nothing else starts. The theoretical peak demand at the
 USB-C socket is about 19.6 W (17.3 W on the 5 V rail plus about 2.3 W of losses in the regulator, the inductor and
-the load switch); realistic operation stays below 12 W. `README.md` asks for a charger of 27 W or more.
+the load switch); realistic operation stays below 12 W.
+
+The contract voltage matters for more than the wattage (corrected on 2026-11-21, `DECISIONS.md`, N-2 and R-5). On
+a 9 V contract the current through the load switch Q1 of the board is highest, and Q1 has no thermal protection:
+the thermal model gives about 100 to 120 C inside it at 12 W on the 5 V rail and more than its 150 C limit at the
+theoretical peak (a model result for 50 C around the board, not a measurement). So a 9 V contract is good for
+loads up to about 12 W only. For more - both USB ports feeding 500 mA devices - the contract must be 12 V or
+higher: the charger needs a fixed 12 V, 15 V or 20 V profile with at least 2 A.
 
 Profiles of the chargers, from the manufacturer's data (Goobay data read from wentronic.com, Raspberry Pi product
 brief; N), and the contract that follows from the rule above (derived, not measured - no board exists yet; the
@@ -402,13 +412,13 @@ measurement is `ASSEMBLY_AND_TEST.md`, section "3.4 Test 4 - USB PD with a 20 W,
 | **Goobay 79153, 30 W** (line 9) | 5 V 3 A, 9 V 3 A, 12 V 2.5 A, 15 V 2 A, 20 V 1.5 A | **15 V / 2 A = 30 W** (20 V 1.5 A is skipped: below 2 A) | **Buy this** as the permanent supply |
 | Goobay 79155, 65 W (line 14) | 5 V 3 A, 9 V 3 A, 12 V 3 A, 15 V 3 A, 20 V 3.25 A | 20 V | Works. Runner-up if the charger should also feed a laptop |
 | Raspberry Pi 27 W, SC1152 | 5.1 V 5 A, 9 V 3 A, 12 V 2.25 A, 15 V 1.8 A | 12 V / 2.25 A = 27 W (15 V 1.8 A is skipped) | Works. Cheapest that works; cable attached; below the 30 W chosen here |
-| Goobay 79151, 20 W (line 13) | 5 V 3 A, 9 V 2.2 A, 12 V 1.7 A | 9 V / 2.2 A = 20 W (12 V 1.7 A is skipped) | Test case only: 9 V x 2.2 A = 19.8 W is 0.2 W above the theoretical peak |
+| Goobay 79151, 20 W (line 13) | 5 V 3 A, 9 V 2.2 A, 12 V 1.7 A | 9 V / 2.2 A = 20 W (12 V 1.7 A is skipped) | Test case only: 9 V x 2.2 A = 19.8 W is 0.2 W above the theoretical peak, and a 9 V contract is good for about 12 W on the 5 V rail only |
 
 Chargers that do not work, or not well:
 
 | Charger | What happens |
 |---|---|
-| Any 18 W or 20 W PD charger whose 12 V profile is below 2 A | Runs on 9 V with 18 to 20 W. Enough for a desk test, too little reserve as the permanent supply when both USB ports feed devices and the speaker plays. |
+| Any PD charger whose highest fixed profile with 2 A or more is 9 V: the usual 18 W and 20 W chargers, and also 27 W chargers that offer 9 V with 3 A but no 12 V profile with 2 A or more | Runs on a 9 V contract. Enough for a desk test and for loads up to about 12 W on the 5 V rail. Not the permanent supply when both USB ports feed devices and the speaker plays: above about 12 W the load switch Q1 gets too hot on 9 V, whatever the wattage of the charger. |
 | USB-A chargers, USB ports of a computer, 5 V-only USB-C supplies, power banks without Power Delivery, chargers that only speak Quick Charge | No Power Delivery profile between 9 V and 20 V: the board stays off, red LED D4 lights. |
 | PD chargers whose profiles between 9 V and 20 V all offer less than 2 A | Same: the board stays off. |
 | Chargers that reach 9 V or more only through PPS | Same: PPS is ignored. |
@@ -421,7 +431,7 @@ Must match if the charger is substituted:
 |---|---|
 | Output | USB-C socket or fixed USB-C cable, USB Power Delivery |
 | To work at all | at least one **fixed** profile between 9 V and 20 V with 2 A or more |
-| As the permanent supply | 27 W or more: a fixed 12 V, 15 V or 20 V profile with 2 A or more, or 9 V with 3 A. The profiles are printed on the charger, for example "15.0V 2.0A" |
+| As the permanent supply | a fixed 12 V, 15 V or 20 V profile with 2 A or more: in practice 30 W or more, or a 27 W unit with 12 V / 2.25 A. A charger whose highest profile with 2 A or more is 9 V - that includes 27 W units with 9 V and 3 A - is for loads up to about 12 W only. The profiles are printed on the charger, for example "15.0V 2.0A" |
 | Ports | one |
 
 The Goobay 79152 is the black version of the 79153 (N); Reichelt.at article GOOBAY 79152, 16.54 EUR, "ab Lager"

@@ -6,8 +6,12 @@
   is applied (DC blocker: a one-pole high-pass with a 12.7 Hz corner at 16 kHz, -0.05 dB
   at 100 Hz). The microphones of VoxHub hardware revision A3 (Infineon IM72D128V01) put a
   constant level of typically -40 dBFS on the right channel. Without the filter the
-  energy-based end-pointing cannot tell that level from speech: it finds no request, or
-  no end of a request. No option has to be set; other microphones are not affected.
+  energy-based end-pointing cannot tell that level from speech: version 0.1.0 found no
+  request and went back to idle after the time-out (log line "No speech heard"). No
+  option has to be set; other microphones are not affected.
+- The filter works on buffers of any length (in blocks of at most 4096 samples) and
+  rejects a pole outside 0..1. The gain is applied before the single rounding to 16 bit.
+- Tests cover the filter, the microphone reader and the pipeline with a constant level.
 
 ## 0.1.0
 

@@ -140,8 +140,9 @@ assistant/
 ### One turn, step by step
 
 1. **Idle.** `parec` delivers 80 ms chunks of 16 kHz mono audio. A DC blocker removes any
-   constant level from them, then the microphone gain is applied. The chunks are streamed
-   to the wake word engine; the loop also tracks the ambient noise level.
+   constant level from them, then the microphone gain is applied and the result is
+   rounded to 16 bit once. The chunks are streamed to the wake word engine; the loop also
+   tracks the ambient noise level.
 2. **Wake.** On detection a short beep is played and the blue LED turns on.
 3. **Listening.** The `Endpointer` waits for speech, then for `silence_seconds` of
    silence (or `max_utterance_seconds`). If nobody speaks within `no_speech_timeout`,
@@ -185,7 +186,9 @@ that with numpy alone, and Whisper tolerates trailing silence. An energy gate co
 constant level in the signal as sound. The capture path therefore removes it first
 (`DcBlocker` in `audio.py`: a one-pole high-pass with a 12.7 Hz corner, -0.05 dB at
 100 Hz): the VoxHub microphone of the right channel delivers such a level, see
-[Troubleshooting](#troubleshooting).
+[Troubleshooting](#troubleshooting). The filter works on buffers of any length (in blocks
+of at most 4096 samples), accepts only a pole between 0 and 1, and applies the microphone
+gain itself, before the single rounding to 16 bit.
 
 **Claude: `claude-haiku-5-5` at `effort: low`, streaming, manual tool loop.** Haiku is
 the fast, low-cost model, which matters most in a voice loop where every tool call is
@@ -360,7 +363,8 @@ signal; the ADAU7002 passes it on. In the 16-bit mono mix that is about 166 coun
 after a gain of 4. This is a property of the microphone, not a fault. The add-on removes
 the level before the gain is applied (version 0.1.1), so nothing has to be set and
 `mic_gain` keeps its meaning. Version 0.1.0 does not have the filter: with these
-microphones its end-pointing does not work. Raw recordings (`parecord`, as in
+microphones it finds no request after the wake word and goes back to idle after
+`no_speech_timeout` (log line `No speech heard`). Raw recordings (`parecord`, as in
 `fab/ASSEMBLY_AND_TEST.md`, test 9) still contain the level.
 
 **Recording stops too early or too late.** Adjust `silence_seconds`. In a noisy room
@@ -395,7 +399,7 @@ optional wheels were not available at build time; use `wake_word_engine: wyoming
 cd assistant
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements-dev.txt
-pytest                      # 139 tests (88 VoxHub Assistant, 51 VoxHub Satellite), about 3 s
+pytest                      # 143 tests (92 VoxHub Assistant, 51 VoxHub Satellite), about 3 s
 ruff check . && ruff format --check .
 python -m compileall -q voxhub_assistant/app
 ```
@@ -405,8 +409,12 @@ Assistant API and the audio devices are replaced by fakes; the Wyoming clients t
 small fake servers on the loopback interface. It covers the Claude tool loop (tool_use,
 tool_result, final text, parallel tools, errors, refusal, truncation, loop bound), the
 service allow/deny policy, sentence splitting, VAD end-pointing and the DC blocker on
-synthetic audio, option parsing including consistency between `config.yaml`, the
-translations and the code, and a complete simulated turn through the pipeline.
+synthetic audio (long buffers and other poles against a sample-by-sample recursion, gain
+before rounding), the microphone reader with a capture command that puts a constant level
+on its signal (also after a restart), option parsing including consistency between
+`config.yaml`, the translations and the code, and complete simulated turns through the
+pipeline - one of them with a quiet request on top of a constant level, which is found
+with the filter and ends in the time-out without it.
 
 ## What has not been verified
 

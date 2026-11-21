@@ -28,12 +28,26 @@ view, orbit, reassembly, turntable) - rendered with Blender from the STEP files 
 > are thin and have no alternate: ADAU7002ACBZ-R7 (63 pieces) and RF-BM-2652P2 (126 pieces), 2 of each are needed for
 > two boards - reserve them first as the order guide says. No line is below twice the need. Nothing has to be soldered
 > by hand: order the boards, print the enclosure, plug in the CM4, screw it together. No hardware exists yet - read the
-> findings N-1 to N-6 in the top section and the "Open items" at the end of [DECISIONS.md](DECISIONS.md) first.
+> findings N-1 to N-6 and the review results R-1 to R-7 in the top section and the "Open items" at the end of
+> [DECISIONS.md](DECISIONS.md) first.
 >
 > Revision A3 is the board of revision A2 with the same placement, nets and routing. Changed: values and part numbers
 > (44 instead of 53 BOM lines), three parts replaced after the stock check of 2026-11-20 (USB hub on tape and reel,
-> stacked USB-A connector, microphones), two land patterns, and the project is now a KiCad 10 project. The reasons are
-> in the top section of [DECISIONS.md](DECISIONS.md), "Revision A3".
+> stacked USB-A connector, microphones), three land patterns, and the project is now a KiCad 10 project that can also
+> be edited by hand ([Editing in KiCad 10 on Windows](#editing-in-kicad-10-on-windows)). The reasons are in the top
+> section of [DECISIONS.md](DECISIONS.md), "Revision A3".
+>
+> Review round 1 (2026-11-21, four independent reviewers on the changed areas, no high finding) changed two things
+> on the board before the order. R41, the series resistor of the microphone clock, is now 75 ohm: the new microphones
+> allow 3.6 V on any pin, the old ones allowed 4.0 V, and the earlier value had been sized for the old ones. In the
+> simulation the clock now peaks at 3.41 V nominal and at 3.53 / 3.54 V in the fast corner at a 3.30 V rail; at the
+> 3.3825 V top of the rail tolerance the fast corner is 3.62 / 3.63 V without track loss (the verifier's model with
+> track loss: 3.55 V). Driver and input data are assumptions, so the clock has to be measured on the first boards
+> (R-1; DECISIONS.md, open item 12). And the ground ring of the microphone land pattern now starts 0.21 mm from the
+> sound hole, so that no copper of the board is closer than 0.2 mm to a non-plated hole (R-2). The other results are
+> corrections of the documents and of the software; the power and thermal sections below carry them. Still open on
+> 2026-11-21: the second check of two software findings, the review of the build tooling and of the order package,
+> and review round 2 ([TODO.md](TODO.md)).
 >
 > | Step | Document |
 > |---|---|
@@ -49,7 +63,7 @@ view, orbit, reassembly, turntable) - rendered with Blender from the STEP files 
 | Compute | Raspberry Pi **Compute Module 4 Lite, wireless** (BCM2711 4x A72, 4 GB) - official HAOS target `rpi4-64` |
 | Wi-Fi / Bluetooth | on the CM4: 2.4 + 5 GHz 802.11ac, Bluetooth 5.0 |
 | Storage | microSD (push-push socket, card power switched by the module) |
-| USB | 2 x USB-A 2.0 host (stacked), USB2514B hub, 1.3 A current-limited per port, ESD protected |
+| USB | 2 x USB-A 2.0 host (stacked), USB2514B hub, 500 mA per port in the power budget, each port current-limited at about 1.3 A (short-circuit protection, not an allowance), ESD protected |
 | Microphones | 2 x Infineon IM72D128V01 PDM MEMS (bottom port, 72 dB(A) SNR), ADAU7002 PDM-to-I2S, hardware mute switch |
 | Speaker | MAX98357A I2S class-D, 3.2 W into 4 ohm, JST-PH header, enclosed 3 W speaker with JST-PH plug in the enclosure |
 | Zigbee / Thread | RF-star RF-BM-2652P2 (TI CC2652P, +20 dBm) on UART4, flashed from the CM4 with one command |
@@ -80,7 +94,7 @@ flowchart LR
     CM4 <-->|SDIO| SD[microSD]
     CM4 <-->|USB 2.0, nEXTRST| HUB[USB2514B hub]
     HUB <--> USBA[2 x USB-A]
-    SW -->|VBUS 1.3 A| USBA
+    SW -->|VBUS, 1.3 A limit| USBA
 
     MIC[2 x IM72D128<br/>PDM mics] -->|PDM| ADAU[ADAU7002<br/>PDM to I2S]
     ADAU -->|I2S data| MUTE{{mute switch}}
@@ -135,7 +149,7 @@ removes the constant level that one of the two new microphones puts into its dat
 | 18 / 19 / 20 / 21 | I2S BCLK / LRCLK / DIN / DOUT | DIN passes through the mute switch |
 | 22 / 23 | JTAG TMS / TCK of the radio | recovery flashing only |
 | 24 / 25 | radio reset / boot-loader strap | GPIO24 **high = reset** (open-drain FET on RESET, 100k pull-down); GPIO25 low at reset = ROM serial boot loader (DIO15, 2.2k pull-up) |
-| 27 | mute sense | high = muted |
+| 27 | mute sense | high = muted; the internal pull-down of the SoC is switched on in the OS configuration (DECISIONS.md, R-3) |
 
 ## Power budget
 
@@ -148,24 +162,41 @@ simultaneously. The figures were corrected against the data sheets in revision A
 |---|---|---|---|
 | CM4 (SoC, RAM, Wi-Fi) | 3.5 W | 7.0 W | CM4 datasheet: 1.4 A typical maximum at 5 V |
 | 3.3 V loads via the CM4 regulator (hub 95/110 mA, microSD 50/200 mA, radio 10/85 mA, mics + converter 3 mA, pull-ups 5 mA) | 0.163 A -> 0.6 W | 0.403 A -> 1.5 W | 3.3 V budget 600 mA; 90 % converter efficiency; hub: data sheet figures with two ports in use; radio: CC2652P at +20 dBm |
-| USB-A ports | 0.5 W | 5.0 W | 2 x 500 mA (hardware limit 1.3 A per port) |
+| USB-A ports | 0.5 W | 5.0 W | 2 x 500 mA, both ports together about 1 A (the 1.3 A limit per port is short-circuit protection, not an allowance) |
 | Speaker amplifier | 0.3 W | 3.7 W | 3.2 W output at about 86 % efficiency (data sheet curve for 4 ohm at 5 V); speech averages far less |
 | LEDs, pull-ups | 0.05 W | 0.1 W | |
 | **5 V rail total** | **4.95 W (0.99 A)** | **17.3 W (3.45 A)** | regulator rated 4 A |
-| Regulator, inductor and load switch losses | 0.28 W (9 V in) to 0.47 W (20 V in) | 2.26 W (9 V in) to 2.33 W (20 V in) | TI's efficiency curves, interpolated for 9 V and 20 V input, with the 54 mOhm inductor of this board. Regulator and inductor: 0.26 W (9 V) / 0.47 W (20 V) at 1 A, 1.98 W / 2.27 W at 3.45 A (89.7 % / 88.4 % efficiency). Load switch at 60 mOhm: 0.02 W typical and 0.28 W peak at 9 V, below 0.01 W and 0.06 W at 20 V |
+| Regulator, inductor and load switch losses | 0.28 W (9 V in) to 0.47 W (20 V in) | 2.26 W (9 V in) to 2.33 W (20 V in) | TI's efficiency curves, interpolated for 9 V and 20 V input, with the 54 mOhm inductor of this board. Regulator and inductor: 0.26 W (9 V) / 0.47 W (20 V) at 1 A, 1.98 W / 2.27 W at 3.45 A (89.7 % / 88.4 % efficiency). Load switch at 60 mOhm, its on-resistance limit at 25 C: 0.02 W typical and 0.28 W peak at 9 V, below 0.01 W and 0.06 W at 20 V. At operating temperature the load switch dissipates 0.4 to 0.6 W at the 9 V peak; the totals of this table use the 25 C figure |
 | **At the USB-C connector** | **5.23 to 5.42 W** | **19.56 to 19.63 W (about 19.6 W)** | 9 V: 0.58 A typ / 2.17 A peak - 20 V: 0.27 A typ / 0.98 A peak |
 
 - The PD controller requests **>= 2 A at 9-20 V** (18 W at 9 V). Realistic operation (no bus-powered disks, speech
   rather than sine waves) stays below 12 W. The theoretical simultaneous peak of about 19.6 W exceeds an 18 W contract
-  by 9 %: use a **27 W or larger** charger (9 V/3 A, or anything offering 12/15/20 V at >= 2 A) if both USB ports feed
-  500 mA devices.
+  by 9 %.
+- **Charger** (corrected in review round 1; DECISIONS.md, R-5). For loads above about 12 W on the 5 V rail - both USB
+  ports feeding 500 mA devices and a busy module are 13.9 W - the charger must offer a fixed **12 V, 15 V or 20 V
+  profile of at least 2 A**: in practice 30 W or more, or a 27 W unit with 12 V / 2.25 A. A charger whose highest
+  profile of 2 A or more is 9 V is for loads up to about 12 W only, also when it is a 27 W unit with 3 A at 9 V: on
+  a 9 V contract the load switch Q1 comes too close to its 150 C limit above that ("Other hot parts" below). The
+  30 W charger of the shopping list negotiates 15 V.
 - 3.3 V budget: 403 mA peak (163 mA typical) of the 600 mA the CM4 can supply.
 - The 3.45 A of the budget are covered with 0.29 A of reserve when every tolerance is against it (worst-case inductor
   peak 4.51 A at 20 V input against a minimum current limit of 4.8 A). At the regulator's rated 4 A that corner would be
   5.06 A: the stage is not a guaranteed 4 A supply at 20 V input (DECISIONS.md, N-4).
+- The budget counts both USB-A ports together at about 1 A (2 x 500 mA). The 1.3 A limit per port (1.19 to 1.39 A)
+  is short-circuit protection, not an allowance: with both ports at their limit the 5 V rail is asked for 4.1 to
+  4.5 A without the amplifier and 4.8 to 5.2 A with it, the regulator runs in current limit and the module restarts.
+  Restarts with USB devices that draw more than 500 mA are not cured by a larger charger.
 - Chargers without a 9-20 V PD profile are rejected safely: the load switch stays open, the regulator behind it only
   starts when its input is above 7.39 V typical (7.08 to 7.69 V; it stops again at 6.79 V typical), and the red PD-FAULT
   LED lights.
+- Under load on a 9 V contract the regulator has little margin to its turn-off threshold (DECISIONS.md, C-4, R-6).
+  It stops at up to 7.08 V with the typical 100 mV hysteresis, the only figure its data sheet gives, and at up to
+  7.26 V if the hysteresis is 70 mV. The lowest valid voltage of a 9 V contract is 7.30 V at the socket, and Q1 and
+  the copper take another 0.2 to 0.3 V. That leaves no margin at the theoretical peak, 0.34 V or more at 12 W and
+  about 0.75 V in the static corner. The result would be a restart loop, not damage; it is possible on 9 V contracts
+  with long or thin cables, from about 0.5 ohm loop resistance. Test 4 of
+  [`fab/ASSEMBLY_AND_TEST.md`](fab/ASSEMBLY_AND_TEST.md) checks it: on the 20 W charger (9 V contract) with the
+  module under load, VBUS_SW at C8 / C9 must stay above about 7.5 V.
 
 ## Thermal estimate (SoC)
 
@@ -184,29 +215,46 @@ Conclusion: fine without a fan for the intended workload (LLM in the cloud). For
 15 x 15 x 9.5 mm heat sink (there are 12.9 mm between the SoC and the base plate, so about 3 mm stay free under it) or add a 30 mm fan to the base vents.
 These are estimates, not measurements - verify with `vcgencmd measure_temp` on the first prototype.
 
-Other hot parts (DECISIONS.md, N-2). At the theoretical peak of the power budget the regulator U2 dissipates 1.34 W
-(9 V input) to 1.63 W (20 V input) according to TI's efficiency curves, the inductor 0.64 W and the load switch Q1
-about 0.3 W at a 9 V contract. A conduction model of the board copper (cooling coefficient 10 W/m2K assumed on both
-faces, 50 C around the board) gives for the regulator junction:
+Other hot parts (DECISIONS.md, N-2; figures corrected in review round 1, R-5). At the theoretical peak of the power
+budget the regulator U2 dissipates 1.34 W (9 V input) to 1.63 W (20 V input) according to TI's efficiency curves and
+the inductor 0.64 W. The curves give losses at a junction of about 70 C; at the junction temperature the model
+predicts, the regulator loses about 1.6 to 1.9 W (TI Fig. 9-4). A conduction model of the board copper (cooling
+coefficient 10 W/m2K assumed on both faces, 50 C around the board) gives for the regulator junction:
 
 | Load | Regulator junction in the model | Comment |
 |---|---|---|
 | Typical (4.95 W on the 5 V rail) | about 76 C | model input: 0.5 W in the regulator |
-| Realistic maximum, 12 W (2.4 A) | about 95 to 105 C | regulator loss about 0.7 to 1.0 W |
-| Theoretical peak, 17.3 W (3.45 A) | about 135 to 145 C | above the 125 C rating; thermal shutdown at 165 C |
+| Realistic maximum, 12 W (2.4 A) | about 100 to 113 C | regulator loss about 0.7 to 1.0 W by the efficiency curves, more at this junction temperature |
+| Theoretical peak, 17.3 W (3.45 A) | about 150 to 165 C | above the 125 C rating and at or above the 150 C absolute maximum; the regulator is expected to cycle through its thermal shutdown (165 C off, 148 C on) |
 
-The theoretical peak can therefore not be held continuously inside the closed enclosure. With a charger that only
-offers 9 V the load switch Q1 is the next hot spot (about 0.3 to 0.4 W in a SOT-23 beside the regulator); the 30 W
-charger of the shopping list negotiates 15 V, which keeps Q1 cool. All of this is a model, and its result depends
-strongly on the assumed cooling coefficient: with the 1.1 W regulator loss that the A2 documents assumed it gives
-124.5 C at 10 W/m2K and 114 to 151 C between 15 and 5 W/m2K. Measure the regulator, the inductor and Q1 on the first
-board.
+The theoretical peak can therefore not be held continuously inside the closed enclosure.
+
+On a 9 V contract the load switch Q1 (AO3401A in a SOT-23 beside the regulator) is the limiting part, and it has no
+thermal protection. It dissipates 0.14 to 0.22 W at 12 W and 0.4 to 0.6 W at the theoretical peak (0.28 W only with
+the on-resistance limit at 25 C). The same model, run again on the A3 board, gives for its junction:
+
+| Contract | Load on the 5 V rail | Q1 junction in the model |
+|---|---|---|
+| 9 V | 12 W (realistic maximum) | about 100 to 120 C |
+| 9 V | 13.9 W (both USB ports at 500 mA, busy module, no sine tone) | about 115 to 150 C |
+| 9 V | 17.3 W (theoretical peak) | above the 150 C absolute maximum |
+| 12 V | 17.3 W | 128 to 144 C |
+| 15 V | 17.3 W | 116 to 124 C |
+| 20 V | 17.3 W | 110 to 113 C |
+
+A part at its on-resistance limit reaches the 150 C absolute maximum on a 9 V contract at about 14 to 15 W (at about
+13 W with the poorest cooling the model assumes). So on a 9 V contract keep the 5 V rail at or below about 12 W; the
+30 W charger of the shopping list negotiates 15 V. All of this is a model for 50 C around the board, and its result
+depends strongly on the assumed cooling coefficient: with the 1.1 W regulator loss that the A2 documents assumed it
+gives 124.5 C at 10 W/m2K and 114 to 151 C between 15 and 5 W/m2K. Measure the regulator, the inductor and Q1 on the
+first board - Q1 on a 9 V contract (the 20 W charger of the test kit) at about 12 W, and do not hold the full peak on
+9 V.
 
 ## Repository layout
 
 | Path | Contents |
 |---|---|
-| [`hardware/`](hardware/README.md) | KiCad 10 project (generated, native KiCad 10 files), generator scripts, definition of the build image, schematic PDF, BOM, Gerbers, drill, pick-and-place, DXF, renders, fab + assembly notes |
+| [`hardware/`](hardware/README.md) | KiCad 10 project (generated, native KiCad 10 files), generator scripts with the guard against overwriting manual edits, KiCad jobset, definition of the build image, schematic PDF, BOM, Gerbers, drill, pick-and-place, DXF, renders, fab + assembly notes |
 | [`fab/`](fab/ORDER_GUIDE.md) | JLCPCB order package (`jlcpcb/`: Gerbers, BOM, CPL, placement report), order guide, shopping list, assembly and test guide |
 | [`tools/`](tools/flash_zigbee.sh) | `flash_zigbee.sh --role hub\|satellite`: writes the Zigbee coordinator (hub), the Zigbee router (satellite) or the Thread firmware to the radio module from the CM4; `test/`: radio simulator and test runner |
 | [`enclosure/`](enclosure/README.md) | parametric CadQuery source, STL / 3MF / STEP, renders |
@@ -229,6 +277,9 @@ missing (the official KiCad 10 image plus numpy and shapely). Without Docker: Ki
 # 1. Hardware: schematic -> ERC -> netlist -> placement -> autoroute -> DRC -> fabrication outputs -> fab/jlcpcb
 #    the first run builds the Docker image voxhub-kicad:10.0 (or: export KICAD_NATIVE=1 with kicad-cli 10 on the PATH)
 SKIP_ROUTE=1 hardware/build.sh all      # re-uses the checked-in autorouter session (same copper as the committed board, ~4 min)
+#    it stops and names the files if a generated project file was edited in KiCad or by hand; then either
+#                     hardware/build.sh outputs                        (fabrication files from the project as it is), or
+#                     OVERWRITE=1 SKIP_ROUTE=1 hardware/build.sh all   (discards the manual edits and regenerates)
 # to autoroute again (not run under KiCad 10, see hardware/README.md):
 #                     wget -P hardware https://github.com/freerouting/freerouting/releases/download/v2.0.1/freerouting-2.0.1.jar
 #                     hardware/build.sh all
@@ -278,26 +329,39 @@ add-on is the same in both branches.
 
 ### Editing in KiCad 10 on Windows
 
-Open `hardware/voxhub.kicad_pro` with KiCad 10 (the files were written with 10.0.8). The project is self-contained:
-symbols and footprints come from the project libraries `hardware/voxhub.kicad_sym` and `hardware/voxhub.pretty`
-(every footprint of the board is in there), the 3D models from `hardware/3dmodels`; nothing is taken from the
-libraries of the KiCad installation. The files are native KiCad 10 files: saving them from both KiCad 10 editors left
-them byte-identical in the test on Linux (DECISIONS.md, K-2). Nothing was tested on Windows itself (K-10); at the first
-start KiCad shows its own setup wizard once. A Windows checkout keeps the LF line endings of the KiCad files and the
-scripts (`.gitattributes`).
+The hardware project can be edited by hand in KiCad 10; the build keeps generated files and manual edits apart
+(DECISIONS.md, K-11 to K-15). Everything below was tested with KiCad 10.0.8 on Linux only. Details, limits and the
+full list of what is untested: [`hardware/README.md`](hardware/README.md#editing-the-project-by-hand-kicad-10).
 
-Schematic and board are generated. `hardware/build.sh all` writes the six schematic files, `voxhub.kicad_sym`,
-`voxhub.pretty`, `voxhub.kicad_pcb` and `voxhub.kicad_pro` again, so a manual edit survives only until the next
-`build.sh all`; a change that is to stay belongs into `hardware/gen/`. `hardware/build.sh outputs` does not generate
-schematic or board: it checks the board as it is on disk and regenerates the fabrication files (Gerbers, drill,
-positions, JLCPCB BOM and CPL) from it. It also puts `hardware/gen/project_settings.json` back as `voxhub.kicad_pro`
-(rules changed in KiCad's Board Setup are lost) and takes `hardware/outputs/bom.csv` from the generator's part list,
-not from an edited schematic.
-
-The build scripts need Docker and a Linux shell; on Windows that means WSL or Git Bash, and neither was tested
-(K-10). Fabrication files must come from `build.sh`, not from KiCad's Plot dialog with the settings stored in the
-board file: those have no Protel file extensions and do not subtract the solder mask from the silkscreen. Details:
-[`hardware/README.md`](hardware/README.md#opening-and-editing-in-kicad-10).
+- **Install.** KiCad 10 (the files were written with 10.0.8) and Git for Windows: that is enough to open, edit and
+  save the project and to make fabrication files with the jobset. Only `hardware/build.sh` needs more: WSL2 with
+  Docker (Docker Desktop with WSL integration, or Docker inside the distribution) and `zip` and `python3` inside WSL,
+  the script started from the WSL shell. Git Bash instead of WSL is a second choice: Git for Windows has no `zip`.
+- **Open** `hardware/voxhub.kicad_pro`. At the first start KiCad shows its own setup wizard once. The project is
+  self-contained: symbols and footprints come from the project libraries `hardware/voxhub.kicad_sym` and
+  `hardware/voxhub.pretty` (every footprint of the board is in there), the 3D models from `hardware/3dmodels`;
+  nothing is taken from the libraries of the KiCad installation. The files are native KiCad 10 files: saving them
+  from both KiCad 10 editors left them byte-identical in the test on Linux (K-2). A Windows checkout keeps the LF
+  line endings of the KiCad files and the scripts (`.gitattributes`); KiCad on Windows is expected to save with
+  CR LF, which Git and the build accept.
+- **When a build step refuses to overwrite.** Schematic, libraries, board and project file are generated:
+  `hardware/build.sh sch`, `pcb`, `route` and `all` write them again. If one of these files was saved from KiCad or
+  edited by hand, the step stops before it writes anything and names the files, for example
+  `changed  power.kicad_sch`. Then there are two ways on. `hardware/build.sh outputs` keeps the edits and makes the
+  fabrication files from the project as it is. `OVERWRITE=1 hardware/build.sh <step>` discards the edits and
+  regenerates the files. A change that is to stay for good belongs in `hardware/gen/`.
+- **Fabrication files after a manual edit.** In KiCad, without Docker: double-click `voxhub.kicad_jobset` in the
+  project tree of the project manager and press *Generate All Destinations*. It runs ERC and DRC and writes the
+  schematic PDF, Gerbers, drill files, position file and STEP into `hardware/outputs/` and the Gerber archive
+  `fab/jlcpcb/gerbers.zip`. It does not stop on a violation: use the files only when the first destination is not
+  marked red. With WSL: `hardware/build.sh outputs`; its DRC stops the run on any violation, and only this step
+  writes the JLCPCB BOM and CPL (`fab/jlcpcb/`), which are needed again when a part was moved, added or removed.
+  *File > Plot* writes the same Gerbers as the build, because the board file stores the plot settings; take the
+  drill files from the jobset or from the build, not from the drill dialog with its defaults.
+  `hardware/outputs/bom.csv` and the order cost come from the generator's part list, not from an edited schematic.
+- **Not tested on Windows:** anything. Not KiCad's editors, not a save with CR LF, not the jobset, not
+  `hardware/build.sh` under WSL2 or Git Bash (K-10; DECISIONS.md, open item 8). An independent test of the
+  local-editing package was still running when this was written.
 
 ## Cost summary
 
@@ -306,16 +370,17 @@ Line by line: [`hardware/outputs/bom.csv`](hardware/outputs/bom.csv).
 
 | Group | Lines | Placements | 1 board | per board at 100 |
 |---|---|---|---|---|
-| ICs and radio module (RF-BM-2652P2 alone: 8.66 / 7.46) | 8 | 11 | 21.34 | 15.86 |
-| Connectors, slide switch, SMT spacers | 7 | 11 | 8.23 | 6.14 |
-| Inductor, crystal, microphones | 3 | 4 | 6.57 | 4.34 |
-| Capacitors | 9 | 49 | 2.79 | 2.22 |
-| Diodes, LEDs, transistors | 8 | 14 | 0.77 | 0.63 |
+| ICs and radio module (RF-BM-2652P2 alone: 8.68 / 7.48) | 8 | 11 | 21.39 | 15.89 |
+| Connectors, slide switch, SMT spacers | 7 | 11 | 8.25 | 6.15 |
+| Inductor, crystal, microphones | 3 | 4 | 6.59 | 4.36 |
+| Capacitors | 9 | 49 | 2.80 | 2.22 |
+| Diodes, LEDs, transistors | 8 | 14 | 0.76 | 0.63 |
 | Resistors | 9 | 47 | 0.05 | 0.05 |
-| **PCB assembly parts** | **44 (+2 DNP)** | **136** | **39.75** | **29.24** |
+| **PCB assembly parts** | **44 (+2 DNP)** | **136** | **39.84** | **29.30** |
 
 The group sums are quantity x unit price of the file, rounded so that each column adds up to the total of the file
-(the unrounded sum of "Inductor, crystal, microphones" at 100 is 4.3459).
+(the unrounded sums of "Diodes, LEDs, transistors" at 1 and of "ICs and radio module" at 100 are 0.7655 and
+15.8960). JLCPCB's USD prices are about 0.24 % higher on almost every line than on 2026-11-20 (exchange rate).
 
 **Everything else for one device**, EU shops, prices including VAT (EUR) as read on 2026-11-20; no price had changed
 since the first reading on 2026-11-12.
@@ -335,13 +400,15 @@ delivered for both devices without the boards, 66.01 EUR less than two hubs - [`
 8](fab/SHOPPING_LIST.md#8-two-device-system-satellite-variant-and-combined-basket-hub--satellite).
 
 **The JLCPCB order** (5 PCBs, 2 of them assembled on both sides, parts, shipping, import VAT) is estimated in
-[`fab/ORDER_GUIDE.md`](fab/ORDER_GUIDE.md). For the parts alone,
-[`hardware/outputs/order_cost.json`](hardware/outputs/order_cost.json) computes 79.49 USD for the parts of two boards
-and 84.78 USD with the minimum and loss quantities of JLCPCB's parts data (a calculation, not a quote).
+[`fab/ORDER_GUIDE.md`](fab/ORDER_GUIDE.md), section 8; the total of the order is quoted only there. For the parts
+alone, [`hardware/outputs/order_cost.json`](hardware/outputs/order_cost.json) computes 79.68 USD for the parts of two
+boards, 83.22 USD with JLCPCB's minimum quantities and 84.99 USD with its minimum and loss quantities (a calculation
+from JLCPCB's parts data of 2026-11-21, not a quote). The prices of the order form (PCB, assembly fees, shipping)
+were read on 2026-11-20 and not again.
 
-- The parts of one board cost 39.75 USD at JLCPCB. Revision A2 cost 41.78 USD on 2026-11-12, the DigiKey parts of
-  revision A1 74.79 USD. The radio module alone costs 8.66 USD (6.63 USD on 2026-11-12; the DigiKey module of A1 cost
-  11.47 USD), the PDM-to-I2S converter 2.47 USD (3.91 USD on 2026-11-12).
+- The parts of one board cost 39.84 USD at JLCPCB. Revision A2 cost 41.78 USD on 2026-11-12, the DigiKey parts of
+  revision A1 74.79 USD. The radio module alone costs 8.68 USD (6.63 USD on 2026-11-12; the DigiKey module of A1 cost
+  11.47 USD), the PDM-to-I2S converter 2.48 USD (3.91 USD on 2026-11-12).
 - Thin stock at JLCPCB on 2026-11-21: ADAU7002ACBZ-R7 (63) and RF-BM-2652P2 (126); neither has an alternate. The
   order guide says how to reserve them. The three lines that had run low by 2026-11-20 were replaced (DECISIONS.md,
   F-1 to F-3): the USB hub is ordered on tape and reel (USB2514BT-I/M2), the stacked USB-A connector is the Jing
@@ -351,7 +418,7 @@ and 84.78 USD with the minimum and loss quantities of JLCPCB's parts data (a cal
   Basic and Extended alike, so a Basic part saves nothing; what counts is the number of different part numbers: 44
   BOM lines, 42 of them placed by machine (J6 and J7 are soldered by hand). Revision A2 had 53 lines and 51
   machine-placed part types; 9 feeders less are 13.77 USD (DECISIONS.md, C-1). By library type the 44 lines are
-  13 Basic, 1 Preferred Extended and 30 Extended.
+  12 Basic, 2 Preferred Extended (the 49.9k and the 75 ohm resistor) and 30 Extended.
 
 ## Verification summary
 
@@ -359,20 +426,21 @@ and 84.78 USD with the minimum and loss quantities of JLCPCB's parts data (a cal
 |---|---|---|
 | ERC (kicad-cli 10.0.8) | 0 errors, 0 warnings | `hardware/outputs/erc.rpt` |
 | Netlist equals the code model | 150 components / 100 nets / 512 connected pins: KiCad's netlist of the A3 schematic equals the code model pin by pin (compared for this revision, not a step of the build); schematic parity 0 issues | `hardware/gen/model_netlist.json`, `hardware/outputs/drc.rpt` |
-| DRC with schematic parity and JLCPCB's rules (kicad-cli 10.0.8) | 0 violations, 0 unconnected pads, 0 parity issues; two library-comparison checks waived (4 warnings, explained in `hardware/README.md`) | `hardware/outputs/drc.rpt`, `drc_waived_checks_enabled.rpt`, `hardware/voxhub.kicad_dru` |
+| DRC with schematic parity and JLCPCB's rules (kicad-cli 10.0.8) | 0 violations, 0 unconnected pads, 0 parity issues; every check is an error except three ignored ones, two of them library-comparison checks that are waived (4 warnings, explained in `hardware/README.md`). One distance that KiCad's DRC did not report was found by the check for the order guide and corrected on 2026-11-21: the microphone ground ring against its sound hole (DECISIONS.md, R-2) | `hardware/outputs/drc.rpt`, `drc_waived_checks_enabled.rpt`, `hardware/voxhub.kicad_dru` |
 | Current paths | narrowest copper of every high-current path measured: all as wide as designed (1.2 to 1.6 mm on the main path; narrower only at the 0.6 mm contact pads and tracks of the USB-C connector, the 0.6 mm pin pads of the regulator and the 0.8 mm supply tracks of the USB-A ports) | `hardware/outputs/power_paths.txt` |
 | Vias and pads | no via in or touching a pad other than the exposed pad of an IC | `hardware/outputs/via_in_pad.txt` |
 | USB 2.0 | upstream pair coupled, 0.14 / 0.16 mm = 89.96 ohm in JLCPCB's impedance calculator; pad-to-pad skew 0.00 / 0.00 / 0.00 mm (upstream / port 1 / port 2), limit 3.8 mm; no vias, no stubs | `hardware/outputs/usb_impedance.txt`, `routing_stats.txt`, DECISIONS.md section 6a |
 | CM4 socket strips | no copper of another net in Hirose's restricted strips | `hardware/outputs/df40_strips.txt` |
 | Assembly data | 136 of 136 placements fitted to JLCPCB's own footprint of the part (position, rotation, polarity), the two hand-soldered connectors included | `fab/jlcpcb/placement_report.csv` |
-| Parts vs. datasheets | one row per part with its source and verdict in `DECISIONS.md` section 9; the values and parts changed in revision A3 were checked against the manufacturer data sheets before they went into the generator (C-2 to C-7, C-12, F-1 to F-3) | [`DECISIONS.md` section 9](DECISIONS.md#9-footprint--pin-out-verification-against-the-datasheets) and decision logs |
+| Parts vs. datasheets | one row per part with its source and verdict in `DECISIONS.md` section 9; the values and parts changed in revision A3 were checked against the manufacturer data sheets before they went into the generator (C-2 to C-7, C-12, F-1 to F-3) and again by four independent reviewers on 2026-11-21 (review round 1: no high finding; R41 changed to 75 ohm, the other findings are corrections of the documents and the software, R-1 to R-7) | [`DECISIONS.md` section 9](DECISIONS.md#9-footprint--pin-out-verification-against-the-datasheets) and decision logs |
 | PCB render | kicad-cli 3D renders | `hardware/outputs/render_*.png` |
 | Enclosure fit | part dimensions from the manufacturer drawings; 0 mm^3 interference PCB assembly vs. printed parts | `enclosure/voxhub_enclosure.py`, `enclosure/README.md` |
-| Power budget / thermal estimate | above; corrected in revision A3; calculation and model, nothing measured | `DECISIONS.md` N-2 to N-4 |
+| Power budget / thermal estimate | above; corrected in revision A3 and again in review round 1 (temperatures of the regulator and of the load switch, charger advice, USB port budget); calculation and model, nothing measured | `DECISIONS.md` N-2 to N-4, R-5, R-6 |
+| Editing by hand in KiCad 10 | overwrite guard, `build.sh outputs` on an edited project, jobset and Plot dialog compared with the files of the build: tested by their author with KiCad 10.0.8 on Linux; nothing on Windows; an independent test was still running on 2026-11-21 | `hardware/README.md`, `DECISIONS.md` K-11 to K-15 |
 | Sourcing | every BOM line in stock in JLCPCB's assembly library on 2026-11-21; two lines below 200 pieces (ADAU7002ACBZ-R7 63, RF-BM-2652P2 126), none below twice the need of two boards; DigiKey data of 2026-11-11 as the second source | `hardware/outputs/bom.csv`, `bom_summary.json`, `order_cost.json`, `hardware/gen/sourcing_jlc.json` |
 | Radio flashing | one command; run end to end against a simulated radio with the real flashing tool, dry run in this repository; not on hardware | `tools/flash_zigbee.sh`, `fab/ASSEMBLY_AND_TEST.md` |
 | OS image | repack image built from HAOS 18.5 and verified; from-source build (`build-image.sh full`) ran to the end on the ninth attempt, image inspected; not booted (no hardware) | `os/README.md` |
-| Assistant | 88 unit tests of VoxHub Assistant pass (139 tests in the folder together with the 51 of VoxHub Satellite) | `assistant/tests/` |
+| Assistant | 92 tests of VoxHub Assistant pass (143 tests in the folder together with the 51 of VoxHub Satellite); since review round 1 they also cover the capture path and the pipeline with the constant level of the new microphones (DECISIONS.md, R-4) | `assistant/tests/` |
 | Two-device system: architecture | read in the Home Assistant source (2026.11.1): the Anthropic integration + Assist API cover tool use, room awareness and per-device answers, not a hard lock / alarm rule - hence the exposure guard | `DECISIONS.md` S-1 to S-5 |
 | Hub add-on VoxHub Satellite | 51 unit tests (guard, bridge, LEDs, mute switch, launcher, options); image built from the official LVA 1.1.18 image and run against PulseAudio with a real ESPHome API client: 7 / 7 checks, LVA only on 127.0.0.1, gain unchanged after a restart; not on Home Assistant OS | `assistant/voxhub_satellite`, `assistant/tests/` |
 | Satellite image | built once, 31 / 31 checks of the finished image (overlays, settings, services, update origins, LVA and VoxHub modules start, offline radio flashing dry run) and 7 / 7 in the runtime test (PipeWire, LVA and the LED / mute bridge inside the emulated image, driven by an ESPHome API client); not booted (no hardware) | `os/satellite/`, `os/README.md` |

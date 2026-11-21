@@ -55,7 +55,7 @@ describe it completely:
 | Microphones + speaker | `dtoverlay=googlevoicehat-soundcard` | ALSA card `sndrpigooglevoi`, capture + playback, amp enable on GPIO16 |
 | Zigbee radio | `dtoverlay=uart4` | `/dev/ttyAMA4` on GPIO8 / GPIO9, no flow control (the kernel of HAOS 18.5 has fixed aliases: `serial4 = &uart4`) |
 | Status LEDs | `dtoverlay=gpio-led,gpio=5,label=voxhub-green` (and GPIO6 blue) | `/sys/class/leds/voxhub-green`, `voxhub-blue` |
-| Mute switch sense | `dtoverlay=gpio-key,gpio=27,keycode=248,...` | input event `KEY_MICMUTE` while muted |
+| Mute switch sense | `dtoverlay=gpio-key,gpio=27,keycode=248,...,gpio_pull=down` | input event `KEY_MICMUTE` while muted; the internal pull-down of the input is on (since 2026-11-21, see below) |
 | PD controller status | `dtparam=i2c_arm=on` | CYPD3177 at 0x08 on `i2c-1` |
 
 Because the board ID is still `rpi4-64`, the device keeps receiving the official OTA updates
@@ -63,6 +63,15 @@ Because the board ID is still `rpi4-64`, the device keeps receiving the official
 
 `--custom-overlay` uses `dtoverlay=voxhub` instead (nicer names, mute as a real `EV_SW` switch) - only do
 this if you manage updates yourself.
+
+The mute sense input (GPIO27) has its internal pull-down switched on since 2026-11-21: `gpio_pull=down` in
+`config/config-voxhub.txt` (was `off`) and `brcm,pull = <1>` in `overlay/voxhub-overlay.dts` (`DECISIONS.md`, R-3).
+On the board the input is held low only by 100 kOhm when the switch is not in the mute position; with the
+module's maximum input leakage of 10 uA that is 1.01 V, above the 0.8 V low threshold. With the internal
+pull-down (33 / 47 / 73 kOhm) the level is at most 0.42 V unmuted and about 2.5 V muted (2.21 V in the worst case,
+high threshold 2.0 V). These are calculations. The hardware mute and the red LED do not depend on this input. The
+satellite image takes the same block, so both cards get the setting when they are built from this state of the
+repository.
 
 ## From source: official HAOS build system + `voxhub` board
 
@@ -131,6 +140,11 @@ Requirements: 30-40 GB disk, 8 GB RAM, 1-3 hours on a 16-core machine (measured 
 | Full from-source build (`build-image.sh full`, host build) | **OK** on the ninth attempt (2026-11-11): `haos_voxhub-cm4-18.5-full.img.xz`, 317 MiB (911 MiB unpacked), plus the OTA bundle `haos_rpi4-64-18.5.raucb` (185 MiB). What stopped attempts 1-8 is in the run log below |
 | Full-build image inspected | **OK** - GPT with the 8 HAOS partitions; boot partition: `bcm2711-rpi-cm4.dtb` only, `u-boot.bin`, `config.txt` with the VoxHub block (`dtoverlay=voxhub`, `otg_mode=1`), `overlays/voxhub.dtbo` built by the `voxhub-overlay` package - it applies to the DTB of the same image (`fdtoverlay`) and gives the mute switch, both LEDs, UART4 (`serial4`) and the sound card nodes; root file system (EROFS): `VERSION="18.5 (VoxHub CM4 (RaspberryPi 4 64bit))"`, `VARIANT_ID=rpi4-64`, kernel 6.18.59-haos-raspi with `snd-soc-bcm2835-i2s`, `snd-soc-rpi-simple-soundcard`, `snd-soc-googlevoicehat-codec`, `snd-soc-max98357a`, `snd-soc-adau7002`, `gpio_keys`, `i2c-bcm2835` as modules and `leds-gpio`, `amba-pl011`, `xhci-hcd`, `dwc2` built in; RAUC `compatible=haos-rpi4-64`; data partition with the Supervisor 2026.11.0, CLI, DNS, audio, multicast, observer and landing-page containers |
 | Boot on hardware | not done (no hardware) |
+
+The results of this table date from 2026-11-12 or earlier, and the satellite image at the end of this file was
+built on 2026-11-12. Both are older than the pull-down of the mute sense input (2026-11-21, see "Why stock
+overlays?"): the images that were built and inspected carry `gpio_pull=off` (`brcm,pull = <0>` in the custom
+overlay). This file records no build or check that was repeated with the new setting.
 
 ### Full build: run log of 2026-11-11
 
