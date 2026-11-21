@@ -99,6 +99,7 @@ json.dump(d, open('voxhub.kicad_pro', 'w'), indent=2)\" \
     kc "python3 gen/check_power.py voxhub.kicad_pcb outputs/power_paths.txt && python3 gen/check_df40.py voxhub.kicad_pcb outputs/df40_strips.txt \
         && python3 gen/check_vias.py voxhub.kicad_pcb outputs/via_in_pad.txt"
     python3 "${HW}/gen/make_bom.py" "${HW}/gen/model_netlist.json" "${OUT}"
+    python3 "${HW}/gen/order_cost.py" "${HW}/gen/model_netlist.json" "${HW}/gen/sourcing_jlc.json" "${OUT}" 2
     (cd "${OUT}" && rm -f voxhub_gerbers.zip && zip -q -r voxhub_gerbers.zip gerbers)
     mkdir -p "${ROOT}/fab/jlcpcb"
     (cd "${OUT}/gerbers" && rm -f "${ROOT}/fab/jlcpcb/gerbers.zip" && zip -q "${ROOT}/fab/jlcpcb/gerbers.zip" $(ls | grep -v -E 'gbrjob$|drl_map'))

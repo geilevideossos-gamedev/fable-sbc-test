@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1
+
+- The capture path removes a constant level from the microphone signal before the gain
+  is applied (DC blocker: a one-pole high-pass with a 12.7 Hz corner at 16 kHz, -0.05 dB
+  at 100 Hz). The microphones of VoxHub hardware revision A3 (Infineon IM72D128V01) put a
+  constant level of typically -40 dBFS on the right channel. Without the filter the
+  energy-based end-pointing cannot tell that level from speech: it finds no request, or
+  no end of a request. No option has to be set; other microphones are not affected.
+
 ## 0.1.0
 
 - Initial release.

@@ -5,7 +5,7 @@ This folder is the Home Assistant add-on repository of the VoxHub. It holds two 
 | Add-on | Use it for | What it does |
 |---|---|---|
 | **VoxHub Satellite** (`voxhub_satellite/`) | **the two-device system (hub + satellite) - the default** | Makes the hub a voice satellite of its own Home Assistant, exactly like the satellite board downstairs: Linux Voice Assistant 1.1.18 (wake word on the device), status LEDs, mute switch. Every request goes through Home Assistant's Assist pipeline with the official Anthropic integration (Claude). It also runs the **exposure guard** that keeps locks and alarm panels away from Assist. |
-| **VoxHub Assistant** (`voxhub_assistant/`) | a single VoxHub without the Assist pipeline | The self-contained assistant of revision A1/A2: wake word -> Whisper -> Claude with its own Home Assistant tools -> Piper. It does not serve satellites. Do not run it together with VoxHub Satellite. |
+| **VoxHub Assistant** (`voxhub_assistant/`) | a single VoxHub without the Assist pipeline | The self-contained assistant the VoxHub had before the two-device system (revisions A1 and A2): wake word -> Whisper -> Claude with its own Home Assistant tools -> Piper. It does not serve satellites. Do not run it together with VoxHub Satellite. |
 
 Why the two-device system uses Home Assistant's own pipeline instead of this add-on: `DECISIONS.md`, entries S-1 to
 S-5. The satellite board itself runs the same satellite software from an SD card image: `os/satellite/`.
@@ -83,7 +83,7 @@ assistant/
         ├── __main__.py          wiring and shutdown
         ├── config.py            options parsing and validation
         ├── pipeline.py          the voice loop (state machine)
-        ├── audio.py             microphone / speaker (parec, pacat), gain, tones
+        ├── audio.py             microphone / speaker (parec, pacat), DC blocker, gain, tones
         ├── vad.py               energy VAD and utterance end-pointing
         ├── wakeword.py          Wyoming and in-process openWakeWord
         ├── wyoming_clients.py   Whisper (STT) and Piper (TTS) clients
@@ -115,7 +115,7 @@ assistant/
  │  ┌──────────────────▼───────────────────────────────────────────┴───────┐  │
  │  │ VoxHub Assistant add-on                                              │  │
  │  │                                                                      │  │
- │  │  Microphone ─► mic gain ─► [IDLE] wake word ──┐                      │  │
+ │  │  Mic ─► DC block ─► gain ─► [IDLE] wake word ─┐                      │  │
  │  │                                               ▼                      │  │
  │  │                            [LISTENING] Endpointer (energy VAD)       │  │
  │  │                                               ▼                      │  │
@@ -139,8 +139,9 @@ assistant/
 
 ### One turn, step by step
 
-1. **Idle.** `parec` delivers 80 ms chunks of 16 kHz mono audio. They are streamed to the
-   wake word engine; the loop also tracks the ambient noise level.
+1. **Idle.** `parec` delivers 80 ms chunks of 16 kHz mono audio. A DC blocker removes any
+   constant level from them, then the microphone gain is applied. The chunks are streamed
+   to the wake word engine; the loop also tracks the ambient noise level.
 2. **Wake.** On detection a short beep is played and the blue LED turns on.
 3. **Listening.** The `Endpointer` waits for speech, then for `silence_seconds` of
    silence (or `max_utterance_seconds`). If nobody speaks within `no_speech_timeout`,
@@ -180,7 +181,11 @@ time, which is why the default does not depend on them.
 
 **Voice activity detection: adaptive energy gate.** After a wake word the job is only to
 find the end of one utterance. An energy threshold relative to a tracked noise floor does
-that with numpy alone, and Whisper tolerates trailing silence.
+that with numpy alone, and Whisper tolerates trailing silence. An energy gate counts a
+constant level in the signal as sound. The capture path therefore removes it first
+(`DcBlocker` in `audio.py`: a one-pole high-pass with a 12.7 Hz corner, -0.05 dB at
+100 Hz): the VoxHub microphone of the right channel delivers such a level, see
+[Troubleshooting](#troubleshooting).
 
 **Claude: `claude-haiku-5-5` at `effort: low`, streaming, manual tool loop.** Haiku is
 the fast, low-cost model, which matters most in a voice loop where every tool call is
@@ -339,14 +344,24 @@ exact names run `ha audio info` in the SSH add-on and look at the `input` and `o
 lists. Either select them in the *Audio* card or copy the names into `input_device` /
 `output_device`. If the card is missing entirely, the device tree overlay is not loaded.
 
-**The wake word never triggers or Whisper returns nothing.** The PDM MEMS microphones (IM69D130 via ADAU7002)
-deliver 24-bit samples in a 32-bit I2S frame, and typical speech sits far below full
-scale, so after conversion to 16 bit the signal is quiet. Raise `mic_gain` (4 to 8 is a
-normal range for this microphone) and/or the PulseAudio source volume
+**The wake word never triggers or Whisper returns nothing.** The PDM MEMS microphones
+(Infineon IM72D128V01 via ADAU7002) deliver 20-bit samples in a 32-bit I2S frame, and
+typical speech sits far below full scale, so after conversion to 16 bit the signal is
+quiet. Raise `mic_gain` (4 to 8 is a normal range for this microphone) and/or the
+PulseAudio source volume
 (`ha audio volume input --index <n> --volume 100`). Set `log_level: debug` to see
 transcripts. Too much gain makes loud speech clip and hurts recognition. Also check the
 mute slide switch: when it is on, the microphone data line is disconnected from the CM4
 (capture is silent; the microphones themselves stay powered) and the red LED is lit.
+
+**A constant level on the right microphone channel.** The IM72D128V01 whose SELECT pin is
+tied to 3.3 V (MK2, the right channel) adds a constant level of typically -40 dBFS to its
+signal; the ADAU7002 passes it on. In the 16-bit mono mix that is about 166 counts, 662
+after a gain of 4. This is a property of the microphone, not a fault. The add-on removes
+the level before the gain is applied (version 0.1.1), so nothing has to be set and
+`mic_gain` keeps its meaning. Version 0.1.0 does not have the filter: with these
+microphones its end-pointing does not work. Raw recordings (`parecord`, as in
+`fab/ASSEMBLY_AND_TEST.md`, test 9) still contain the level.
 
 **Recording stops too early or too late.** Adjust `silence_seconds`. In a noisy room
 raise `vad_sensitivity`; if quiet speech is missed, lower it.
@@ -380,7 +395,7 @@ optional wheels were not available at build time; use `wake_word_engine: wyoming
 cd assistant
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements-dev.txt
-pytest                      # 137 tests (86 VoxHub Assistant, 51 VoxHub Satellite), about 3 s
+pytest                      # 139 tests (88 VoxHub Assistant, 51 VoxHub Satellite), about 3 s
 ruff check . && ruff format --check .
 python -m compileall -q voxhub_assistant/app
 ```
@@ -389,9 +404,9 @@ The suite needs no hardware, internet access or API key. The Anthropic client, t
 Assistant API and the audio devices are replaced by fakes; the Wyoming clients talk to
 small fake servers on the loopback interface. It covers the Claude tool loop (tool_use,
 tool_result, final text, parallel tools, errors, refusal, truncation, loop bound), the
-service allow/deny policy, sentence splitting, VAD end-pointing on synthetic audio,
-option parsing including consistency between `config.yaml`, the translations and the
-code, and a complete simulated turn through the pipeline.
+service allow/deny policy, sentence splitting, VAD end-pointing and the DC blocker on
+synthetic audio, option parsing including consistency between `config.yaml`, the
+translations and the code, and a complete simulated turn through the pipeline.
 
 ## What has not been verified
 
@@ -403,3 +418,5 @@ code, and a complete simulated turn through the pipeline.
   sysfs files and reading the switch device on HAOS, and the exact PulseAudio device
   names of the googlevoicehat card.
 - The latency table above.
+- The DC blocker with real microphones. It was tested on synthetic audio; the level it
+  removes is the typical value of the microphone data sheet.

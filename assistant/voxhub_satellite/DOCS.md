@@ -42,6 +42,14 @@ Say "Okay Nabu" and a request. The wake word can be changed on the device page.
 | Protected domains | lock, alarm_control_panel | What the guard protects. |
 | Guard interval | 300 | Seconds between two full checks (it also reacts to every registry change). |
 
+## Microphones
+
+The two microphones of the VoxHub (Infineon IM72D128V01) are quiet, hence the gain of 4. The one of the right
+channel adds a constant level of typically -40 dBFS to its signal. Linux Voice Assistant does not remove it. In a
+simulation with the test recordings of its wake word and voice detection libraries both behaved the same with and
+without that level; this has not been tested on a board. If the wake word is not heard well, raise **Microphone
+gain** (for example to 6); too much gain makes loud speech clip.
+
 ## LEDs
 
 | LEDs | Meaning |

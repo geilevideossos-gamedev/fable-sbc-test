@@ -2,7 +2,7 @@
 
 The second board is the **satellite** of the two-device system. It runs no Home Assistant. It gives the hub its
 wake word, microphones, speaker, mute switch and LEDs over Wi-Fi, and its radio runs the Zigbee router firmware
-that extends the hub's Zigbee network. The hardware is identical to the hub (revision A2); only the SD card differs.
+that extends the hub's Zigbee network. The hardware is identical to the hub (revision A3); only the SD card differs.
 
 ```
 os/satellite/

@@ -11,10 +11,27 @@
 
 ![exploded view](voxhub_exploded.png)
 
-**Status for revision A2: the video and the still show revision A1** (round 40 mm speaker, MGM240P radio module,
-reverse-mount status LEDs, A1 routing). Re-rendering them from the A2 board and enclosure was skipped on the owner's
-decision; the scripts are ready for it (`media/build_showcase.sh` with the A2 files renders all 1260 frames in about
-3 hours; a test still of the A2 exploded view was rendered and looked right). The text below describes the A1 render.
+**Status: the video and the still show revision A1** (round 40 mm speaker, MGM240P radio module, reverse-mount status
+LEDs, A1 routing). They were not rendered again for revision A2 (skipped on the owner's decision; a test still of the
+A2 exploded view was rendered then and looked right) and not for revision A3. Against A2, revision A3 changes little
+that a render shows: the revision text on the silkscreen, two land patterns (the rings of the four spacers, four
+contacts of the USB-C socket), the stand-in model of the stacked USB-A connector and its window in the shell. A run of
+`media/build_showcase.sh` renders all 1260 frames in about 3 hours. The text below describes the A1 render.
+
+Since revision A3 the scripts use KiCad 10 (KiCad 9 cannot load the board file any more). `build_showcase.sh` was run
+on the A3 files up to the render: the STEP to GLB conversion (board, enclosure assembly, 27 part models) and the board
+textures from the image `voxhub-kicad:10.0` (four images of 3200 x 2368 px; the four mounting holes lie within 0.001 mm
+of their board positions in them) finish. Blender and the encoding were not run.
+
+KiCad 10 plots a page that is the bounding box of the board outline, so the corner of the texture is the corner of the
+board; the script stops when the page has another size. KiCad 10 also draws the 15 non-plated holes of the board as
+filled discs where KiCad 9 left them open; the textures show them as gold, but they lie in holes of the board solid and
+are not seen in a render.
+
+KiCad 9 made the page the bounding box of everything on the board, and the script took the board to be in the middle of
+it. Run again for this check with the image `kicad/kicad:9.0` (KiCad 9.0.9), the script as it was in revision A2 puts
+the texture of the A2 board 0.24 mm in x and 1.6 mm in y off the parts (A1 board: 0.24 mm and 1.4 mm). Whether the
+frames of the video carry this shift was not measured.
 
 A1 history: the video was first rendered before the review moved 53 of the 151
 footprints (the buck power stage, the two USB ESD parts, small parts around the PD controller and the hub) and re-routed
@@ -55,7 +72,7 @@ The board itself is a plain slab in STEP. Its copper, solder mask and silkscreen
 ```bash
 pip install cadquery pymupdf pillow numpy
 sudo apt install ffmpeg
-docker pull kicad/kicad:9.0
+docker build -t voxhub-kicad:10.0 hardware/docker                 # KiCad 10 image; built by the scripts when it is missing
 BLENDER=/path/to/blender-4.5/blender media/build_showcase.sh      # frames go to media/work (not tracked)
 ```
 
@@ -63,7 +80,8 @@ BLENDER=/path/to/blender-4.5/blender media/build_showcase.sh      # frames go to
 |---|---|
 | `BLENDER` | path of the Blender binary (4.2 - 4.5) |
 | `PYTHON` | interpreter with cadquery, pymupdf, pillow and numpy (default `python3`) |
-| `KICAD_NATIVE=1` | plot the board textures with the host's `kicad-cli` instead of the Docker image |
+| `KICAD_IMAGE` | Docker image with KiCad 10 for the board textures (default `voxhub-kicad:10.0`, built from `hardware/docker` when it is missing) |
+| `KICAD_NATIVE=1` | plot the board textures with the host's `kicad-cli` instead of the Docker image; it must be KiCad 10 |
 | `SAMPLES`, `THREADS` | Cycles samples per pixel (default 4), render threads (default all) |
 | `FRAMES="start end"` | render only this frame range |
 | `KEEP_VIDEO=<mp4>` | together with `FRAMES`: take the frames outside the range from this earlier video (only valid while the printed parts and everything else visible in those frames are unchanged) |

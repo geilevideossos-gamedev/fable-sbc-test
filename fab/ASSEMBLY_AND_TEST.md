@@ -1,4 +1,4 @@
-# VoxHub CM4, revision A2 - printing, assembly and bring-up test
+# VoxHub CM4, revision A3 - printing, assembly and bring-up test
 
 This guide takes you from the parcel with the assembled boards to a closed, tested device. There is no soldering
 anywhere. Work through the chapters in this order:
@@ -17,15 +17,16 @@ written), board 2 the **satellite**: chapters 1 and 2, chapter 3 tests 1 to 5 an
 section 7.3 instead of part A of test 6), sections 7.3 and 7.4 (its software tests), then chapter 4 and the rest
 of chapter 7.
 
-Status of this text: it was written on 2026-11-12 for hardware revision A2. **No board has been built yet.** Every
-expected value below comes from the schematic (`hardware/gen/design.py`), the board file, the enclosure model or a
-data sheet, not from a measurement. Values marked "estimate" are estimates. Part numbers, on-screen labels and
-software versions were read on 2026-11-12; the source is named where it matters.
+Status of this text: it was written on 2026-11-12 and brought to hardware revision A3 on 2026-11-20. **No board has
+been built yet.** Every expected value below comes from the schematic (`hardware/gen/design.py`), the board file,
+the enclosure model or a data sheet, not from a measurement. Values marked "estimate" are estimates. The parts and
+values of the board are those of 2026-11-20; on-screen labels and software versions were read on 2026-11-12; the
+source is named where it matters.
 
-All positions on the board were read from `hardware/voxhub.kicad_pcb` as committed in `6776424` (the board as
-rebuilt after the first review round). If the board is generated again, the parts that the generator places by
-itself can move: D4, D6, D10, C38, C41, JP1, C13 and the three test pads. Their coordinates in this guide then have
-to be read again.
+All positions on the board were read from `hardware/voxhub.kicad_pcb` as committed in `aa97fd3` (revision A3) and
+compared with `fab/jlcpcb/placement_report.csv` of the same commit. If the board is generated again, the parts that
+the generator places by itself can move: D4, D6, D10, C38, C41, JP1, C13 and the three test pads. Their coordinates
+in this guide then have to be read again.
 
 ## Conventions used in this guide
 
@@ -45,7 +46,7 @@ millimetres from the **left** board edge, `y` from the **rear** edge towards you
 socket is then in the rear left corner. A position is written as (x / y), for example D1 at (4.2 / 12.3).
 
 **Reference designators are not printed on the board.** Names such as D1, L1 or C38 exist only in the schematic.
-The only texts on the component side are `VoxHub CM4  rev A2`, `J5: GND TX RX`, `SPK` and the three test-pad labels
+The only texts on the component side are `VoxHub CM4  rev A3`, `J5: GND TX RX`, `SPK` and the three test-pad labels
 `5V`, `3V3` and `GND`. Find a part by its coordinates, by the description in the table and by this map
 (1 character = 2 mm wide, 1 line = 4 mm):
 
@@ -105,19 +106,31 @@ parts and can damage them, so the guide uses the `3V3` pad for one live measurem
 
 **The six LEDs**
 
-| LED | Colour | Side | (x / y) | Fed from | Lights when |
-|---|---|---|---|---|---|
-| D6 | green | component side, next to the 8-pin regulator U2 | (13.2 / 23.6) | the 5 V rail | the 5 V rail is up ("PWR") |
-| D4 | red | component side, just in front of the square chip U1 | (17.5 / 21.4) | the FAULT pin of the PD controller | the charger offers nothing between 9 and 20 V with at least 2 A, or VBUS is out of range ("PD FAULT") |
-| D10 | green | component side, front edge, in front of the compute module | (84.4 / 72.2) | the 3.3 V rail, switched by the compute module | the compute module accesses the microSD card ("ACT") |
-| D7 | green | bare side, front edge | (34.0 / 71.2) | the 5 V rail, switched by GPIO5 | software decides (status) |
-| D8 | blue | bare side, front edge | (38.6 / 71.2) | the 5 V rail, switched by GPIO6 | software decides (status) |
-| D9 | red | bare side, front edge | (43.2 / 71.2) | the 3.3 V rail through the mute switch, no software involved | the microphones are muted |
+| LED | Colour | Part, series resistor | Side | (x / y) | Fed from | Lights when |
+|---|---|---|---|---|---|---|
+| D6 | green | KT-0603G, R15 10 kOhm | component side, next to the 8-pin regulator U2 | (13.2 / 23.6) | the 5 V rail | the 5 V rail is up ("PWR") |
+| D4 | red | KT-0603R, R7 1 kOhm | component side, just in front of the square chip U1 | (17.5 / 21.4) | the FAULT pin of the PD controller | the charger offers nothing between 9 and 20 V with at least 2 A, or VBUS is out of range ("PD FAULT") |
+| D10 | green | KT-0603G, R26 1 kOhm | component side, front edge, in front of the compute module | (84.4 / 72.2) | the 3.3 V rail, switched by the compute module | the compute module accesses the microSD card ("ACT") |
+| D7 | green | KT-0603G, R18 10 kOhm | bare side, front edge | (34.0 / 71.2) | the 5 V rail, switched by GPIO5 | software decides (status) |
+| D8 | blue | KT-0603B, R20 2.2 kOhm | bare side, front edge | (38.6 / 71.2) | the 5 V rail, switched by GPIO6 | software decides (status) |
+| D9 | red | KT-0603R, R22 1 kOhm | bare side, front edge | (43.2 / 71.2) | the 3.3 V rail through the mute switch, no software involved | the microphones are muted |
 
-In the closed case D7, D8 and D9 shine through the top cover. They are meant to look about equally bright; their
-series resistors were chosen for that (5.1 kOhm for green and 2.2 kOhm for blue from 5 V, 150 Ohm for red from
-3.3 V). D4, D6 and D10 are inside. Their glow can be seen through ventilation slots: D4 and D6 through the four
-short slots of the base next to the speaker side, D10 through the slots of the front wall.
+The six LEDs are three parts of one maker (Hubei KENTO): the red KT-0603R, the green KT-0603G (520 nm) and the blue
+KT-0603B.
+
+In the closed case D7, D8 and D9 shine through the top cover. Their series resistors were chosen for similar
+brightness; from the curves of the data sheets that is 27 to 55 mcd for green (0.27 mA), 23 to 57 mcd for blue and
+13 to 27 mcd for red (1.44 mA), so the red dot is the weakest of the three. D4, D6 and D10 are inside. Their glow can
+be seen through ventilation slots: D4 and D6 through the four short slots of the base next to the speaker side, D10
+through the slots of the front wall.
+
+What to expect from the three LEDs inside (calculated from the data sheets, not measured):
+
+- D6 is as bright as the green status LED D7: the same part with the same 10 kOhm from 5 V.
+- D4 runs at 1.44 mA like D9 and is about as bright.
+- **D10 can be dim, and it differs from board to board.** It is a green LED on only 3.3 V with 1 kOhm: typically
+  0.9 mA, and about 0.1 mA on a board where every tolerance goes against it. It lights on every board, but its
+  brightness varies by about 10 : 1 between boards. A weak D10 is not a fault.
 
 ## 1. Print the enclosure
 
@@ -172,9 +185,11 @@ vertical holes.
 ### 1.3 Material
 
 **PETG.** Reasons: the compute module heats the inside of the case (README: about 45 C at the processor when idle,
-60 C in normal use, up to 80 C under full load; the area around the 5 V regulator reaches about 60 C), and PETG keeps
-its shape at these temperatures better than PLA. PETG is also less brittle: the eight M2.5 screws cut their own
-thread into printed 2.1 mm holes, and a PLA boss cracks more easily when that happens.
+60 C in normal use, up to 80 C under full load), the 5 V regulator gets as hot or hotter (thermal model: about 76 C
+inside the chip at typical load with 50 C around the board, more at peak load - an estimate that has to be measured
+on the first board), and PETG keeps its shape at these temperatures better than PLA. PETG is also less brittle: the
+eight M2.5 screws cut their own thread into printed 2.1 mm holes, and a PLA boss cracks more easily when that
+happens.
 
 **PLA** works for a desk test with the case open or for a short trial. Do not use it for the device that runs all day.
 
@@ -188,7 +203,7 @@ for one device"). Any other PETG in a light colour works with the **Generic PETG
 
 | | Shell | Base | Both |
 |---|---|---|---|
-| Solid volume of the model (computed from the STL files as regenerated on 2026-11-12) | 50.9 cm3 | 29.1 cm3 | 80.0 cm3 |
+| Solid volume of the model (computed from the STL files; the shell is the one with the 17.3 mm high USB-A window) | 50.9 cm3 | 29.1 cm3 | 80.0 cm3 |
 | Filament, upper limit = solid volume x 1.25 g/cm3 (density in the Bambu PETG Basic preset) | 64 g | 36 g | 100 g |
 | Filament, estimate with 15 % infill in the few thick places | | | 85 to 100 g |
 | Print time, estimate (the preset limits this filament to 13 mm3/s on an A1) | | | 3.5 to 5 hours |
@@ -209,7 +224,9 @@ Let the plate cool down before you take the parts off. Then:
 3. **Microphone holes.** Two 1.5 mm holes go through the top cover, each in the middle of a 5 mm tube on the inside.
    They must be **open**. Push the shank of a 1.5 mm drill bit through by hand, or check that light passes.
 4. **Mute slot.** The slot (6.4 x 2.6 mm) in the oval dish must be free of strings.
-5. **Connector windows.** Cut off sagging threads at the three windows in the rear wall with a sharp knife.
+5. **Connector windows.** Cut off sagging threads at the three windows in the rear wall with a sharp knife. Take
+   most care at the tall window of the double USB-A socket: its bridged edge (the edge on the open side of the
+   shell) is the one the flange of the socket comes closest to.
 6. **Base.** An M2.5 screw must drop freely through each of the four 2.9 mm holes, and its head must go into the
    5.2 mm recess. If a head sticks, scrape the wall of the recess with the knife. Clear the vent slots.
 7. Do not sand, heat or wash the top face around the LED dots.
@@ -228,24 +245,38 @@ print (assumption).
 | 5 | Distance between the centres of the two rear board bosses | 93.0 mm | within 0.3 mm |
 | 6 | Distance between the centres of the rear left and front left board boss | 67.0 mm | within 0.3 mm |
 | 7 | Height of the four board bosses above the inside of the top cover | 4.0 mm | within 0.2 mm, all four equal |
-| 8 | Window for USB-C / double USB-A / microSD in the rear wall, width x height | 13.4 x 7.5 / 15.6 x 17.0 / 14.0 x 7.2 mm | not smaller than nominal minus 0.3 mm |
+| 8 | Window for USB-C / double USB-A / microSD in the rear wall, width x height | 13.4 x 7.5 / 15.6 x 17.3 / 14.0 x 7.2 mm | not smaller than nominal minus 0.3 mm |
 | 9 | Recesses for the feet in the base | diameter 8.6 mm, 0.5 mm deep | an 8 mm foot fits |
 | 10 | Pilot holes | 2.1 mm | the 2.0 mm drill shank enters; an M2.5 screw does not fall in |
 
 The front right board boss is not in line with the other three: it sits 0.5 mm further right and 0.3 mm further
 to the front. This is intended.
 
+**Fit of the double USB-A socket in its window.** The socket of this board revision is the Jing Extension
+907-112A1022D10200. Its front flange is 14.6 x 15.7 mm and its shell is 0.26 mm taller than that of the Wurth
+61400826021, the socket the window was first drawn for. In the 15.6 x 17.3 mm window the flange has 0.5 mm of air
+on each side and about 0.8 mm at the edge towards the base (the far lip of the flange stands about 16.2 mm above
+the component side of the board, the window reaches 17.0 mm). A window that is printed 0.3 mm too small is still
+wide and high enough.
+
+A shell that was printed from the enclosure files as they were before revision A3 has the earlier window of
+15.6 x 17.0 mm. The socket fits it at nominal dimensions, with about 0.5 mm at the edge towards the base, but
+nothing is left there if the window comes out 0.3 mm small and the flange is at the upper end of its tolerance.
+Measure such a window: if it is less than 17.0 mm high, scrape its bridged edge with the knife until it is, or
+print the shell again from the present files.
+
 ## 2. Tools and parts on the table
 
 Shops, shop article numbers and prices are in `fab/SHOPPING_LIST.md`: the parts of 2.1 in its table "Required for
 one device", the test equipment of 2.2 in its table "Optional: tools for the bring-up tests". The order and the
-incoming inspection of the boards are in `fab/ORDER_GUIDE.md`. The part numbers were read on 2026-11-12.
+incoming inspection of the boards are in `fab/ORDER_GUIDE.md`. The part numbers were read on 2026-11-12 and again
+on 2026-11-20.
 
 ### 2.1 Parts for one device
 
 | Qty | Part | Identification | Used in |
 |---|---|---|---|
-| 1 | Assembled VoxHub board, revision A2 | from JLCPCB; text `VoxHub CM4  rev A2`. The order brings 2 assembled boards and 3 boards without parts; only the assembled ones are used here | everything |
+| 1 | Assembled VoxHub board, revision A3 | from JLCPCB; text `VoxHub CM4  rev A3`. The order brings 2 assembled boards and 3 boards without parts; only the assembled ones are used here | everything |
 | 1 | Raspberry Pi Compute Module 4 Lite with wireless, 4 GB | CM4104000 | 3.5 |
 | 1 | Heat sink 14 x 14 x 7 mm with adhesive foil | the larger one of the set RPI-2KKS | 3.5 |
 | 1 | microSD card | SanDisk High Endurance 64 GB | 3.5, 3.6 |
@@ -403,7 +434,7 @@ goes to the supply point. With the probes swapped the protection diodes conduct 
 |---|---|---|---|
 | VBUS | D1 rear pad | 15.0 V | 14.25 to 15.75 V (the 5 % a USB PD supply is allowed) |
 | VBUS_SW (behind the load switch Q1) | inner ends of C8 / C9 | the same as VBUS | at most 0.1 V lower |
-| +5V | left terminal of L1, or left end of C14 | 5.02 V | 4.86 to 5.23 V without load (`hardware/README.md`); the compute module accepts 4.75 to 5.25 V |
+| +5V | left terminal of L1, or left end of C14 | 5.02 V | 4.86 to 5.23 V without load (`DECISIONS.md`, C-4); the compute module accepts 4.75 to 5.25 V |
 
 LEDs in this state (charger with a valid contract, no compute module):
 
@@ -415,7 +446,9 @@ LEDs in this state (charger with a valid contract, no compute module):
 | D7 green, D8 blue | off | switched by the compute module |
 | D9 red | off in both slider positions | fed from 3.3 V |
 
-6. Unplug the charger from the board. D6 fades within a few seconds.
+6. Unplug the charger from the board. D6 fades out slowly, over several seconds: the capacitors of the 5 V rail
+   discharge through its 10 kOhm resistor. It goes dark when the rail has fallen to about 2.3 V, so a dark D6 does
+   not mean that the rail is empty (estimates; see rule 1 in [5.2](#52-electrical-safety)).
 
 | Expected | If not |
 |---|---|
@@ -424,19 +457,21 @@ LEDs in this state (charger with a valid contract, no compute module):
 ### 3.4 Test 4 - USB PD with a 20 W, a 30 W and a 65 W charger, and with a plain 5 V supply
 
 How the board chooses: the PD controller U1 (Infineon CYPD3177) needs no software. Four resistor dividers on its
-pins tell it what to ask for (`hardware/gen/design.py`; the values are the rows of the tables in its data sheet):
+pins tell it what to ask for (`hardware/gen/design.py`; the values put each pin inside the pin voltage window that
+the data sheet gives for the setting):
 
 | Setting | Resistors on the board | Meaning |
 |---|---|---|
-| VBUS_MIN | R1 5.1 kOhm to 3.3 V, R2 1 kOhm to ground | at least 9 V |
-| VBUS_MAX | R3 0 Ohm to 3.3 V | at most 20 V |
-| ISNK_COARSE | R4 5.1 kOhm to 3.3 V, R5 2.4 kOhm to ground | at least 2 A |
-| ISNK_FINE | R6 0 Ohm to ground | plus 0 mA |
+| VBUS_MIN | R1 12 kOhm to 3.3 V, R2 2.2 kOhm to ground | at least 9 V |
+| VBUS_MAX | R3 1 kOhm to 3.3 V | at most 20 V |
+| ISNK_COARSE | R4 2.2 kOhm to 3.3 V, R5 1 kOhm to ground | at least 2 A |
+| ISNK_FINE | R6 1 kOhm to ground | plus 0 mA |
 
 It goes through the charger's fixed offers from the highest voltage downwards and takes the first one between 9 and
 20 V that offers at least 2 A (DECISIONS.md, section 2). Adjustable (PPS) offers are ignored. Only when such a
-contract exists does it close the load switch Q1; the 5 V regulator behind it starts at 7.0 V. If no offer fits, it
-stays at 5 V, sets its FAULT pin (red LED D4) and leaves Q1 open.
+contract exists does it close the load switch Q1. The 5 V regulator behind the switch starts when its input has
+risen above 7.39 V and stops when it falls below 6.79 V (typical values; 7.08 to 7.69 V and 6.49 to 7.08 V over
+tolerance). If no offer fits, the controller stays at 5 V, sets its FAULT pin (red LED D4) and leaves Q1 open.
 
 For each supply: plug it in, wait two seconds, note the LEDs, measure VBUS at the rear pad of D1 and +5V at L1 or
 C14 (black probe on the USB-A shell), unplug, wait until D6 is dark. For the 65 W charger set the multimeter to the
@@ -454,8 +489,9 @@ What the plain 5 V supply looks like: only the red LED D4 next to the square chi
 VBUS_SW at C8 / C9 is 0 V, the 5 V rail is 0 V, nothing gets warm. With a compute module fitted nothing would
 start. This is the intended behaviour: the board stays off instead of running on too little power.
 
-The 20 W charger is a test case, not a supply for daily use: 9 V / 2.2 A is only just above the theoretical peak
-demand of 19.2 W (README, power budget).
+The 20 W charger is a test case, not a supply for daily use: 9 V x 2.2 A = 19.8 W is only 0.2 W above the
+theoretical peak demand of about 19.6 W at the USB-C socket (17.3 W on the 5 V rail plus about 2.3 W of losses in
+the regulator, the inductor and the load switch).
 
 | Expected | If not |
 |---|---|
@@ -466,7 +502,7 @@ demand of 19.2 W (README, power budget).
 The card must contain the image before it goes in. If you have not written it yet, do part A of
 [3.6](#36-test-6---first-boot-of-home-assistant-os) now and come back.
 
-**The charger is unplugged and D6 is dark.**
+**The charger is unplugged and D6 has been dark for a minute** (rule 1 in [5.2](#52-electrical-safety) says why).
 
 Heat sink:
 
@@ -533,14 +569,15 @@ rights and no loop devices, so it should also run in WSL2 with Ubuntu on Windows
    sudo apt install git curl xz-utils fdisk mtools device-tree-compiler
    git clone https://github.com/geilevideossos-gamedev/fable-sbc-test.git
    cd fable-sbc-test
-   git checkout claude/gallant-hamilton-kojnjj
    ./os/build-image.sh repack --wifi-ssid 'NAME OF YOUR WIFI' --wifi-psk 'PASSWORD OF YOUR WIFI' --wifi-country AT
    ```
 
-   The line `git checkout ...` is needed as long as the two-device version (hub + satellite) has not been merged
-   into the branch `main` (state on 2026-11-12: revision A2 is in `main`, the two-device version only in this
-   branch). Keep the single quotes around the Wi-Fi name and the password. `AT` is the country code for
-   Austria; without the option the script sets `US`.
+   No `git checkout` line is needed: the two-device version (hub + satellite) has been in the branch `main` since
+   2026-11-12. State on 2026-11-20: hardware revision A3, this version of the guide and version 0.1.1 of the
+   VoxHub Assistant app are in the branch `claude/zen-babbage-20rn9n` until it is merged into `main`. The scripts
+   this guide runs (`os/build-image.sh`, `os/satellite/build-satellite-image.sh`, `tools/flash_zigbee.sh`) and the
+   VoxHub Satellite app are the same in both branches. Keep the single quotes around the Wi-Fi name and the
+   password. `AT` is the country code for Austria; without the option the script sets `US`.
 2. Wait about two minutes (os/README: 93 seconds on the build machine, 310 MB). The last lines name the result:
    `os/output/haos_voxhub-cm4-18.5.img.xz`. 18.5 was the newest stable Home Assistant OS on 2026-11-12; a later
    version changes the number in the file name.
@@ -568,6 +605,9 @@ Limits of the Wi-Fi preset (from the script):
 | D10 green | the same pattern again and again: a number of flashes, two seconds pause | start-up failed, see the table below |
 | D7 green, D8 blue (bare side) | stay off | they are only used once the VoxHub Assistant app runs |
 | D9 red (bare side) | on only if the slider is in the mute position | hard-wired |
+
+   D10 is weak on some boards (see "The six LEDs"). Shade the board with your hand if you are not sure whether it
+   flickers.
 
 4. Wait, and do not unplug the charger during the first start. Home Assistant's own documentation says that on a
    Raspberry Pi 4 its page is available within a minute of the start; `os/README.md` reckons with about five
@@ -598,7 +638,7 @@ Repeating flash patterns of D10 (Raspberry Pi documentation, read 2026-11-12; lo
 
 | Expected | If not |
 |---|---|
-| D10 flickers irregularly; the page `homeassistant.local:8123` appears within ten minutes | **D10 never lights:** (a) the compute module is not seated - unplug, check 3.5 step 9; (b) no card or card not clicked in; (c) the module has no 5 V - measure +5V at L1. **D10 repeats a pattern:** see the table. **D10 flickers normally but the device never shows up in the router:** (a) Wi-Fi name or password mistyped - the name is case sensitive; (b) the network is WPA3-only or hidden; (c) the board is too far from the access point. Make the image again and write the card again. **The device is in the router list but the page does not open:** use `http://<address>:8123`, not `https`, and wait five more minutes. |
+| D10 flickers irregularly; the page `homeassistant.local:8123` appears within ten minutes | **D10 never lights:** shade the board with your hand first - a weak D10 is normal. If it stays dark: (a) the compute module is not seated - unplug, check 3.5 step 9; (b) no card or card not clicked in; (c) the module has no 5 V - measure +5V at L1. **D10 repeats a pattern:** see the table. **D10 flickers normally but the device never shows up in the router:** (a) Wi-Fi name or password mistyped - the name is case sensitive; (b) the network is WPA3-only or hidden; (c) the board is too far from the access point. Make the image again and write the card again. **The device is in the router list but the page does not open:** use `http://<address>:8123`, not `https`, and wait five more minutes. |
 
 ### 3.7 Test 7 - 3.3 V rail
 
@@ -688,12 +728,26 @@ All commands are typed into the web terminal of test 6, step 7.
 
 `--volume=262144` plays the recording 64 times louder than recorded (65536 would be unchanged). The microphones are
 built for very loud sound, so normal speech is recorded at a low level; this is not a fault. If the playback is
-too quiet use `--volume=524288`, if it is distorted use `--volume=131072`. These three values are starting values,
-not measured ones.
+distorted use `--volume=131072`. Do not use a higher value than 262144 (the reason follows). These values are
+starting values, not measured ones.
+
+**MK2 sounds different from MK1, and that is normal.** The microphones are Infineon IM72D128V01. The one of the
+right channel, MK2, adds a constant level to its signal: typically -40 dBFS, about 1 % of full scale (data sheet,
+for the microphone whose SELECT pin is tied to 3.3 V; MK1 has typically -80 dBFS, which cannot be heard). Played 64
+times louder, this constant takes about two thirds of the range (0.64 of full scale). In step 6 you can therefore
+notice two things that are not faults:
+
+- a soft thump at the start and at the end of the playback: that is the constant level, not a defect;
+- loud speech close to MK2 can sound distorted, because only a third of the range is left for the voice. Speak at
+  a normal level, or play step 6 again with `--volume=131072`.
+
+At `--volume=524288` (512 times) the constant alone would be five times the full range, and a healthy MK2 would
+sound dead. What the constant level means for the voice software is described in `assistant/README.md`, section
+"Troubleshooting", and in chapter 6 of this guide.
 
 | Expected | If not |
 |---|---|
-| You hear your voice in step 5 and in step 6. Each microphone hears both halves of the recording; the half spoken next to it is the louder one. Some hiss is normal | **Step 2 shows no such card or `$SRC` is empty:** the VoxHub block is missing in `config.txt` - the card was not made with `os/build-image.sh`. **Silence in steps 5 and 6:** (a) do test 10 first to prove the speaker; (b) the microphones are muted - D9 is lit; (c) the converter chip U9 (a very small chip at (40.0 / 61.0), between the radio module and the compute module) is not soldered correctly - report the board. **One channel has a voice, the other is silent or only crackles:** that microphone (MK1 or MK2) is defective or was washed - report the board. |
+| You hear your voice in step 5 and in step 6. Each microphone hears both halves of the recording; the half spoken next to it is the louder one. Some hiss is normal, and so are the thump and the harsher sound of MK2 described above | **Step 2 shows no such card or `$SRC` is empty:** the VoxHub block is missing in `config.txt` - the card was not made with `os/build-image.sh`. **Silence in steps 5 and 6:** (a) do test 10 first to prove the speaker; (b) the microphones are muted - D9 is lit; (c) the converter chip U9 (a very small chip at (40.0 / 61.0), between the radio module and the compute module) is not soldered correctly - report the board. **One channel has a voice, the other is silent or only crackles:** that microphone (MK1 or MK2) is defective or was washed - report the board. If it is MK2, repeat step 6 with `--volume=131072` first: a volume above 262144 silences a healthy MK2. |
 
 ### 3.10 Test 10 - speaker
 
@@ -765,14 +819,13 @@ Three things to know before you start:
    arrived complete:
 
    ```
-   curl -fLo flash_zigbee.sh https://raw.githubusercontent.com/geilevideossos-gamedev/fable-sbc-test/claude/gallant-hamilton-kojnjj/tools/flash_zigbee.sh
+   curl -fLo flash_zigbee.sh https://raw.githubusercontent.com/geilevideossos-gamedev/fable-sbc-test/main/tools/flash_zigbee.sh
    bash flash_zigbee.sh --help
    ```
 
    The second command must print the help text shown further down and nothing else. (The address is that of
-   the branch with the two-device version; once it has been merged, replace `claude/gallant-hamilton-kojnjj` in
-   the address by `main`.) The script must be a file; piping the
-   download straight into `bash` does not work, because the script copies itself into a container.
+   the branch `main`, which holds the two-device version of the script since 2026-11-12.) The script must be a
+   file; piping the download straight into `bash` does not work, because the script copies itself into a container.
 3. Rehearsal without touching the radio:
 
    ```
@@ -973,7 +1026,7 @@ It needs a second microSD card, so that the Home Assistant card stays as it is.
 4. Log in from the PC with `ssh <user>@<address of the board>` and run:
 
    ```
-   curl -fLo flash_zigbee.sh https://raw.githubusercontent.com/geilevideossos-gamedev/fable-sbc-test/claude/gallant-hamilton-kojnjj/tools/flash_zigbee.sh
+   curl -fLo flash_zigbee.sh https://raw.githubusercontent.com/geilevideossos-gamedev/fable-sbc-test/main/tools/flash_zigbee.sh
    sudo bash flash_zigbee.sh
    ```
 
@@ -993,7 +1046,7 @@ from the script.
 | `This looks like Home Assistant OS, but the docker command does not work here.` | protection mode of the terminal app is on | switch **Protection mode** off on the **Info** tab of the terminal app, restart the app, run the script again |
 | `ERROR: The temporary container could not be started (docker exit status ...).` | the Debian image could not be fetched from Docker Hub or started | check the internet connection of the board and run the script again; nothing was written |
 | `The serial port /dev/ttyAMA4 is in use by:` | an integration already uses the radio | disable Zigbee Home Automation or stop Zigbee2MQTT, run the script, enable it again |
-| `The serial port /dev/ttyAMA4 does not exist.` | the line `dtoverlay=uart4` is missing | the card was not made with `os/build-image.sh` from the A2 branch: make it again (3.6 part A) |
+| `The serial port /dev/ttyAMA4 does not exist.` | the line `dtoverlay=uart4` is missing | the card was not made with `os/build-image.sh`: make it again (3.6 part A) |
 | `Could not download ... with the expected checksum. Nothing was written to the radio.` | no internet access, or a file was changed at its source | try again later; nothing has happened to the radio |
 | `Could not drive GPIO24.` or `Could not drive GPIO25. Another program or driver is using this line.` | helper programs of an earlier run that was killed still hold the line | on Home Assistant OS restart the board with `ha host reboot` and run the script again; on Raspberry Pi OS run `sudo pkill gpioset` first |
 | `The serial bootloader is not reachable.` followed by `Falling back to JTAG.` | the module was delivered with a firmware that keeps its boot loader closed | nothing to do: the script continues with the second method by itself |
@@ -1143,8 +1196,10 @@ the top cover.
 
 1. Hold the board by its left and right edges, component side up, rear edge with the three sockets away from you.
 2. Tilt it: rear edge down, front edge about 2 cm up. The board cannot be lowered straight in, because the USB-A
-   socket overhangs the board edge by 2.5 mm.
-3. Push the three sockets into their windows in the rear wall, the tall USB-A socket first.
+   socket overhangs the board edge by about 2.5 mm.
+3. Push the three sockets into their windows in the rear wall, the tall USB-A socket first. Its flange has only
+   half a millimetre of air on each side: if it catches on the window, do not force it; take the board out and
+   trim the window (1.5 step 5, 1.6).
 4. Lower the front edge until the board lies on the four bosses. Do not press on the compute module to do so.
 5. Check from above: each of the four corner holes of the board shows a boss hole in its middle.
 6. Fasten the board with **4 x M2.5 x 5**. Start each screw straight by hand, then turn it slowly. The first turns
@@ -1266,7 +1321,10 @@ test pad with the charger voltage.
 **Rules**
 
 1. Unplug the charger before you touch the board with a tool, fit or remove the compute module, the card, the
-   speaker or a screw. Wait until the green LED D6 is dark; the capacitors are then empty.
+   speaker or a screw. Wait until the green LED D6 is dark, and one minute more before you fit the compute module.
+   A dark D6 does not mean that the capacitors are empty: the LED goes dark when the 5 V rail has fallen to about
+   2.3 V. With no compute module on the board the rest drains through the 125 kOhm of the regulator's feedback
+   divider, which takes about a minute for the 180 uF of the rail (estimates).
 2. With power on, only the multimeter probes touch the board, one hand per probe, on the points named in chapter 3.
 3. Never power the board while it lies on metal, on the anti-static film or bag it came in (that material
    conducts) or on a wet surface. Cardboard or wood is right.
@@ -1275,8 +1333,10 @@ test pad with the charger voltage.
 5. Use only undamaged chargers with a CE mark. The charger is the only part with mains voltage; never open it.
 6. Do not feed power into the USB-A sockets (no powered hub that feeds back, no Y cable). They are outputs.
 7. The two speaker wires are both live outputs of the amplifier. Never connect one of them to ground.
-8. The heat sink and the area around the regulator can reach 60 to 80 C in operation. Let the device cool down
-   before you open it.
+8. The heat sink can reach 60 to 80 C in operation, and the 5 V regulator U2 and the parts around it get as hot
+   or hotter: the thermal model gives about 76 C inside the regulator at typical load and 125 C or more at the
+   theoretical peak, with 50 C around the board. These are estimates that have to be measured on the first board.
+   Let the device cool down before you open it.
 
 ## 6. What could not be verified
 
@@ -1286,17 +1346,30 @@ No hardware exists yet, so nothing in this guide has been tried on a real board.
 
 - All voltages, resistances, LED states and times in chapter 3. The resistance values of test 2, the "one second"
   in test 3, the ten minutes in test 6 and the playback volumes in test 9 are estimates.
-- The positions of parts were read from the board file of commit `6776424`. They have to be read again if the
+- The brightness of the LEDs is calculated from the typical curves of their data sheets. That D10 lights on every
+  board rests on these curves, not on a guaranteed limit: at the data sheet's test current its forward voltage can
+  be higher than the 3.3 V rail leaves for it.
+- How long D6 takes to fade, the 2.3 V at which it goes dark and the minute the 5 V rail needs to drain without a
+  compute module (rule 1 in 5.2) are estimates from the values of the schematic.
+- The temperatures of the 5 V regulator (about 76 C at typical load, 125 C or more at the theoretical peak) come
+  from a thermal model of the board alone, without the compute module and the case, for 50 C around the board; the
+  result depends strongly on how well the board is cooled. Measure the regulator U2, the inductor L1 and the load
+  switch Q1 at full load on the first board.
+- The positions of parts were read from the board file of commit `aa97fd3`. They have to be read again if the
   board is generated again (see the note at the top).
 - The allowed ranges for VBUS (5 % around the contract voltage; 4.75 to 5.5 V without a contract) are the general
   USB limits, not values from the project's research notes.
 - The rule by which the PD controller picks an offer (highest voltage first) is taken from DECISIONS.md, section 2.
-  The CYPD3177 data sheet read on 2026-11-12 (LCSC copy, 002-25383 Rev. *B) confirms the resistor settings and the
-  behaviour of the FAULT pin, but does not describe the order.
+  The CYPD3177 data sheet (Infineon 002-25383 Rev. *C, read on 2026-11-20) gives the pin voltage window of every
+  setting - the six strap resistors were checked against these windows - and the behaviour of the FAULT pin, but
+  does not describe the order.
 - The offers of the chargers are manufacturer data, not measurements. The tables of the Apple 20 W and the Anker
   A2337 charger could not be verified and are not used here.
 - Which microphone is the left and which the right channel, and the direction of the mute slider, are derived
   from the schematic and from the drawing of the switch.
+- The constant level of the microphone MK2 (-40 dBFS) is a typical value of the data sheet, which gives no spread.
+  How it sounds in the playback of tests 9 and S9 (the thump, the distortion on loud speech) is derived from that
+  value; how the amplifier treats a constant level was not checked.
 - That the glow of D4, D6 and D10 can be seen through the vent slots follows from the model only.
 
 **Software**
@@ -1330,8 +1403,10 @@ No hardware exists yet, so nothing in this guide has been tried on a real board.
   names the plug "XH2.54-2P"; Adafruit and BerryBase sell the speaker with a JST-PH plug of 2.0 mm pitch, which is
   what J7 needs. Which plug is really fitted is known only when the speaker is on the table (check in 2.1).
 - Whether the folded bundle of the lead fits into the 7 mm gap beside the speaker has not been tried.
-- The lips of the USB-A socket flange are scaled from the drawing rather than dimensioned, and the drawing of the
-  mute switch gives no tolerance for its body (enclosure/README.md).
+- The USB-A socket Jing Extension 907-112A1022D10200 is known from one drawing only; no sample was measured. The
+  heights of its flange lips above the board and the distance from its pins to its front face (how far it reaches
+  into the wall) are scaled from that drawing rather than dimensioned. The drawing of the mute switch gives no
+  tolerance for its body (enclosure/README.md).
 - The Bambu Lab EU store could not be read on 2026-11-12 (research notes). The filament named here is the one
   `fab/SHOPPING_LIST.md` found in stock at Reichelt.at.
 - No foam rings for the microphone tubes are used, because no shop that was searched sells 0.5 mm foam; the
@@ -1353,6 +1428,10 @@ No hardware exists yet, so nothing in this guide has been tried on a real board.
   devices pick it as their parent are taken from Koenkk's firmware sources and the Zigbee standard behaviour.
 - RAM and CPU load of the satellite on the 1 GB module, the wake word reliability with the VoxHub microphones and
   the microphone gain of +12 dB are not measured.
+- The constant level of the microphone MK2 reaches the satellite software of both devices as it is (Linux Voice
+  Assistant removes no constant level). In a simulation with the test recordings of its wake word and voice
+  detection libraries both behaved the same with and without the level; this was not tested on hardware
+  (`DECISIONS.md`, W-1).
 - The first boot of the satellite image (Wi-Fi, SSH host keys, user `voxhub`, PipeWire under the lingering user,
   the order of the services) was checked in the image, not on a running board.
 
@@ -1462,9 +1541,9 @@ installed release can differ slightly. "Apps" were called "add-ons" in older ver
 6. **Stop the old assistant.** If the **VoxHub Assistant** app runs, stop it and switch **Start on boot** off. It
    uses the same microphones and LEDs.
 7. **VoxHub Satellite app.** **Settings > Apps > Install app**, three dots > **Repositories**:
-   add `https://github.com/geilevideossos-gamedev/fable-sbc-test#claude/gallant-hamilton-kojnjj`. The part after
-   `#` is the branch with the two-device version; as long as it is not merged into `main`, the address without it
-   offers only VoxHub Assistant (if you added the repository before without `#...`, remove it and add it again).
+   add `https://github.com/geilevideossos-gamedev/fable-sbc-test`. The address needs no branch name: the
+   two-device version has been in the branch `main` since 2026-11-12. If you added the repository earlier with
+   `#claude/gallant-hamilton-kojnjj` at its end, remove it and add it again without (that branch no longer exists).
    Install **VoxHub Satellite**. The first install builds the app on the hub (several minutes).
    - **Configuration** tab: **Device name** `VoxHub Upstairs` (the room of the hub). Keep the other defaults:
      **Exposure guard** on, **Protected domains** `lock` and `alarm_control_panel`, **Microphone gain** 4.
@@ -1497,8 +1576,7 @@ sudo os/satellite/build-satellite-image.sh --wifi-ssid 'NAME OF YOUR WIFI' --wif
 
 - `--hub` is the fixed address of the hub from section 7.1. `--room` gives the device its name ("VoxHub
   Downstairs"). The room itself is assigned in Home Assistant in section 7.5.
-- The same branch as for the Home Assistant OS image applies: as long as this work is not merged into `main`, run
-  `git checkout claude/gallant-hamilton-kojnjj` after `cd fable-sbc-test`.
+- As for the Home Assistant OS image, the branch `main` is the right one; no `git checkout` line is needed.
 - The script runs about 25 minutes (packages are installed into the image in emulation) and ends with
   `[voxhub-satellite] all checks passed` and `done: .../os/output/voxhub-satellite-2026-10-06-lva1.1.18.img.xz`.
 - Write the file to a microSD card with Raspberry Pi Imager: **Choose OS > Use custom**, the `.img.xz` file, the
@@ -1547,7 +1625,9 @@ paplay --device="$SNK" --volume=164619 --channel-map=front-right,front-left /tmp
 Speak during the eight seconds, first over the front left corner (MK1), then over the rear right corner (MK2).
 The first `paplay` plays MK1 (left channel), the second MK2 (the channels swapped, as in test 9). The recording
 already contains the +12 dB of the satellite's microphone gain; `--volume=164619` adds 24 dB, so it plays about as
-loud as test 9. Expected and faults: as test 9.
+loud as test 9. Expected and faults: as test 9. The constant level of MK2 is in this recording too: at this volume
+it takes about two thirds of the range (0.63 of full scale), so the second `paplay` can start and end with a soft
+thump and can distort on loud speech. Neither is a fault. Do not raise `--volume` above 164619.
 
 **Test S10 - speaker.**
 

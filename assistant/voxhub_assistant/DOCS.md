@@ -22,8 +22,9 @@ You also need an Anthropic API key from <https://console.anthropic.com>.
 4. Say "Hey Jarvis". After the beep, speak your request.
 
 On the VoxHub, set **Microphone gain** to about 4 to 8, because the I2S microphones are
-quiet. For the status LEDs and the mute switch, switch **Protection mode** off on the
-Info tab; this is optional.
+quiet. One of the two VoxHub microphones (the right channel) adds a constant level to its
+signal; the add-on removes it by itself, there is nothing to set. For the status LEDs and
+the mute switch, switch **Protection mode** off on the Info tab; this is optional.
 
 ## Things to try
 

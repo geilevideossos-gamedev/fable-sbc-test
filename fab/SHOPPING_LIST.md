@@ -1,6 +1,6 @@
 # VoxHub CM4 - shopping list
 
-Everything you must buy that is **not** on the assembled PCB from JLCPCB. Hardware revision A2.
+Everything you must buy that is **not** on the assembled PCB from JLCPCB. Hardware revision A3.
 
 - The board itself is ordered with [`ORDER_GUIDE.md`](ORDER_GUIDE.md), starting at its section "2. Before ordering:
   account and the parts that are short". The cost of that order is in its section "8. Cost estimate"; the parcel from
@@ -11,8 +11,12 @@ Everything you must buy that is **not** on the assembled PCB from JLCPCB. Hardwa
 - Nothing on this list needs soldering or crimping.
 - **Two-device system (hub upstairs + satellite downstairs):** the second board is the satellite. Its parts and the
   combined basket for both devices are in section 8.
-- All prices are in EUR **including VAT**, as the shop displayed them for Austria on **2026-11-12**. Shipping is to
-  Austria.
+- All prices are in EUR **including VAT**, as the shop displayed them for Austria on **2026-11-20**. Shipping is to
+  Austria. The list was first written with the prices of 2026-11-12; on 2026-11-20 the shop pages were read again
+  (DigiKey.at could not be read, mark D below). No price of the numbered lines (1 to 16, 1S, 4S) and no shipping
+  fee had changed, so every total is the one of 2026-11-12. Several stock figures had changed.
+- **Order the BerryBase.at parcel first.** The speaker of line 2 has no substitute, and its stock fell from 67 to
+  19 pieces between 2026-11-12 and 2026-11-20 (section 5.2).
 - Prices and stock change daily; the compute module at Reichelt.at rose by 2.67 EUR within the morning of
   2026-11-12. The amount in your basket on the day you order is the one that counts.
 
@@ -20,10 +24,9 @@ How each figure was obtained (column "Checked" in the tables below):
 
 | Mark | Meaning |
 |---|---|
-| R | read from the shop page for this document on 2026-11-12, about 09:00 UTC (re-check of the research notes) |
-| L | first looked up for this document on 2026-11-12, about 09:00 UTC (the item is not in the research notes) |
-| N | taken from the research notes (shop pages read earlier on 2026-11-12), not read again |
-| S | read from the shop page for the satellite variant (section 8) on 2026-11-12, 12:45 to 12:56 UTC |
+| R | read from the shop page on 2026-11-20 between 23:01 and 23:28 UTC (second reading of a figure of 2026-11-12, or first reading where the text says so) |
+| N | taken from the research notes of 2026-11-12, not read again |
+| D | value of 2026-11-12, not read again: on 2026-11-20 DigiKey.at answered every request with a bot check |
 
 ## Already on the board - do not buy
 
@@ -54,22 +57,22 @@ is the line number that the rest of this document refers to.
 | **11** PETG filament 1.75 mm, white, 1 kg spool, for the Bambu Lab printer (skip if you have PETG in a light colour) | 1 | Bambu Lab PETG Basic G00-W00-1.75-1000-SPL (EAN 6937285509727) | Reichelt.at | BL G00-W00-SPL | 19.15 | [product page](https://www.reichelt.at/at/de/shop/produkt/filament_petg_basic_weiss_1_75_mm_1_kg-433157) |
 | **12** Screwdriver PH1, blade 80 mm (skip if you have a PH1 screwdriver) | 1 | Bernstein 4-624 (EAN 4250838513869) | Reichelt.at | BERN 4 624 | 6.81 | [product page](https://www.reichelt.at/at/de/shop/produkt/esd_schraubendreher_kreuzschlitz_ph_1-298887) |
 
-Stock on 2026-11-12, in the words the shop uses:
+Stock on 2026-11-20, in the words the shop uses:
 
 | Line | Item | Stock text on the shop page | Checked |
 |---|---|---|---|
 | 1 | CM4104000, Reichelt | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R |
-| 2 | Adafruit 3351, BerryBase | "Sofort verfügbar · 67 Stück · 1-3 Tage" | R |
+| 2 | Adafruit 3351, BerryBase | "Sofort verfügbar · 19 Stück · 1-3 Tage" (67 on 2026-11-12) | R |
 | 3 | RPI-2KKS, BerryBase | "Sofort verfügbar · 100+ Stück · 1-3 Tage" | R |
 | 4 | SanDisk 64 GB, BerryBase | "Sofort verfügbar · 100+ Stück · 1-3 Tage" | R |
-| 5 | D7985, BerryBase | "Sofort verfügbar · 100+ Stück · 1-3 Tage" | R |
+| 5 | D7985, BerryBase | "Sofort verfügbar · 95 Stück · 1-3 Tage" | R |
 | 6 | D7988, BerryBase | "Sofort verfügbar · 100+ Stück · 1-3 Tage" | R |
 | 7 | DELOCK 18308, Reichelt | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R |
 | 8 | JAMARA 059850, Reichelt | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R |
 | 9 | GOOBAY 79153, Reichelt | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R |
 | 10 | SHVP BS20-75025, Reichelt | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R |
-| 11 | BL G00-W00-SPL, Reichelt | "ab Lager, Lieferzeit: 2 - 3 Werktage" | L |
-| 12 | BERN 4 624, Reichelt | "ab Lager, Lieferzeit: 2 - 3 Werktage" | L |
+| 11 | BL G00-W00-SPL, Reichelt | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R |
+| 12 | BERN 4 624, Reichelt | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R |
 
 Totals for one device (basket A of section 4, two parcels):
 
@@ -97,7 +100,8 @@ neither the 4 GB module nor the 64 GB endurance card.
 Quantities for both assembled boards, both built as hubs: 2 x line 1, 2 x line 2, 2 x line 3, 2 x line 4, 20 x line 5 (16 used),
 10 x line 6 (8 used), 1 x line 7 (8 feet from the same pack of 70), 1 x line 8 (two pads from the same sheet),
 2 x line 9, 2 x line 10, 1 x line 11 (one spool prints both enclosures), 1 x line 12.
-Total delivered: 352.91 EUR without lines 11 and 12, 378.87 EUR with them (basket A, section 4).
+Total delivered: 352.91 EUR without lines 11 and 12, 378.87 EUR with them (basket A, section 4). The basket of
+Reichelt.at charges 0.01 EUR more for two modules than twice the price of one (section 4.1).
 
 ## 3. Optional: tools for the bring-up tests
 
@@ -108,8 +112,8 @@ without them.
 |---|---|---|---|---|---|---|---|---|
 | **13** USB-C PD charger 20 W, white (test case: 9 V contract) | 1 | Goobay 79151 (EAN 4040849791512) | Reichelt.at | GOOBAY 79151 | 11.90 | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R | [product page](https://www.reichelt.at/at/de/shop/produkt/usb-ladegeraet_20_w_gan_1x_usb-c_weiss-425714) |
 | **14** USB-C PD charger 65 W, black (test case: 20 V contract) | 1 | Goobay 79155 (EAN 4040849791550) | Reichelt.at | GOOBAY 79155 | 21.99 | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R | [product page](https://www.reichelt.at/at/de/shop/produkt/usb-ladegeraet_65_w_gan_1x_usb-c_schwarz-425717) |
-| **15** USB-C power meter, 4 to 30 V, 0 to 5 A, OLED display | 1 | KWS-1902C | BerryBase.at | 125471 | 7.50 | "Sofort verfügbar · 40 Stück · 1-3 Tage" | R | [product page](https://www.berrybase.at/usb-tester-kws-1902c-fuer-usb-c-4-30v-oled-display) |
-| **16** Digital multimeter, 1999 counts, with test leads and battery | 1 | PeakTech P 1070 (EAN 4250569400100) | Reichelt.at | PEAKTECH 1070 | 18.97 | "ab Lager, Lieferzeit: 2 - 3 Werktage" | L | [product page](https://www.reichelt.at/at/de/shop/produkt/multimeter_digital_1999_counts-67138) |
+| **15** USB-C power meter, 4 to 30 V, 0 to 5 A, OLED display | 1 | KWS-1902C | BerryBase.at | 125471 | 7.50 | "Sofort verfügbar · 17 Stück · 1-3 Tage" | R | [product page](https://www.berrybase.at/usb-tester-kws-1902c-fuer-usb-c-4-30v-oled-display) |
+| **16** Digital multimeter, 1999 counts, with test leads and battery | 1 | PeakTech P 1070 (EAN 4250569400100) | Reichelt.at | PEAKTECH 1070 | 18.97 | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R | [product page](https://www.reichelt.at/at/de/shop/produkt/multimeter_digital_1999_counts-67138) |
 
 Total of lines 13 to 16: 60.36 EUR. They travel in the same two parcels, so shipping does not change.
 
@@ -132,12 +136,17 @@ Total of lines 13 to 16: 60.36 EUR. They travel in the same two parcels, so ship
 
 ### 4.1 Basket A - two parcels (Reichelt.at + BerryBase.at) - use this one
 
-No shop that was checked has everything: Reichelt.at does not list the Adafruit 3351 (search, L) or M2.5 x 5 /
-M2.5 x 8 machine screws (N); BerryBase.at cannot deliver the CM4104000 today (R) and has no 8 mm feet in stock (N).
-Two parcels is the minimum.
+No shop that was checked has everything: Reichelt.at does not list the Adafruit 3351 (search, R) or M2.5 x 5 /
+M2.5 x 8 machine screws (N); BerryBase.at could not deliver the CM4104000 on 2026-11-20 (R) and has no 8 mm feet in
+stock (N). Two parcels is the minimum.
 
 Shipping to Austria (R): Reichelt.at DPD up to 10 kg 6.95 EUR (DHL 9.95, UPS 12.95). BerryBase.at "DHL Paket" 5.95 EUR
 for an order value of 0.01 to 199.99 EUR, free from 200.00 EUR (UPS Standard 14.00).
+
+One open point at Reichelt.at: its shipping page and its basket show 6.95 EUR for DPD, but the pop-up behind
+"inkl. 20% gesetzl. MwSt. zzgl. Versandkosten" on the product pages lists the same parcel as "Preis netto € 6,95",
+"Preis brutto € 8,34". Which of the two is charged at checkout was not tested. With 8.34 EUR every total that
+contains a Reichelt.at parcel is 1.39 EUR higher; the amount in the basket counts.
 
 | Shop | Item | Shop article no. | Qty, one device | EUR, one device | Qty, two devices | EUR, two devices |
 |---|---|---|---|---|---|---|
@@ -157,6 +166,10 @@ for an order value of 0.01 to 199.99 EUR, free from 200.00 EUR (UPS Standard 14.
 | | **BerryBase.at subtotal** | | | **42.75** | | **79.05** |
 | | **Total, delivered** | | | **188.40** | | **352.91** |
 
+The two-device columns are computed as 2 x 105.83 = 211.66 EUR for the modules. The basket of Reichelt.at showed
+211.67 EUR for two modules on 2026-11-20, so at the shop the Reichelt.at subtotal is 273.87 EUR and the two-device
+total 352.92 EUR, 0.01 EUR more than in this table. The other tables of this document keep the arithmetic figure.
+
 Additions to the same two parcels (no extra shipping):
 
 | Addition | Parcel | EUR |
@@ -167,7 +180,8 @@ Additions to the same two parcels (no extra shipping):
 
 Everything on this page: 274.72 EUR for one device, 439.23 EUR for two devices.
 
-How to order:
+How to order. Do steps 6 to 10 (BerryBase.at) first: the speaker is the one article that can run out (19 pieces on
+2026-11-20, no substitute).
 
 1. Open the links of sections 1 and 3 for the Reichelt.at lines (1, 7, 8, 9, 10, 11, 12 and, if wanted, 13, 14, 16).
 2. On each page compare the text after "Artikel-Nr.:" with the column "Shop article no.". For the compute module it
@@ -185,7 +199,8 @@ How to order:
    lieferbar" means not deliverable.
 9. Set the quantity - the screws are sold singly, enter 10 (for two devices 20 of D7985) - and press
    "In den Warenkorb".
-10. Choose "DHL Paket" (5.95 EUR) and pay.
+10. Choose "DHL Paket" (5.95 EUR) and pay. The basket names the VAT rate that the product pages leave out:
+    "zzgl. 20 % MwSt." under the net sum.
 11. When the BerryBase.at parcel arrives, check the plug of the speaker before you do anything else with it:
     section 5.2, "Check the plug when the parcel arrives".
 
@@ -196,7 +211,7 @@ Use it if Reichelt.at has no stock of the compute module, or to save a few euros
 Semaf Electronics (electronics.semaf.at, Alserbachstrasse 10, 1090 Wien, official Austrian Raspberry Pi distributor):
 SKU `CM4104000`, **102.00 EUR** "inkl. 20% USt.", "10 Stück im Geschäftslokal lagernd", "Lieferzeit: ca. 1 - 3
 Werktage" (R). Shipping within Austria from 6.50 EUR, free from 99 EUR (banner on the shop page, R); pick-up in the
-shop is possible (N).
+shop is possible (R).
 [product page](https://electronics.semaf.at/Compute-Module-4-mit-Wireless-mit-4GB-RAM-0GB-eMMC-Lite)
 
 | Parcel | One device (EUR) | Two devices (EUR) |
@@ -211,7 +226,8 @@ shop is possible (N).
 
 | Variant | Change | One device, delivered (EUR) |
 |---|---|---|
-| 2 GB module | CM4102000 from BerryBase.at instead of line 1: 69.00 EUR, "Sofort verfügbar · 16 Stück" (R), [product page](https://www.berrybase.at/raspberry-pi-compute-module-4/ram-2gb/flash-ohne-lite-/wlan-bluetooth-ja) - "Artikelnummer:" must read `CM4102000`. Limits: section 5.1 | 151.57 |
+| 2 GB module, Reichelt.at | CM4102000 from Reichelt.at instead of line 1, in the same parcel: 68.52 EUR, "ab Lager, Lieferzeit: 2 - 3 Werktage" (R; not in stock on 2026-11-12), [product page](https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_compute_modul_4_2gb_ram_lite_wlan-290531) - "Artikel-Nr.:" must read `RPI CM4W 2GBLITE`. Limits: section 5.1 | 151.09 |
+| 2 GB module, BerryBase.at | CM4102000 from BerryBase.at instead of line 1: 69.00 EUR, "Sofort verfügbar · 7 Stück" (R), [product page](https://www.berrybase.at/raspberry-pi-compute-module-4/ram-2gb/flash-ohne-lite-/wlan-bluetooth-ja) - "Artikelnummer:" must read `CM4102000`. Limits: section 5.1 | 151.57 |
 | Raspberry Pi 27 W supply | RPI PS 27W WT EU (11.50 EUR, cable attached) instead of lines 9 and 10 (22.38 EUR). 12 V contract, 27 W. Limits: section 5.8 | 177.52 |
 
 ## 5. Notes per item
@@ -263,10 +279,14 @@ Home Assistant OS").
 - Polarity does not matter: the amplifier output is bridge-tied, neither wire is ground. Plug it in as it comes.
 - Do not shorten the lead - shortening means soldering. Where the surplus goes: `ASSEMBLY_AND_TEST.md`, sections
   "4.3 Speaker into its frame" and "4.5 Speaker lead".
-- **No separate speaker lead is needed.** Do **not** buy the JST-PH pigtail (BerryBase.at article AK-PH20-2P,
-  "Kabel mit JST PH 2.0mm Steckverbinder, AWG26, 20cm", 0.33 EUR): it has bare wire ends and would have to be soldered
-  to a speaker. Do not buy the Same Sky CMS-4017-34SP of revision A1 either: it has solder terminals and does not
-  fit the pocket.
+- **Stock.** 19 pieces at BerryBase.at on 2026-11-20, 67 on 2026-11-12; berrybase.de shows the same 19 pieces. No
+  other EU shop with this speaker was found on 2026-11-20 (Reichelt.at, Semaf and Welectron: no search result). If
+  BerryBase.at is sold out, the only source read on that day is adafruit.com (3.95 USD, "In stock", ships from the
+  USA); DigiKey.at listed the speaker on 2026-11-12 (section 6). Order this parcel first.
+- **No separate speaker lead is needed.** Do **not** buy the JST-PH pigtail (BerryBase.at article AK-PH20-LP2P,
+  "Kabel LiPo kompatibel mit 2 Pin JST PH 2.0mm Steckverbinder, AWG26, 20cm", 0.33 EUR): it has bare wire ends and
+  would have to be soldered to a speaker. Do not buy the Same Sky CMS-4017-34SP of revision A1 either: it has solder
+  terminals and does not fit the pocket.
 
 **Check the plug when the parcel arrives.** The drawing in the maker's data sheet names the plug "XH2.54-2P", a
 plug with 2.5 mm contact spacing. Adafruit and BerryBase sell the speaker with a JST-PH plug (2.0 mm), and the
@@ -298,21 +318,21 @@ from JST's catalogues, read 2026-11-12. Housings of other makers can differ by a
 - The small 8.8 x 8.8 x 5 mm heat sink of the set is not used.
 - Must match if substituted: base 14 x 14 mm, height not more than 9.5 mm including the adhesive, adhesive foil
   included. The enclosure model leaves 5.7 mm of air under the 7 mm heat sink (`enclosure/README.md`).
-  A heat sink without foil (for example Fischer ICK BGA 14 X 14 at Reichelt.at, 1.16 EUR, N) needs thermal tape and is
-  not for this build. BerryBase PKKRPI (13 x 13.5 x 10 mm) is too tall.
+  A heat sink without foil (for example Fischer ICK BGA 14 X 14 at Reichelt.at, 1.16 EUR, R; not in stock on
+  2026-11-20) needs thermal tape and is not for this build. BerryBase PKKRPI (13 x 13.5 x 10 mm) is too tall.
 - No fan is needed.
 - Fitted in `ASSEMBLY_AND_TEST.md`, section "3.5 Test 5 - fit the heat sink, the compute module, the card and the speaker".
 
 ### 5.4 microSD card (line 4)
 
 - Why this one: Home Assistant OS writes to the card around the clock, so an endurance card is the useful type.
-  64 GB costs 2.00 EUR more than the 32 GB card of the same series (26.90 EUR, BerryBase.at article 619659173067, N).
+  64 GB costs 2.00 EUR more than the 32 GB card of the same series (26.90 EUR, BerryBase.at article 619659173067, R).
 - Minimum size: 32 GB ("Make sure to use a card that provides at least 32 GB.", home-assistant.io/installation/raspberrypi,
   read 2026-11-12).
 - The same page says "Ideally get one that is Application Class 2." The shop title of the High Endurance card names
   speed class U3 and no application class. The card interface of the board runs in 50 MHz high-speed mode, so the
   extra speed of an A2 card is not used; endurance was preferred. Runner-up with the A2 mark: SanDisk Extreme 64 GB
-  A2 U3 V30, BerryBase.at article 619659193409, 26.50 EUR (N).
+  A2 U3 V30, BerryBase.at article 619659193409, 26.50 EUR (R).
 - Must match if substituted: microSD format (not full-size SD), 32 GB or more.
 
 ### 5.5 Screws (lines 5 and 6)
@@ -370,7 +390,8 @@ from JST's catalogues, read 2026-11-12. Housings of other makers can differ by a
 What the board asks for: it negotiates USB Power Delivery and takes the **highest-voltage fixed profile (PDO) between
 9 V and 20 V that offers at least 2 A**. Programmable ranges (PPS) are ignored. If no profile qualifies, the board stays
 at 5 V, the red LED D4 "PD FAULT" on the board lights and nothing else starts. The theoretical peak demand at the
-USB-C socket is 19.2 W; realistic operation stays below 12 W. `README.md` asks for a charger of 27 W or more.
+USB-C socket is about 19.6 W (17.3 W on the 5 V rail plus about 2.3 W of losses in the regulator, the inductor and
+the load switch); realistic operation stays below 12 W. `README.md` asks for a charger of 27 W or more.
 
 Profiles of the chargers, from the manufacturer's data (Goobay data read from wentronic.com, Raspberry Pi product
 brief; N), and the contract that follows from the rule above (derived, not measured - no board exists yet; the
@@ -381,7 +402,7 @@ measurement is `ASSEMBLY_AND_TEST.md`, section "3.4 Test 4 - USB PD with a 20 W,
 | **Goobay 79153, 30 W** (line 9) | 5 V 3 A, 9 V 3 A, 12 V 2.5 A, 15 V 2 A, 20 V 1.5 A | **15 V / 2 A = 30 W** (20 V 1.5 A is skipped: below 2 A) | **Buy this** as the permanent supply |
 | Goobay 79155, 65 W (line 14) | 5 V 3 A, 9 V 3 A, 12 V 3 A, 15 V 3 A, 20 V 3.25 A | 20 V | Works. Runner-up if the charger should also feed a laptop |
 | Raspberry Pi 27 W, SC1152 | 5.1 V 5 A, 9 V 3 A, 12 V 2.25 A, 15 V 1.8 A | 12 V / 2.25 A = 27 W (15 V 1.8 A is skipped) | Works. Cheapest that works; cable attached; below the 30 W chosen here |
-| Goobay 79151, 20 W (line 13) | 5 V 3 A, 9 V 2.2 A, 12 V 1.7 A | 9 V / 2.2 A = 20 W (12 V 1.7 A is skipped) | Test case only: 0.5 W above the theoretical peak |
+| Goobay 79151, 20 W (line 13) | 5 V 3 A, 9 V 2.2 A, 12 V 1.7 A | 9 V / 2.2 A = 20 W (12 V 1.7 A is skipped) | Test case only: 9 V x 2.2 A = 19.8 W is 0.2 W above the theoretical peak |
 
 Chargers that do not work, or not well:
 
@@ -403,71 +424,74 @@ Must match if the charger is substituted:
 | As the permanent supply | 27 W or more: a fixed 12 V, 15 V or 20 V profile with 2 A or more, or 9 V with 3 A. The profiles are printed on the charger, for example "15.0V 2.0A" |
 | Ports | one |
 
-The Goobay 79152 is the black version of the 79153 (N, price not looked up).
+The Goobay 79152 is the black version of the 79153 (N); Reichelt.at article GOOBAY 79152, 16.54 EUR, "ab Lager"
+(R, first reading).
 
-Cable (line 10): USB Type-C plug on both ends, 60 W = 3 A, USB 2.0, 1.0 m (shop page, R). Must match if substituted:
-USB-C on both ends, rated 3 A (60 W). The 2.0 m version is SHVP BS20-75035, 7.25 EUR, "ab Lager" (R). The
-Raspberry Pi 27 W supply has its cable attached and needs none.
+Cable (line 10): USB Type-C plug on both ends, 60 W = 3 A, USB 2.0, 1.0 m (shop page, read 2026-11-12). Must match
+if substituted: USB-C on both ends, rated 3 A (60 W). The 2.0 m version is SHVP BS20-75035, 7.25 EUR, "ab Lager"
+(R). The Raspberry Pi 27 W supply has its cable attached and needs none.
 
 ### 5.9 Filament (line 11)
 
-- Why PETG: `enclosure/README.md` recommends it over PLA because the area around the voltage converter reaches
-  about 60 C (`ASSEMBLY_AND_TEST.md`, section "1.3 Material").
+- Why PETG: it keeps its shape better than PLA at the temperatures inside the case. The compute module reaches 60 C
+  in normal use and up to 80 C under full load, and the 5 V regulator gets as hot or hotter - for the regulator
+  that is an estimate of the thermal model, still to be measured (`ASSEMBLY_AND_TEST.md`, section "1.3 Material").
 - Why white: the three status LEDs shine through a 0.4 mm skin of the top cover. A light colour keeps them visible.
 - Why this article: Bambu Lab's own PETG on a spool with RFID tag, in stock at Reichelt.at, in a parcel that is
   ordered anyway.
 - Amount (estimate, calculated from the STL files of this repository, not from a slicer): shell 50.9 cm3 + base
-  29.2 cm3 = about 80 cm3 of solid plastic. At 1.25 g/cm3, the density that `ASSEMBLY_AND_TEST.md`, section
+  29.1 cm3 = about 80 cm3 of solid plastic. At 1.25 g/cm3, the density that `ASSEMBLY_AND_TEST.md`, section
   "1.4 Print time and filament (estimates, not sliced)", takes from the Bambu PETG Basic preset, that is at most
   about 100 g per enclosure even at 100 % infill, so about 200 g for two. One 1 kg spool is enough several times over.
 - Must match if substituted: PETG, 1.75 mm, light colour.
 
 ### 5.10 Screwdriver (line 12)
 
-All twelve screws have a PH1 cross recess (`ASSEMBLY_AND_TEST.md`, section "2.3 Tools"). The Bernstein 4-624 is a PH1 x 80 mm screwdriver with an ESD-safe handle
-(blade diameter 4.5 mm, total length 180 mm; shop page, L). Any PH1 screwdriver does the job. A PH0 or PH2 tip does
-not fit the recess properly.
+All twelve screws have a PH1 cross recess (`ASSEMBLY_AND_TEST.md`, section "2.3 Tools"). The Bernstein 4-624 is a
+PH1 x 80 mm screwdriver with an ESD-safe handle (blade diameter 4.5 mm, total length 180 mm; shop page, read
+2026-11-12). Any PH1 screwdriver does the job. A PH0 or PH2 tip does not fit the recess properly.
 
 ### 5.11 USB-C power meter (line 15)
 
 The KWS-1902C is connected in line between the charger and the board and shows voltage and current (4 to 30 V,
-0 to 5 A, "Kompatibel mit PD3.0/PD2.0" per the shop page, R). That is enough to see whether the contract is 9, 12, 15 or 20 V.
-Runner-up: FNIRSI FNB58 (BerryBase.at article FNI-FNB58, 49.90 EUR, listed today; 8 in stock per the notes, N),
-which also lists the profiles a charger offers.
+0 to 5 A, "Kompatibel mit PD3.0/PD2.0" per the shop page, read 2026-11-12). That is enough to see whether the
+contract is 9, 12, 15 or 20 V. Runner-up: FNIRSI FNB58 (BerryBase.at article FNI-FNB58, 49.90 EUR, 4 pieces in
+stock, R), which also lists the profiles a charger offers.
 
 ## 6. Second sources
 
 "Incl. VAT" is the price the shop displayed; the VAT rate is named where the shop names it.
 
-| Item | Second source | Article no. there | Price incl. VAT (EUR) | Stock on 2026-11-12 | Checked | Remark |
+| Item | Second source | Article no. there | Price incl. VAT (EUR) | Stock on 2026-11-20 (rows marked D: 2026-11-12) | Checked | Remark |
 |---|---|---|---|---|---|---|
 | CM4104000 | Semaf Electronics, Wien | CM4104000 | 102.00 (20 %) | "10 Stück im Geschäftslokal lagernd" | R | First choice if Reichelt is out of stock: basket B |
-| CM4104000 | DigiKey.at | 2648-SC0671-ND (SC0671) | 101.20 (84.33 excl. VAT) | 525 | R | Purchase limit per customer every 30 days, no backorders. Shipping cost to Austria not retrieved |
-| CM4104000 | Welectron (Germany) | RP1-402790 | 103.00 (19 % German VAT shown) | "ab Lager lieferbar" | R | UPS Standard to Austria 9.90 EUR up to 2 kg (N). VAT rate at checkout for Austria not tested |
-| CM4104000 | BerryBase.at | CM4104000 | 104.80 | "Artikel aktuell nicht lieferbar" | R | Would move the module into the BerryBase parcel (still two parcels); not deliverable today |
-| CM4104000 | JLCPCB / LCSC parts library | C20754867 | 141.35 USD, excl. VAT | 6 at JLCPCB; LCSC stock not returned | L | Not sensible: dearer, and shipped from China |
+| CM4104000 | DigiKey.at | 2648-SC0671-ND (SC0671) | 101.20 (84.33 excl. VAT) | 525 | D | Purchase limit per customer every 30 days, no backorders. Shipping cost to Austria not retrieved |
+| CM4104000 | Welectron (Germany) | RP1-402790 | 103.00 (19 % German VAT shown) | "ab Lager lieferbar" | R | UPS Standard within the EU 9.90 EUR up to 2 kg (R). VAT rate at checkout for Austria not tested |
+| CM4104000 | BerryBase.at | CM4104000 | 104.80 | "Artikel aktuell nicht lieferbar" | R | Would move the module into the BerryBase parcel (still two parcels); not deliverable on 2026-11-20 |
+| CM4104000 | JLCPCB / LCSC parts library | C20754867 | 141.05 USD, excl. VAT | 6 at JLCPCB; LCSC stock not returned | R | Not sensible: dearer, and shipped from China |
 | CM4104000 | Mouser | - | - | - | - | Not retrievable: mouser.at denies automated access |
-| CM4102000 (fallback) | BerryBase.at | CM4102000 | 69.00 | "Sofort verfügbar · 16 Stück" | R | Section 4.3 |
-| CM4102000 (fallback) | Welectron (Germany) | RP1-402750 | 66.90 (19 % German VAT shown) | "ab Lager lieferbar" | R | Plus 9.90 EUR shipping (N) |
-| CM4102000 (fallback) | Reichelt.at | RPI CM4W 2GBLITE | 68.52 | "Voraussichtlich lieferbar ab: 5.12.2026" | R | Not in stock |
-| Speaker Adafruit 3351 | DigiKey.at | 3351-ND (as read, see section 7) | 4.21 (3.51 excl. VAT) | 30 | L | Same part, "SPEAKER 4OHM TOP PORT". Shipping cost not retrieved |
-| Speaker Adafruit 3351 | adafruit.com (USA) | 3351 | 3.95 USD, excl. VAT | "In stock" | L | Ships from the USA; only if no EU shop has it |
+| CM4102000 (fallback) | Reichelt.at | RPI CM4W 2GBLITE | 68.52 | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R | In stock again ("Voraussichtlich lieferbar ab: 5.12.2026" on 2026-11-12). Section 4.3 |
+| CM4102000 (fallback) | BerryBase.at | CM4102000 | 69.00 | "Sofort verfügbar · 7 Stück" | R | Section 4.3 |
+| CM4102000 (fallback) | Welectron (Germany) | RP1-402750 | 66.90 (19 % German VAT shown) | "ab Lager lieferbar" | R | Plus 9.90 EUR shipping (R) |
+| Speaker Adafruit 3351 | DigiKey.at | 3351-ND (as read, see section 7) | 4.21 (3.51 excl. VAT) | 30 | D | Same part, "SPEAKER 4OHM TOP PORT". Shipping cost not retrieved |
+| Speaker Adafruit 3351 | adafruit.com (USA) | 3351 | 3.95 USD, excl. VAT | "In stock" | R | Ships from the USA; only if no EU shop has it |
 | Heat sink | BerryBase.at | RPI-4KKS | 1.90 | "Sofort verfügbar · 100+ Stück" | R | 4-piece set, silver; contains a 14 x 14 x 7 mm heat sink with adhesive foil (contents N) |
 | microSD card, same part | Reichelt.at | SDSQQNR064GGN6IA | 27.99 | "begrenzte Stückzahl" | R | Limited stock |
-| microSD card, A2 runner-up | BerryBase.at | 619659193409 | 26.50 | 100+ | N | SanDisk Extreme 64 GB A2 |
-| Screw M2.5 x 8 (base) | BerryBase.at | M25X10D7985 | 0.03 each | 83 | N | M2.5 x 10; fits the base only |
-| Screws, thread-forming, for plastic | Screwerk (Germany) | STP390250060S (2.5 x 6), STP390250080S (2.5 x 8) | net 0.65 / 0.60 each from 10 | 361,810 / 933,615 | N | Sells to businesses only, minimum order 15 EUR, UPS 11.50 EUR. Torx T8 drive |
+| microSD card, A2 runner-up | BerryBase.at | 619659193409 | 26.50 | 100+ | R | SanDisk Extreme 64 GB A2 |
+| Screw M2.5 x 8 (base) | BerryBase.at | M25X10D7985 | 0.03 each | 57 | R | M2.5 x 10; fits the base only |
+| Screws, thread-forming, for plastic | Screwerk (Germany) | STP390250060S (2.5 x 6), STP390250080S (2.5 x 8) | net 0.65 / 0.60 each from 10 | 361,810 / 929,015 | R | Sells to businesses only, minimum order 15 EUR, UPS 11.50 EUR (N). Torx T8 drive |
 | Rubber feet | Reichelt.at | SUPRA EP 8MM | 3.82 (100 pieces) | "ab Lager" | R | 8 x 2 mm, transparent; 1.5 mm under the base instead of 2.5 mm |
 | Cellular rubber | - | - | - | - | - | The notes name no second article. Any craft or hardware shop sells 3 mm self-adhesive cellular rubber ("Moosgummi selbstklebend 3 mm") |
 | Charger | Reichelt.at | GOOBAY 79155 | 21.99 | "ab Lager" | R | 65 W, 20 V contract |
 | Charger | Reichelt.at / BerryBase.at | RPI PS 27W WT EU / RPI5NT5AW | 11.50 / 12.40 | "ab Lager" / "100+ Stück" | R | Raspberry Pi 27 W, 12 V contract, cable attached |
-| Charger | eu.ugreen.com | UGREEN Nexode 30 W, model 90666 | 29.99 | available | N | Same profiles as the Goobay 79153 (manufacturer page) |
+| Charger | eu.ugreen.com | UGREEN Nexode 30 W, model 90666 | 18.99 (29.99 on 2026-11-12) | in stock | R | Same profiles as the Goobay 79153 (manufacturer page, N). The price was shown for the market Germany; price and VAT for delivery to Austria not tested |
 | USB-C cable | Reichelt.at | SHVP BS20-75035 | 7.25 | "ab Lager" | R | 2.0 m |
-| Filament | 3DJake.at | BL-G02-K0-1.75-1000-SPL (Bambu Lab PETG HF Black) | 25.99 | out of stock | R | Black hides the LEDs; not recommended |
-| USB-C power meter | BerryBase.at | FNI-FNB58 | 49.90 | 8 | N | Section 5.11 |
+| Filament | 3DJake.at | BL-G02-K0-1.75-1000-SPL (Bambu Lab PETG HF Black) | 25.99 | "Ausverkauft" | R | Black hides the LEDs; not recommended. The article number is that of 2026-11-12 |
+| USB-C power meter | BerryBase.at | FNI-FNB58 | 49.90 | 4 | R | Section 5.11 |
 
 LCSC / JLCPCB: only the compute module was looked up there; the research notes have no LCSC data for the other
-items. Conrad.at, Amazon.de, Geizhals.at, Cyberport.at and voelkner.at could not be read on 2026-11-12.
+items. Conrad.at, Amazon.de, Geizhals.at, Cyberport.at and voelkner.at could not be read on 2026-11-12 and were not
+part of the second reading.
 
 ## 7. What could not be verified
 
@@ -478,9 +502,9 @@ items. Conrad.at, Amazon.de, Geizhals.at, Cyberport.at and voelkner.at could not
    price are JLCPCB's parts library. No other item of this list was looked up at LCSC.
 3. **DigiKey.at:** shipping cost and free-shipping threshold for Austria were not retrieved. The DigiKey article
    number of the Adafruit 3351 was read as "3351-ND" by one automated reading of the search page and not confirmed
-   by a second one.
+   by a second one. On 2026-11-20 DigiKey.at answered every request with a bot check (HTTP 403), so its prices and
+   stock in sections 6 and 8.2 (mark D) are still those of 2026-11-12.
 4. **Welectron:** the shop displays German VAT (19 %); the rate at checkout for delivery to Austria was not tested.
-   The shipping price (UPS Standard 9.90 EUR) is from the notes and was not read again.
 5. **Conrad.at, Amazon.de, Geizhals.at, Cyberport.at, voelkner.at, TME:** not retrievable on 2026-11-12. Nothing from
    these shops is in this list.
 6. **Bambu Lab EU store:** not retrievable (every request is redirected to the US store). The filament price is
@@ -501,16 +525,20 @@ items. Conrad.at, Amazon.de, Geizhals.at, Cyberport.at and voelkner.at could not
 11. **Screw head in the base recess:** a DIN 7985 M2.5 head is 5.0 mm wide, the printed recess 5.2 mm. Whether the
     head enters without clearing the recess has not been tried on a print.
 12. **Quantity limits:** DigiKey states a purchase limit for the compute module. Whether Reichelt.at or Semaf limit
-    the quantity per customer was not checked (relevant for two devices).
-13. **VAT rate at BerryBase.at:** the pages say "Preise inkl. MwSt." without naming the rate.
-14. **Lines marked N** in sections 5 and 6 are from the research notes of the same day and were not read again for
+    the quantity per customer was not checked (relevant for two devices). The basket of Reichelt.at accepted two
+    modules on 2026-11-20; the checkout was not entered.
+13. **Shipping fee of Reichelt.at:** 6.95 EUR on the shipping page and in the basket, 8.34 EUR ("Preis brutto") in
+    the pop-up of the product pages (section 4.1). The checkout needs customer data and was not entered.
+14. **Lines marked N** in sections 4 to 6 are from the research notes of 2026-11-12 and were not read again for
     this document.
+15. **Pimoroni and UGREEN:** the Pimoroni shop served its US page on 2026-11-20 (4.00 USD for COM1606), so the
+    3.95 EUR of section 5.2 is not confirmed. The 18.99 EUR of the UGREEN charger were shown for the market Germany.
 
 ## 8. Two-device system: satellite variant and combined basket hub + satellite
 
-Prices of 2026-11-12, read 12:45 to 12:56 UTC (marked **S** in the tables below: read for this section). The
-satellite is the second board in your mother's room. It runs Raspberry Pi OS Lite with the satellite software
-(`os/satellite/`), no Home Assistant; the hub keeps the parts of section 1.
+Prices of 2026-11-20 (first read on 2026-11-12, read again on 2026-11-20: mark **R**). The satellite is the second
+board in your mother's room. It runs Raspberry Pi OS Lite with the satellite software (`os/satellite/`), no Home
+Assistant; the hub keeps the parts of section 1.
 
 ### 8.1 What changes for the satellite
 
@@ -522,18 +550,18 @@ satellite is the second board in your mother's room. It runs Raspberry Pi OS Lit
 
 | Item | Exact part number | Shop | Shop article no. | Price incl. VAT (EUR) | Stock text on the shop page | Checked | Link |
 |---|---|---|---|---|---|---|---|
-| **1S** Raspberry Pi Compute Module 4 Lite, wireless, 1 GB RAM, no eMMC | Raspberry Pi CM4101000 (EAN 0728886755400) | Reichelt.at | RPI CM4W 1GBLITE | 50.82 | "ab Lager, Lieferzeit: 2 - 3 Werktage" | S | [product page](https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_compute_modul_4_1gb_ram_lite_wlan-290499) |
-| **4S** microSD card SanDisk Ultra 32 GB, A1, Class 10, with SD adapter | SanDisk SDSQUA4-032G-GN6MA (EAN 0619659184155) | BerryBase.at | 619659184155 | 17.90 | "Sofort verfügbar · 100+ Stück · 1-3 Tage" | S | [product page](https://www.berrybase.at/sandisk-ultra-microsdhc-a1-120mb-s-class-10-speicherkarte-adapter-32gb) |
+| **1S** Raspberry Pi Compute Module 4 Lite, wireless, 1 GB RAM, no eMMC | Raspberry Pi CM4101000 (EAN 0728886755400) | Reichelt.at | RPI CM4W 1GBLITE | 50.82 | "ab Lager, Lieferzeit: 2 - 3 Werktage" | R | [product page](https://www.reichelt.at/at/de/shop/produkt/raspberry_pi_compute_modul_4_1gb_ram_lite_wlan-290499) |
+| **4S** microSD card SanDisk Ultra 32 GB, A1, Class 10, with SD adapter | SanDisk SDSQUA4-032G-GN6MA (EAN 0619659184155) | BerryBase.at | 619659184155 | 17.90 | "Sofort verfügbar · 100+ Stück · 1-3 Tage" | R | [product page](https://www.berrybase.at/sandisk-ultra-microsdhc-a1-120mb-s-class-10-speicherkarte-adapter-32gb) |
 
 On the Reichelt.at page "Artikel-Nr.:" must read `RPI CM4W 1GBLITE` and "Hst.-Teile-Nr.:" `CM4101000`. The article
 `RPI CM4W 1GB16GB` (92.11 EUR) has eMMC and does not boot from the card of this board (section 5.1).
 
 ### 8.2 Why the 1 GB module
 
-| Module | Price, shop, stock (2026-11-12, S) | Verdict for the satellite |
+| Module | Price, shop, stock (2026-11-20, R; DigiKey.at: D) | Verdict for the satellite |
 |---|---|---|
-| **CM4101000, 1 GB** | **50.82 Reichelt.at, in stock**; 51.00 BerryBase.at, 14 pieces; 49.90 Welectron (German VAT shown, + 9.90 UPS); 49.27 DigiKey.at (+ 25.00 shipping below 75 EUR); 35.70 Semaf, "Nicht auf Lager" | **Buy this.** Linux Voice Assistant states a minimum of 512 MB RAM and a 1 GHz CPU (its README, "Requirements"); its recommended board is a Raspberry Pi Zero 2 W with 512 MB. The CM4 has twice the RAM and four 1.5 GHz Cortex-A72 cores. Speech recognition and Claude run on the hub, not here |
-| CM4102000, 2 GB | 69.00 BerryBase.at, 16 pieces; 68.52 Reichelt.at "Voraussichtlich lieferbar ab: 5.12.2026"; 66.90 Welectron; 38.00 Semaf, "Nicht auf Lager" | Works, 18.18 EUR more, no benefit for the satellite. Take it only if the board may become a hub later (Home Assistant needs 2 GB) |
+| **CM4101000, 1 GB** | **50.82 Reichelt.at, in stock**; 51.00 BerryBase.at, 12 pieces; 49.90 Welectron (German VAT shown, + 9.90 UPS); 49.27 DigiKey.at (+ 25.00 shipping below 75 EUR; D); 35.70 Semaf, "Nicht auf Lager" | **Buy this.** Linux Voice Assistant states a minimum of 512 MB RAM and a 1 GHz CPU (its README, "Requirements"); its recommended board is a Raspberry Pi Zero 2 W with 512 MB. The CM4 has twice the RAM and four 1.5 GHz Cortex-A72 cores. Speech recognition and Claude run on the hub, not here |
+| CM4102000, 2 GB | 68.52 Reichelt.at, in stock; 69.00 BerryBase.at, 7 pieces; 66.90 Welectron; 38.00 Semaf, "Nicht auf Lager" | Works, 17.70 EUR more at Reichelt.at (18.18 EUR at BerryBase.at), no benefit for the satellite. Take it only if the board may become a hub later (Home Assistant needs 2 GB) |
 
 That 1 GB is enough is a conclusion from the stated requirements; nothing has been measured on this board. Reichelt
 shows no stock count for this module, only "ab Lager".
@@ -573,7 +601,8 @@ Additions to the same two parcels, no extra shipping:
 | Filament BL G00-W00-SPL 19.15 + screwdriver BERN 4 624 6.81 (one spool and one screwdriver for both) | Reichelt.at | 25.96 | 312.86 |
 | Bring-up tools of section 3 (chargers 20 W / 65 W, multimeter, USB-C meter) | both | 60.36 | 373.22 with filament and screwdriver |
 
-How to order: as in section 4.1, with the quantities of the table above. Put both compute modules into the
+How to order: as in section 4.1, with the quantities of the table above, the BerryBase.at parcel first (two
+speakers are needed; 19 pieces were in stock on 2026-11-20). Put both compute modules into the
 Reichelt.at basket and check both article numbers (`RPI CM4W 4GBLITE`, `RPI CM4W 1GBLITE`) - with "W" (wireless)
 and "LITE". At BerryBase.at put both cards into the basket and check "Artikelnummer:" `619659173081` (64 GB, hub)
 and `619659184155` (32 GB, satellite).
@@ -582,9 +611,9 @@ and `619659184155` (32 GB, satellite).
 
 | Line | Fallback | Effect |
 |---|---|---|
-| 1S at Reichelt.at | CM4101000 at BerryBase.at, 51.00 EUR, "Sofort verfügbar · 14 Stück", [product page](https://www.berrybase.at/raspberry-pi-compute-module-4/ram-1gb/flash-ohne-lite-/wlan-bluetooth-ja) ("Artikelnummer:" `CM4101000`) | moves into the BerryBase parcel: Reichelt.at 168.03 + BerryBase.at 119.05 = 287.08 EUR, still two parcels |
-| 1S anywhere in the EU | CM4102000 (2 GB), BerryBase.at 69.00 EUR, "Sofort verfügbar · 16 Stück" | 305.08 EUR; works the same |
-| 4S | SanDisk Ultra 32 GB at Reichelt.at, `SDSQUA4032GGN6MA`, 17.91 EUR, "begrenzte Stückzahl" (S); or the endurance card SanDisk High Endurance 32 GB, BerryBase.at `619659173067`, 26.90 EUR (S) | any microSD card of 16 GB or more with A1 or endurance rating works |
+| 1S at Reichelt.at | CM4101000 at BerryBase.at, 51.00 EUR, "Sofort verfügbar · 12 Stück", [product page](https://www.berrybase.at/raspberry-pi-compute-module-4/ram-1gb/flash-ohne-lite-/wlan-bluetooth-ja) ("Artikelnummer:" `CM4101000`) | moves into the BerryBase parcel: Reichelt.at 168.03 + BerryBase.at 119.05 = 287.08 EUR, still two parcels |
+| 1S anywhere in the EU | CM4102000 (2 GB): Reichelt.at `RPI CM4W 2GBLITE`, 68.52 EUR, "ab Lager" (same parcel as the hub module), or BerryBase.at 69.00 EUR, "Sofort verfügbar · 7 Stück" | 304.60 EUR with Reichelt.at, 305.08 EUR with BerryBase.at; works the same |
+| 4S | SanDisk Ultra 32 GB at Reichelt.at, `SDSQUA4032GGN6MA`, 17.91 EUR, "begrenzte Stückzahl" (R); or the endurance card SanDisk High Endurance 32 GB, BerryBase.at `619659173067`, 26.90 EUR (R) | any microSD card of 16 GB or more with A1 or endurance rating works |
 | Hub module | basket B of section 4.2 (Semaf, Vienna, 102.00 EUR, free shipping) | three parcels: Reichelt.at 113.02 + BerryBase.at 68.05 + Semaf 102.00 = 283.07 EUR |
 
 ### 8.5 One satellite alone
@@ -594,7 +623,8 @@ If the hub already exists: lines 1S, 2, 3, 4S, 5 to 10 = 109.49 EUR, plus shippi
 
 ### 8.6 Not verified for this section
 
-- Whether Reichelt.at limits the number of compute modules per customer (two modules in one basket).
-- Welectron's VAT rate at checkout for Austria; DigiKey's figures were read through a summarising web reader and its
-  75 EUR free-shipping threshold may be net or gross.
+- Whether Reichelt.at limits the number of compute modules per customer (its basket accepted the two modules on
+  2026-11-20; the checkout was not entered).
+- Welectron's VAT rate at checkout for Austria; DigiKey's figures were read through a summarising web reader on
+  2026-11-12 and could not be read again on 2026-11-20; its 75 EUR free-shipping threshold may be net or gross.
 - RAM use of the satellite software on a 1 GB module: derived from the published minimum, not measured.
