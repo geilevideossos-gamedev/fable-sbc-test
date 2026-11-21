@@ -1,6 +1,6 @@
 import numpy as np
 
-from voxhub_assistant.audio import apply_gain, tone
+from voxhub_assistant.audio import DcBlocker, apply_gain, tone
 from voxhub_assistant.vad import Endpointer, EndpointState, rms
 
 RATE = 16000
@@ -74,6 +74,42 @@ def test_adapts_to_loud_background_noise():
     assert run(endpointer, noise(4.0, 600.0))[0] is EndpointState.TIMEOUT
     endpointer = Endpointer(noise_floor=600.0)
     assert run(endpointer, noise(0.5, 600.0) + speech(1.0, 8000) + noise(2.0, 600.0))[0] is EndpointState.DONE
+
+
+def offset(pcm: bytes, level: int) -> bytes:
+    return (
+        (np.frombuffer(pcm, dtype="<i2").astype(np.int32) + level).clip(-32768, 32767).astype("<i2").tobytes()
+    )
+
+
+def blocked(pcm: bytes, chunk: int = 2560) -> bytes:
+    blocker = DcBlocker()
+    return b"".join(blocker.process(pcm[i : i + chunk]) for i in range(0, len(pcm), chunk))
+
+
+def test_dc_level_hides_speech_from_the_endpointer_unless_blocked():
+    recording = offset(noise(0.5) + speech(1.5) + noise(3.0), 662)
+    assert run(Endpointer(silence_seconds=0.8), recording)[0] is not EndpointState.DONE
+    state, used = run(Endpointer(silence_seconds=0.8), blocked(recording))
+    assert state is EndpointState.DONE
+    assert 2.5 < used < 3.2
+    for level in (166, 1324, -662):
+        shifted = blocked(offset(noise(0.5) + speech(1.5) + noise(3.0), level))
+        assert run(Endpointer(silence_seconds=0.8), shifted)[0] is EndpointState.DONE
+    silent = blocked(offset(noise(4.0), 662))
+    assert run(Endpointer(no_speech_seconds=2.0), silent)[0] is EndpointState.TIMEOUT
+
+
+def test_dc_blocker_removes_offset_and_keeps_speech():
+    steady = np.frombuffer(blocked(np.full(RATE, 662, dtype="<i2").tobytes()), dtype="<i2")
+    assert np.abs(steady).max() == 0
+    step = np.concatenate([np.zeros(RATE // 2), np.full(RATE // 2, 662)]).astype("<i2").tobytes()
+    settled = np.frombuffer(blocked(step), dtype="<i2")[RATE // 2 + int(0.081 * RATE) :]
+    assert np.abs(settled).max() <= 1
+    voice = speech(1.0)
+    assert 0.99 < rms(blocked(offset(voice, 662))[RATE // 2 :]) / rms(voice[RATE // 2 :]) < 1.01
+    assert blocked(voice, 2560) == blocked(voice, 320) == DcBlocker().process(voice)
+    assert DcBlocker().process(b"") == b""
 
 
 def test_gain_scales_and_clips():

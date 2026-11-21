@@ -2,9 +2,9 @@
  "C1": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10A105KB8NNNC",
+   "MPN": "CL10B105KB8NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 1uF 50V X5R 0603"
+   "PartDescription": "CAP CER 1uF 50V X7R 0603"
   },
   "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
@@ -40,9 +40,9 @@
  "C11": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10B105KA8NNNC",
+   "MPN": "CL10B105KB8NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 1uF 25V X7R 0603"
+   "PartDescription": "CAP CER 1uF 50V X7R 0603"
   },
   "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
@@ -211,9 +211,9 @@
  "C2": {
   "dnp": false,
   "fields": {
-   "MPN": "CC0603KRX7R9BB104",
-   "Manufacturer": "Yageo",
-   "PartDescription": "CAP CER 100nF 50V X7R 0603"
+   "MPN": "CL10B105KB8NQNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 1uF 50V X7R 0603"
   },
   "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
@@ -225,7 +225,7 @@
   "pos": null,
   "ref": "C2",
   "sheet": "power",
-  "value": "100nF"
+  "value": "1uF"
  },
  "C20": {
   "dnp": false,
@@ -420,9 +420,9 @@
  "C3": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10B105KA8NNNC",
+   "MPN": "CL10B105KB8NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 1uF 25V X7R 0603"
+   "PartDescription": "CAP CER 1uF 50V X7R 0603"
   },
   "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
@@ -705,9 +705,9 @@
  "C43": {
   "dnp": false,
   "fields": {
-   "MPN": "CL05B104KO5NNNC",
+   "MPN": "CL05A105KA5NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+   "PartDescription": "CAP CER 1uF 25V X5R 0402"
   },
   "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
@@ -719,14 +719,14 @@
   "pos": null,
   "ref": "C43",
   "sheet": "audio",
-  "value": "100nF"
+  "value": "1uF"
  },
  "C44": {
   "dnp": false,
   "fields": {
-   "MPN": "CL05B104KO5NNNC",
+   "MPN": "CL05A105KA5NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+   "PartDescription": "CAP CER 1uF 25V X5R 0402"
   },
   "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
@@ -738,7 +738,7 @@
   "pos": null,
   "ref": "C44",
   "sheet": "audio",
-  "value": "100nF"
+  "value": "1uF"
  },
  "C45": {
   "dnp": false,
@@ -838,9 +838,9 @@
  "C5": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10B105KA8NNNC",
+   "MPN": "CL10B105KB8NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 1uF 25V X7R 0603"
+   "PartDescription": "CAP CER 1uF 50V X7R 0603"
   },
   "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
@@ -895,9 +895,9 @@
  "C7": {
   "dnp": false,
   "fields": {
-   "MPN": "CL05B103KB5NNNC",
+   "MPN": "CL05B104KO5NNNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 10nF 50V X7R 0402"
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
   "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
@@ -909,7 +909,7 @@
   "pos": null,
   "ref": "C7",
   "sheet": "power",
-  "value": "10nF"
+  "value": "100nF"
  },
  "C8": {
   "dnp": false,
@@ -971,9 +971,9 @@
  "D10": {
   "dnp": false,
   "fields": {
-   "MPN": "150060VS75000",
-   "Manufacturer": "Wurth Elektronik",
-   "PartDescription": "LED green 570nm 0603, 30mA"
+   "MPN": "KT-0603G",
+   "Manufacturer": "Hubei KENTO",
+   "PartDescription": "LED green 520nm 0603, 30mA"
   },
   "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
@@ -1028,9 +1028,9 @@
  "D4": {
   "dnp": false,
   "fields": {
-   "MPN": "LTST-C191KRKT",
-   "Manufacturer": "Lite-On",
-   "PartDescription": "LED red 631nm 0603, 30mA"
+   "MPN": "KT-0603R",
+   "Manufacturer": "Hubei KENTO",
+   "PartDescription": "LED red 620nm 0603, 25mA"
   },
   "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
@@ -1066,9 +1066,9 @@
  "D6": {
   "dnp": false,
   "fields": {
-   "MPN": "150060VS75000",
-   "Manufacturer": "Wurth Elektronik",
-   "PartDescription": "LED green 570nm 0603, 30mA"
+   "MPN": "KT-0603G",
+   "Manufacturer": "Hubei KENTO",
+   "PartDescription": "LED green 520nm 0603, 30mA"
   },
   "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
@@ -1087,7 +1087,7 @@
   "fields": {
    "MPN": "KT-0603G",
    "Manufacturer": "Hubei KENTO",
-   "PartDescription": "LED green 520nm 0603, 30mA (status, side B)"
+   "PartDescription": "LED green 520nm 0603, 30mA"
   },
   "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
@@ -1111,7 +1111,7 @@
   "fields": {
    "MPN": "KT-0603B",
    "Manufacturer": "Hubei KENTO",
-   "PartDescription": "LED blue 468nm 0603, 30mA (status, side B)"
+   "PartDescription": "LED blue 468nm 0603, 30mA"
   },
   "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
@@ -1133,9 +1133,9 @@
  "D9": {
   "dnp": false,
   "fields": {
-   "MPN": "LTST-C191KRKT",
-   "Manufacturer": "Lite-On",
-   "PartDescription": "LED red 631nm 0603, 30mA"
+   "MPN": "KT-0603R",
+   "Manufacturer": "Hubei KENTO",
+   "PartDescription": "LED red 620nm 0603, 25mA"
   },
   "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
@@ -1544,8 +1544,8 @@
  "J6": {
   "dnp": false,
   "fields": {
-   "MPN": "61400826021",
-   "Manufacturer": "Wurth Elektronik",
+   "MPN": "907-112A1022D10200",
+   "Manufacturer": "Jing Extension of the Electronic",
    "PartDescription": "USB-A dual stacked receptacle THT"
   },
   "footprint": "voxhub:USB_A_Wuerth_61400826021_Horizontal_Stacked",
@@ -1565,7 +1565,7 @@
   "pos": null,
   "ref": "J6",
   "sheet": "usb",
-  "value": "61400826021"
+  "value": "907-112A1022D10200"
  },
  "J7": {
   "dnp": false,
@@ -1650,9 +1650,9 @@
  "MK1": {
   "dnp": false,
   "fields": {
-   "MPN": "IM69D130V01XTSA1",
+   "MPN": "IM72D128V01XTMA1",
    "Manufacturer": "Infineon",
-   "PartDescription": "MEMS microphone PDM 69dB SNR bottom port LLGA-5"
+   "PartDescription": "MEMS microphone PDM 72dB SNR bottom port LLGA-5"
   },
   "footprint": "voxhub:Infineon_PG-LLGA-5-1",
   "in_bom": true,
@@ -1667,14 +1667,14 @@
   "pos": null,
   "ref": "MK1",
   "sheet": "audio",
-  "value": "IM69D130"
+  "value": "IM72D128"
  },
  "MK2": {
   "dnp": false,
   "fields": {
-   "MPN": "IM69D130V01XTSA1",
+   "MPN": "IM72D128V01XTMA1",
    "Manufacturer": "Infineon",
-   "PartDescription": "MEMS microphone PDM 69dB SNR bottom port LLGA-5"
+   "PartDescription": "MEMS microphone PDM 72dB SNR bottom port LLGA-5"
   },
   "footprint": "voxhub:Infineon_PG-LLGA-5-1",
   "in_bom": true,
@@ -1689,7 +1689,7 @@
   "pos": null,
   "ref": "MK2",
   "sheet": "audio",
-  "value": "IM69D130"
+  "value": "IM72D128"
  },
  "Q1": {
   "dnp": false,
@@ -1774,9 +1774,9 @@
  "R1": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF5101TCE",
+   "MPN": "0402WGF1202TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 5.1k 1% 1/16W 0402"
+   "PartDescription": "RES 12k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -1788,14 +1788,14 @@
   "pos": null,
   "ref": "R1",
   "sheet": "power",
-  "value": "5.1k"
+  "value": "12k"
  },
  "R10": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1503TCE",
+   "MPN": "0402WGF1003TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 150k 1% 1/16W 0402"
+   "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -1807,14 +1807,14 @@
   "pos": null,
   "ref": "R10",
   "sheet": "power",
-  "value": "150k"
+  "value": "100k"
  },
  "R11": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF4703TCE",
+   "MPN": "0402WGF1003TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 470k 1% 1/16W 0402"
+   "PartDescription": "RES 100k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -1826,14 +1826,14 @@
   "pos": null,
   "ref": "R11",
   "sheet": "power",
-  "value": "470k"
+  "value": "100k"
  },
  "R12": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1003TCE",
+   "MPN": "0402WGF2002TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 100k 1% 1/16W 0402"
+   "PartDescription": "RES 20k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -1845,7 +1845,7 @@
   "pos": null,
   "ref": "R12",
   "sheet": "power",
-  "value": "100k"
+  "value": "20k"
  },
  "R13": {
   "dnp": false,
@@ -1888,9 +1888,9 @@
  "R15": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF2201TCE",
+   "MPN": "0402WGF1002TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 2.2k 1% 1/16W 0402"
+   "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -1902,7 +1902,7 @@
   "pos": null,
   "ref": "R15",
   "sheet": "power",
-  "value": "2.2k"
+  "value": "10k"
  },
  "R16": {
   "dnp": false,
@@ -1945,9 +1945,9 @@
  "R18": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF5101TCE",
+   "MPN": "0402WGF1002TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 5.1k 1% 1/16W 0402"
+   "PartDescription": "RES 10k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -1959,14 +1959,14 @@
   "pos": null,
   "ref": "R18",
   "sheet": "cm4",
-  "value": "5.1k"
+  "value": "10k"
  },
  "R19": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1002TCE",
+   "MPN": "0402WGF2201TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 10k 1% 1/16W 0402"
+   "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -1978,14 +1978,14 @@
   "pos": null,
   "ref": "R19",
   "sheet": "cm4",
-  "value": "10k"
+  "value": "2.2k"
  },
  "R2": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1001TCE",
+   "MPN": "0402WGF2201TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 1k 1% 1/16W 0402"
+   "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -1997,7 +1997,7 @@
   "pos": null,
   "ref": "R2",
   "sheet": "power",
-  "value": "1k"
+  "value": "2.2k"
  },
  "R20": {
   "dnp": false,
@@ -2021,9 +2021,9 @@
  "R21": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1002TCE",
+   "MPN": "0402WGF2201TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 10k 1% 1/16W 0402"
+   "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -2035,14 +2035,14 @@
   "pos": null,
   "ref": "R21",
   "sheet": "cm4",
-  "value": "10k"
+  "value": "2.2k"
  },
  "R22": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1500TCE",
+   "MPN": "0402WGF1001TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 150 1% 1/16W 0402"
+   "PartDescription": "RES 1k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -2054,7 +2054,7 @@
   "pos": null,
   "ref": "R22",
   "sheet": "cm4",
-  "value": "150"
+  "value": "1k"
  },
  "R23": {
   "dnp": false,
@@ -2192,9 +2192,9 @@
  "R3": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF0000TCE",
+   "MPN": "0402WGF1001TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 0 1% 1/16W 0402"
+   "PartDescription": "RES 1k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -2206,7 +2206,7 @@
   "pos": null,
   "ref": "R3",
   "sheet": "power",
-  "value": "0"
+  "value": "1k"
  },
  "R30": {
   "dnp": false,
@@ -2401,9 +2401,9 @@
  "R4": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF5101TCE",
+   "MPN": "0402WGF2201TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 5.1k 1% 1/16W 0402"
+   "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -2415,7 +2415,7 @@
   "pos": null,
   "ref": "R4",
   "sheet": "power",
-  "value": "5.1k"
+  "value": "2.2k"
  },
  "R40": {
   "dnp": false,
@@ -2572,9 +2572,9 @@
  "R5": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF2401TCE",
+   "MPN": "0402WGF1001TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 2.4k 1% 1/16W 0402"
+   "PartDescription": "RES 1k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -2586,14 +2586,14 @@
   "pos": null,
   "ref": "R5",
   "sheet": "power",
-  "value": "2.4k"
+  "value": "1k"
  },
  "R6": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF0000TCE",
+   "MPN": "0402WGF1001TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 0 1% 1/16W 0402"
+   "PartDescription": "RES 1k 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -2605,7 +2605,7 @@
   "pos": null,
   "ref": "R6",
   "sheet": "power",
-  "value": "0"
+  "value": "1k"
  },
  "R7": {
   "dnp": false,
@@ -2884,7 +2884,7 @@
  "U4": {
   "dnp": false,
   "fields": {
-   "MPN": "USB2514B-I/M2",
+   "MPN": "USB2514BT-I/M2",
    "Manufacturer": "Microchip",
    "PartDescription": "USB 2.0 hi-speed 4-port hub QFN-36"
   },
@@ -2929,7 +2929,7 @@
   "pos": null,
   "ref": "U4",
   "sheet": "usb",
-  "value": "USB2514B-I/M2"
+  "value": "USB2514BT-I/M2"
  },
  "U5": {
   "dnp": false,

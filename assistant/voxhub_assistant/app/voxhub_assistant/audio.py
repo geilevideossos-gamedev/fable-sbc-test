@@ -42,6 +42,29 @@ def apply_gain(pcm: bytes, gain: float) -> bytes:
     return np.clip(samples, -32768, 32767).astype("<i2").tobytes()
 
 
+class DcBlocker:
+    def __init__(self, pole: float = 0.995) -> None:
+        self._pole = pole
+        self._last_in: float | None = None
+        self._last_out = 0.0
+
+    def reset(self) -> None:
+        self._last_in = None
+        self._last_out = 0.0
+
+    def process(self, pcm: bytes) -> bytes:
+        samples = np.frombuffer(pcm[: len(pcm) & ~1], dtype="<i2").astype(np.float64)
+        if samples.size == 0:
+            return pcm
+        previous = samples[0] if self._last_in is None else self._last_in
+        steps = np.diff(samples, prepend=previous)
+        decay = self._pole ** np.arange(samples.size)
+        out = decay * (np.cumsum(steps / decay) + self._pole * self._last_out)
+        self._last_in = float(samples[-1])
+        self._last_out = float(out[-1])
+        return np.clip(np.rint(out), -32768, 32767).astype("<i2").tobytes()
+
+
 def tone(frequency: float, milliseconds: int, rate: int = 22050, level: float = 0.3) -> bytes:
     """A short sine beep with a fade in/out, as 16-bit mono PCM."""
     count = rate * milliseconds // 1000
@@ -63,6 +86,7 @@ class Microphone:
         if device and not command:
             self._argv.append(f"--device={device}")
         self.gain = gain
+        self._dc = DcBlocker()
         self._queue: asyncio.Queue[bytes | None] = asyncio.Queue(maxsize=25)
         self._proc: asyncio.subprocess.Process | None = None
         self._task: asyncio.Task[None] | None = None
@@ -70,6 +94,7 @@ class Microphone:
     async def start(self) -> None:
         await self.stop()
         self._queue = asyncio.Queue(maxsize=25)
+        self._dc.reset()
         _LOGGER.debug("Starting capture: %s", self._argv)
         try:
             self._proc = await asyncio.create_subprocess_exec(
@@ -84,7 +109,7 @@ class Microphone:
         try:
             while True:
                 chunk = await proc.stdout.readexactly(CHUNK_BYTES)
-                self._put(apply_gain(chunk, self.gain))
+                self._put(apply_gain(self._dc.process(chunk), self.gain))
         except (asyncio.IncompleteReadError, ConnectionError):
             _LOGGER.warning("Capture process ended (exit code %s)", proc.returncode)
         finally:

@@ -4,7 +4,7 @@ import sys, os, json
 from kisch import Design, PROJECT
 from parts import PARTS, res as RES
 
-d = Design("VoxHub CM4 - Home Assistant voice hub carrier", "A2", "2026-11-12", "VoxHub (open hardware)")
+d = Design("VoxHub CM4 - Home Assistant voice hub carrier", "A3", "2026-11-20", "VoxHub (open hardware)")
 L = d.lib
 _cnt = {}
 
@@ -143,7 +143,7 @@ r = ref("D"); s.place("D_Zener", r, "SMBJ22A", 75, 60, {"1": "VBUS", "2": GND}, 
 for i, cc in enumerate(("CC1", "CC2")):
     r = ref("D"); s.place("D_TVS", r, "SD24C", 75 + i * 12, 100, {"1": GND, "2": cc}, rot=90, footprint=PARTS["D_CC"][3], fields=F("D_CC"),
                           textpos=((2.2, -1.0, "left"), (2.2, 1.5, "left")))
-cap(s, "C_1u_35", 88, 60, "VBUS"); cap(s, "C_100n_50", 99, 60, "VBUS")
+cap(s, "C_1u", 88, 60, "VBUS"); cap(s, "C_1u", 99, 60, "VBUS")
 s.place("CYPD3177-24LQ", "U1", "CYPD3177-24LQXQT", 150, 80,
         {"1": "PD_VMIN", "2": "PD_VMAX", "3": "PD_FET_EN", "4": "NC", "5": "PD_ICOARSE", "6": "PD_IFINE", "7": "NC",
          "8": "NC", "9": "PD_FAULT", "10": "PD_FLIP", "11": "VBUS_SW", "12": "I2C_SDA", "13": "I2C_SCL", "14": "CC2", "15": "CC1",
@@ -151,8 +151,8 @@ s.place("CYPD3177-24LQ", "U1", "CYPD3177-24LQXQT", 150, 80,
         footprint=PARTS["U_PD"][3], fields=F("U_PD"))
 cap(s, "C_1u", 112, 125, "PD_VDDD"); cap(s, "C_100n", 123, 125, "PD_VDDD"); cap(s, "C_1u", 134, 125, "PD_VCCD")
 cap(s, "C_100n", 101, 125, "PD_VDDD")        # datasheet: 1 uF + 2 x 100 nF on VDDD
-# strap dividers (values: see DECISIONS.md / datasheet table)
-STRAPS = [("PD_VMIN", "5.1k", "1k"), ("PD_VMAX", "0", None), ("PD_ICOARSE", "5.1k", "2.4k"), ("PD_IFINE", None, "0")]
+# strap dividers (inside the pin voltage windows of the datasheet tables: see DECISIONS.md)
+STRAPS = [("PD_VMIN", "12k", "2.2k"), ("PD_VMAX", "1k", None), ("PD_ICOARSE", "2.2k", "1k"), ("PD_IFINE", None, "1k")]
 for i, (net, top, bot) in enumerate(STRAPS):
     y = 40 + i * 20
     if top: res(s, top, 197, y, "PD_VDDD", net)
@@ -164,20 +164,20 @@ res(s, "49.9k", 112, 142, "PD_VDDD", "PD_FLIP")
 d.near = "Q1"
 s.box(15, 155, 130, 275, "VBUS load switch: P-FET driven by the BCR's active-low, slew-controlled gate driver")
 s.place("AO3401A", ref("Q"), "AO3401A", 60, 190, {"1": "PD_GATE", "2": "VBUS", "3": "VBUS_SW"}, rot=0, footprint=PARTS["Q_P"][3], fields=F("Q_P"))
-res(s, "100k", 35, 215, "VBUS", "PD_GATE"); cap(s, "C_10n", 35, 240, "VBUS", "PD_GATE")
+res(s, "100k", 35, 215, "VBUS", "PD_GATE"); cap(s, "C_100n", 35, 240, "VBUS", "PD_GATE")
 r = ref("D"); s.place("D_Zener", r, "10V", 60, 240, {"1": "VBUS", "2": "PD_GATE"}, rot=270, footprint=PARTS["D_Z10"][3], fields=F("D_Z10"),
                       textpos=((2.2, -1.0, "left"), (2.2, 1.5, "left")))
-res(s, "150k", 95, 215, "PD_GATE", "PD_FET_EN")
-s.text("VBUS_FET_EN pulls low after a 9-20 V contract.\nVgs = -0.4 x VBUS (-3.6 V @ 9 V, -8 V @ 20 V),\n10 V zener clamps transients.", 70, 262, size=1.4)
+res(s, "100k", 95, 215, "PD_GATE", "PD_FET_EN")
+s.text("VBUS_FET_EN pulls low after a 9-20 V contract.\nVgs = -0.5 x VBUS (-4.5 V @ 9 V, -10 V @ 20 V),\n10 V zener clamps above 20 V; 100 nF slows the turn-on.", 70, 262, size=1.4)
 s.flag("VBUS", 30, 180); s.flag("VBUS_SW", 100, 180); s.flag(GND, 30, 265)
 d.near = "U2"
-s.box(135, 155, 405, 247, "5.0 V / 4 A synchronous buck (LMR33640, 400 kHz) - UVLO 7.0 V keeps it off at vSafe5V")
+s.box(135, 155, 405, 247, "5.0 V / 4 A synchronous buck (LMR33640, 400 kHz) - UVLO 7.4 V keeps it off at vSafe5V")
 s.place("LMR33640ADDA", "U2", "LMR33640ADDAR", 215, 205,
         {"1": GND, "2": "VBUS_SW", "3": "BUCK_EN", "4": "NC", "5": "BUCK_FB", "6": "BUCK_VCC", "7": "BUCK_BOOT", "8": "BUCK_SW", "9": GND},
         footprint=PARTS["U_BUCK"][3], fields=F("U_BUCK"))
 for i in range(2): cap(s, "C_10u_35", 150 + i * 11, 185, "VBUS_SW")
 cap(s, "C_220n_50", 172, 185, "VBUS_SW")     # CHF: 220 nF / 50 V / X7R is mandatory (LMR33640 datasheet 9.2.2.5)
-res(s, "470k", 160, 215, "VBUS_SW", "BUCK_EN"); res(s, "100k", 160, 225, "BUCK_EN", GND)
+res(s, "100k", 160, 215, "VBUS_SW", "BUCK_EN"); res(s, "20k", 160, 225, "BUCK_EN", GND)
 cap(s, "C_1u", 195, 238, "BUCK_VCC")
 cap(s, "C_100n", 250, 185, "BUCK_BOOT", "BUCK_SW")
 r = ref("L"); s.place("L", r, "6.8uH", 275, 205, {"1": "BUCK_SW", "2": V5}, rot=90, footprint=PARTS["L_6u8"][3], fields=F("L_6u8"),
@@ -186,7 +186,7 @@ res(s, "100k", 270, 225, V5, "BUCK_FB"); res(s, "24.9k", 270, 235, "BUCK_FB", GN
 cap(s, "C_22p", 300, 232, V5, "BUCK_FB", dnp=True)
 for i in range(4): cap(s, "C_22u", 315 + i * 11, 200, V5)
 cap(s, "C_100n", 359, 200, V5)
-res(s, "2.2k", 340, 235, V5, "PWR_LED_A"); led(s, "LED_G", 365, 240, "PWR_LED_A", GND, "PWR (green)")
+res(s, "10k", 340, 235, V5, "PWR_LED_A"); led(s, "LED_G", 365, 240, "PWR_LED_A", GND, "PWR (green)")
 s.flag(V5, 380, 205)
 d.near = "TPZONE"
 for i, (n, nm) in enumerate(((V5, "+5V"), (V33, "+3V3"), (GND, "GND"))):
@@ -224,15 +224,15 @@ cap(s, "C_100n", 262, 95, V33); d.near = "J4"; cap(s, "C_4u7", 320, 95, "SD_VDD"
 s.flag("SD_VDD", 342, 98)
 d.near = "UI"
 s.box(250, 115, 405, 215, "User interface: status LEDs (0603 on side B, inside the light pipes of the top cover) and hardware mic mute")
-for i, (key, en, name, rled) in enumerate((("LED_UG", "LED_G_EN", "GREEN", "5.1k"), ("LED_UB", "LED_B_EN", "BLUE", "2.2k"))):
+for i, (key, en, name, rled) in enumerate((("LED_G", "LED_G_EN", "GREEN", "10k"), ("LED_B", "LED_B_EN", "BLUE", "2.2k"))):
     x = 265 + i * 55
     res(s, rled, x, 135, V5, "LED%d_A" % i)
     led(s, key, x + 20, 150, "LED%d_A" % i, "LED%d_K" % i, name, pos=(34.0 + i * 4.6, 71.2, 90, "B"))
     q = ref("Q"); s.place("2N7002", q, "2N7002", x + 5, 180, {"1": en, "2": GND, "3": "LED%d_K" % i}, footprint=PARTS["Q_N"][3], fields=F("Q_N"))
-    res(s, "10k", x, 200, en, GND)   # beats the SoC's ~50k boot-time pull-up on GPIO5/6
+    res(s, "2.2k", x, 200, en, GND)   # holds the gate below 0.25 V against the SoC's 33-73k boot-time pull-up on GPIO5/6
 s.place("SW_DPDT_x2", "SW1", "JS202011JCQN (MUTE)", 375, 140, {"1": "NC", "2": V33, "3": "MIC_MUTE"}, unit=1, footprint=PARTS["SW_MUTE"][3], fields=F("SW_MUTE"))
 s.place("SW_DPDT_x2", "SW1", "JS202011JCQN (MUTE)", 375, 165, {"4": "MIC_SDATA", "5": "I2S_DIN", "6": GND}, unit=2, footprint=PARTS["SW_MUTE"][3], fields=F("SW_MUTE"))
-res(s, "150", 370, 185, "MIC_MUTE", "MUTE_LED_A"); led(s, "LED_R", 395, 200, "MUTE_LED_A", GND, "RED (muted)", pos=(43.2, 71.2, 90, "B"))
+res(s, "1k", 370, 185, "MIC_MUTE", "MUTE_LED_A"); led(s, "LED_R", 395, 200, "MUTE_LED_A", GND, "RED (muted)", pos=(43.2, 71.2, 90, "B"))
 res(s, "10k", 370, 195, "MIC_MUTE", "MUTE_SENSE"); res(s, "100k", 370, 205, "MUTE_SENSE", GND)
 res(s, "100k", 330, 205, "I2S_DIN", GND)
 s.text("SW1 pole A lights the red LED, pole B physically disconnects mic data\nfrom the CM4 (I2S_DIN grounded) - mute cannot be overridden by software.", 252, 213, size=1.4)
@@ -251,7 +251,7 @@ s.place("Conn_01x03", "J5", "DEBUG UART", 60, 250, {"1": GND, "2": "DBG_TX", "3"
 s = d.sheet("usb", "USB 2.0 hub and USB-A host ports")
 d.near = "U4"
 s.box(15, 20, 215, 275, "USB2514B hub: upstream = CM4 USB2, ports 1-2 = USB-A, ports 3-4 disabled by strap")
-s.place("USB2514B_Bi", "U4", "USB2514B-I/M2", 110, 130,
+s.place("USB2514B_Bi", "U4", "USB2514BT-I/M2", 110, 130,
         {"1": "USB1_N", "2": "USB1_P", "3": "USB2_N", "4": "USB2_P", "5": V33, "6": "HUB_DIS3M", "7": "HUB_DIS3P", "8": "HUB_DIS4M", "9": "HUB_DIS4P", "10": V33,
          "11": GND, "12": "USB_PWR1", "13": "USB_OC1_N", "14": "HUB_CRFILT", "15": V33, "16": "USB_PWR2", "17": "USB_OC2_N",
          "18": "NC", "19": "NC", "20": "NC", "21": "NC", "22": "HUB_NONREM1", "23": V33, "24": "HUB_CFG0", "25": "HUB_CFG1",
@@ -281,7 +281,7 @@ for i in (1, 2):
             {"1": "USB%d_N" % i, "6": "USB%d_N" % i, "3": "USB%d_P" % i, "4": "USB%d_P" % i, "5": "USB%d_VBUS" % i, "2": GND}, fields=F("U_ESD"))
     s.flag("USB%d_VBUS" % i, 330, y + 53)
 _cnt["U"] = 8
-s.place("USB_A_Stacked_Host", "J6", "61400826021", 380, 120,
+s.place("USB_A_Stacked_Host", "J6", "907-112A1022D10200", 380, 120,
         {"1": "USB1_VBUS", "2": "USB1_N", "3": "USB1_P", "4": GND, "5": "USB2_VBUS", "6": "USB2_N", "7": "USB2_P", "8": GND, "9": GND},
         footprint=PARTS["J_USBA"][3], fields=F("J_USBA"))
 
@@ -293,10 +293,10 @@ s.box(15, 20, 215, 150, "Stereo MEMS microphone array (bottom port through PCB) 
 for i, sel in enumerate((GND, V33)):
     x = 45 + i * 60
     d.near = "MK%d" % (i + 1)
-    s.place("IM69D130", "MK%d" % (i + 1), "IM69D130", x, 60, {"1": "PDM_DAT", "2": V33, "3": "PDM_CLK_M", "4": sel, "5": GND},
+    s.place("IM69D130", "MK%d" % (i + 1), "IM72D128", x, 60, {"1": "PDM_DAT", "2": V33, "3": "PDM_CLK_M", "4": sel, "5": GND},
             fields=F("MK_PDM"))
-    cap(s, "C_100n", x - 20, 95, V33)
-s.text("MK1 SELECT=GND (left), MK2 SELECT=VDD (right); 70 mm apart", 30, 115, size=1.5)
+    cap(s, "C_1u_0402", x - 20, 95, V33)
+s.text("MK1 SELECT=GND (left), MK2 SELECT=VDD (right, carries a -40 dBFS DC level); 70 mm apart", 30, 115, size=1.5)
 d.near = "U9"
 s.place("ADAU7002", "U9", "ADAU7002ACBZ-R7", 165, 60, {"A1": "PDM_DAT", "A2": "PDM_CLK", "D2": V33, "C1": GND, "D1": V33,
         "B2": "I2S_BCLK", "C2": "I2S_LRCLK", "B1": "MIC_SDATA"}, fields=F("U_PDM"))

@@ -15,11 +15,26 @@ KiCad 10 migration (milestone 1)
 - [ ] Independent acceptance test of the migration (running)
 - [ ] Documentation that still names KiCad 9 (README.md, hardware/README.md, media/)
 
-Cost reduction, final stock check, software, reviews
-- [ ] BOM consolidation (fewer distinct part numbers), every changed value verified against the data sheets
+Cost reduction (milestone 2, hardware revision A3)
+- [x] BOM 53 -> 44 lines, machine-placed part types 51 -> 42; every changed value verified against the data sheets
+      before it was changed (DECISIONS.md C-1 to C-10); copper, placement and nets unchanged
+- [x] ERC 0 / 0, DRC 0 / 0 / 0, all gates; 136 of 136 placements fitted to JLCPCB's own footprints
 - [ ] Via covering: "Epoxy Filled & Capped" against "Plugged" re-evaluated with a thermal model
-- [ ] Live stock and price check of every BOM line; replacements; order guide and shopping list updated
-- [ ] Software and tests follow the changed parts
+- [ ] Old and new cost estimate in `fab/ORDER_GUIDE.md`
+
+Final stock and price check
+- [x] Every BOM line read live on 2026-11-20 (`hardware/gen/sourcing_jlc.json`); replaced: USB hub (tape-and-reel
+      part), stacked USB-A connector, microphones (F-1 to F-3)
+- [~] Two thin lines without an alternate: ADAU7002ACBZ-R7 (63), RF-BM-2652P2 (126) - reserve first (F-4)
+- [ ] Order guide, shopping list and the other documents updated to revision A3
+- [ ] Stock read once more at the end of the session
+
+Software
+- [x] VoxHub Assistant add-on: constant level of the new microphones removed before the gain; 139 tests pass (W-1)
+- [ ] Documents and test procedures that quote changed parts or values
+- [ ] Enclosure: USB-A window for the new connector
+
+Reviews
 - [ ] Independent reviews of the changed areas (at most two rounds)
 
 ## Two devices: hub and satellite (fourth session, 2026-11-12)
