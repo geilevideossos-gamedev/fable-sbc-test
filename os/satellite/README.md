@@ -2,7 +2,7 @@
 
 The second board is the **satellite** of the two-device system. It runs no Home Assistant. It gives the hub its
 wake word, microphones, speaker, mute switch and LEDs over Wi-Fi, and its radio runs the Zigbee router firmware
-that extends the hub's Zigbee network. The hardware is identical to the hub (revision A2); only the SD card differs.
+that extends the hub's Zigbee network. The hardware is identical to the hub (revision A3); only the SD card differs.
 
 ```
 os/satellite/
@@ -46,9 +46,9 @@ through `qemu-user-static` and `binfmt_misc`; the script stops with a clear mess
 | Part | Content |
 |---|---|
 | Base | Raspberry Pi OS Lite 64-bit `2026-10-06-raspios-trixie-arm64-lite` (Debian 13), SHA256 checked |
-| Board configuration | the same `config.txt` block as the hub (`os/config/config-voxhub.txt`): USB host, sound card `googlevoicehat-soundcard`, UART4 for the radio, LEDs on GPIO5 / GPIO6, mute switch on GPIO27, I2C1 |
+| Board configuration | the same `config.txt` block as the hub: the script appends `os/config/config-voxhub.txt` to `/boot/firmware/config.txt` as it is. USB host, sound card `googlevoicehat-soundcard`, UART4 for the radio, LEDs on GPIO5 / GPIO6, I2C1, and the mute switch sense on GPIO27 with the internal pull-down of the input switched on: `dtoverlay=gpio-key,gpio=27,label=voxhub-mute,keycode=248,active_low=0,gpio_pull=down` (`gpio_pull=off` before 2026-11-21; reason and levels in `os/README.md`, section "Why stock overlays?") |
 | Satellite | Linux Voice Assistant 1.1.18 (git tag `v1.1.18`, commit `b55d36af`) in `/opt/linux-voice-assistant/.venv`, PipeWire as sound server of the user `voxhub`, microWakeWord "Okay Nabu" (default) |
-| `voxhub-lva.service` | finds the googlevoicehat source and sink, sets the microphone gain (default +12 dB), starts Linux Voice Assistant as user `voxhub` with the ESPHome API on port 6053 and the peripheral API on 127.0.0.1:6055 |
+| `voxhub-lva.service` | finds the googlevoicehat source and sink, sets the microphone gain as the volume of the source (`VOXHUB_MIC_GAIN`, default 4 = +12 dB, allowed 0.1 to 16; a starting value that has not been set on a board, see `fab/ASSEMBLY_AND_TEST.md`, section 7.10), starts Linux Voice Assistant as user `voxhub` with the ESPHome API on port 6053 and the peripheral API on 127.0.0.1:6055 |
 | `voxhub-peripherals.service` | status LEDs and mute switch (same code and LED meanings as the hub add-on) |
 | `voxhub-hubwatch.service` | firewall: port 6053 only from the hub, port 6055 only local; checks that Home Assistant answers at `http://<hub>:8123` (answers are played from there) |
 | Settings | `/etc/voxhub/satellite.env` (name, hub, microphone gain; the wake word only for the first start - later it is chosen in Home Assistant; the room only as a note - the room is the device's area in Home Assistant); Wi-Fi in `/etc/NetworkManager/system-connections/voxhub-wifi.nmconnection` |
@@ -73,3 +73,9 @@ sudo nano /etc/voxhub/satellite.env             # hub address, name, gain; then:
 
 The build ends with checks of the finished image (`--no-verify` skips them). What they cover and what the
 first build printed is listed in `os/README.md`, section "Satellite image: verification".
+
+That first build is of 2026-11-12 and therefore older than the pull-down of the mute input: its image carries
+`gpio_pull=off`. No satellite image has been built with `gpio_pull=down`, and nothing has run on a board. The
+check "config.txt carries the VoxHub block of the hub" looks for the lines of the sound card and of UART4 only.
+To see which setting a clone will put into the card, run `grep gpio_pull os/config/config-voxhub.txt` before the
+build.

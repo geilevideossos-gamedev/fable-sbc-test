@@ -7,7 +7,7 @@ configuration:
     description: Wake word at the first start. Afterwards it is chosen on the device page in Home Assistant. "okay_nabu" also works in German.
   mic_gain:
     name: Microphone gain
-    description: Software gain of the microphones (4 = +12 dB). The PDM microphones of the VoxHub are quiet; 4 to 8 is normal.
+    description: Software gain of the microphones (4 = +12 dB). Start with 4 and raise it up to 16 if the wake word is missed. Too much gain makes loud speech clip.
   mic_auto_gain:
     name: Automatic gain
     description: WebRTC automatic gain in dB, 0 = off.

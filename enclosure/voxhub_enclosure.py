@@ -32,7 +32,7 @@ WALL = 2.0                                   # side wall thickness
 TOP_T = 2.0                                  # top plate thickness
 BASE_T = 2.4                                 # base plate thickness
 GAP_TOP = 4.0                                # PCB bare side -> inside of top plate (SW1 body is 3.5..3.6 mm high, C&K JS drawing)
-DEPTH = 18.0                                 # PCB component side -> inside of base (USB-A shell 15.34, flange lip 15.95 mm)
+DEPTH = 18.0                                 # PCB component side -> inside of base (USB-A shell 15.60, flange lip about 16.2 mm)
 EDGE_GAP = 0.6                               # PCB edge -> inner wall (rear, front)
 SPK_BAY = 46.0                               # extra interior width on the left for the speaker
 POST_BAY = 7.6                               # extra interior width on the right for the base screw posts
@@ -90,8 +90,8 @@ WINDOWS = [
     # USB-C (GCT USB4105 rev B4): the shell ends flush with the PCB edge, i.e. 2.6 mm inside the wall, so the plug
     # overmould (12.35 x 6.5 mm per the Type-C spec, centred 1.6 mm below the PCB) has to enter the window
     (USBC_X, 13.4, Z_PCB_BOT + 2.0, Z_PCB_BOT - 5.5),
-    # stacked USB-A (Wurth 61400826021 rev 001.001): front flange 14.5 +-0.2 x 15.5 +-0.2, lips at 0.45 and 15.95 mm
-    (USBA_X, 15.6, Z_PCB_BOT + 0.3, Z_PCB_BOT - 16.7),
+    # stacked USB-A (Jing 907-112A1022D10200, drawing A0): front flange 14.6 x 15.7, lips at about 0.45 and 16.2 mm (scaled)
+    (USBA_X, 15.6, Z_PCB_BOT + 0.3, Z_PCB_BOT - 17.0),
     # microSD (Hirose DM3AT): card 11 x 1 mm; the locked card ends 1.6 mm behind the outer surface -> finger notch below it
     (SD_X, 14.0, Z_PCB_BOT + 0.2, Z_PCB_BOT - 7.0),
 ]
@@ -188,7 +188,7 @@ def make_base():
 # ----------------------------------------------------------------------------- PCB assembly stand-in
 # (reference, body size x, y, height, footprint-local centre offset) - simplified keep-in solids
 BODIES = {
-    "J1": (8.94, 7.35, 3.31, (0, 0.0)), "J6": (14.5, 17.0, 16.0, (3.5, 7.11)), "J4": (13.85, 15.95, 1.68, (0, 0.15)),
+    "J1": (8.94, 7.35, 3.31, (0, 0.0)), "J6": (14.6, 17.3, 16.2, (3.5, 7.01)), "J4": (13.85, 15.95, 1.68, (0, 0.15)),
     "L1": (7.3, 6.6, 3.0, (0, 0)), "U11": (16.5, 30.0, 2.3, (0, 0)), "J7": (5.9, 4.5, 6.0, (1.0, 0.55)),
     "J5": (2.54, 7.62, 8.5, (0, 2.54)), "U4": (6, 6, 0.9, (0, 0)), "U2": (4.9, 6.0, 1.7, (0, 0)), "U1": (4, 4, 0.6, (0, 0)),
 }

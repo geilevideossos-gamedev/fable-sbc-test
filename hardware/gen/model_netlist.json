@@ -2,11 +2,11 @@
  "C1": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10A105KB8NNNC",
+   "MPN": "CL10B105KB8NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 1uF 50V X5R 0603"
+   "PartDescription": "CAP CER 1uF 50V X7R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -25,7 +25,7 @@
    "Manufacturer": "Murata",
    "PartDescription": "CAP CER 220nF 50V X7R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -40,11 +40,11 @@
  "C11": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10B105KA8NNNC",
+   "MPN": "CL10B105KB8NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 1uF 25V X7R 0603"
+   "PartDescription": "CAP CER 1uF 50V X7R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -63,7 +63,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -82,7 +82,7 @@
    "Manufacturer": "FH (Guangdong Fenghua)",
    "PartDescription": "CAP CER 22pF 50V C0G 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -101,7 +101,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "footprint": "voxhub:C_1206_3216Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -120,7 +120,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "footprint": "voxhub:C_1206_3216Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -139,7 +139,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "footprint": "voxhub:C_1206_3216Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -158,7 +158,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "footprint": "voxhub:C_1206_3216Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -177,7 +177,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -196,7 +196,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U3",
   "pins": {
@@ -211,11 +211,11 @@
  "C2": {
   "dnp": false,
   "fields": {
-   "MPN": "CC0603KRX7R9BB104",
-   "Manufacturer": "Yageo",
-   "PartDescription": "CAP CER 100nF 50V X7R 0603"
+   "MPN": "CL10B105KB8NQNC",
+   "Manufacturer": "Samsung Electro-Mechanics",
+   "PartDescription": "CAP CER 1uF 50V X7R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -225,7 +225,7 @@
   "pos": null,
   "ref": "C2",
   "sheet": "power",
-  "value": "100nF"
+  "value": "1uF"
  },
  "C20": {
   "dnp": false,
@@ -234,7 +234,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
   "near": "J4",
   "pins": {
@@ -253,7 +253,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "J4",
   "pins": {
@@ -272,7 +272,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "footprint": "voxhub:C_1206_3216Metric",
   "in_bom": true,
   "near": "CM4CAP",
   "pins": {
@@ -291,7 +291,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "footprint": "voxhub:C_1206_3216Metric",
   "in_bom": true,
   "near": "CM4CAP",
   "pins": {
@@ -310,7 +310,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "CM4CAP",
   "pins": {
@@ -329,7 +329,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "CM4CAP",
   "pins": {
@@ -348,7 +348,7 @@
    "Manufacturer": "FH (Guangdong Fenghua)",
    "PartDescription": "CAP CER 15pF 50V C0G 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -367,7 +367,7 @@
    "Manufacturer": "FH (Guangdong Fenghua)",
    "PartDescription": "CAP CER 15pF 50V C0G 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -386,7 +386,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -405,7 +405,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -420,11 +420,11 @@
  "C3": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10B105KA8NNNC",
+   "MPN": "CL10B105KB8NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 1uF 25V X7R 0603"
+   "PartDescription": "CAP CER 1uF 50V X7R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -443,7 +443,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -462,7 +462,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -481,7 +481,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -500,7 +500,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -519,7 +519,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -538,7 +538,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -557,7 +557,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -576,7 +576,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
   "near": "U5",
   "pins": {
@@ -595,7 +595,7 @@
    "Manufacturer": "KEMET",
    "PartDescription": "CAP POLYMER TANT 100uF 6.3V 40mOhm 3528"
   },
-  "footprint": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
+  "footprint": "voxhub:CP_EIA-3528-21_Kemet-B",
   "in_bom": true,
   "near": "U5",
   "pins": {
@@ -614,7 +614,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U5",
   "pins": {
@@ -633,7 +633,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -652,7 +652,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
   "near": "U6",
   "pins": {
@@ -671,7 +671,7 @@
    "Manufacturer": "KEMET",
    "PartDescription": "CAP POLYMER TANT 100uF 6.3V 40mOhm 3528"
   },
-  "footprint": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
+  "footprint": "voxhub:CP_EIA-3528-21_Kemet-B",
   "in_bom": true,
   "near": "U6",
   "pins": {
@@ -690,7 +690,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U6",
   "pins": {
@@ -705,11 +705,11 @@
  "C43": {
   "dnp": false,
   "fields": {
-   "MPN": "CL05B104KO5NNNC",
+   "MPN": "CL05A105KA5NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+   "PartDescription": "CAP CER 1uF 25V X5R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "MK1",
   "pins": {
@@ -719,16 +719,16 @@
   "pos": null,
   "ref": "C43",
   "sheet": "audio",
-  "value": "100nF"
+  "value": "1uF"
  },
  "C44": {
   "dnp": false,
   "fields": {
-   "MPN": "CL05B104KO5NNNC",
+   "MPN": "CL05A105KA5NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 100nF 16V X7R 0402"
+   "PartDescription": "CAP CER 1uF 25V X5R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "MK2",
   "pins": {
@@ -738,7 +738,7 @@
   "pos": null,
   "ref": "C44",
   "sheet": "audio",
-  "value": "100nF"
+  "value": "1uF"
  },
  "C45": {
   "dnp": false,
@@ -747,7 +747,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U9",
   "pins": {
@@ -766,7 +766,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "footprint": "voxhub:C_1206_3216Metric",
   "in_bom": true,
   "near": "U10",
   "pins": {
@@ -785,7 +785,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 22uF 25V X5R 1206"
   },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "footprint": "voxhub:C_1206_3216Metric",
   "in_bom": true,
   "near": "U10",
   "pins": {
@@ -804,7 +804,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U10",
   "pins": {
@@ -823,7 +823,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 4.7uF 25V X5R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
   "near": "U11",
   "pins": {
@@ -838,11 +838,11 @@
  "C5": {
   "dnp": false,
   "fields": {
-   "MPN": "CL10B105KA8NNNC",
+   "MPN": "CL10B105KB8NQNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 1uF 25V X7R 0603"
+   "PartDescription": "CAP CER 1uF 50V X7R 0603"
   },
-  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "footprint": "voxhub:C_0603_1608Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -861,7 +861,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U11",
   "pins": {
@@ -880,7 +880,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -895,11 +895,11 @@
  "C7": {
   "dnp": false,
   "fields": {
-   "MPN": "CL05B103KB5NNNC",
+   "MPN": "CL05B104KO5NNNC",
    "Manufacturer": "Samsung Electro-Mechanics",
-   "PartDescription": "CAP CER 10nF 50V X7R 0402"
+   "PartDescription": "CAP CER 100nF 16V X7R 0402"
   },
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "voxhub:C_0402_1005Metric",
   "in_bom": true,
   "near": "Q1",
   "pins": {
@@ -909,7 +909,7 @@
   "pos": null,
   "ref": "C7",
   "sheet": "power",
-  "value": "10nF"
+  "value": "100nF"
  },
  "C8": {
   "dnp": false,
@@ -918,7 +918,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 10uF 50V X7R 1206"
   },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "footprint": "voxhub:C_1206_3216Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -937,7 +937,7 @@
    "Manufacturer": "Samsung Electro-Mechanics",
    "PartDescription": "CAP CER 10uF 50V X7R 1206"
   },
-  "footprint": "Capacitor_SMD:C_1206_3216Metric",
+  "footprint": "voxhub:C_1206_3216Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -956,7 +956,7 @@
    "Manufacturer": "Littelfuse",
    "PartDescription": "TVS 22V 600W unidirectional SMB"
   },
-  "footprint": "Diode_SMD:D_SMB",
+  "footprint": "voxhub:D_SMB",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -971,11 +971,11 @@
  "D10": {
   "dnp": false,
   "fields": {
-   "MPN": "150060VS75000",
-   "Manufacturer": "Wurth Elektronik",
-   "PartDescription": "LED green 570nm 0603, 30mA"
+   "MPN": "KT-0603G",
+   "Manufacturer": "Hubei KENTO",
+   "PartDescription": "LED green 520nm 0603, 30mA"
   },
-  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
   "near": "CM4CAP",
   "pins": {
@@ -994,7 +994,7 @@
    "Manufacturer": "Littelfuse",
    "PartDescription": "ESD diode 24V bidirectional SOD-323"
   },
-  "footprint": "Diode_SMD:D_SOD-323",
+  "footprint": "voxhub:D_SOD-323",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -1013,7 +1013,7 @@
    "Manufacturer": "Littelfuse",
    "PartDescription": "ESD diode 24V bidirectional SOD-323"
   },
-  "footprint": "Diode_SMD:D_SOD-323",
+  "footprint": "voxhub:D_SOD-323",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -1028,11 +1028,11 @@
  "D4": {
   "dnp": false,
   "fields": {
-   "MPN": "LTST-C191KRKT",
-   "Manufacturer": "Lite-On",
-   "PartDescription": "LED red 631nm 0603, 30mA"
+   "MPN": "KT-0603R",
+   "Manufacturer": "Hubei KENTO",
+   "PartDescription": "LED red 620nm 0603, 25mA"
   },
-  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -1051,7 +1051,7 @@
    "Manufacturer": "onsemi",
    "PartDescription": "Zener 10V 300mW SOD-323"
   },
-  "footprint": "Diode_SMD:D_SOD-323",
+  "footprint": "voxhub:D_SOD-323",
   "in_bom": true,
   "near": "Q1",
   "pins": {
@@ -1066,11 +1066,11 @@
  "D6": {
   "dnp": false,
   "fields": {
-   "MPN": "150060VS75000",
-   "Manufacturer": "Wurth Elektronik",
-   "PartDescription": "LED green 570nm 0603, 30mA"
+   "MPN": "KT-0603G",
+   "Manufacturer": "Hubei KENTO",
+   "PartDescription": "LED green 520nm 0603, 30mA"
   },
-  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -1087,9 +1087,9 @@
   "fields": {
    "MPN": "KT-0603G",
    "Manufacturer": "Hubei KENTO",
-   "PartDescription": "LED green 520nm 0603, 30mA (status, side B)"
+   "PartDescription": "LED green 520nm 0603, 30mA"
   },
-  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -1111,9 +1111,9 @@
   "fields": {
    "MPN": "KT-0603B",
    "Manufacturer": "Hubei KENTO",
-   "PartDescription": "LED blue 468nm 0603, 30mA (status, side B)"
+   "PartDescription": "LED blue 468nm 0603, 30mA"
   },
-  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -1133,11 +1133,11 @@
  "D9": {
   "dnp": false,
   "fields": {
-   "MPN": "LTST-C191KRKT",
-   "Manufacturer": "Lite-On",
-   "PartDescription": "LED red 631nm 0603, 30mA"
+   "MPN": "KT-0603R",
+   "Manufacturer": "Hubei KENTO",
+   "PartDescription": "LED red 620nm 0603, 25mA"
   },
-  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "footprint": "voxhub:LED_0603_1608Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -1161,7 +1161,7 @@
    "Manufacturer": "",
    "PartDescription": "Fiducial"
   },
-  "footprint": "Fiducial:Fiducial_1mm_Mask2mm",
+  "footprint": "voxhub:Fiducial_1mm_Mask2mm",
   "in_bom": false,
   "near": null,
   "pins": {},
@@ -1177,7 +1177,7 @@
    "Manufacturer": "",
    "PartDescription": "Fiducial"
   },
-  "footprint": "Fiducial:Fiducial_1mm_Mask2mm",
+  "footprint": "voxhub:Fiducial_1mm_Mask2mm",
   "in_bom": false,
   "near": null,
   "pins": {},
@@ -1193,7 +1193,7 @@
    "Manufacturer": "",
    "PartDescription": "Fiducial"
   },
-  "footprint": "Fiducial:Fiducial_1mm_Mask2mm",
+  "footprint": "voxhub:Fiducial_1mm_Mask2mm",
   "in_bom": false,
   "near": null,
   "pins": {},
@@ -1209,7 +1209,7 @@
    "Manufacturer": "",
    "PartDescription": "PCB mounting hole"
   },
-  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "footprint": "voxhub:MountingHole_2.7mm_M2.5",
   "in_bom": false,
   "near": null,
   "pins": {},
@@ -1225,7 +1225,7 @@
    "Manufacturer": "",
    "PartDescription": "PCB mounting hole"
   },
-  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "footprint": "voxhub:MountingHole_2.7mm_M2.5",
   "in_bom": false,
   "near": null,
   "pins": {},
@@ -1241,7 +1241,7 @@
    "Manufacturer": "",
    "PartDescription": "PCB mounting hole"
   },
-  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "footprint": "voxhub:MountingHole_2.7mm_M2.5",
   "in_bom": false,
   "near": null,
   "pins": {},
@@ -1257,7 +1257,7 @@
    "Manufacturer": "",
    "PartDescription": "PCB mounting hole"
   },
-  "footprint": "MountingHole:MountingHole_2.7mm_M2.5",
+  "footprint": "voxhub:MountingHole_2.7mm_M2.5",
   "in_bom": false,
   "near": null,
   "pins": {},
@@ -1273,7 +1273,7 @@
    "Manufacturer": "Wurth Elektronik",
    "PartDescription": "SMT spacer M2.5 internal thread, 1.5mm"
   },
-  "footprint": "Mounting_Wuerth:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
+  "footprint": "voxhub:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
   "in_bom": true,
   "near": null,
   "pins": {
@@ -1291,7 +1291,7 @@
    "Manufacturer": "Wurth Elektronik",
    "PartDescription": "SMT spacer M2.5 internal thread, 1.5mm"
   },
-  "footprint": "Mounting_Wuerth:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
+  "footprint": "voxhub:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
   "in_bom": true,
   "near": null,
   "pins": {
@@ -1309,7 +1309,7 @@
    "Manufacturer": "Wurth Elektronik",
    "PartDescription": "SMT spacer M2.5 internal thread, 1.5mm"
   },
-  "footprint": "Mounting_Wuerth:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
+  "footprint": "voxhub:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
   "in_bom": true,
   "near": null,
   "pins": {
@@ -1327,7 +1327,7 @@
    "Manufacturer": "Wurth Elektronik",
    "PartDescription": "SMT spacer M2.5 internal thread, 1.5mm"
   },
-  "footprint": "Mounting_Wuerth:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
+  "footprint": "voxhub:Mounting_Wuerth_WA-SMSI-M2.5_H1.5mm_9774015151",
   "in_bom": true,
   "near": null,
   "pins": {
@@ -1345,7 +1345,7 @@
    "Manufacturer": "GCT",
    "PartDescription": "USB-C receptacle 16-pin USB 2.0, top mount"
   },
-  "footprint": "Connector_USB:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal",
+  "footprint": "voxhub:USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -1502,7 +1502,7 @@
    "Manufacturer": "Hirose",
    "PartDescription": "microSD push-push socket"
   },
-  "footprint": "Connector_Card:microSD_HC_Hirose_DM3AT-SF-PEJM5",
+  "footprint": "voxhub:microSD_HC_Hirose_DM3AT-SF-PEJM5",
   "in_bom": true,
   "near": "U3",
   "pins": {
@@ -1528,7 +1528,7 @@
    "Manufacturer": "Wurth Elektronik",
    "PartDescription": "Pin header 1x3 2.54mm (DNP)"
   },
-  "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+  "footprint": "voxhub:PinHeader_1x03_P2.54mm_Vertical",
   "in_bom": true,
   "near": "CM4CAP",
   "pins": {
@@ -1544,11 +1544,11 @@
  "J6": {
   "dnp": false,
   "fields": {
-   "MPN": "61400826021",
-   "Manufacturer": "Wurth Elektronik",
+   "MPN": "907-112A1022D10200",
+   "Manufacturer": "Jing Extension of the Electronic",
    "PartDescription": "USB-A dual stacked receptacle THT"
   },
-  "footprint": "Connector_USB:USB_A_Wuerth_61400826021_Horizontal_Stacked",
+  "footprint": "voxhub:USB_A_Wuerth_61400826021_Horizontal_Stacked",
   "in_bom": true,
   "near": "U6",
   "pins": {
@@ -1565,7 +1565,7 @@
   "pos": null,
   "ref": "J6",
   "sheet": "usb",
-  "value": "61400826021"
+  "value": "907-112A1022D10200"
  },
  "J7": {
   "dnp": false,
@@ -1574,7 +1574,7 @@
    "Manufacturer": "JST",
    "PartDescription": "CONN header PH 2pos 2mm vertical THT"
   },
-  "footprint": "Connector_JST:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical",
+  "footprint": "voxhub:JST_PH_B2B-PH-K_1x02_P2.00mm_Vertical",
   "in_bom": true,
   "near": "U10",
   "pins": {
@@ -1593,7 +1593,7 @@
    "Manufacturer": "",
    "PartDescription": "Tag-Connect footprint (no part)"
   },
-  "footprint": "Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical",
+  "footprint": "voxhub:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical",
   "in_bom": false,
   "near": "U11",
   "pins": {
@@ -1616,7 +1616,7 @@
    "Manufacturer": "",
    "PartDescription": "Solder jumper (no part)"
   },
-  "footprint": "Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
+  "footprint": "voxhub:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm",
   "in_bom": false,
   "near": "CM4CAP",
   "pins": {
@@ -1635,7 +1635,7 @@
    "Manufacturer": "Sunltech",
    "PartDescription": "IND 6.8uH 4.5A(rms) 8A(sat) 54mOhm shielded 7.1x6.6x3.0mm"
   },
-  "footprint": "Inductor_SMD:L_Bourns_SRP7028A_7.3x6.6mm",
+  "footprint": "voxhub:L_Bourns_SRP7028A_7.3x6.6mm",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -1650,11 +1650,11 @@
  "MK1": {
   "dnp": false,
   "fields": {
-   "MPN": "IM69D130V01XTSA1",
+   "MPN": "IM72D128V01XTMA1",
    "Manufacturer": "Infineon",
-   "PartDescription": "MEMS microphone PDM 69dB SNR bottom port LLGA-5"
+   "PartDescription": "MEMS microphone PDM 72dB SNR bottom port LLGA-5"
   },
-  "footprint": "Sensor_Audio:Infineon_PG-LLGA-5-1",
+  "footprint": "voxhub:Infineon_PG-LLGA-5-1",
   "in_bom": true,
   "near": "MK1",
   "pins": {
@@ -1667,16 +1667,16 @@
   "pos": null,
   "ref": "MK1",
   "sheet": "audio",
-  "value": "IM69D130"
+  "value": "IM72D128"
  },
  "MK2": {
   "dnp": false,
   "fields": {
-   "MPN": "IM69D130V01XTSA1",
+   "MPN": "IM72D128V01XTMA1",
    "Manufacturer": "Infineon",
-   "PartDescription": "MEMS microphone PDM 69dB SNR bottom port LLGA-5"
+   "PartDescription": "MEMS microphone PDM 72dB SNR bottom port LLGA-5"
   },
-  "footprint": "Sensor_Audio:Infineon_PG-LLGA-5-1",
+  "footprint": "voxhub:Infineon_PG-LLGA-5-1",
   "in_bom": true,
   "near": "MK2",
   "pins": {
@@ -1689,7 +1689,7 @@
   "pos": null,
   "ref": "MK2",
   "sheet": "audio",
-  "value": "IM69D130"
+  "value": "IM72D128"
  },
  "Q1": {
   "dnp": false,
@@ -1698,7 +1698,7 @@
    "Manufacturer": "Alpha & Omega Semiconductor",
    "PartDescription": "MOSFET P-CH 30V 4A SOT-23"
   },
-  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "footprint": "voxhub:SOT-23",
   "in_bom": true,
   "near": "Q1",
   "pins": {
@@ -1718,7 +1718,7 @@
    "Manufacturer": "Nexperia",
    "PartDescription": "MOSFET N-CH 60V 300mA SOT-23"
   },
-  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "footprint": "voxhub:SOT-23",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -1738,7 +1738,7 @@
    "Manufacturer": "Nexperia",
    "PartDescription": "MOSFET N-CH 60V 300mA SOT-23"
   },
-  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "footprint": "voxhub:SOT-23",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -1758,7 +1758,7 @@
    "Manufacturer": "Nexperia",
    "PartDescription": "MOSFET N-CH 60V 300mA SOT-23"
   },
-  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "footprint": "voxhub:SOT-23",
   "in_bom": true,
   "near": "U11",
   "pins": {
@@ -1774,11 +1774,11 @@
  "R1": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF5101TCE",
+   "MPN": "0402WGF1202TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 5.1k 1% 1/16W 0402"
+   "PartDescription": "RES 12k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -1788,16 +1788,16 @@
   "pos": null,
   "ref": "R1",
   "sheet": "power",
-  "value": "5.1k"
+  "value": "12k"
  },
  "R10": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1503TCE",
+   "MPN": "0402WGF1003TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 150k 1% 1/16W 0402"
+   "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "Q1",
   "pins": {
@@ -1807,16 +1807,16 @@
   "pos": null,
   "ref": "R10",
   "sheet": "power",
-  "value": "150k"
+  "value": "100k"
  },
  "R11": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF4703TCE",
+   "MPN": "0402WGF1003TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 470k 1% 1/16W 0402"
+   "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -1826,16 +1826,16 @@
   "pos": null,
   "ref": "R11",
   "sheet": "power",
-  "value": "470k"
+  "value": "100k"
  },
  "R12": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1003TCE",
+   "MPN": "0402WGF2002TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 100k 1% 1/16W 0402"
+   "PartDescription": "RES 20k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -1845,7 +1845,7 @@
   "pos": null,
   "ref": "R12",
   "sheet": "power",
-  "value": "100k"
+  "value": "20k"
  },
  "R13": {
   "dnp": false,
@@ -1854,7 +1854,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -1873,7 +1873,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 24.9k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -1888,11 +1888,11 @@
  "R15": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF2201TCE",
+   "MPN": "0402WGF1002TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 2.2k 1% 1/16W 0402"
+   "PartDescription": "RES 10k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -1902,7 +1902,7 @@
   "pos": null,
   "ref": "R15",
   "sheet": "power",
-  "value": "2.2k"
+  "value": "10k"
  },
  "R16": {
   "dnp": false,
@@ -1911,7 +1911,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 49.9k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U3",
   "pins": {
@@ -1930,7 +1930,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U3",
   "pins": {
@@ -1945,11 +1945,11 @@
  "R18": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF5101TCE",
+   "MPN": "0402WGF1002TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 5.1k 1% 1/16W 0402"
+   "PartDescription": "RES 10k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -1959,16 +1959,16 @@
   "pos": null,
   "ref": "R18",
   "sheet": "cm4",
-  "value": "5.1k"
+  "value": "10k"
  },
  "R19": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1002TCE",
+   "MPN": "0402WGF2201TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 10k 1% 1/16W 0402"
+   "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -1978,16 +1978,16 @@
   "pos": null,
   "ref": "R19",
   "sheet": "cm4",
-  "value": "10k"
+  "value": "2.2k"
  },
  "R2": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1001TCE",
+   "MPN": "0402WGF2201TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 1k 1% 1/16W 0402"
+   "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -1997,7 +1997,7 @@
   "pos": null,
   "ref": "R2",
   "sheet": "power",
-  "value": "1k"
+  "value": "2.2k"
  },
  "R20": {
   "dnp": false,
@@ -2006,7 +2006,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -2021,11 +2021,11 @@
  "R21": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1002TCE",
+   "MPN": "0402WGF2201TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 10k 1% 1/16W 0402"
+   "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -2035,16 +2035,16 @@
   "pos": null,
   "ref": "R21",
   "sheet": "cm4",
-  "value": "10k"
+  "value": "2.2k"
  },
  "R22": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1500TCE",
+   "MPN": "0402WGF1001TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 150 1% 1/16W 0402"
+   "PartDescription": "RES 1k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -2054,7 +2054,7 @@
   "pos": null,
   "ref": "R22",
   "sheet": "cm4",
-  "value": "150"
+  "value": "1k"
  },
  "R23": {
   "dnp": false,
@@ -2063,7 +2063,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -2082,7 +2082,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -2101,7 +2101,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -2120,7 +2120,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 1k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "CM4CAP",
   "pins": {
@@ -2139,7 +2139,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 12k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -2154,11 +2154,11 @@
  "R28": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF1003TCE",
+   "MPN": "0402WGF1002TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 100k 1% 1/16W 0402"
+   "PartDescription": "RES 10k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -2168,7 +2168,7 @@
   "pos": null,
   "ref": "R28",
   "sheet": "usb",
-  "value": "100k"
+  "value": "10k"
  },
  "R29": {
   "dnp": false,
@@ -2177,7 +2177,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -2192,11 +2192,11 @@
  "R3": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF0000TCE",
+   "MPN": "0402WGF1001TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 0 1% 1/16W 0402"
+   "PartDescription": "RES 1k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -2206,7 +2206,7 @@
   "pos": null,
   "ref": "R3",
   "sheet": "power",
-  "value": "0"
+  "value": "1k"
  },
  "R30": {
   "dnp": false,
@@ -2215,7 +2215,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -2234,7 +2234,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -2253,7 +2253,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -2272,7 +2272,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -2291,7 +2291,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -2310,7 +2310,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -2329,7 +2329,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -2348,7 +2348,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 20k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U5",
   "pins": {
@@ -2367,7 +2367,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U5",
   "pins": {
@@ -2386,7 +2386,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 20k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U6",
   "pins": {
@@ -2401,11 +2401,11 @@
  "R4": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF5101TCE",
+   "MPN": "0402WGF2201TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 5.1k 1% 1/16W 0402"
+   "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -2415,7 +2415,7 @@
   "pos": null,
   "ref": "R4",
   "sheet": "power",
-  "value": "5.1k"
+  "value": "2.2k"
  },
  "R40": {
   "dnp": false,
@@ -2424,7 +2424,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 10k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U6",
   "pins": {
@@ -2439,11 +2439,11 @@
  "R41": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF330JTCE",
+   "MPN": "0402WGF750JTCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 33 1% 1/16W 0402"
+   "PartDescription": "RES 75 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U9",
   "pins": {
@@ -2453,7 +2453,7 @@
   "pos": null,
   "ref": "R41",
   "sheet": "audio",
-  "value": "33"
+  "value": "75"
  },
  "R42": {
   "dnp": false,
@@ -2462,7 +2462,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U9",
   "pins": {
@@ -2481,7 +2481,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U9",
   "pins": {
@@ -2500,7 +2500,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U10",
   "pins": {
@@ -2519,7 +2519,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 2.2k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U11",
   "pins": {
@@ -2538,7 +2538,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U11",
   "pins": {
@@ -2557,7 +2557,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U11",
   "pins": {
@@ -2572,11 +2572,11 @@
  "R5": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF2401TCE",
+   "MPN": "0402WGF1001TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 2.4k 1% 1/16W 0402"
+   "PartDescription": "RES 1k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -2586,16 +2586,16 @@
   "pos": null,
   "ref": "R5",
   "sheet": "power",
-  "value": "2.4k"
+  "value": "1k"
  },
  "R6": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF0000TCE",
+   "MPN": "0402WGF1001TCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 0 1% 1/16W 0402"
+   "PartDescription": "RES 1k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -2605,7 +2605,7 @@
   "pos": null,
   "ref": "R6",
   "sheet": "power",
-  "value": "0"
+  "value": "1k"
  },
  "R7": {
   "dnp": false,
@@ -2614,7 +2614,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 1k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -2633,7 +2633,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 49.9k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -2652,7 +2652,7 @@
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
    "PartDescription": "RES 100k 1% 1/16W 0402"
   },
-  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
   "near": "Q1",
   "pins": {
@@ -2671,7 +2671,7 @@
    "Manufacturer": "C&K",
    "PartDescription": "Slide switch DPDT SMT vertical actuator"
   },
-  "footprint": "Button_Switch_SMD:SW_DPDT_CK_JS202011JCQN",
+  "footprint": "voxhub:SW_DPDT_CK_JS202011JCQN",
   "in_bom": true,
   "near": "UI",
   "pins": {
@@ -2693,7 +2693,7 @@
    "Manufacturer": "",
    "PartDescription": "Test pad (no part)"
   },
-  "footprint": "TestPoint:TestPoint_Pad_D1.5mm",
+  "footprint": "voxhub:TestPoint_Pad_D1.5mm",
   "in_bom": false,
   "near": "TPZONE",
   "pins": {
@@ -2711,7 +2711,7 @@
    "Manufacturer": "",
    "PartDescription": "Test pad (no part)"
   },
-  "footprint": "TestPoint:TestPoint_Pad_D1.5mm",
+  "footprint": "voxhub:TestPoint_Pad_D1.5mm",
   "in_bom": false,
   "near": "TPZONE",
   "pins": {
@@ -2729,7 +2729,7 @@
    "Manufacturer": "",
    "PartDescription": "Test pad (no part)"
   },
-  "footprint": "TestPoint:TestPoint_Pad_D1.5mm",
+  "footprint": "voxhub:TestPoint_Pad_D1.5mm",
   "in_bom": false,
   "near": "TPZONE",
   "pins": {
@@ -2747,7 +2747,7 @@
    "Manufacturer": "Infineon",
    "PartDescription": "USB-C PD sink controller (EZ-PD BCR) QFN-24"
   },
-  "footprint": "Package_DFN_QFN:QFN-24-1EP_4x4mm_P0.5mm_EP2.75x2.75mm",
+  "footprint": "voxhub:QFN-24-1EP_4x4mm_P0.5mm_EP2.75x2.75mm",
   "in_bom": true,
   "near": "U1",
   "pins": {
@@ -2782,7 +2782,7 @@
    "Manufacturer": "Analog Devices",
    "PartDescription": "I2S class-D mono amplifier 3.2W TQFN-16"
   },
-  "footprint": "Package_DFN_QFN:TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm",
+  "footprint": "voxhub:TQFN-16-1EP_3x3mm_P0.5mm_EP1.23x1.23mm",
   "in_bom": true,
   "near": "U10",
   "pins": {
@@ -2841,7 +2841,7 @@
    "Manufacturer": "Texas Instruments",
    "PartDescription": "Buck 3.8-36V 4A 400kHz HSOIC-8"
   },
-  "footprint": "Package_SO:Texas_HSOP-8-1EP_3.9x4.9mm_P1.27mm_ThermalVias",
+  "footprint": "voxhub:Texas_HSOP-8-1EP_3.9x4.9mm_P1.27mm_ThermalVias",
   "in_bom": true,
   "near": "U2",
   "pins": {
@@ -2866,7 +2866,7 @@
    "Manufacturer": "Texas Instruments",
    "PartDescription": "Current-limited power switch, adj. 0.075-1.7A, EN active high, SOT-23-6"
   },
-  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "footprint": "voxhub:SOT-23-6",
   "in_bom": true,
   "near": "U3",
   "pins": {
@@ -2884,11 +2884,11 @@
  "U4": {
   "dnp": false,
   "fields": {
-   "MPN": "USB2514B-I/M2",
+   "MPN": "USB2514BT-I/M2",
    "Manufacturer": "Microchip",
    "PartDescription": "USB 2.0 hi-speed 4-port hub QFN-36"
   },
-  "footprint": "Package_DFN_QFN:QFN-36-1EP_6x6mm_P0.5mm_EP3.7x3.7mm",
+  "footprint": "voxhub:QFN-36-1EP_6x6mm_P0.5mm_EP3.7x3.7mm",
   "in_bom": true,
   "near": "U4",
   "pins": {
@@ -2929,7 +2929,7 @@
   "pos": null,
   "ref": "U4",
   "sheet": "usb",
-  "value": "USB2514B-I/M2"
+  "value": "USB2514BT-I/M2"
  },
  "U5": {
   "dnp": false,
@@ -2938,7 +2938,7 @@
    "Manufacturer": "Texas Instruments",
    "PartDescription": "Current-limited power switch, adj. 0.075-1.7A, EN active high, SOT-23-6"
   },
-  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "footprint": "voxhub:SOT-23-6",
   "in_bom": true,
   "near": "U5",
   "pins": {
@@ -2961,7 +2961,7 @@
    "Manufacturer": "Texas Instruments",
    "PartDescription": "Current-limited power switch, adj. 0.075-1.7A, EN active high, SOT-23-6"
   },
-  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "footprint": "voxhub:SOT-23-6",
   "in_bom": true,
   "near": "U6",
   "pins": {
@@ -2984,7 +2984,7 @@
    "Manufacturer": "STMicroelectronics",
    "PartDescription": "USB ESD protection SOT-23-6"
   },
-  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "footprint": "voxhub:SOT-23-6",
   "in_bom": true,
   "near": "U5",
   "pins": {
@@ -3007,7 +3007,7 @@
    "Manufacturer": "STMicroelectronics",
    "PartDescription": "USB ESD protection SOT-23-6"
   },
-  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "footprint": "voxhub:SOT-23-6",
   "in_bom": true,
   "near": "U6",
   "pins": {
@@ -3055,7 +3055,7 @@
    "Manufacturer": "YXC",
    "PartDescription": "XTAL 24MHz 12pF 10ppm 3.2x2.5mm"
   },
-  "footprint": "Crystal:Crystal_SMD_3225-4Pin_3.2x2.5mm",
+  "footprint": "voxhub:Crystal_SMD_3225-4Pin_3.2x2.5mm",
   "in_bom": true,
   "near": "U4",
   "pins": {

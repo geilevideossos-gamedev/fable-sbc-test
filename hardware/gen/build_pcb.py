@@ -16,7 +16,6 @@ import prewire
 MM = pcbnew.FromMM
 W, H = 100.0, 74.0            # board size
 OX, OY = 100.0, 60.0          # board origin on the KiCad page
-SYS_FP = "/usr/share/kicad/footprints"
 POWER = ("GND", "+5V", "+3V3")
 VIA_DRILL = 0.3
 
@@ -177,7 +176,7 @@ def write_stackup(path):
     open(path, "w").write(txt[:i] + block + txt[i:])
 
 def write_project(outdir):
-    """pcbnew's Save() rewrites voxhub.kicad_pro with default rules - put ours back."""
+    """Write our project settings to voxhub.kicad_pro after every Save() (pcbnew of KiCad 10 leaves the file alone)."""
     import shutil
     shutil.copyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "project_settings.json"),
                     os.path.join(outdir, "voxhub.kicad_pro"))
@@ -220,7 +219,10 @@ def load_netlist(path):
         name = first(n, "name")[1]
         for nd in find(n, "node"):
             comps[first(nd, "ref")[1]]["pins"][first(nd, "pin")[1]] = name
-    return comps
+    block = first(next(s for s in find(first(t, "design"), "sheet") if first(s, "name")[1] == "/"), "title_block")
+    title = {k: first(block, k)[1] for k in ("title", "rev", "date", "company")}
+    title["comments"] = [first(c, "value")[1] for c in find(block, "comment")]
+    return comps, title
 
 def crt_bbox(fp):
     """Courtyard bounding box (mm, board coords); falls back to pads."""
@@ -242,12 +244,26 @@ def crt_bbox(fp):
 def overlap(a, b, m=0.0):
     return not (a[2] + m <= b[0] or b[2] + m <= a[0] or a[3] + m <= b[1] or b[3] + m <= a[1])
 
+PLOT_LAYERS = ("F_Paste", "B_Paste", "F_SilkS", "B_SilkS", "F_Mask", "B_Mask", "Edge_Cuts")
+
 def place(netlist, outdir):
-    comps = load_netlist(netlist)
+    comps, title = load_netlist(netlist)
     model = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "model_netlist.json")))
     board = pcbnew.CreateEmptyBoard()
+    block = board.GetTitleBlock()
+    block.SetTitle(title["title"]); block.SetRevision(title["rev"]); block.SetDate(title["date"]); block.SetCompany(title["company"])
+    for i, text in enumerate(title["comments"]):
+        block.SetComment(i, text)
     board.SetCopperLayerCount(4)
     board.SetFileName(os.path.join(outdir, "voxhub.kicad_pcb"))
+    plot, plot_layers = board.GetPlotOptions(), pcbnew.LSET(pcbnew.LSET.AllCuMask())
+    for lay in PLOT_LAYERS:
+        plot_layers.AddLayer(getattr(pcbnew, lay))
+    plot.SetOutputDirectory("outputs/gerbers/")
+    plot.SetLayerSelection(plot_layers); plot.SetDrillMarksType(pcbnew.DRILL_MARKS_NO_DRILL_SHAPE)
+    plot.SetUseGerberProtelExtensions(True); plot.SetSubtractMaskFromSilk(True)
+    plot.SetUseGerberX2format(False); plot.SetIncludeGerberNetlistInfo(False)
+    board.SetPlotOptions(plot)
     nets = {}
     def net(name):
         if name not in nets:
@@ -258,19 +274,17 @@ def place(netlist, outdir):
     for ref in sorted(comps):
         c = comps[ref]
         lib, name = c["footprint"].split(":")
-        libdir = os.path.join(outdir, "voxhub.pretty") if lib == "voxhub" else os.path.join(SYS_FP, lib + ".pretty")
-        fp = pcbnew.FootprintLoad(libdir, name)
+        fp = pcbnew.FootprintLoad(os.path.join(outdir, lib + ".pretty"), name)
         if fp is None:
             raise RuntimeError("footprint not found: " + c["footprint"])
         fp.SetFPID(pcbnew.LIB_ID(lib, name))
         fp.SetReference(ref); fp.SetValue(c["value"])
         fp.SetPath(pcbnew.KIID_PATH(c["sheet_tstamps"].rstrip("/") + "/" + c["tstamp"]))
         fp.SetSheetname(c["sheet_name"]); fp.SetSheetfile(c["props"].get("Sheetfile", ""))
-        for k in ("MPN", "Manufacturer", "PartDescription"):
-            v = c["fields"].get(k) or model.get(ref, {}).get("fields", {}).get(k, "")
-            if v:
+        for k, v in c["fields"].items():
+            if k != "Footprint":
                 fp.SetField(k, v)
-                fp.GetFieldByName(k).SetVisible(False)
+                fp.GetField(k).SetVisible(False)
         m = model.get(ref, {})
         if m.get("dnp"):
             fp.SetDNP(True)
@@ -285,14 +299,6 @@ def place(netlist, outdir):
                 pad.SetNet(net(n))
             if ep and pad.GetNumber() in SOLID_PADS.get(ref, (ep,)) and n == "GND":
                 pad.SetLocalZoneConnection(pcbnew.ZONE_CONNECTION_FULL)
-        # 3D models: use the copies / stand-ins shipped in hardware/3dmodels (the KiCad docker image has none)
-        mdls = [m_ for m_ in fp.Models()]
-        fp.Models().clear()
-        for mdl in mdls:               # (Models() hands out copies - rebuild the list)
-            fn = mdl.m_Filename.replace("${KICAD9_3DMODEL_DIR}/", "").replace(".wrl", ".step")
-            if not fn.startswith("${KIPRJMOD}"):
-                mdl.m_Filename = "${KIPRJMOD}/3dmodels/" + fn
-            fp.Models().push_back(mdl)
         if ref == "J2":      # the CM4 itself (module + heat sink) rides on its socket footprint
             m3 = pcbnew.FP_3DMODEL()
             m3.m_Filename = "${KIPRJMOD}/3dmodels/RaspberryPi_CM4_with_heatsink.step"
@@ -442,11 +448,11 @@ def place(netlist, outdir):
     add_rule_areas(board)
     trim_silk(board)
     legends = Legends(board, pre)
-    legends.put("VoxHub CM4  rev A2", pcbnew.F_SilkS, 1.2, (22.0, 41.0))
+    legends.put("VoxHub CM4  rev A3", pcbnew.F_SilkS, 1.2, (22.0, 41.0))
     legends.put("USB-C PD 9-20V", pcbnew.B_SilkS, 1.0, (13.0, 10.5))
     legends.put("SPK", pcbnew.F_SilkS, 1.0, (8.6, 58.5), rots=(90, 0))
     legends.put("J5: GND TX RX", pcbnew.F_SilkS, 1.0, (80.0, 18.6))
-    legends.put("VoxHub CM4 rev A2 - this side faces the top cover", pcbnew.B_SilkS, 1.0, (60.0, 50.0))
+    legends.put("VoxHub CM4 rev A3 - this side faces the top cover", pcbnew.B_SilkS, 1.0, (60.0, 50.0))
     legends.put("github.com/geilevideossos-gamedev/fable-sbc-test", pcbnew.B_SilkS, 1.0, (60.0, 53.0))
     legends.put("MUTE", pcbnew.B_SilkS, 1.0, (33.5, 57.4))
     tps = sorted((pcbnew.ToMM(fps[r].GetPosition().x) - OX, pcbnew.ToMM(fps[r].GetPosition().y) - OY, r) for r in fps if r.startswith("TP"))
@@ -850,7 +856,7 @@ def poly_zone(board, pts, layers, netname=None, keepout=False, name="", prio=0, 
     z.SetZoneName(name)
     if keepout:
         z.SetIsRuleArea(True)
-        z.SetDoNotAllowCopperPour(True); z.SetDoNotAllowTracks(True); z.SetDoNotAllowVias(True)
+        z.SetDoNotAllowZoneFills(True); z.SetDoNotAllowTracks(True); z.SetDoNotAllowVias(True)
         z.SetDoNotAllowPads(False); z.SetDoNotAllowFootprints(False)
     else:
         z.SetNetCode(board.GetNetcodeFromNetname(netname))
@@ -951,6 +957,25 @@ def add_planes(board):
     poly_zone(board, full, (pcbnew.F_Cu,), "GND", name="GND_F")
     poly_zone(board, full, (pcbnew.B_Cu,), "GND", name="GND_B")
 
+VIA_SNAP = 0.001
+
+def snap_to_vias(tracks):
+    vias = {}
+    for tr in tracks:
+        if tr.Type() == pcbnew.PCB_VIA_T:
+            vias.setdefault(tr.GetNetname(), []).append(tr.GetPosition())
+    n = 0
+    for tr in tracks:
+        if tr.Type() == pcbnew.PCB_VIA_T or tr.IsLocked():
+            continue
+        for get, put in ((tr.GetStart, tr.SetStart), (tr.GetEnd, tr.SetEnd)):
+            q = get()
+            for v in vias.get(tr.GetNetname(), ()):
+                if (q.x, q.y) != (v.x, v.y) and max(abs(q.x - v.x), abs(q.y - v.y)) <= MM(VIA_SNAP):
+                    put(pcbnew.VECTOR2I(v.x, v.y)); n += 1
+                    break
+    return n
+
 def finish(outdir):
     board = pcbnew.LoadBoard(os.path.join(outdir, "voxhub.kicad_pcb"))
     ses = os.path.join(outdir, "gen", "work", "voxhub.ses")
@@ -960,6 +985,7 @@ def finish(outdir):
         if not ok:
             raise SystemExit("the autorouter session gen/work/voxhub.ses could not be imported")
     tracks = sorted_tracks(board); _KEEP.append(tracks)
+    print("track ends moved onto the via centre they miss by less than %g mm: %d" % (VIA_SNAP, snap_to_vias(tracks)))
     # the USB data lines are laid pad to pad through the ESD parts by the patch router (USB rules in patch());
     # whatever the autorouter drew for them is discarded
     n_usb = 0

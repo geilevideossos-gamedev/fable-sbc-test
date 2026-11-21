@@ -1,4 +1,4 @@
-ERC report (2026-11-12T10:43:01+0000, Encoding UTF8)
+ERC report (2026-11-21T15:22:15, Encoding UTF8)
 Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /
@@ -14,3 +14,6 @@ Report includes: Errors, Warnings, Exclusions
 ***** Sheet /Zigbee / Thread radio (RF-BM-2652P2, CC2652P)/
 
  ** ERC messages: 0  Errors 0  Warnings 0
+
+ ** Ignored checks:
+    - Assigned footprint doesn't match footprint filters

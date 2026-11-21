@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import logging
+import math
 import shlex
 
 import numpy as np
@@ -42,6 +43,36 @@ def apply_gain(pcm: bytes, gain: float) -> bytes:
     return np.clip(samples, -32768, 32767).astype("<i2").tobytes()
 
 
+class DcBlocker:
+    def __init__(self, pole: float = 0.995) -> None:
+        if not 0.0 < pole < 1.0:
+            raise ValueError("pole must be between 0 and 1")
+        self._pole = pole
+        self._block = max(1, min(4096, int(math.log(1e-9) / math.log(pole))))
+        self._last_in: float | None = None
+        self._last_out = 0.0
+
+    def reset(self) -> None:
+        self._last_in = None
+        self._last_out = 0.0
+
+    def process(self, pcm: bytes, gain: float = 1.0) -> bytes:
+        samples = np.frombuffer(pcm[: len(pcm) & ~1], dtype="<i2").astype(np.float64)
+        if samples.size == 0:
+            return pcm
+        out = np.empty(samples.size)
+        for start in range(0, samples.size, self._block):
+            block = samples[start : start + self._block]
+            previous = block[0] if self._last_in is None else self._last_in
+            steps = np.diff(block, prepend=previous)
+            decay = self._pole ** np.arange(block.size)
+            filtered = decay * (np.cumsum(steps / decay) + self._pole * self._last_out)
+            self._last_in = float(block[-1])
+            self._last_out = float(filtered[-1])
+            out[start : start + block.size] = filtered
+        return np.clip(np.rint(out * gain), -32768, 32767).astype("<i2").tobytes()
+
+
 def tone(frequency: float, milliseconds: int, rate: int = 22050, level: float = 0.3) -> bytes:
     """A short sine beep with a fade in/out, as 16-bit mono PCM."""
     count = rate * milliseconds // 1000
@@ -63,6 +94,7 @@ class Microphone:
         if device and not command:
             self._argv.append(f"--device={device}")
         self.gain = gain
+        self._dc = DcBlocker()
         self._queue: asyncio.Queue[bytes | None] = asyncio.Queue(maxsize=25)
         self._proc: asyncio.subprocess.Process | None = None
         self._task: asyncio.Task[None] | None = None
@@ -70,6 +102,7 @@ class Microphone:
     async def start(self) -> None:
         await self.stop()
         self._queue = asyncio.Queue(maxsize=25)
+        self._dc.reset()
         _LOGGER.debug("Starting capture: %s", self._argv)
         try:
             self._proc = await asyncio.create_subprocess_exec(
@@ -84,7 +117,7 @@ class Microphone:
         try:
             while True:
                 chunk = await proc.stdout.readexactly(CHUNK_BYTES)
-                self._put(apply_gain(chunk, self.gain))
+                self._put(self._dc.process(chunk, self.gain))
         except (asyncio.IncompleteReadError, ConnectionError):
             _LOGGER.warning("Capture process ended (exit code %s)", proc.returncode)
         finally:

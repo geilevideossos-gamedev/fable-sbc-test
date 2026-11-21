@@ -32,8 +32,8 @@ Say "Okay Nabu" and a request. The wake word can be changed on the device page.
 |---|---|---|
 | Device name | VoxHub Hub | Name of the satellite in Home Assistant. Use the room, for example "VoxHub Upstairs". |
 | Wake word | okay_nabu | Wake word at the first start; later it is chosen on the device page. |
-| Microphone gain | 4.0 | Software gain of the microphones (4 = +12 dB). |
-| Automatic gain / Noise suppression | 0 / 0 | WebRTC processing of Linux Voice Assistant. |
+| Microphone gain | 4.0 | Software gain of the microphones (4 = +12 dB), 0.1 to 16. See "Microphones". |
+| Automatic gain / Noise suppression | 0 / 0 | WebRTC processing of Linux Voice Assistant. See "Microphones". |
 | Speaker level | 100 | Level of the speaker output in the sound server. |
 | Thinking sound | off | A short sound while Claude thinks. |
 | Microphone / Speaker | empty | PulseAudio names; empty = the VoxHub sound card. |
@@ -41,6 +41,25 @@ Say "Okay Nabu" and a request. The wake word can be changed on the device page.
 | Exposure guard | on | Keeps locks and alarm panels away from Assist. |
 | Protected domains | lock, alarm_control_panel | What the guard protects. |
 | Guard interval | 300 | Seconds between two full checks (it also reacts to every registry change). |
+
+## Microphones
+
+The two microphones of the VoxHub (Infineon IM72D128V01) are quiet, hence the gain of 4. The one of the right
+channel adds a constant level of typically -40 dBFS to its signal. Linux Voice Assistant passes this level on as
+long as **Automatic gain** and **Noise suppression** are 0. In a simulation with the test recordings of its wake
+word library the level made no difference for speech of 60 dBSPL or more at the microphone. For quieter speech the
+wake word was found less often with the level than without it: at 55 dBSPL in 73 % instead of 78 % of the attempts,
+at 50 dBSPL in 58 % instead of 62 % (gain 4). Home Assistant's voice detection gave the same result with and
+without the level. None of this has been tested on a board. If the wake word is not heard well, raise **Microphone
+gain** first (for example to 8; in the simulation that gave 88 % at 55 dBSPL with the level); too much gain makes
+loud speech clip.
+
+**Automatic gain** or **Noise suppression** above 0 switch on the WebRTC stage of Linux Voice Assistant. Its
+high-pass filter removes the constant level; the stage also changes the sound that goes to speech recognition. In
+the simulation automatic gain raised the detection rate (it amplifies by about 7 dB); noise suppression 1 removed
+the level but won back only about a third of the lost detections at gains 4 and 8. Neither has been tested on a
+board. A value above 0 stays stored in Linux Voice Assistant: to switch the stage off again, set **Mic Auto Gain**
+to 0 and **Mic Noise Suppression** to Off on the device page; setting the option back to 0 is not enough.
 
 ## LEDs
 

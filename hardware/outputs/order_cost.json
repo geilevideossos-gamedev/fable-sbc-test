@@ -1,0 +1,15 @@
+{
+ "checked_jlcpcb": "2026-11-21",
+ "boards": 2,
+ "part_types": 44,
+ "machine_placed_part_types": 42,
+ "hand_soldered_part_types": 2,
+ "parts_usd_needed_only": 79.68,
+ "parts_usd_with_minimum": 83.22,
+ "parts_usd_with_minimum_and_loss": 84.99,
+ "stock_below_twice_the_need": [],
+ "stock_below_200": [
+  "ADAU7002ACBZ-R7 (63)",
+  "RF-BM-2652P2 (126)"
+ ]
+}

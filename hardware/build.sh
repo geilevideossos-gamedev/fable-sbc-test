@@ -3,23 +3,48 @@
 #
 #   hardware/build.sh [all|sch|pcb|route|outputs]
 #
-# Needs: docker (KiCad 9 image), python3, zip, Java >= 21 + freerouting-2.0.1.jar for the "route" step.
-#   KICAD_IMAGE   docker image with KiCad 9 (default kicad/kicad:9.0)
+# Needs: docker (KiCad 10 image), python3, zip, Java >= 21 + freerouting-2.0.1.jar for the "route" step.
+#   KICAD_IMAGE   docker image with KiCad 10, numpy and shapely (default voxhub-kicad:10.0, built from hardware/docker when missing)
 #   FREEROUTING   path to freerouting jar (default ./freerouting-2.0.1.jar, see hardware/README.md)
 #   SKIP_ROUTE=1  re-use the checked-in autorouter session gen/routed/voxhub.ses (reproducible result)
 set -euo pipefail
 HW="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(dirname "${HW}")"
-IMG="${KICAD_IMAGE:-kicad/kicad:9.0}"
+IMG="${KICAD_IMAGE:-voxhub-kicad:10.0}"
 FR="${FREEROUTING:-${HW}/freerouting-2.0.1.jar}"
 STEP="${1:-all}"
 case "${STEP}" in all|outputs) command -v zip > /dev/null || { echo "missing tool: zip" >&2; exit 1; } ;; esac
+BOX=""
+unlock() {
+    local f
+    for f in "${HW}"/~*.lck; do
+        [ ! -f "${f}" ] || ! grep -q "\"$1\"" "${f}" || rm -f "${f}" || true
+    done
+}
+stop() {
+    trap '' HUP INT TERM
+    local pids i
+    pids="$(jobs -p)"
+    echo "build.sh: stopped by a signal, the running step is ended (the next generating step reports a stopped generating step as unfinished)" >&2 || true
+    for i in $(seq 1 40); do
+        [ -n "${pids}" ] && kill -0 ${pids} 2> /dev/null || break
+        if [ -n "${BOX}" ]; then docker kill "${BOX}" > /dev/null 2>&1 || true; else kill ${pids} 2> /dev/null || true; fi
+        sleep 0.25
+    done
+    [ -z "${pids}" ] || kill -9 ${pids} 2> /dev/null || true
+    [ -z "${BOX}" ] || { unlock "${BOX}"; box "${GIVE}" || true; }
+    exit "$1"
+}
+trap 'stop 129' HUP
+trap 'stop 130' INT
+trap 'stop 143' TERM
 if [ "${KICAD_NATIVE:-0}" = 1 ]; then
-    command -v kicad-cli > /dev/null || { echo "KICAD_NATIVE=1 needs kicad-cli (KiCad 9) on the PATH" >&2; exit 1; }
+    command -v kicad-cli > /dev/null || { echo "KICAD_NATIVE=1 needs kicad-cli (KiCad 10) on the PATH" >&2; exit 1; }
+    case "$(kicad-cli version)" in 10.*) ;; *) echo "KICAD_NATIVE=1 needs KiCad 10, kicad-cli on the PATH is $(kicad-cli version)" >&2; exit 1 ;; esac
     NATIVE_HOME="$(mktemp -d)"; trap 'rm -rf "${NATIVE_HOME}"' EXIT
-    mkdir -p "${NATIVE_HOME}/bin" "${NATIVE_HOME}/.config/kicad/9.0"
-    cp /usr/share/kicad/template/fp-lib-table /usr/share/kicad/template/sym-lib-table "${NATIVE_HOME}/.config/kicad/9.0/"
-    for py in "${KICAD_PYTHON:-}" python3 python3.12 python3.11; do
+    mkdir -p "${NATIVE_HOME}/bin" "${NATIVE_HOME}/.config/kicad/10.0"
+    cp /usr/share/kicad/template/fp-lib-table /usr/share/kicad/template/sym-lib-table "${NATIVE_HOME}/.config/kicad/10.0/"
+    for py in "${KICAD_PYTHON:-}" python3 python3.13 python3.12; do
         [ -n "${py}" ] && "${py}" -c "import pcbnew, numpy, shapely" 2> /dev/null && { ln -s "$(command -v "${py}")" "${NATIVE_HOME}/bin/python3"; break; }
     done
     [ -e "${NATIVE_HOME}/bin/python3" ] || { echo "no python3 that can import pcbnew, numpy and shapely (set KICAD_PYTHON)" >&2; exit 1; }
@@ -28,23 +53,47 @@ if [ "${KICAD_NATIVE:-0}" = 1 ]; then
         (cd "${HW}" && HOME="${NATIVE_HOME}" PATH="${NATIVE_HOME}/bin:${PATH}" bash -c "${cmd// \/work\// ${ROOT}/}")
     }
 else
+if [ -z "${KICAD_IMAGE:-}" ] && ! docker image inspect "${IMG}" > /dev/null 2>&1; then
+    docker build -t "${IMG}" "${HW}/docker"
+fi
+GIVE='o=$(stat -c %u:%g /work/hardware); case "$o" in 0:*) ;; *) find /work/hardware /work/fab ! -uid "${o%:*}" -exec chown -h "$o" {} + 2> /dev/null ;; esac'
+box() {
+    local rc=0
+    BOX="voxhub-build-$$-${RANDOM}"; LAST="${BOX}"
+    MSYS_NO_PATHCONV=1 docker run --rm --name "${BOX}" --hostname "${BOX}" -u 0 -e HOME=/tmp/kihome -v "${ROOT}:/work" -w /work/hardware "${IMG}" bash -c "$1" &
+    wait $! || rc=$?
+    BOX=""
+    return "${rc}"
+}
 kc() {   # run a command inside the KiCad container, repo mounted at /work
-    docker run --rm -u 0 -e HOME=/tmp/kihome -v "${ROOT}:/work" -w /work/hardware "${IMG}" bash -c \
-        "mkdir -p /tmp/kihome/.config/kicad/9.0 && cp /usr/share/kicad/template/fp-lib-table /usr/share/kicad/template/sym-lib-table /tmp/kihome/.config/kicad/9.0/ && { python3 -c 'import shapely' 2> /dev/null || pip3 install -q --break-system-packages shapely; } && $*"
+    local rc=0
+    box "trap '${GIVE}' EXIT; mkdir -p /tmp/kihome/.config/kicad/10.0 && cp /usr/share/kicad/template/fp-lib-table /usr/share/kicad/template/sym-lib-table /tmp/kihome/.config/kicad/10.0/ && $*" || rc=$?
+    [ "${rc}" -lt 125 ] || { unlock "${LAST}"; box "${GIVE}" || true; }
+    return "${rc}"
 }
 fi
 OUT="${HW}/outputs"; mkdir -p "${OUT}" "${HW}/gen/work"
+if [ "${OVERWRITE:-0}" = 1 ]; then GUARD="OVERWRITE=1 python3 gen/guard.py"; else GUARD="OVERWRITE=0 python3 gen/guard.py"; fi
+READY="${GUARD} ready ."; START="${GUARD} start ."; CHECK="${GUARD} recheck ."
+SURE="OVERWRITE=0 python3 gen/guard.py recheck ."; RECORD="python3 gen/guard.py record ."; FINISH="python3 gen/guard.py finish ."
+net() { [ -s "${HW}/gen/work/voxhub.net" ] || { echo "gen/work/voxhub.net is missing: run hardware/build.sh sch first" >&2; exit 1; }; }
 
 sch() {
-    kc "KICAD_SYM_DIR=/usr/share/kicad/symbols python3 gen/design.py . && python3 gen/make_footprints.py voxhub.pretty \
+    kc "${START} sch && python3 gen/design.py . && ${RECORD} sheets && ${SURE} sheets && ${CHECK} footprints project \
+        && python3 gen/make_footprints.py voxhub.pretty && ${RECORD} footprints && ${SURE} sheets footprints && ${CHECK} project \
+        && cp gen/project_settings.json voxhub.kicad_pro && ${RECORD} project && ${SURE} sch && ${FINISH} sch \
         && kicad-cli sch erc --severity-all --exit-code-violations --format report -o outputs/erc.rpt voxhub.kicad_sch \
         && mkdir -p gen/work && kicad-cli sch export netlist --format kicadsexpr -o gen/work/voxhub.net voxhub.kicad_sch \
-        && kicad-cli sch export pdf -o outputs/voxhub_schematic.pdf voxhub.kicad_sch"
+        && kicad-cli sch export pdf -o outputs/voxhub_schematic.pdf voxhub.kicad_sch && ${SURE} sch"
 }
 pcb() {
-    kc "python3 gen/build_pcb.py place gen/work/voxhub.net /work/hardware && python3 gen/build_pcb.py dsn /work/hardware --planes"
+    net
+    kc "${START} pcb && python3 gen/build_pcb.py place gen/work/voxhub.net /work/hardware && ${RECORD} pcb && ${SURE} pcb \
+        && python3 gen/build_pcb.py dsn /work/hardware --planes && ${SURE} pcb && ${FINISH} pcb"
 }
 route() {
+    net
+    kc "${READY} pcb"
     # 1) autoroute the signals (Freerouting), 2) import + pour planes, 3) complete/repair with the
     #    patch router until KiCad's DRC is clean.
     if [ "${SKIP_ROUTE:-0}" = 1 ] && [ -s "${HW}/gen/routed/voxhub.ses" ]; then
@@ -56,8 +105,9 @@ route() {
         local frtmp try
         for try in 1 2 3; do
             frtmp="$(mktemp -d)"
-            (cd "${HW}/gen/work" && rm -f voxhub.ses && java -Djava.awt.headless=true -Djava.io.tmpdir="${frtmp}" -jar "${FR}" \
-                -de voxhub.dsn -do voxhub.ses --router.job_timeout=00:20:00 -mt 1 --gui.enabled=false -da) || true
+            (cd "${HW}/gen/work" && rm -f voxhub.ses && exec java -Djava.awt.headless=true -Djava.io.tmpdir="${frtmp}" -jar "${FR}" \
+                -de voxhub.dsn -do voxhub.ses --router.job_timeout=00:20:00 -mt 1 --gui.enabled=false -da) &
+            wait $! || true
             rm -rf "${frtmp}"
             if grep -q "(wire" "${HW}/gen/work/voxhub.ses" 2>/dev/null; then break; fi
             echo "Freerouting wrote no routed session (attempt ${try} of 3)" >&2
@@ -68,33 +118,37 @@ route() {
     grep -q "(wire" "${HW}/gen/routed/voxhub.ses" || { echo "gen/routed/voxhub.ses contains no routing" >&2; exit 1; }
     cp "${HW}/gen/routed/voxhub.ses" "${HW}/gen/work/voxhub.ses"
     # always start from a fresh placement so that this step is repeatable
-    kc "python3 gen/build_pcb.py place gen/work/voxhub.net /work/hardware && python3 gen/build_pcb.py finish /work/hardware \
-        && gen/postroute.sh /work/hardware 30"
+    kc "${START} pcb && python3 gen/build_pcb.py place gen/work/voxhub.net /work/hardware && ${RECORD} pcb && ${SURE} pcb \
+        && python3 gen/build_pcb.py finish /work/hardware && ${RECORD} pcb && ${SURE} pcb \
+        && bash gen/postroute.sh /work/hardware 30 && ${SURE} pcb && ${FINISH} pcb"
 }
 outputs() {
     # the final DRC gates everything below: no Gerbers from a board with violations
     kc "kicad-cli pcb drc --schematic-parity --severity-all --exit-code-violations --format report -o outputs/drc.rpt voxhub.kicad_pcb \
-        && rm -rf outputs/gerbers && mkdir -p outputs/gerbers \
+        && rm -rf outputs/gerbers && mkdir -p outputs/gerbers outputs/pcb_layers \
         && kicad-cli pcb export gerbers -o outputs/gerbers/ --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.Paste,B.Paste,F.SilkS,B.SilkS,F.Mask,B.Mask,Edge.Cuts --subtract-soldermask --no-x2 --no-netlist voxhub.kicad_pcb \
         && kicad-cli pcb export drill -o outputs/gerbers/ --format excellon --excellon-separate-th --excellon-zeros-format decimal --excellon-oval-format alternate --generate-map --map-format gerberx2 --drill-origin absolute voxhub.kicad_pcb \
         && kicad-cli pcb export pos -o outputs/voxhub_pos.csv --format csv --units mm --side both --exclude-dnp voxhub.kicad_pcb \
         && kicad-cli pcb export dxf -o outputs/voxhub_outline.dxf --layers Edge.Cuts,User.Drawings,F.CrtYd,B.CrtYd --output-units mm --mode-single voxhub.kicad_pcb \
-        && kicad-cli pcb export pdf -o outputs/pcb_layers --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.SilkS,B.SilkS,F.Fab,B.Fab,Edge.Cuts --mode-multipage voxhub.kicad_pcb \
+        && kicad-cli pcb export pdf -o outputs/pcb_layers/voxhub.pdf --layers F.Cu,In1.Cu,In2.Cu,B.Cu,F.SilkS,B.SilkS,F.Fab,B.Fab,Edge.Cuts --mode-multipage voxhub.kicad_pcb \
         && kicad-cli pcb export step -o outputs/voxhub_pcb.step --subst-models --no-dnp --force voxhub.kicad_pcb \
         && kicad-cli pcb render -o outputs/render_top.png --side top --width 2000 --height 1500 --quality high voxhub.kicad_pcb \
         && kicad-cli pcb render -o outputs/render_bottom.png --side bottom --width 2000 --height 1500 --quality high voxhub.kicad_pcb \
         && kicad-cli pcb render -o outputs/render_iso.png --rotate '-55,0,25' --zoom 0.9 --width 2000 --height 1500 --quality high voxhub.kicad_pcb"
     # track / via statistics incl. the USB pair lengths ("stats" fails if a pair is not matched or cannot be traced),
-    # and the DRC once more with the waived checks switched on (the project file is put back in any case)
+    # and the DRC once more with the waived checks switched on (in a copy of the project under gen/work)
     kc "set -o pipefail; python3 gen/build_pcb.py stats /work/hardware | grep -v '^\$' > outputs/routing_stats.txt; rc=\$?; \
-        python3 -c \"import json; d = json.load(open('gen/project_settings.json')); s = d['board']['design_settings']['rule_severities']; \
+        rm -rf gen/work/waived && mkdir -p gen/work/waived && cp -r voxhub.kicad_pro voxhub.kicad_pcb voxhub.kicad_sym voxhub.pretty *.kicad_sch gen/work/waived/ \
+        && for f in voxhub.kicad_dru fp-lib-table sym-lib-table; do [ ! -e \$f ] || cp \$f gen/work/waived/ || rc=1; done \
+        && python3 -c \"import json; d = json.load(open('gen/work/waived/voxhub.kicad_pro')); s = d['board']['design_settings']['rule_severities']; \
 [s.__setitem__(k, 'warning') for k in ('footprint_type_mismatch', 'lib_footprint_mismatch')]; \
-json.dump(d, open('voxhub.kicad_pro', 'w'), indent=2)\" \
-        && kicad-cli pcb drc --schematic-parity --severity-all --format report -o outputs/drc_waived_checks_enabled.rpt voxhub.kicad_pcb || rc=1; \
-        cp gen/project_settings.json voxhub.kicad_pro; cat outputs/routing_stats.txt; exit \$rc"
+json.dump(d, open('gen/work/waived/voxhub.kicad_pro', 'w'), indent=2)\" \
+        && kicad-cli pcb drc --schematic-parity --severity-all --format report -o outputs/drc_waived_checks_enabled.rpt gen/work/waived/voxhub.kicad_pcb || rc=1; \
+        rm -rf gen/work/waived; cat outputs/routing_stats.txt; exit \$rc"
     kc "python3 gen/check_power.py voxhub.kicad_pcb outputs/power_paths.txt && python3 gen/check_df40.py voxhub.kicad_pcb outputs/df40_strips.txt \
         && python3 gen/check_vias.py voxhub.kicad_pcb outputs/via_in_pad.txt"
     python3 "${HW}/gen/make_bom.py" "${HW}/gen/model_netlist.json" "${OUT}"
+    python3 "${HW}/gen/order_cost.py" "${HW}/gen/model_netlist.json" "${HW}/gen/sourcing_jlc.json" "${OUT}" 2
     (cd "${OUT}" && rm -f voxhub_gerbers.zip && zip -q -r voxhub_gerbers.zip gerbers)
     mkdir -p "${ROOT}/fab/jlcpcb"
     (cd "${OUT}/gerbers" && rm -f "${ROOT}/fab/jlcpcb/gerbers.zip" && zip -q "${ROOT}/fab/jlcpcb/gerbers.zip" $(ls | grep -v -E 'gbrjob$|drl_map'))
@@ -102,6 +156,6 @@ json.dump(d, open('voxhub.kicad_pro', 'w'), indent=2)\" \
 }
 case "${STEP}" in
     sch) sch ;; pcb) pcb ;; route) route ;; outputs) outputs ;;
-    all) sch; pcb; route; outputs ;;
+    all) kc "${READY} sch pcb"; sch; pcb; route; outputs ;;
     *) echo "usage: $0 [all|sch|pcb|route|outputs]"; exit 2 ;;
 esac

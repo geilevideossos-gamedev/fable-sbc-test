@@ -1,5 +1,5 @@
 name: VoxHub Assistant
-version: "0.1.0"
+version: "0.1.1"
 slug: voxhub_assistant
 description: Claude-based voice assistant for the VoxHub CM4 (wake word, Whisper, Claude with Home Assistant tools, Piper)
 url: https://github.com/geilevideossos-gamedev/fable-sbc-test/tree/main/assistant
@@ -34,7 +34,7 @@ options:
   tts_uri: tcp://core-piper:10200
   tts_voice: ""
   volume: 0.7
-  mic_gain: 1.0
+  mic_gain: 32.0
   wake_sound: true
   follow_up: false
   allowed_service_domains:

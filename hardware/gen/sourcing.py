@@ -1,6 +1,6 @@
 """Sourcing data per MPN.
 
-Primary source of revision A2 is the JLCPCB assembly library: sourcing_jlc.json holds the LCSC part number, the
+Primary source since revision A2 is the JLCPCB assembly library: sourcing_jlc.json holds the LCSC part number, the
 library type (Basic / Preferred Extended / Extended), JLCPCB and LCSC stock and the JLCPCB price of every line, read
 live with jlc_lookup.py.  The DigiKey data of the 2026-11-11 check (sourcing_live.json) stays as the second source:
 DIGIKEY names, for every line whose JLCPCB part is not carried by DigiKey, the equivalent part that is.
@@ -16,17 +16,16 @@ JLC = json.load(open(os.path.join(_HERE, "sourcing_jlc.json")))
 PARTS_JLC = JLC["parts"]
 
 DIGIKEY = {
- "CL10B105KA8NNNC": "C1608X7R1C105K080AC", "CL10A475KA8NQNC": "C1608X5R1E475K080AC", "CL10A105KB8NNNC": "C1608X5R1H105K080AB",
- "CC0603KRX7R9BB104": "C0603C104K5RACTU", "CL31A226KAHNNNE": "CL31A226KOHNNNE", "LTST-C191KRKT": "150060RS75000",
+ "CL10A475KA8NQNC": "C1608X5R1E475K080AC",
+ "CL31A226KAHNNNE": "CL31A226KOHNNNE", "KT-0603R": "150060RS75000", "USB2514BT-I/M2": "USB2514B-I/M2",
+ "907-112A1022D10200": "61400826021", "IM72D128V01XTMA1": "IM69D130V01XTSA1",
  "X322524MOB4SI": "TSX-3225 24.0000MF18X-C0",
  "0402CG220J500NT": "CL05C220JB5NNNC", "T520B107M006ATE040": "T520B107M006ATE070", "SLO0630H6R8MTT": "SRP7028A-6R8M",
  "MM3Z10VT1G": "SZMM3Z10VT1G",
- "0402WGF0000TCE": "RC0402FR-070RL", "0402WGF330JTCE": "RC0402FR-0733RL", "0402WGF3300TCE": "RC0402FR-07330RL",
- "0402WGF1001TCE": "RC0402FR-071KL", "0402WGF1500TCE": "RC0402FR-07150RL",
- "0402WGF2201TCE": "RC0402FR-072K2L", "0402WGF2401TCE": "RC0402FR-072K4L", "0402WGF5101TCE": "RC0402FR-075K1L",
+ "0402WGF1001TCE": "RC0402FR-071KL",
+ "0402WGF2201TCE": "RC0402FR-072K2L",
  "0402WGF1002TCE": "WR04X1002FTL", "0402WGF1202TCE": "RC0402FR-0712KL", "0402WGF2002TCE": "RC0402FR-0720KL",
  "0402WGF2492TCE": "RMCF0402FT24K9", "0402WGF4992TCE": "RMCF0402FT49K9", "0402WGF1003TCE": "RMCF0402FT100K",
- "0402WGF1503TCE": "RC0402FR-07150KL", "0402WGF4703TCE": "RC0402FR-07470KL",
 }
 
 SECOND = {
@@ -37,15 +36,16 @@ SECOND = {
                    "A1 flagged this line: 0 at DigiKey (26 weeks). JLCPCB has it in stock"),
  "SLO0630H6R8MTT": ("Vishay IHLP2525CZER6R8M01 (JLCPCB C506575; 125 C part temperature instead of 150 C), Bourns SRP7028A-6R8M (the A1 part, 0 at JLCPCB): same pads",
                     "replaces the Bourns part: L, Irms 4.5 A, Isat 8 A (-20 %), -55..+150 C identical, DCR 45 / 54 mOhm instead of 54 / 60"),
- "USB2514B-I/M2": ("USB2514BT-I/M2 (tape and reel, JLCPCB C510949): same part. USB2514B/M2 is 0-70 C only (downgrade)", ""),
+ "USB2514BT-I/M2": ("USB2514B-I/M2 (tray, JLCPCB C220679; 2 pieces left on 2026-11-20): same part. USB2514B/M2 is the commercial grade, 0 to +85 C (downgrade)",
+                    "tape-and-reel ordering code of the A2 part: same device, package and marking"),
  "TPS2553DBVR": ("TPS2553DBVT: the identical device on the small reel", "A1 flagged this line: 0 at DigiKey. JLCPCB has it in stock"),
  "USB4105-GF-A": ("none verified (GCT USB4105-GF-A-120: same footprint, longer shell stakes)", ""),
  "DM3AT-SF-PEJM5": ("none drop-in (Molex 104031-0811 needs a new footprint)", ""),
  "MAX98357AETE+T": ("no second source", ""),
  "ADAU7002ACBZ-R7": ("ADAU7002ACBZ-RL (13 inch reel, JLCPCB C654434: 0): same part. No other PDM-to-I2S converter exists at JLCPCB",
-                     "STOCK RISK: 104 at JLCPCB (need: 2) - buy it into the JLCPCB parts library first (Parts Manager) or let JLCPCB source it (Global Sourcing)"),
- "IM69D130V01XTSA1": ("Infineon IM73D122V01XTMA1 (JLCPCB C5563886, same footprint and pin-out, 73 dB SNR, IP57; absolute maximum 3.6 V instead of 4.0 V) or IM72D128V01XTMA1 (C5119248)",
-                      "JLCPCB lists the part as IM69D130V01 (C536262)"),
+                     "STOCK RISK: thin at JLCPCB (need: 2) - buy it into the JLCPCB parts library first (Parts Manager) or let JLCPCB source it (Global Sourcing)"),
+ "IM72D128V01XTMA1": ("Infineon IM69D130V01 (JLCPCB C536262, the A2 part: 43 left on 2026-11-20, not for new designs; no DC level) or IM73D122V01XTMA1 (C5563886: 10 dB more sensitive, overload point 122 dBSPL - lower the microphone gain by 10 dB): same footprint and pin-out",
+                      "same footprint, pin-out and -36 dBFS sensitivity as the A2 part; 72 dB SNR, overload point 128 dBSPL, absolute maximum 3.6 V; MK2 (SELECT = VDD) carries a -40 dBFS DC level; 1 uF at VDD (C43, C44). DigiKey column: the A2 part"),
  "RF-BM-2652P2": ("no drop-in in stock: RF-star RF-BM-2652P4 (CC2652P7, same outline, other firmware build); Ebyte E72-2G4M20S1E needs another footprint",
                   "replaces the Silicon Labs MGM240PB32VNA3 (0 at JLCPCB and LCSC). Not carried by DigiKey"),
  "USBLC6-2SC6": ("none needed; note that Nexperia PRTR5V0U2X has a different pin-out", "LCSC C7519 is the STMicroelectronics listing"),
@@ -56,24 +56,24 @@ SECOND = {
  "SD24C-01FTG": ("no equal-or-better SOD-323 part found", "LCSC C207246 is the Littelfuse listing"),
  "MM3Z10VT1G": ("onsemi SZMM3Z10VT1G (same die with AEC-Q101, JLCPCB C894520 - no footprint record in the JLCPCB library) or any 10 V SOD-323 zener >= 300 mW", ""),
  "B2B-PH-K-S(LF)(SN)": ("none needed", ""), "61300311121": ("any 1x3 2.54 mm header", "DNP"),
- "61400826021": ("Jing Extension 907-112A1022D10200 (JLCPCB C29780026, 2,959 in stock): same hole pattern within 0.12 mm, shell 0.26 mm taller, passes the enclosure window; no temperature range on its drawing. Korean Hroparts U-A-28DD-Y-1 (C530601): identical pattern, +85 C",
-                 "STOCK: 116 at JLCPCB (need: 2). Hand-soldered THT part"),
- "9774015151R": ("Sinhoo SMTSO2515CTJ (JLCPCB C2915629) needs a 4.25 mm hole and a 6.3 mm pad - not a drop-in", "230 at JLCPCB, not sold at LCSC"),
+ "907-112A1022D10200": ("Wurth 61400826021 (JLCPCB C5366339, the A2 part: 18 left on 2026-11-20; the land pattern was drawn for it). Korean Hroparts U-A-28DD-Y-1 (C530601): front pin row 0.09 mm off, drawing not fully dimensioned",
+                        "fits the Wurth land pattern at nominal dimensions (pins within 0.12 mm; shell stakes 0.0 to 0.1 mm clear in the smallest hole, less than the part and hole tolerances, so they may need light pressure), shell 0.26 mm taller, 1.5 A, 1500 cycles; no temperature range on its drawing. Hand-soldered THT part. DigiKey column: the Wurth part"),
+ "9774015151R": ("Sinhoo SMTSO2515CTJ (JLCPCB C2915629) needs a 4.25 mm hole and a 6.3 mm pad - not a drop-in", "not sold at LCSC"),
  "X322524MOB4SI": ("YXC X322524MRB4SI (CL 18 pF, JLCPCB C70571) or the A1 part Epson TSX-3225 24.0000MF18X-C0 (CL 18 pF): both need 27 pF load capacitors instead of 15 pF",
                    "CL 12 pF -> C26 / C27 = 15 pF; +-10 ppm, +-20 ppm over -40..+85 C"),
  "0402CG150J500NT": ("any 0402 15 pF C0G 50 V", "crystal load capacitors for CL 12 pF"),
- "LTST-C191KRKT": ("Wurth 150060RS75000 (the A1 part); Hubei KENTO KT-0603R is JLCPCB Basic but rated 25 mA / 40 mW", "30 mA / 75 mW / -55..+85 C: every rating of the A1 part met"),
- "150060VS75000": ("any 0603 AlInGaP green LED, VF about 2.0 V", ""),
- "KT-0603G": ("any 0603 InGaN green LED >= 25 mA, -40..+85 C (VF about 2.7 V at 2 mA)", "replaces the reverse-mount Wurth 156120GS75000 (0 at JLCPCB): ordinary LED on side B inside the light pipe"),
+ "KT-0603R": ("Lite-On LTST-C191KRKT (JLCPCB C125099, the A2 part: 30 mA / 75 mW, only 18 mcd minimum - it needs R22 = 150 ohm for the same light)",
+              "JLCPCB Basic. 25 mA / 40 mW / -40..+85 C: lower ratings than the A2 part, loaded with at most 1.9 mA (R7 = R22 = 1k)"),
+ "KT-0603G": ("any 0603 InGaN green LED >= 25 mA, -40..+85 C (VF about 2.4 V at 1 mA)", "D7 (status, side B, inside the light pipe), D6 (PWR) and D10 (ACT, from 3.3 V through 1k: needs a VF below about 2.9 V at 0.3 mA)"),
  "KT-0603B": ("any 0603 InGaN blue LED >= 25 mA, -40..+85 C", "replaces the reverse-mount Wurth 156120BS75000 (not at JLCPCB): ordinary LED on side B inside the light pipe"),
  "JS202011JCQN": ("C&K JS202011SCQN (gull-wing leads; footprint check needed)", ""),
  "T520B107M006ATE040": ("KEMET T520B107M006ATE070 (the A1 part, 70 mOhm), Vishay T55B107M6R3C0040 (JLCPCB C2158743): same footprint", "replaces the 70 mOhm version: 40 mOhm, 1.8 A ripple, same case and ratings"),
- "CL05B104KO5NNNC": ("any 0402 100 nF X7R >= 16 V", ""),
- "CL05B103KB5NNNC": ("any 0402 10 nF X7R 50 V", ""), "0402CG220J500NT": ("any 0402 22 pF C0G 50 V", "DNP"),
- "CL10B105KA8NNNC": ("TDK C1608X7R1C105K080AC (16 V, the A1 part), Samsung CL10B105KO8NNNC (16 V, JLCPCB C59782): 1 uF X7R 0603", "25 V instead of 16 V; X7R kept on purpose (DC bias)"),
+ "CL05B104KO5NNNC": ("any 0402 100 nF X7R >= 16 V", "C7 (gate capacitor of the load switch) sees up to 11 V: 16 V is the minimum rating there"),
+ "CL05A105KA5NQNC": ("any 0402 1 uF X5R or X7R rated 25 V or more (Samsung data: the 25 V part keeps 0.73 uF at 3.3 V, the 10 V and 16 V parts less than half)", "supply bypass of the microphones (Infineon: 1 uF close to VDD for best SNR)"),
+ "0402CG220J500NT": ("any 0402 22 pF C0G 50 V", "DNP"),
+ "CL10B105KB8NQNC": ("Yageo CC0603KRX7R9BB105 (JLCPCB C559769), Fenghua 0603B105K500NT (C90540): 1 uF 50 V X7R 0603 - their DC-bias curves were not checked",
+                     "one part for C1, C2 (VBUS) and C3, C5, C11 (regulator bypass pins): 0.89 uF at 5 V, 0.31 uF at 20 V (Samsung data)"),
  "CL10A475KA8NQNC": ("TDK C1608X5R1E475K080AC (the A1 part)", "same ratings as the A1 part (25 V X5R)"),
- "CL10A105KB8NNNC": ("TDK C1608X5R1H105K080AB (the A1 part)", "same ratings as the A1 part (50 V X5R)"),
- "CC0603KRX7R9BB104": ("KEMET C0603C104K5RACTU (the A1 part); any 0603 100 nF X7R 50 V", "same ratings as the A1 part"),
  "GRM188R71H224KAC4D": ("Samsung CL10B224KB8NNNC (JLCPCB C64705), Yageo CC0603KRX7R9BB224 (C107083): 220 nF 50 V X7R 0603", "LMR33640 input bypass must be 220 nF / 50 V / X7R (data sheet)"),
  "CL31B106KBHNNNE": ("TDK C3216X7R1H106KT0A0E (JLCPCB C694197)", "X7R as the LMR33640 data sheet requires for CIN. A1 flagged this line: 0 at DigiKey. JLCPCB has it in stock"),
  "CL31A226KAHNNNE": ("Samsung CL31A226KOHNNNE (16 V, the A1 part, JLCPCB C90146)", "25 V instead of 16 V, same case height (1.6 mm)"),
@@ -90,7 +90,7 @@ def digikey(mpn):
     return alt, PARTS_LIVE.get(alt)
 
 # items that are not on the PCB netlist (module, mechanics, accessories)
-EXTRA_CHECKED = "2026-11-12"
+EXTRA_CHECKED = "2026-11-20"
 EXTRA = [
  dict(function="Compute module", qty=1, buy=1, description="Raspberry Pi Compute Module 4 Lite, 4 GB RAM, wireless, no eMMC", maker="Raspberry Pi", mpn="CM4104000",
       shop="Reichelt.at", article="RPI CM4W 4GBLITE", eur=105.83, pack="1",

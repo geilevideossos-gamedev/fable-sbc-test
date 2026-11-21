@@ -1,0 +1,295 @@
+{
+  "jobs": [
+    {
+      "description": "ERC, fails on any violation -> erc.rpt",
+      "id": "2cecf32b-eb6e-559f-bfa7-22c30fd76f17",
+      "settings": {
+        "description": "",
+        "fail_on_error": true,
+        "format": "report",
+        "output_filename": "erc.rpt",
+        "severity": 52,
+        "units": "mm"
+      },
+      "type": "sch_erc"
+    },
+    {
+      "description": "DRC with schematic parity, fails on any violation -> drc.rpt",
+      "id": "240a642b-b279-59bc-a0d2-6cbe7483400d",
+      "settings": {
+        "description": "",
+        "fail_on_error": true,
+        "format": "report",
+        "output_filename": "drc.rpt",
+        "parity": true,
+        "refill_zones": false,
+        "report_all_track_errors": false,
+        "save_board": false,
+        "severity": 52,
+        "units": "mm"
+      },
+      "type": "pcb_drc"
+    },
+    {
+      "description": "Schematic PDF -> voxhub_schematic.pdf",
+      "id": "46cadb7e-04c7-5291-8b35-aaeca86f5cca",
+      "settings": {
+        "black_and_white": false,
+        "color_theme": "",
+        "description": "",
+        "drawing_sheet": "",
+        "format": "pdf",
+        "min_pen_width": 847,
+        "output_filename": "voxhub_schematic.pdf",
+        "page_size": "auto",
+        "pdf_hierarchical_links": true,
+        "pdf_metadata": true,
+        "pdf_property_popups": true,
+        "plot_all": true,
+        "plot_drawing_sheet": true,
+        "show_hop_over": false,
+        "use_background_color": true,
+        "variant_name": "",
+        "variant_names": []
+      },
+      "type": "sch_export_plot_pdf"
+    },
+    {
+      "description": "Gerbers as build.sh plots them -> gerbers/",
+      "id": "96c5fe92-5a89-5643-904f-26c17665d35c",
+      "settings": {
+        "black_and_white": false,
+        "check_zones": false,
+        "create_gerber_job_file": true,
+        "crossout_dnp_footprints_on_fab_layers": false,
+        "description": "",
+        "disable_aperture_macros": false,
+        "drawing_sheet": "",
+        "drill_shape": "full",
+        "hide_dnp_footprints_on_fab_layers": false,
+        "include_netlist_attributes": false,
+        "layers": [
+          "F.Cu",
+          "In1.Cu",
+          "In2.Cu",
+          "B.Cu",
+          "F.Paste",
+          "B.Paste",
+          "F.SilkS",
+          "B.SilkS",
+          "F.Mask",
+          "B.Mask",
+          "Edge.Cuts"
+        ],
+        "layers_to_include_on_all_layers": [],
+        "mirror": false,
+        "negative": false,
+        "output_filename": "gerbers",
+        "plot_drawing_sheet": false,
+        "plot_footprint_values": true,
+        "plot_pad_numbers": false,
+        "plot_ref_des": true,
+        "precision": 6,
+        "sketch_dnp_footprints_on_fab_layers": false,
+        "sketch_pads_on_fab_layers": false,
+        "subtract_solder_mask_from_silk": true,
+        "use_drill_origin": false,
+        "use_protel_file_extension": true,
+        "use_x2_format": false,
+        "variant": ""
+      },
+      "type": "pcb_export_gerbers"
+    },
+    {
+      "description": "Excellon drill files and drill maps as build.sh writes them -> gerbers/",
+      "id": "c8bebfc7-5928-5e13-855d-146d5e9a4e65",
+      "settings": {
+        "description": "",
+        "drill_origin": "abs",
+        "excellon.combine_pth_npth": false,
+        "excellon.minimal_header": false,
+        "excellon.mirror_y": false,
+        "excellon.oval_drill_route": false,
+        "format": "excellon",
+        "generate_map": true,
+        "generate_report": false,
+        "generate_tenting": false,
+        "gerber_precision": 6,
+        "map_format": "gerberx2",
+        "output_dir": "gerbers",
+        "report_filename": "",
+        "units": "mm",
+        "zero_format": "decimal"
+      },
+      "type": "pcb_export_drill"
+    },
+    {
+      "description": "Position file, both sides, DNP parts excluded -> voxhub-all-pos.csv",
+      "id": "063dff61-abf5-5df3-bca5-21c32737c739",
+      "settings": {
+        "description": "",
+        "exclude_bom": false,
+        "exclude_dnp": true,
+        "exclude_footprints_with_th": false,
+        "format": "csv",
+        "gerber_board_edge": true,
+        "negate_bottom_x": false,
+        "output_filename": "voxhub.csv",
+        "side": "both",
+        "single_file": true,
+        "smd_only": false,
+        "units": "mm",
+        "use_drill_place_file_origin": false,
+        "variant": ""
+      },
+      "type": "pcb_export_pos"
+    },
+    {
+      "description": "STEP model of the assembled board -> voxhub_pcb.step",
+      "id": "7ef4f36c-8fa5-5313-98f3-d9601769a8e8",
+      "settings": {
+        "board_only": false,
+        "board_outlines_chaining_epsilon": 0.01,
+        "component_filter": "",
+        "cut_vias_in_body": false,
+        "description": "",
+        "export_board_body": true,
+        "export_components": true,
+        "export_inner_copper": false,
+        "export_pads": false,
+        "export_silkscreen": false,
+        "export_soldermask": false,
+        "export_tracks": false,
+        "export_zones": false,
+        "extra_pad_thickness": true,
+        "fill_all_vias": false,
+        "format": "step",
+        "fuse_shapes": false,
+        "has_user_origin": false,
+        "include_dnp": false,
+        "include_unspecified": true,
+        "net_filter": "",
+        "occt_format": 0,
+        "optimize_step": true,
+        "output_filename": "voxhub_pcb.step",
+        "overwrite": true,
+        "subst_models": true,
+        "use_defined_origin": false,
+        "use_drill_origin": false,
+        "use_grid_origin": false,
+        "use_pcb_center_origin": false,
+        "user_origin.x": 0.0,
+        "user_origin.y": 0.0,
+        "variant": "",
+        "vrml_model_dir": "",
+        "vrml_relative_paths": false,
+        "vrml_units": "m"
+      },
+      "type": "pcb_export_3d"
+    },
+    {
+      "description": "JLCPCB archive: the 11 Gerber files, no job file",
+      "id": "b3531653-855c-5992-a611-26138a79410b",
+      "settings": {
+        "black_and_white": false,
+        "check_zones": false,
+        "create_gerber_job_file": false,
+        "crossout_dnp_footprints_on_fab_layers": false,
+        "description": "",
+        "disable_aperture_macros": false,
+        "drawing_sheet": "",
+        "drill_shape": "full",
+        "hide_dnp_footprints_on_fab_layers": false,
+        "include_netlist_attributes": false,
+        "layers": [
+          "F.Cu",
+          "In1.Cu",
+          "In2.Cu",
+          "B.Cu",
+          "F.Paste",
+          "B.Paste",
+          "F.SilkS",
+          "B.SilkS",
+          "F.Mask",
+          "B.Mask",
+          "Edge.Cuts"
+        ],
+        "layers_to_include_on_all_layers": [],
+        "mirror": false,
+        "negative": false,
+        "output_filename": "",
+        "plot_drawing_sheet": false,
+        "plot_footprint_values": true,
+        "plot_pad_numbers": false,
+        "plot_ref_des": true,
+        "precision": 6,
+        "sketch_dnp_footprints_on_fab_layers": false,
+        "sketch_pads_on_fab_layers": false,
+        "subtract_solder_mask_from_silk": true,
+        "use_drill_origin": false,
+        "use_protel_file_extension": true,
+        "use_x2_format": false,
+        "variant": ""
+      },
+      "type": "pcb_export_gerbers"
+    },
+    {
+      "description": "JLCPCB archive: PTH and NPTH drill files, no maps",
+      "id": "ed47c7e7-7cbd-587f-9123-3812a22a56b3",
+      "settings": {
+        "description": "",
+        "drill_origin": "abs",
+        "excellon.combine_pth_npth": false,
+        "excellon.minimal_header": false,
+        "excellon.mirror_y": false,
+        "excellon.oval_drill_route": false,
+        "format": "excellon",
+        "generate_map": false,
+        "generate_report": false,
+        "generate_tenting": false,
+        "gerber_precision": 6,
+        "map_format": "gerberx2",
+        "output_dir": "",
+        "report_filename": "",
+        "units": "mm",
+        "zero_format": "decimal"
+      },
+      "type": "pcb_export_drill"
+    }
+  ],
+  "meta": {
+    "version": 1
+  },
+  "outputs": [
+    {
+      "description": "Reports and fabrication files -> outputs/",
+      "id": "58169b38-bbe6-5388-9c4a-76318ac62328",
+      "only": [
+        "2cecf32b-eb6e-559f-bfa7-22c30fd76f17",
+        "240a642b-b279-59bc-a0d2-6cbe7483400d",
+        "46cadb7e-04c7-5291-8b35-aaeca86f5cca",
+        "96c5fe92-5a89-5643-904f-26c17665d35c",
+        "c8bebfc7-5928-5e13-855d-146d5e9a4e65",
+        "063dff61-abf5-5df3-bca5-21c32737c739",
+        "7ef4f36c-8fa5-5313-98f3-d9601769a8e8"
+      ],
+      "settings": {
+        "output_path": "outputs"
+      },
+      "type": "folder"
+    },
+    {
+      "description": "JLCPCB Gerber archive -> ../fab/jlcpcb/gerbers.zip",
+      "id": "2a262f79-a49c-5d64-868e-d1fb1d41763d",
+      "only": [
+        "b3531653-855c-5992-a611-26138a79410b",
+        "ed47c7e7-7cbd-587f-9123-3812a22a56b3"
+      ],
+      "settings": {
+        "format": "zip",
+        "output_path": "../fab/jlcpcb/gerbers.zip"
+      },
+      "type": "archive"
+    }
+  ]
+}

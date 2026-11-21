@@ -21,9 +21,22 @@ You also need an Anthropic API key from <https://console.anthropic.com>.
 3. Save, then start the add-on and open the **Log** tab.
 4. Say "Hey Jarvis". After the beep, speak your request.
 
-On the VoxHub, set **Microphone gain** to about 4 to 8, because the I2S microphones are
-quiet. For the status LEDs and the mute switch, switch **Protection mode** off on the
-Info tab; this is optional.
+**Microphone gain** is 32 by default. This value is set for the VoxHub microphones, which
+deliver speech far below full scale. It is calculated and simulated, not measured on a
+board:
+
+- If the Configuration tab still shows 1 or a value of 4 to 8 from an earlier version,
+  set it to 32.
+- If the add-on beeps after the wake word and the log then says `No speech heard`, or if
+  requests are cut short, raise it to 64.
+- If loud speech close to the hub is misunderstood, lower it to 16.
+- With another microphone start at 1.
+- If the VoxHub Satellite add-on has run on this hub, set the volume of the microphone
+  input back to 100 % first (`assistant/README.md`, section "Troubleshooting").
+
+One of the two VoxHub microphones (the right channel) adds a constant level to its
+signal; the add-on removes it by itself, there is nothing to set. For the status LEDs and
+the mute switch, switch **Protection mode** off on the Info tab; this is optional.
 
 ## Things to try
 

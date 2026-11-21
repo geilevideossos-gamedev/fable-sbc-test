@@ -5,7 +5,7 @@ This folder is the Home Assistant add-on repository of the VoxHub. It holds two 
 | Add-on | Use it for | What it does |
 |---|---|---|
 | **VoxHub Satellite** (`voxhub_satellite/`) | **the two-device system (hub + satellite) - the default** | Makes the hub a voice satellite of its own Home Assistant, exactly like the satellite board downstairs: Linux Voice Assistant 1.1.18 (wake word on the device), status LEDs, mute switch. Every request goes through Home Assistant's Assist pipeline with the official Anthropic integration (Claude). It also runs the **exposure guard** that keeps locks and alarm panels away from Assist. |
-| **VoxHub Assistant** (`voxhub_assistant/`) | a single VoxHub without the Assist pipeline | The self-contained assistant of revision A1/A2: wake word -> Whisper -> Claude with its own Home Assistant tools -> Piper. It does not serve satellites. Do not run it together with VoxHub Satellite. |
+| **VoxHub Assistant** (`voxhub_assistant/`) | a single VoxHub without the Assist pipeline | The self-contained assistant the VoxHub had before the two-device system (revisions A1 and A2): wake word -> Whisper -> Claude with its own Home Assistant tools -> Piper. It does not serve satellites. Do not run it together with VoxHub Satellite. |
 
 Why the two-device system uses Home Assistant's own pipeline instead of this add-on: `DECISIONS.md`, entries S-1 to
 S-5. The satellite board itself runs the same satellite software from an SD card image: `os/satellite/`.
@@ -37,14 +37,16 @@ S-5. The satellite board itself runs the same satellite software from an SD card
 | LEDs | green = ready, blue = listening, blinking blue = thinking, green + blue = speaking, off = muted, slow green blinking = no connection to Home Assistant |
 | Mute switch | cuts the microphone data in hardware; the bridge also mutes the satellite in Home Assistant |
 
-Setup, step by step: `fab/ASSEMBLY_AND_TEST.md`, chapter 7. Options: `voxhub_satellite/DOCS.md`.
+Setup, step by step: `fab/ASSEMBLY_AND_TEST.md`, chapter 7. Options: `voxhub_satellite/DOCS.md`, which also says
+what the constant level of the right microphone does to the wake word for quiet speech (simulated, not tested on a
+board) and which settings can be tried against it.
 
 Code (`voxhub_satellite/app/voxhub_satellite/`, shared with the satellite image):
 
 | File | Contents |
 |---|---|
 | `__main__.py` | add-on entry point: options, sound card, Linux Voice Assistant, bridge, guard |
-| `launch.py` | finds the googlevoicehat source and sink with `pactl`, sets the microphone gain in dB, builds the Linux Voice Assistant command line; `python -m voxhub_satellite.launch` on the satellite |
+| `launch.py` | finds the googlevoicehat source and sink with `pactl`, sets the microphone gain as the volume of the source (a linear factor, 4 = +12 dB), builds the Linux Voice Assistant command line; `python -m voxhub_satellite.launch` on the satellite |
 | `bridge.py` | LED patterns and mute from the events of Linux Voice Assistant's peripheral WebSocket API |
 | `hardware.py` | sysfs LEDs `voxhub-green` / `voxhub-blue`, mute switch input device (`KEY_MICMUTE` or `SW_MUTE_DEVICE`) |
 | `guard.py` | the exposure guard (Home Assistant websocket API) |
@@ -83,7 +85,7 @@ assistant/
         ├── __main__.py          wiring and shutdown
         ├── config.py            options parsing and validation
         ├── pipeline.py          the voice loop (state machine)
-        ├── audio.py             microphone / speaker (parec, pacat), gain, tones
+        ├── audio.py             microphone / speaker (parec, pacat), DC blocker, gain, tones
         ├── vad.py               energy VAD and utterance end-pointing
         ├── wakeword.py          Wyoming and in-process openWakeWord
         ├── wyoming_clients.py   Whisper (STT) and Piper (TTS) clients
@@ -115,7 +117,7 @@ assistant/
  │  ┌──────────────────▼───────────────────────────────────────────┴───────┐  │
  │  │ VoxHub Assistant add-on                                              │  │
  │  │                                                                      │  │
- │  │  Microphone ─► mic gain ─► [IDLE] wake word ──┐                      │  │
+ │  │  Mic ─► DC block ─► gain ─► [IDLE] wake word ─┐                      │  │
  │  │                                               ▼                      │  │
  │  │                            [LISTENING] Endpointer (energy VAD)       │  │
  │  │                                               ▼                      │  │
@@ -139,8 +141,10 @@ assistant/
 
 ### One turn, step by step
 
-1. **Idle.** `parec` delivers 80 ms chunks of 16 kHz mono audio. They are streamed to the
-   wake word engine; the loop also tracks the ambient noise level.
+1. **Idle.** `parec` delivers 80 ms chunks of 16 kHz mono audio. A DC blocker removes any
+   constant level from them, then the microphone gain is applied and the result is
+   rounded to 16 bit once. The chunks are streamed to the wake word engine; the loop also
+   tracks the ambient noise level.
 2. **Wake.** On detection a short beep is played and the blue LED turns on.
 3. **Listening.** The `Endpointer` waits for speech, then for `silence_seconds` of
    silence (or `max_utterance_seconds`). If nobody speaks within `no_speech_timeout`,
@@ -180,7 +184,20 @@ time, which is why the default does not depend on them.
 
 **Voice activity detection: adaptive energy gate.** After a wake word the job is only to
 find the end of one utterance. An energy threshold relative to a tracked noise floor does
-that with numpy alone, and Whisper tolerates trailing silence.
+that with numpy alone, and Whisper tolerates trailing silence. The threshold has a fixed
+floor: a 20 ms frame counts as speech only above 120 counts rms after the microphone gain
+(`min_rms` in `vad.py`), and a request starts after 0.12 s of such frames.
+`vad_sensitivity` raises the threshold above the floor in a noisy room; it never lowers
+it below. With the VoxHub microphones a frame reaches the floor at about 84 dBSPL at
+gain 1, 66 dBSPL at gain 8, 54 dBSPL at gain 32 (the default) and 48 dBSPL at gain 64.
+These levels are calculated from the data sheet sensitivity, not measured; see
+[Troubleshooting](#troubleshooting). An energy gate counts a
+constant level in the signal as sound. The capture path therefore removes it first
+(`DcBlocker` in `audio.py`: a one-pole high-pass with a 12.7 Hz corner, -0.05 dB at
+100 Hz): the VoxHub microphone of the right channel delivers such a level, see
+[Troubleshooting](#troubleshooting). The filter works on buffers of any length (in blocks
+of at most 4096 samples), accepts only a pole between 0 and 1, and applies the microphone
+gain itself, before the single rounding to 16 bit.
 
 **Claude: `claude-haiku-5-5` at `effort: low`, streaming, manual tool loop.** Haiku is
 the fast, low-cost model, which matters most in a voice loop where every tool call is
@@ -217,7 +234,9 @@ hardware/OS part of this repository).
      `https://github.com/geilevideossos-gamedev/fable-sbc-test`. The Supervisor expects
      `repository.yaml` in the **root** of the Git repository and then finds add-on
      folders anywhere below it, so a copy of `assistant/repository.yaml` is kept at the
-     repository root for this method (it is already there).
+     repository root for this method (it is already there). Home Assistant installs what
+     the default branch of the repository holds: if the store offers VoxHub Assistant as
+     version 0.1.0, it reads an older state without the microphone gain of 32.
    - **Local add-on:** copy the folder `assistant/voxhub_assistant` to `/addons/` on the
      device (Samba or SSH add-on), then *Add-on store -> ⋮ -> Check for updates*. It
      appears under *Local add-ons*.
@@ -232,7 +251,8 @@ hardware/OS part of this repository).
 7. **Start and test.** Start the add-on and open the *Log* tab. Say "Hey Jarvis", wait
    for the beep, then "turn on the kitchen light" or "what's the temperature in the
    living room?". The log shows `Wake word detected`, the length of the recording and
-   each service call.
+   each service call. If it shows `No speech heard` instead, see
+   [Troubleshooting](#troubleshooting).
 
 ## Configuration reference
 
@@ -259,7 +279,7 @@ hardware/OS part of this repository).
 | `tts_voice` | | Piper voice, e.g. `en_US-lessac-medium`. Empty = Piper's default. |
 | `input_device` / `output_device` | | PulseAudio source/sink name. Empty = the add-on's *Audio* selection. |
 | `mic_command` / `speaker_command` | | Replace `parec`/`pacat` (see DOCS.md). |
-| `mic_gain` | `1.0` | Software microphone gain. Try 4 to 8 on the VoxHub. |
+| `mic_gain` | `32.0` | Software microphone gain, 0.1 to 64; 32 suits the VoxHub. See [Troubleshooting](#troubleshooting). |
 | `volume` | `0.7` | Software speaker volume, 0.0 to 1.0. |
 | `silence_seconds` | `0.8` | Silence that ends a request. |
 | `max_utterance_seconds` | `15` | Hard limit for one request. |
@@ -339,17 +359,70 @@ exact names run `ha audio info` in the SSH add-on and look at the `input` and `o
 lists. Either select them in the *Audio* card or copy the names into `input_device` /
 `output_device`. If the card is missing entirely, the device tree overlay is not loaded.
 
-**The wake word never triggers or Whisper returns nothing.** The PDM MEMS microphones (IM69D130 via ADAU7002)
-deliver 24-bit samples in a 32-bit I2S frame, and typical speech sits far below full
-scale, so after conversion to 16 bit the signal is quiet. Raise `mic_gain` (4 to 8 is a
-normal range for this microphone) and/or the PulseAudio source volume
-(`ha audio volume input --index <n> --volume 100`). Set `log_level: debug` to see
-transcripts. Too much gain makes loud speech clip and hurts recognition. Also check the
-mute slide switch: when it is on, the microphone data line is disconnected from the CM4
-(capture is silent; the microphones themselves stay powered) and the red LED is lit.
+**The wake word works, then `No speech heard`, or requests are cut short.** The
+microphone gain is too low for the end-pointer. The VoxHub microphones deliver speech far
+below full scale: their sensitivity is -36 dBFS at 94 dBSPL (the IM72D128V01 of revision
+A3 and the IM69D130V01 of revision A2 alike), the ADAU7002 adds no gain, and the sound
+server averages the two microphones into the mono stream. Speech of 50 / 60 / 70 dBSPL at
+the microphones is therefore about 2.3 / 7.3 / 23 counts rms in the 16-bit capture. The
+end-pointer counts a 20 ms frame as speech only above 120 counts after the gain, for at
+least 0.12 s. The wake word did not depend on the gain in the simulation. With too little
+gain the add-on therefore hears the wake word, beeps and then logs `No speech heard`, or
+it records only the loud parts of a request.
+
+With the earlier default of 1.0 and the earlier advice of 4 to 8 this happened unless the
+speech reached about 90 dBSPL (gain 1), 80 dBSPL (gain 4) or 70 dBSPL (gain 8) at the
+microphones. It was the same on revision A2 and is not caused by the new microphones. In
+a simulation with recorded speech through the add-on's own code and Whisper `tiny-int8`,
+requests were recorded and understood from about 65 dBSPL at gain 16, 60 dBSPL at gain 32
+and 55 dBSPL at gain 64. The loudest samples of speech reach full scale at about 80 to
+90 dBSPL at gain 32 and 74 to 84 dBSPL at gain 64; recognition got worse from about
+85 dBSPL. The default is therefore 32, and 64 is the upper end of the option. Whisper
+alone did not need the gain from 55 dBSPL upward; it is the end-pointer that needs it.
+
+- An installation that was configured with an earlier version may keep its stored value
+  (1.0, or 4 to 8): set `mic_gain` to 32 first.
+- Requests are missed or cut short: raise `mic_gain` to 64.
+- Loud speech close to the hub is misunderstood: lower `mic_gain` to 16.
+- Another microphone: start at 1. A gain of 32 is +30 dB and is meant for the low level
+  of the VoxHub microphones.
+- The log line `Heard x s of audio` gives the length of the recording; `log_level: debug`
+  also shows the transcript.
+
+These are calculated and simulated values. The level of real speech at the microphones in
+the enclosure has not been measured; the gain has to be set on the first board.
+
+**The source volume must be 100 %.** `mic_gain` is set for a microphone source that the
+sound server records at 100 %. The VoxHub Satellite add-on sets the volume of that source
+to its own gain (4.0, +12 dB), and nothing sets it back when that add-on stops (the
+normal behaviour of the sound server; not checked on Home Assistant OS). The two gains
+multiply: 4.0 x 32 = 128. In the simulation that was fine up to 70 dBSPL and gave 12 %
+word errors instead of 5 % at 80 dBSPL. If the VoxHub Satellite add-on has run on this
+hub, set the source back to 100 % with `ha audio volume input --index <n> --volume 100`
+(`ha audio info` lists the inputs) or with the `pactl` command in
+`fab/ASSEMBLY_AND_TEST.md`, test 9.
+
+**The wake word never triggers.** This is not a matter of `mic_gain`: in the simulation
+both wake word engines found the wake word in 15 to 18 of 18 attempts at every gain from
+1 to 64, for speech of 45 to 100 dBSPL. Check the mute slide switch: when it is on, the
+microphone data line is disconnected from the CM4 (capture is silent; the microphones
+themselves stay powered) and the red LED is lit. Check the input selection (first
+paragraph of this section) and that the openWakeWord add-on is running.
+
+**A constant level on the right microphone channel.** The IM72D128V01 whose SELECT pin is
+tied to 3.3 V (MK2, the right channel) adds a constant level of typically -40 dBFS to its
+signal; the ADAU7002 passes it on. In the 16-bit mono mix that is about 166 counts, 662
+after a gain of 4. This is a property of the microphone, not a fault. The add-on removes
+the level before the gain is applied (version 0.1.1), so nothing has to be set and
+`mic_gain` keeps its meaning. Version 0.1.0 does not have the filter: with these
+microphones it finds no request after the wake word and goes back to idle after
+`no_speech_timeout` (log line `No speech heard`). Raw recordings (`parecord`, as in
+`fab/ASSEMBLY_AND_TEST.md`, test 9) still contain the level.
 
 **Recording stops too early or too late.** Adjust `silence_seconds`. In a noisy room
-raise `vad_sensitivity`; if quiet speech is missed, lower it.
+raise `vad_sensitivity`. If quiet speech is missed, raise `mic_gain`: `vad_sensitivity`
+acts only above the fixed floor of 120 counts, and lowering it to 1.1 changed nothing at
+gains 1 to 8 in the simulation.
 
 **The assistant hears itself / triggers on its own voice.** Lower `volume`. The pipeline
 discards microphone audio while speaking, but a very loud reply can still ring in the
@@ -380,7 +453,7 @@ optional wheels were not available at build time; use `wake_word_engine: wyoming
 cd assistant
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements-dev.txt
-pytest                      # 137 tests (86 VoxHub Assistant, 51 VoxHub Satellite), about 3 s
+pytest                      # 144 tests (93 VoxHub Assistant, 51 VoxHub Satellite), about 3 s
 ruff check . && ruff format --check .
 python -m compileall -q voxhub_assistant/app
 ```
@@ -389,9 +462,18 @@ The suite needs no hardware, internet access or API key. The Anthropic client, t
 Assistant API and the audio devices are replaced by fakes; the Wyoming clients talk to
 small fake servers on the loopback interface. It covers the Claude tool loop (tool_use,
 tool_result, final text, parallel tools, errors, refusal, truncation, loop bound), the
-service allow/deny policy, sentence splitting, VAD end-pointing on synthetic audio,
-option parsing including consistency between `config.yaml`, the translations and the
-code, and a complete simulated turn through the pipeline.
+service allow/deny policy, sentence splitting, VAD end-pointing and the DC blocker on
+synthetic audio (long buffers and other poles against a sample-by-sample recursion, gain
+before rounding), the microphone reader with a capture command that puts a constant level
+on its signal (also after a restart), option parsing including consistency between
+`config.yaml`, the translations and the code, and complete simulated turns through the
+pipeline. Two of them carry the constant level of 166 counts. In one the request is a
+200 Hz tone of 354 counts rms before the gain (about the level of a 94 dBSPL tone at the
+VoxHub microphones) at gain 4: it is found with the filter and ends in the time-out
+without it. In the other the request is the same tone at 7.3 counts rms (60 dBSPL): it
+ends in the time-out at gain 8 and is recorded at the default gain, which the test reads
+from the code and from `config.yaml`. Both are simulations with a tone, not tests with
+speech or on hardware.
 
 ## What has not been verified
 
@@ -403,3 +485,12 @@ code, and a complete simulated turn through the pipeline.
   sysfs files and reading the switch device on HAOS, and the exact PulseAudio device
   names of the googlevoicehat card.
 - The latency table above.
+- The DC blocker with real microphones. It was tested on synthetic audio; the level it
+  removes is the typical value of the microphone data sheet.
+- The microphone gain. The default of 32 is calculated from the data sheet sensitivity
+  and simulated with recorded speech through the add-on's code. The level of real speech
+  at the microphones in the enclosure has not been measured, and the gain has to be set
+  on the first board. If real speech is more than about 5 dB below the calculation, 32
+  still cuts requests and 64 is the last step of the option.
+- Whether Home Assistant OS keeps the source volume of 4.0 that the VoxHub Satellite
+  add-on sets (see [Troubleshooting](#troubleshooting)).

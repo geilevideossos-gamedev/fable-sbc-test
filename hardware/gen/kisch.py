@@ -1,4 +1,4 @@
-"""Schematic-as-code helper: builds KiCad 9 .kicad_sch files from Python.
+"""Schematic-as-code helper: builds KiCad 10 .kicad_sch files from Python.
 
 Every pin of every placed symbol must be given a net (or "NC"); the helper
 draws a short wire stub from the pin and attaches a global label or a power
@@ -6,11 +6,11 @@ symbol.  The resulting schematic is fully label-connected, which makes it easy
 to generate and to diff, and KiCad's own ERC/netlister remain the source of
 truth (the PCB is built from the netlist exported by kicad-cli).
 """
-import copy, math, os, uuid, hashlib
+import copy, math, os, re, uuid, hashlib
 from sexpr import parse, dump, find, first, Sym
 
 S = Sym
-KICAD_SYM_DIR = os.environ.get("KICAD_SYM_DIR", "/usr/share/kicad/symbols")
+STOCK_SYM = os.path.join(os.path.dirname(os.path.abspath(__file__)), "stock", "stock.kicad_sym")
 NS = uuid.UUID("6f1d3c0e-5b1a-4f0e-9a51-0c0ffee0cafe")
 PROJECT = "voxhub"
 
@@ -24,51 +24,43 @@ def snap(v):
 def g(v):  # snap to 0.01 mm
     return round(v + 0.0, 4)
 
+def project_fp(fp):
+    return PROJECT + ":" + fp.split(":")[-1] if fp else fp
+
+def natural(s):
+    return [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", s)]
+
+def prop(k, v, x, y, a=0, size=1.27, just=None, hide=False, lib=False):
+    font = [S("effects"), [S("font"), [S("size"), size, size]]] + ([[S("justify")] + [S(j) for j in just.split()]] if just else [])
+    flags = [[S("show_name"), S("no")], [S("do_not_autoplace"), S("no")]]
+    hidden = [[S("hide"), S("yes")]] if hide else []
+    return [S("property"), k, v, [S("at"), x, y, a]] + (flags + hidden if lib else hidden + flags) + [font]
+
 # ---------------------------------------------------------------- symbols --
 class SymLib:
     def __init__(self):
-        self._files = {}
+        self._stock = None
         self.project = {}      # name -> s-expr (flattened), written to voxhub.kicad_sym
         self.meta = {}         # name -> dict(pins=..., props=...)
 
-    def _file(self, lib):
-        if lib not in self._files:
-            t = parse(open(os.path.join(KICAD_SYM_DIR, lib + ".kicad_sym")).read())
-            self._files[lib] = {s[1]: s for s in find(t, "symbol")}
-        return self._files[lib]
+    def _file(self):
+        if self._stock is None:
+            self._stock = {s[1]: s for s in find(parse(open(STOCK_SYM).read()), "symbol")}
+        return self._stock
 
-    def _flatten(self, lib, name):
-        s = copy.deepcopy(self._file(lib)[name])
-        ext = first(s, "extends")
-        if not ext:
-            return s
-        parent = self._flatten(lib, ext[1])
-        pname = parent[1]
-        out = [S("symbol"), name]
-        child_props = {p[1]: p for p in find(s, "property")}
-        seen = set()
-        for c in parent[2:]:
-            if isinstance(c, list) and c[0] == "property":
-                seen.add(c[1])
-                out.append(child_props.get(c[1], c))
-            elif isinstance(c, list) and c[0] == "symbol":
-                c = copy.deepcopy(c)
-                c[1] = name + c[1][len(pname):]
-                out.append(c)
-            else:
-                out.append(c)
-        for k, p in child_props.items():
-            if k not in seen:
-                out.append(p)
-        return out
+    def _flatten(self, name):
+        s = copy.deepcopy(self._file()[name])
+        if first(s, "extends"):
+            raise ValueError("stock symbol %s is derived from another one - store it flattened in stock.kicad_sym" % name)
+        return s
 
     def use(self, libid, alias=None, pin_types=None, footprint=None):
         """Copy a stock symbol into the project library (optionally patched)."""
-        lib, name = libid.split(":")
+        name = libid.split(":")[1]
         alias = alias or name
         if alias in self.project:
             return alias
-        s = self._flatten(lib, name)
+        s = self._flatten(name)
         if alias != name:
             s[1] = alias
             for c in s:
@@ -88,6 +80,9 @@ class SymLib:
         return alias
 
     def add(self, name, s):
+        for p in find(s, "property"):
+            if p[1] == "Footprint":
+                p[2] = project_fp(p[2])
         self.project[name] = s
         pins = []
         for sub in find(s, "symbol"):
@@ -113,38 +108,35 @@ class SymLib:
         h = (rows - 1) * pitch
         top_y = math.ceil((h / 2) / 2.54) * 2.54
         ef = [S("effects"), [S("font"), [S("size"), 1.27, 1.27]]]
-        def prop(k, v, x, y, hide=False, just=None):
-            e = copy.deepcopy(ef)
-            if just: e.append([S("justify"), S(just)])
-            if hide: e.append([S("hide"), S("yes")])
-            return [S("property"), k, v, [S("at"), x, y, 0], e]
         s = [S("symbol"), name, [S("exclude_from_sim"), S("no")], [S("in_bom"), S("yes")], [S("on_board"), S("yes")],
-             prop("Reference", ref, -hw, top_y + 5.08, just="left"),
-             prop("Value", value or name, -hw, top_y + 2.794, just="left"),
-             prop("Footprint", footprint, 0, 0, hide=True),
-             prop("Datasheet", datasheet, 0, 0, hide=True),
-             prop("Description", descr, 0, 0, hide=True)]
+             [S("in_pos_files"), S("yes")], [S("duplicate_pin_numbers_are_jumpers"), S("no")],
+             prop("Reference", ref, -hw, top_y + 5.08, just="left", lib=True),
+             prop("Value", value or name, -hw, top_y + 2.794, just="left", lib=True),
+             prop("Footprint", footprint, 0, 0, hide=True, lib=True),
+             prop("Datasheet", datasheet, 0, 0, hide=True, lib=True),
+             prop("Description", descr, 0, 0, hide=True, lib=True)]
         body = [S("symbol"), name + "_0_1",
                 [S("rectangle"), [S("start"), -hw, top_y + 2.54], [S("end"), hw, top_y - h - 2.54],
                  [S("stroke"), [S("width"), 0.254], [S("type"), S("default")]],
                  [S("fill"), [S("type"), S("background")]]]]
-        pins = [S("symbol"), name + "_1_1"]
+        plist = []
         def pin(p, x, y, a):
             num, nm, ty = p
-            pins.append([S("pin"), S(ty), S("line"), [S("at"), x, y, a], [S("length"), 2.54],
-                         [S("name"), nm, copy.deepcopy(ef)], [S("number"), str(num), copy.deepcopy(ef)]])
+            plist.append([S("pin"), S(ty), S("line"), [S("at"), x, y, a], [S("length"), 2.54],
+                          [S("name"), nm, copy.deepcopy(ef)], [S("number"), str(num), copy.deepcopy(ef)]])
         for i, p in enumerate(left):
             if p: pin(p, -hw - 2.54, top_y - i * pitch, 0)
         for i, p in enumerate(right):
             if p: pin(p, hw + 2.54, top_y - i * pitch, 180)
-        s += [body, pins]
+        pins = [S("symbol"), name + "_1_1"] + sorted(plist, key=lambda q: natural(first(q, "number")[1]))
+        s += [body, pins, [S("embedded_fonts"), S("no")]]
         self.add(name, s)
         return name
 
     def write(self, path):
-        t = [S("kicad_symbol_lib"), [S("version"), 20241209], [S("generator"), "voxhub_gen"],
-             [S("generator_version"), "9.0"]] + [self.project[k] for k in sorted(self.project)]
-        open(path, "w").write(dump(t) + "\n")
+        t = [S("kicad_symbol_lib"), [S("version"), 20251024], [S("generator"), "kicad_symbol_editor"],
+             [S("generator_version"), "10.0"]] + [self.project[k] for k in sorted(self.project)]
+        open(path, "w").write(dump(t))
 
 POWER_UP = {"+5V", "+3V3", "VBUS"}        # drawn with arrow-up power symbols
 POWER_DOWN = {"GND"}
@@ -193,8 +185,7 @@ class Sheet:
                            [S("fields_autoplaced"), S("yes")],
                            [S("effects"), [S("font"), [S("size"), 1.27, 1.27]], [S("justify"), S(just)]],
                            [S("uuid"), uid(self.name, "gl", net, x, y)],
-                           [S("property"), "Intersheetrefs", "${INTERSHEET_REFS}", [S("at"), g(x), g(y), 0],
-                            [S("effects"), [S("font"), [S("size"), 1.27, 1.27]], [S("hide"), S("yes")]]]])
+                           prop("Intersheetrefs", "${INTERSHEET_REFS}", g(x), g(y), hide=True)])
         self.d.nets_used.add(net)
 
     def _power(self, net, x, y, direction):
@@ -223,8 +214,6 @@ class Sheet:
         meta = self.d.lib.meta[name]
         self.used.add(name)
         u = uid(self.name, "sym", ref, unit)
-        ef = lambda hide=False, just=None: [S("effects"), [S("font"), [S("size"), 1.27, 1.27]]] + \
-            ([[S("justify"), S(just)]] if just else []) + ([[S("hide"), S("yes")]] if hide else [])
         def lp(k):
             p = meta["props"].get(k)
             if not p: return (0, 0)
@@ -237,22 +226,22 @@ class Sheet:
         if power:
             vx, vy = self._xf(0, 3.8 if (value in POWER_UP or value == "PWR_FLAG") else -3.8, rot)
             if rot in (90, 270): vx *= 1.6
-        fp = footprint if footprint is not None else (first(meta["props"].get("Footprint", [0, 0, ""]), "x") or meta["props"].get("Footprint", [0, 0, ""]))[2] if False else (footprint if footprint is not None else (meta["props"]["Footprint"][2] if "Footprint" in meta["props"] else ""))
+        fp = project_fp(footprint) if footprint is not None else (meta["props"]["Footprint"][2] if "Footprint" in meta["props"] else "")
         ds = meta["props"]["Datasheet"][2] if "Datasheet" in meta["props"] else ""
         desc = meta["props"]["Description"][2] if "Description" in meta["props"] else ""
-        sym = [S("symbol"), [S("lib_id"), PROJECT + ":" + name], [S("at"), g(x), g(y), rot], [S("unit"), unit],
+        sym = [S("symbol"), [S("lib_id"), PROJECT + ":" + name], [S("at"), g(x), g(y), rot], [S("unit"), unit], [S("body_style"), 1],
                [S("exclude_from_sim"), S("no")], [S("in_bom"), S("yes" if (in_bom and not power) else "no")],
-               [S("on_board"), S("yes")], [S("dnp"), S("yes" if dnp else "no")], [S("uuid"), u],
-               [S("property"), "Reference", ref, [S("at"), g(x + rx), g(y + ry), 0], ef(hide_ref, rj)],
-               [S("property"), "Value", value, [S("at"), g(x + vx), g(y + vy), 0], ef(hide_value, vj)],
-               [S("property"), "Footprint", fp, [S("at"), g(x), g(y), 0], ef(True)],
-               [S("property"), "Datasheet", ds, [S("at"), g(x), g(y), 0], ef(True)],
-               [S("property"), "Description", desc, [S("at"), g(x), g(y), 0], ef(True)]]
+               [S("on_board"), S("yes")], [S("in_pos_files"), S("yes")], [S("dnp"), S("yes" if dnp else "no")], [S("uuid"), u],
+               prop("Reference", ref, g(x + rx), g(y + ry), just=rj, hide=hide_ref),
+               prop("Value", value, g(x + vx), g(y + vy), just=vj, hide=hide_value),
+               prop("Footprint", fp, g(x), g(y), hide=True),
+               prop("Datasheet", ds, g(x), g(y), hide=True),
+               prop("Description", desc, g(x), g(y), hide=True)]
         for k, v in fields.items():
-            sym.append([S("property"), k, v, [S("at"), g(x), g(y), 0], ef(True)])
+            sym.append(prop(k, v, g(x), g(y), hide=True))
         nums = []
-        for p in meta["pins"]:
-            if p["unit"] in (0, unit) and p["num"] not in nums:
+        for p in sorted(meta["pins"], key=lambda q: (q["unit"] not in (0, unit), q["unit"], natural(q["num"]))):
+            if p["num"] not in nums:
                 nums.append(p["num"])
                 sym.append([S("pin"), p["num"], [S("uuid"), uid(u, "pin", p["num"])]])
         sym.append([S("instances"), [S("project"), PROJECT,
@@ -271,7 +260,7 @@ class Sheet:
         if ref in self.d.components and unit == 1:
             raise ValueError("duplicate reference " + ref)
         comp = self.d.components.setdefault(ref, dict(ref=ref, value=value, sheet=self.name, pins={},
-                                                      footprint=footprint if footprint is not None else meta["props"].get("Footprint", [0, 0, ""])[2],
+                                                      footprint=project_fp(footprint) if footprint is not None else meta["props"].get("Footprint", [0, 0, ""])[2],
                                                       fields=fields, dnp=dnp, in_bom=in_bom,
                                                       near=getattr(self.d, 'near', None), pos=pos))
         for p in meta["pins"]:
@@ -321,15 +310,17 @@ class Sheet:
             s = copy.deepcopy(self.d.lib.project[n])
             s[1] = PROJECT + ":" + n
             lib.append(s)
-        t = [S("kicad_sch"), [S("version"), 20250114], [S("generator"), "eeschema"], [S("generator_version"), "9.0"],
+        order = ("rectangle", "text", "no_connect", "wire", "global_label", "symbol", "sheet")
+        items = sorted(self.items + list(extra), key=lambda c: (order.index(c[0]), first(c, "uuid")[1]))
+        t = [S("kicad_sch"), [S("version"), 20260306], [S("generator"), "eeschema"], [S("generator_version"), "10.0"],
              [S("uuid"), self.d.root.uuid if self.is_root else self.uuid], [S("paper"), self.paper],
              [S("title_block"), [S("title"), self.title], [S("date"), self.d.date], [S("rev"), self.d.rev],
-              [S("company"), self.d.company], [S("comment"), 1, "Generated by hardware/gen - do not edit by hand"]],
-             lib] + self.items + list(extra)
+              [S("company"), self.d.company], [S("comment"), 1, "Generated by hardware/gen - see hardware/README.md before editing"]],
+             lib] + items
         if self.is_root:
             t.append([S("sheet_instances"), [S("path"), "/", [S("page"), "1"]]])
-        t.append([S("embedded_fonts"), S("no")])
-        return dump(t) + "\n"
+            t.append([S("embedded_fonts"), S("no")])
+        return dump(t)
 
 
 class Design:
@@ -352,14 +343,13 @@ class Design:
         extra = []
         for i, s in enumerate(self.sheets):
             x, y, w, h = 30 + (i % 3) * 75, 60 + (i // 3) * 45, 55, 25
-            ef = [S("effects"), [S("font"), [S("size"), 1.6, 1.6]], [S("justify"), S("left"), S("bottom")]]
             extra.append([S("sheet"), [S("at"), x, y], [S("size"), w, h], [S("exclude_from_sim"), S("no")],
                           [S("in_bom"), S("yes")], [S("on_board"), S("yes")], [S("dnp"), S("no")],
                           [S("fields_autoplaced"), S("yes")],
                           [S("stroke"), [S("width"), 0.2], [S("type"), S("solid")]],
-                          [S("fill"), [S("color"), 255, 255, 220, 1.0]], [S("uuid"), s.uuid],
-                          [S("property"), "Sheetname", s.title, [S("at"), x, y - 0.8, 0], ef],
-                          [S("property"), "Sheetfile", s.filename, [S("at"), x, y + h + 3.0, 0], copy.deepcopy(ef)],
+                          [S("fill"), [S("color"), 255, 255, 220, 1]], [S("uuid"), s.uuid],
+                          prop("Sheetname", s.title, x, y - 0.8, size=1.6, just="left bottom"),
+                          prop("Sheetfile", s.filename, x, y + h + 3.0, size=1.6, just="left bottom"),
                           [S("instances"), [S("project"), PROJECT,
                            [S("path"), "/" + self.root.uuid, [S("page"), str(s.page)]]]]])
             open(os.path.join(outdir, s.filename), "w").write(s.render())

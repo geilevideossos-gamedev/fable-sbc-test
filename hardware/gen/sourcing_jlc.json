@@ -1,5 +1,5 @@
 {
- "checked": "2026-11-12",
+ "checked": "2026-11-21",
  "parts": {
   "0402CG150J500NT": {
    "assembly_mode": "smtWeld",
@@ -10,10 +10,37 @@
    "jlc_p10": 0.0026,
    "jlc_p100": 0.0026,
    "jlc_package": "0402",
-   "jlc_stock": 1091876,
+   "jlc_prices": [
+    [
+     1,
+     0.0026
+    ],
+    [
+     1000,
+     0.0019
+    ],
+    [
+     3000,
+     0.0016
+    ],
+    [
+     10000,
+     0.0013
+    ],
+    [
+     50000,
+     0.0011
+    ],
+    [
+     50200,
+     0.0011
+    ]
+   ],
+   "jlc_stock": 1282830,
    "jlc_type": "Basic",
    "lcsc": "C1548",
-   "lcsc_stock": 423300,
+   "lcsc_stock": 619600,
+   "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -23,31 +50,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "FH (Guangdong Fenghua Advanced Tech)",
    "jlc_mpn": "0402CG220J500NT",
-   "jlc_p1": 0.0019,
-   "jlc_p10": 0.0019,
-   "jlc_p100": 0.0019,
+   "jlc_p1": 0.0018,
+   "jlc_p10": 0.0018,
+   "jlc_p100": 0.0018,
    "jlc_package": "0402",
-   "jlc_stock": 1490772,
+   "jlc_prices": [
+    [
+     1,
+     0.0018
+    ],
+    [
+     1000,
+     0.0014
+    ],
+    [
+     3000,
+     0.0011
+    ],
+    [
+     10000,
+     0.001
+    ],
+    [
+     50000,
+     0.0008
+    ],
+    [
+     50200,
+     0.0008
+    ]
+   ],
+   "jlc_stock": 2195046,
    "jlc_type": "Basic",
    "lcsc": "C1555",
-   "lcsc_stock": 243900,
-   "min_order": 20,
-   "special_fee": 0.0,
-   "xray": false
-  },
-  "0402WGF0000TCE": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
-   "jlc_mpn": "0402WGF0000TCE",
-   "jlc_p1": 0.0012,
-   "jlc_p10": 0.0012,
-   "jlc_p100": 0.0012,
-   "jlc_package": "0402",
-   "jlc_stock": 15771989,
-   "jlc_type": "Basic",
-   "lcsc": "C17168",
-   "lcsc_stock": 7721900,
+   "lcsc_stock": 913800,
+   "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -57,14 +94,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
    "jlc_mpn": "0402WGF1001TCE",
-   "jlc_p1": 0.0013,
-   "jlc_p10": 0.0013,
-   "jlc_p100": 0.0013,
+   "jlc_p1": 0.0011,
+   "jlc_p10": 0.0011,
+   "jlc_p100": 0.0011,
    "jlc_package": "0402",
-   "jlc_stock": 31963354,
+   "jlc_prices": [
+    [
+     1,
+     0.0011
+    ],
+    [
+     1000,
+     0.0009
+    ],
+    [
+     3000,
+     0.0008
+    ],
+    [
+     10000,
+     0.0007
+    ],
+    [
+     50000,
+     0.0006
+    ],
+    [
+     50200,
+     0.0006
+    ]
+   ],
+   "jlc_stock": 29484708,
    "jlc_type": "Basic",
    "lcsc": "C11702",
-   "lcsc_stock": 19978900,
+   "lcsc_stock": 16035000,
+   "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -78,10 +142,37 @@
    "jlc_p10": 0.001,
    "jlc_p100": 0.001,
    "jlc_package": "0402",
-   "jlc_stock": 20275121,
+   "jlc_prices": [
+    [
+     1,
+     0.001
+    ],
+    [
+     1000,
+     0.0008
+    ],
+    [
+     3000,
+     0.0007
+    ],
+    [
+     10000,
+     0.0006
+    ],
+    [
+     50000,
+     0.0006
+    ],
+    [
+     50200,
+     0.0006
+    ]
+   ],
+   "jlc_stock": 34942859,
    "jlc_type": "Basic",
    "lcsc": "C25744",
-   "lcsc_stock": 0,
+   "lcsc_stock": 12542900,
+   "loss": 15,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -91,14 +182,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
    "jlc_mpn": "0402WGF1003TCE",
-   "jlc_p1": 0.0011,
-   "jlc_p10": 0.0011,
-   "jlc_p100": 0.0011,
+   "jlc_p1": 0.0009,
+   "jlc_p10": 0.0009,
+   "jlc_p100": 0.0009,
    "jlc_package": "0402",
-   "jlc_stock": 8761716,
+   "jlc_prices": [
+    [
+     1,
+     0.0009
+    ],
+    [
+     1000,
+     0.0007
+    ],
+    [
+     3000,
+     0.0006
+    ],
+    [
+     10000,
+     0.0005
+    ],
+    [
+     50000,
+     0.0005
+    ],
+    [
+     50200,
+     0.0005
+    ]
+   ],
+   "jlc_stock": 12002157,
    "jlc_type": "Basic",
    "lcsc": "C25741",
-   "lcsc_stock": 1844700,
+   "lcsc_stock": 3869700,
+   "loss": 12,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -108,48 +226,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
    "jlc_mpn": "0402WGF1202TCE",
-   "jlc_p1": 0.0018,
-   "jlc_p10": 0.0018,
-   "jlc_p100": 0.0018,
+   "jlc_p1": 0.0013,
+   "jlc_p10": 0.0013,
+   "jlc_p100": 0.0013,
    "jlc_package": "0402",
-   "jlc_stock": 617580,
+   "jlc_prices": [
+    [
+     1,
+     0.0013
+    ],
+    [
+     1000,
+     0.001
+    ],
+    [
+     3000,
+     0.0008
+    ],
+    [
+     10000,
+     0.0008
+    ],
+    [
+     50000,
+     0.0006
+    ],
+    [
+     50200,
+     0.0006
+    ]
+   ],
+   "jlc_stock": 693041,
    "jlc_type": "Basic",
    "lcsc": "C25752",
-   "lcsc_stock": 150400,
-   "min_order": 20,
-   "special_fee": 0.0,
-   "xray": false
-  },
-  "0402WGF1500TCE": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
-   "jlc_mpn": "0402WGF1500TCE",
-   "jlc_p1": 0.0012,
-   "jlc_p10": 0.0012,
-   "jlc_p100": 0.0012,
-   "jlc_package": "0402",
-   "jlc_stock": 693050,
-   "jlc_type": "Preferred Extended",
-   "lcsc": "C25082",
-   "lcsc_stock": 470700,
-   "min_order": 20,
-   "special_fee": 0.0,
-   "xray": false
-  },
-  "0402WGF1503TCE": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
-   "jlc_mpn": "0402WGF1503TCE",
-   "jlc_p1": 0.0011,
-   "jlc_p10": 0.0011,
-   "jlc_p100": 0.0011,
-   "jlc_package": "0402",
-   "jlc_stock": 1051082,
-   "jlc_type": "Preferred Extended",
-   "lcsc": "C25755",
-   "lcsc_stock": 830100,
+   "lcsc_stock": 249500,
+   "loss": 15,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -159,14 +270,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
    "jlc_mpn": "0402WGF2002TCE",
-   "jlc_p1": 0.0011,
-   "jlc_p10": 0.0011,
-   "jlc_p100": 0.0011,
+   "jlc_p1": 0.001,
+   "jlc_p10": 0.001,
+   "jlc_p100": 0.001,
    "jlc_package": "0402",
-   "jlc_stock": 2070095,
+   "jlc_prices": [
+    [
+     1,
+     0.001
+    ],
+    [
+     1000,
+     0.0008
+    ],
+    [
+     3000,
+     0.0007
+    ],
+    [
+     10000,
+     0.0006
+    ],
+    [
+     50000,
+     0.0005
+    ],
+    [
+     50200,
+     0.0005
+    ]
+   ],
+   "jlc_stock": 2576793,
    "jlc_type": "Basic",
    "lcsc": "C25765",
-   "lcsc_stock": 427900,
+   "lcsc_stock": 885100,
+   "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -180,27 +318,37 @@
    "jlc_p10": 0.0011,
    "jlc_p100": 0.0011,
    "jlc_package": "0402",
-   "jlc_stock": 3170835,
+   "jlc_prices": [
+    [
+     1,
+     0.0011
+    ],
+    [
+     1000,
+     0.0009
+    ],
+    [
+     3000,
+     0.0008
+    ],
+    [
+     10000,
+     0.0007
+    ],
+    [
+     50000,
+     0.0006
+    ],
+    [
+     50200,
+     0.0006
+    ]
+   ],
+   "jlc_stock": 2774632,
    "jlc_type": "Basic",
    "lcsc": "C25879",
-   "lcsc_stock": 1363000,
-   "min_order": 20,
-   "special_fee": 0.0,
-   "xray": false
-  },
-  "0402WGF2401TCE": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
-   "jlc_mpn": "0402WGF2401TCE",
-   "jlc_p1": 0.0012,
-   "jlc_p10": 0.0012,
-   "jlc_p100": 0.0012,
-   "jlc_package": "0402",
-   "jlc_stock": 709013,
-   "jlc_type": "Preferred Extended",
-   "lcsc": "C25882",
-   "lcsc_stock": 383700,
+   "lcsc_stock": 935000,
+   "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -214,61 +362,37 @@
    "jlc_p10": 0.0012,
    "jlc_p100": 0.0012,
    "jlc_package": "0402",
-   "jlc_stock": 438866,
+   "jlc_prices": [
+    [
+     1,
+     0.0012
+    ],
+    [
+     1000,
+     0.001
+    ],
+    [
+     3000,
+     0.0008
+    ],
+    [
+     10000,
+     0.0008
+    ],
+    [
+     50000,
+     0.0007
+    ],
+    [
+     50200,
+     0.0007
+    ]
+   ],
+   "jlc_stock": 67678,
    "jlc_type": "Extended",
    "lcsc": "C25874",
-   "lcsc_stock": 405100,
-   "min_order": 20,
-   "special_fee": 0.0,
-   "xray": false
-  },
-  "0402WGF3300TCE": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
-   "jlc_mpn": "0402WGF3300TCE",
-   "jlc_p1": 0.0011,
-   "jlc_p10": 0.0011,
-   "jlc_p100": 0.0011,
-   "jlc_package": "0402",
-   "jlc_stock": 1551767,
-   "jlc_type": "Basic",
-   "lcsc": "C25104",
-   "lcsc_stock": 575300,
-   "min_order": 20,
-   "special_fee": 0.0,
-   "xray": false
-  },
-  "0402WGF330JTCE": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
-   "jlc_mpn": "0402WGF330JTCE",
-   "jlc_p1": 0.0011,
-   "jlc_p10": 0.0011,
-   "jlc_p100": 0.0011,
-   "jlc_package": "0402",
-   "jlc_stock": 3641327,
-   "jlc_type": "Basic",
-   "lcsc": "C25105",
-   "lcsc_stock": 669200,
-   "min_order": 20,
-   "special_fee": 0.0,
-   "xray": false
-  },
-  "0402WGF4703TCE": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
-   "jlc_mpn": "0402WGF4703TCE",
-   "jlc_p1": 0.0012,
-   "jlc_p10": 0.0012,
-   "jlc_p100": 0.0012,
-   "jlc_package": "0402",
-   "jlc_stock": 427094,
-   "jlc_type": "Preferred Extended",
-   "lcsc": "C25790",
-   "lcsc_stock": 147700,
+   "lcsc_stock": 35200,
+   "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -278,49 +402,86 @@
    "assembly_process": "SMT",
    "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
    "jlc_mpn": "0402WGF4992TCE",
-   "jlc_p1": 0.0014,
-   "jlc_p10": 0.0014,
-   "jlc_p100": 0.0014,
+   "jlc_p1": 0.0013,
+   "jlc_p10": 0.0013,
+   "jlc_p100": 0.0013,
    "jlc_package": "0402",
-   "jlc_stock": 561605,
+   "jlc_prices": [
+    [
+     1,
+     0.0013
+    ],
+    [
+     1000,
+     0.001
+    ],
+    [
+     3000,
+     0.0009
+    ],
+    [
+     10000,
+     0.0008
+    ],
+    [
+     50000,
+     0.0007
+    ],
+    [
+     50200,
+     0.0007
+    ]
+   ],
+   "jlc_stock": 767760,
    "jlc_type": "Preferred Extended",
    "lcsc": "C25897",
-   "lcsc_stock": 463900,
+   "lcsc_stock": 650800,
+   "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
   },
-  "0402WGF5101TCE": {
+  "0402WGF750JTCE": {
    "assembly_mode": "smtWeld",
    "assembly_process": "SMT",
    "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
-   "jlc_mpn": "0402WGF5101TCE",
-   "jlc_p1": 0.0014,
-   "jlc_p10": 0.0014,
-   "jlc_p100": 0.0014,
+   "jlc_mpn": "0402WGF750JTCE",
+   "jlc_p1": 0.0012,
+   "jlc_p10": 0.0012,
+   "jlc_p100": 0.0012,
    "jlc_package": "0402",
-   "jlc_stock": 4068259,
-   "jlc_type": "Basic",
-   "lcsc": "C25905",
-   "lcsc_stock": 1031400,
+   "jlc_prices": [
+    [
+     1,
+     0.0012
+    ],
+    [
+     1000,
+     0.001
+    ],
+    [
+     3000,
+     0.0008
+    ],
+    [
+     10000,
+     0.0007
+    ],
+    [
+     50000,
+     0.0006
+    ],
+    [
+     50200,
+     0.0006
+    ]
+   ],
+   "jlc_stock": 993375,
+   "jlc_type": "Preferred Extended",
+   "lcsc": "C25133",
+   "lcsc_stock": 548200,
+   "loss": 10,
    "min_order": 20,
-   "special_fee": 0.0,
-   "xray": false
-  },
-  "150060VS75000": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "Wurth Elektronik",
-   "jlc_mpn": "150060VS75000",
-   "jlc_p1": 0.2043,
-   "jlc_p10": 0.2043,
-   "jlc_p100": 0.163,
-   "jlc_package": "SMD,1.6x0.8mm",
-   "jlc_stock": 29587,
-   "jlc_type": "Extended",
-   "lcsc": "C6848499",
-   "lcsc_stock": null,
-   "min_order": 5,
    "special_fee": 0.0,
    "xray": false
   },
@@ -333,10 +494,37 @@
    "jlc_p10": 0.0164,
    "jlc_p100": 0.0164,
    "jlc_package": "SOT-23",
-   "jlc_stock": 204209,
+   "jlc_prices": [
+    [
+     1,
+     0.0164
+    ],
+    [
+     500,
+     0.0126
+    ],
+    [
+     3000,
+     0.011
+    ],
+    [
+     6000,
+     0.0097
+    ],
+    [
+     24000,
+     0.0092
+    ],
+    [
+     51000,
+     0.0089
+    ]
+   ],
+   "jlc_stock": 299244,
    "jlc_type": "Extended",
    "lcsc": "C65189",
-   "lcsc_stock": 204500,
+   "lcsc_stock": 299200,
+   "loss": 5,
    "min_order": 10,
    "special_fee": 0.0,
    "xray": false
@@ -346,14 +534,41 @@
    "assembly_process": "THT",
    "jlc_brand": "Wurth Elektronik",
    "jlc_mpn": "61300311121",
-   "jlc_p1": 0.2017,
-   "jlc_p10": 0.2017,
+   "jlc_p1": 0.2018,
+   "jlc_p10": 0.2018,
    "jlc_p100": 0.163,
    "jlc_package": "Plugin,P=2.54mm",
-   "jlc_stock": 12562,
+   "jlc_prices": [
+    [
+     1,
+     0.2018
+    ],
+    [
+     50,
+     0.163
+    ],
+    [
+     150,
+     0.1463
+    ],
+    [
+     1000,
+     0.1255
+    ],
+    [
+     2000,
+     0.1164
+    ],
+    [
+     5000,
+     0.1108
+    ]
+   ],
+   "jlc_stock": 11366,
    "jlc_type": "Extended",
    "lcsc": "C2915006",
    "lcsc_stock": null,
+   "loss": 0,
    "min_order": 2,
    "special_fee": 0.0,
    "xray": false
@@ -363,15 +578,86 @@
    "assembly_process": "THT",
    "jlc_brand": "Wurth Elektronik",
    "jlc_mpn": "61400826021",
-   "jlc_p1": 2.7594,
-   "jlc_p10": 2.3554,
-   "jlc_p100": 1.8434,
+   "jlc_p1": 2.7601,
+   "jlc_p10": 2.356,
+   "jlc_p100": 1.8439,
    "jlc_package": "Plugin",
-   "jlc_stock": 116,
+   "jlc_prices": [
+    [
+     1,
+     2.7601
+    ],
+    [
+     10,
+     2.356
+    ],
+    [
+     30,
+     2.1024
+    ],
+    [
+     100,
+     1.8439
+    ],
+    [
+     500,
+     1.7277
+    ],
+    [
+     1000,
+     1.677
+    ]
+   ],
+   "jlc_stock": 18,
    "jlc_type": "Extended",
    "lcsc": "C5366339",
-   "lcsc_stock": 107,
+   "lcsc_stock": 18,
+   "loss": 0,
    "min_order": 1,
+   "special_fee": 0.0,
+   "xray": false
+  },
+  "907-112A1022D10200": {
+   "assembly_mode": "manualWeld",
+   "assembly_process": "THT",
+   "jlc_brand": "Jing Extension of the Electronic Co.",
+   "jlc_mpn": "907-112A1022D10200",
+   "jlc_p1": 0.3639,
+   "jlc_p10": 0.3639,
+   "jlc_p100": 0.2898,
+   "jlc_package": "Plugin",
+   "jlc_prices": [
+    [
+     1,
+     0.3639
+    ],
+    [
+     50,
+     0.2898
+    ],
+    [
+     150,
+     0.2579
+    ],
+    [
+     500,
+     0.2183
+    ],
+    [
+     2500,
+     0.2006
+    ],
+    [
+     5000,
+     0.19
+    ]
+   ],
+   "jlc_stock": 2434,
+   "jlc_type": "Extended",
+   "lcsc": "C29780026",
+   "lcsc_stock": 2430,
+   "loss": 0,
+   "min_order": 2,
    "special_fee": 0.0,
    "xray": false
   },
@@ -380,14 +666,33 @@
    "assembly_process": "SMT",
    "jlc_brand": "Wurth Elektronik",
    "jlc_mpn": "9774015151R",
-   "jlc_p1": 0.5611,
-   "jlc_p10": 0.5251,
-   "jlc_p100": 0.5251,
+   "jlc_p1": 0.558,
+   "jlc_p10": 0.5236,
+   "jlc_p100": 0.5236,
    "jlc_package": "-",
-   "jlc_stock": 230,
+   "jlc_prices": [
+    [
+     1,
+     0.558
+    ],
+    [
+     10,
+     0.5236
+    ],
+    [
+     200,
+     0.4352
+    ],
+    [
+     1000,
+     0.4189
+    ]
+   ],
+   "jlc_stock": 2071,
    "jlc_type": "Extended",
    "lcsc": "C5353804",
    "lcsc_stock": null,
+   "loss": 0,
    "min_order": 2,
    "special_fee": 0.0,
    "xray": false
@@ -397,14 +702,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "Analog Devices",
    "jlc_mpn": "ADAU7002ACBZ-R7",
-   "jlc_p1": 3.9059,
-   "jlc_p10": 3.3351,
-   "jlc_p100": 2.6547,
+   "jlc_p1": 2.4754,
+   "jlc_p10": 2.0991,
+   "jlc_p100": 1.6247,
    "jlc_package": "WLCSP-8(0.8x1.6)",
-   "jlc_stock": 104,
+   "jlc_prices": [
+    [
+     1,
+     2.4754
+    ],
+    [
+     10,
+     2.0991
+    ],
+    [
+     30,
+     1.8652
+    ],
+    [
+     100,
+     1.6247
+    ],
+    [
+     500,
+     1.5167
+    ],
+    [
+     1000,
+     1.4692
+    ]
+   ],
+   "jlc_stock": 63,
    "jlc_type": "Extended",
    "lcsc": "C481886",
-   "lcsc_stock": 100,
+   "lcsc_stock": 63,
+   "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
    "xray": true
@@ -414,14 +746,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "Alpha & Omega Semicon",
    "jlc_mpn": "AO3401A",
-   "jlc_p1": 0.0813,
-   "jlc_p10": 0.0813,
-   "jlc_p100": 0.064,
+   "jlc_p1": 0.082,
+   "jlc_p10": 0.082,
+   "jlc_p100": 0.0647,
    "jlc_package": "SOT-23",
-   "jlc_stock": 1634218,
+   "jlc_prices": [
+    [
+     1,
+     0.082
+    ],
+    [
+     50,
+     0.0647
+    ],
+    [
+     150,
+     0.0558
+    ],
+    [
+     500,
+     0.0485
+    ],
+    [
+     3000,
+     0.0459
+    ],
+    [
+     6000,
+     0.0442
+    ]
+   ],
+   "jlc_stock": 1206223,
    "jlc_type": "Basic",
    "lcsc": "C15127",
-   "lcsc_stock": 1186710,
+   "lcsc_stock": 654660,
+   "loss": 4,
    "min_order": 5,
    "special_fee": 0.0,
    "xray": false
@@ -431,48 +790,85 @@
    "assembly_process": "THT",
    "jlc_brand": "JST",
    "jlc_mpn": "B2B-PH-K-S(LF)(SN)",
-   "jlc_p1": 0.0355,
-   "jlc_p10": 0.0355,
-   "jlc_p100": 0.0355,
+   "jlc_p1": 0.0351,
+   "jlc_p10": 0.0351,
+   "jlc_p100": 0.0351,
    "jlc_package": "Plugin,P=2mm",
-   "jlc_stock": 292464,
+   "jlc_prices": [
+    [
+     1,
+     0.0351
+    ],
+    [
+     200,
+     0.0277
+    ],
+    [
+     1000,
+     0.0243
+    ],
+    [
+     2000,
+     0.0218
+    ],
+    [
+     10000,
+     0.0208
+    ],
+    [
+     20000,
+     0.0202
+    ]
+   ],
+   "jlc_stock": 261858,
    "jlc_type": "Extended",
    "lcsc": "C131337",
-   "lcsc_stock": 268140,
+   "lcsc_stock": 235840,
+   "loss": 1,
    "min_order": 2,
    "special_fee": 0.0,
    "xray": false
   },
-  "CC0603KRX7R9BB104": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "YAGEO",
-   "jlc_mpn": "CC0603KRX7R9BB104",
-   "jlc_p1": 0.006,
-   "jlc_p10": 0.006,
-   "jlc_p100": 0.006,
-   "jlc_package": "0603",
-   "jlc_stock": 36401649,
-   "jlc_type": "Basic",
-   "lcsc": "C14663",
-   "lcsc_stock": 249700,
-   "min_order": 20,
-   "special_fee": 0.0,
-   "xray": false
-  },
-  "CL05B103KB5NNNC": {
+  "CL05A105KA5NQNC": {
    "assembly_mode": "smtWeld",
    "assembly_process": "SMT",
    "jlc_brand": "Samsung Electro-Mechanics",
-   "jlc_mpn": "CL05B103KB5NNNC",
-   "jlc_p1": 0.0037,
-   "jlc_p10": 0.0037,
-   "jlc_p100": 0.0037,
+   "jlc_mpn": "CL05A105KA5NQNC",
+   "jlc_p1": 0.0055,
+   "jlc_p10": 0.0055,
+   "jlc_p100": 0.0055,
    "jlc_package": "0402",
-   "jlc_stock": 5543060,
+   "jlc_prices": [
+    [
+     1,
+     0.0055
+    ],
+    [
+     1000,
+     0.0042
+    ],
+    [
+     3000,
+     0.0035
+    ],
+    [
+     10000,
+     0.0031
+    ],
+    [
+     50000,
+     0.0029
+    ],
+    [
+     100000,
+     0.0028
+    ]
+   ],
+   "jlc_stock": 9174443,
    "jlc_type": "Basic",
-   "lcsc": "C15195",
-   "lcsc_stock": 1498700,
+   "lcsc": "C52923",
+   "lcsc_stock": 113100,
+   "loss": 12,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -482,31 +878,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "Samsung Electro-Mechanics",
    "jlc_mpn": "CL05B104KO5NNNC",
-   "jlc_p1": 0.0029,
-   "jlc_p10": 0.0029,
-   "jlc_p100": 0.0029,
+   "jlc_p1": 0.0025,
+   "jlc_p10": 0.0025,
+   "jlc_p100": 0.0025,
    "jlc_package": "0402",
-   "jlc_stock": 33093790,
+   "jlc_prices": [
+    [
+     1,
+     0.0025
+    ],
+    [
+     1000,
+     0.0018
+    ],
+    [
+     3000,
+     0.0015
+    ],
+    [
+     10000,
+     0.0013
+    ],
+    [
+     50000,
+     0.0012
+    ],
+    [
+     50200,
+     0.0012
+    ]
+   ],
+   "jlc_stock": 33485072,
    "jlc_type": "Basic",
    "lcsc": "C1525",
-   "lcsc_stock": 3017800,
-   "min_order": 20,
-   "special_fee": 0.0,
-   "xray": false
-  },
-  "CL10A105KB8NNNC": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "Samsung Electro-Mechanics",
-   "jlc_mpn": "CL10A105KB8NNNC",
-   "jlc_p1": 0.0113,
-   "jlc_p10": 0.0113,
-   "jlc_p100": 0.0113,
-   "jlc_package": "0603",
-   "jlc_stock": 13930106,
-   "jlc_type": "Basic",
-   "lcsc": "C15849",
-   "lcsc_stock": 1382400,
+   "lcsc_stock": 2327100,
+   "loss": 15,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -516,31 +922,85 @@
    "assembly_process": "SMT",
    "jlc_brand": "Samsung Electro-Mechanics",
    "jlc_mpn": "CL10A475KA8NQNC",
-   "jlc_p1": 0.0427,
-   "jlc_p10": 0.0427,
+   "jlc_p1": 0.0428,
+   "jlc_p10": 0.0428,
    "jlc_p100": 0.0311,
    "jlc_package": "0603",
-   "jlc_stock": 744008,
+   "jlc_prices": [
+    [
+     1,
+     0.0428
+    ],
+    [
+     100,
+     0.0311
+    ],
+    [
+     300,
+     0.0251
+    ],
+    [
+     1000,
+     0.0202
+    ],
+    [
+     4000,
+     0.0184
+    ],
+    [
+     8000,
+     0.0172
+    ]
+   ],
+   "jlc_stock": 598338,
    "jlc_type": "Extended",
    "lcsc": "C69335",
-   "lcsc_stock": 548530,
+   "lcsc_stock": 384730,
+   "loss": 8,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
   },
-  "CL10B105KA8NNNC": {
+  "CL10B105KB8NQNC": {
    "assembly_mode": "smtWeld",
    "assembly_process": "SMT",
    "jlc_brand": "Samsung Electro-Mechanics",
-   "jlc_mpn": "CL10B105KA8NNNC",
-   "jlc_p1": 0.0124,
-   "jlc_p10": 0.0124,
-   "jlc_p100": 0.0097,
+   "jlc_mpn": "CL10B105KB8NQNC",
+   "jlc_p1": 0.0187,
+   "jlc_p10": 0.0187,
+   "jlc_p100": 0.0187,
    "jlc_package": "0603",
-   "jlc_stock": 4509875,
+   "jlc_prices": [
+    [
+     1,
+     0.0187
+    ],
+    [
+     200,
+     0.0131
+    ],
+    [
+     600,
+     0.0106
+    ],
+    [
+     4000,
+     0.008
+    ],
+    [
+     8000,
+     0.0073
+    ],
+    [
+     20000,
+     0.0068
+    ]
+   ],
+   "jlc_stock": 2669498,
    "jlc_type": "Extended",
-   "lcsc": "C29936",
-   "lcsc_stock": 4284100,
+   "lcsc": "C5199872",
+   "lcsc_stock": 2383980,
+   "loss": 12,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -554,10 +1014,37 @@
    "jlc_p10": 0.1028,
    "jlc_p100": 0.1028,
    "jlc_package": "1206",
-   "jlc_stock": 2517345,
+   "jlc_prices": [
+    [
+     1,
+     0.1028
+    ],
+    [
+     200,
+     0.0828
+    ],
+    [
+     600,
+     0.0724
+    ],
+    [
+     2000,
+     0.064
+    ],
+    [
+     10000,
+     0.0609
+    ],
+    [
+     20000,
+     0.0589
+    ]
+   ],
+   "jlc_stock": 2570029,
    "jlc_type": "Basic",
    "lcsc": "C12891",
-   "lcsc_stock": 967820,
+   "lcsc_stock": 952720,
+   "loss": 4,
    "min_order": 5,
    "special_fee": 0.0,
    "xray": false
@@ -571,10 +1058,37 @@
    "jlc_p10": 0.2124,
    "jlc_p100": 0.1646,
    "jlc_package": "1206",
-   "jlc_stock": 468888,
+   "jlc_prices": [
+    [
+     1,
+     0.2124
+    ],
+    [
+     50,
+     0.1646
+    ],
+    [
+     150,
+     0.1412
+    ],
+    [
+     500,
+     0.1205
+    ],
+    [
+     2000,
+     0.1147
+    ],
+    [
+     4000,
+     0.1113
+    ]
+   ],
+   "jlc_stock": 205492,
    "jlc_type": "Extended",
    "lcsc": "C89632",
-   "lcsc_stock": 319710,
+   "lcsc_stock": 14015,
+   "loss": 2,
    "min_order": 1,
    "special_fee": 0.0,
    "xray": false
@@ -584,14 +1098,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "Infineon/Cypress Semicon",
    "jlc_mpn": "CYPD3177-24LQXQT",
-   "jlc_p1": 1.706,
-   "jlc_p10": 1.4247,
-   "jlc_p100": 1.0943,
+   "jlc_p1": 1.7065,
+   "jlc_p10": 1.4251,
+   "jlc_p100": 1.0946,
    "jlc_package": "QFN-24(4x4)",
-   "jlc_stock": 806,
+   "jlc_prices": [
+    [
+     1,
+     1.7065
+    ],
+    [
+     10,
+     1.4251
+    ],
+    [
+     30,
+     1.2696
+    ],
+    [
+     100,
+     1.0946
+    ],
+    [
+     500,
+     1.0161
+    ],
+    [
+     1000,
+     0.9817
+    ]
+   ],
+   "jlc_stock": 729,
    "jlc_type": "Extended",
    "lcsc": "C2952489",
-   "lcsc_stock": 806,
+   "lcsc_stock": 729,
+   "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
    "xray": false
@@ -601,14 +1142,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "HRS(Hirose)",
    "jlc_mpn": "DF40C-100DS-0.4V(51)",
-   "jlc_p1": 0.9667,
-   "jlc_p10": 0.8277,
-   "jlc_p100": 0.6494,
+   "jlc_p1": 1.0749,
+   "jlc_p10": 0.9588,
+   "jlc_p100": 0.7657,
    "jlc_package": "SMD,P=0.4mm",
-   "jlc_stock": 1052,
+   "jlc_prices": [
+    [
+     1,
+     1.0749
+    ],
+    [
+     10,
+     0.9588
+    ],
+    [
+     30,
+     0.8475
+    ],
+    [
+     100,
+     0.7657
+    ],
+    [
+     500,
+     0.7314
+    ],
+    [
+     1000,
+     0.715
+    ]
+   ],
+   "jlc_stock": 18858,
    "jlc_type": "Extended",
    "lcsc": "C597931",
-   "lcsc_stock": 0,
+   "lcsc_stock": 18000,
+   "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
    "xray": false
@@ -618,14 +1186,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "HRS(Hirose)",
    "jlc_mpn": "DM3AT-SF-PEJM5",
-   "jlc_p1": 1.3903,
-   "jlc_p10": 1.1646,
-   "jlc_p100": 0.8996,
+   "jlc_p1": 1.3907,
+   "jlc_p10": 1.1649,
+   "jlc_p100": 0.8999,
    "jlc_package": "SMD",
-   "jlc_stock": 14909,
+   "jlc_prices": [
+    [
+     1,
+     1.3907
+    ],
+    [
+     10,
+     1.1649
+    ],
+    [
+     30,
+     1.0406
+    ],
+    [
+     100,
+     0.8999
+    ],
+    [
+     500,
+     0.7935
+    ],
+    [
+     1500,
+     0.7657
+    ]
+   ],
+   "jlc_stock": 13783,
    "jlc_type": "Extended",
    "lcsc": "C114218",
-   "lcsc_stock": 14422,
+   "lcsc_stock": 13403,
+   "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
    "xray": false
@@ -635,14 +1230,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "Murata Electronics",
    "jlc_mpn": "GRM188R71H224KAC4D",
-   "jlc_p1": 0.0738,
-   "jlc_p10": 0.0738,
-   "jlc_p100": 0.0609,
+   "jlc_p1": 0.0668,
+   "jlc_p10": 0.0668,
+   "jlc_p100": 0.0539,
    "jlc_package": "0603",
-   "jlc_stock": 4047,
+   "jlc_prices": [
+    [
+     1,
+     0.0668
+    ],
+    [
+     100,
+     0.0539
+    ],
+    [
+     300,
+     0.0475
+    ],
+    [
+     1000,
+     0.0428
+    ],
+    [
+     4000,
+     0.0377
+    ],
+    [
+     8000,
+     0.0357
+    ]
+   ],
+   "jlc_stock": 3204,
    "jlc_type": "Extended",
    "lcsc": "C669503",
-   "lcsc_stock": 4040,
+   "lcsc_stock": 3200,
+   "loss": 4,
    "min_order": 5,
    "special_fee": 0.0,
    "xray": false
@@ -652,14 +1274,85 @@
    "assembly_process": "SMT",
    "jlc_brand": "Infineon Technologies",
    "jlc_mpn": "IM69D130V01",
-   "jlc_p1": 3.1405,
-   "jlc_p10": 2.6498,
-   "jlc_p100": 2.0282,
+   "jlc_p1": 3.1249,
+   "jlc_p10": 2.6374,
+   "jlc_p100": 2.019,
    "jlc_package": "SMD-5P,4x3mm",
-   "jlc_stock": 392,
+   "jlc_prices": [
+    [
+     1,
+     3.1249
+    ],
+    [
+     10,
+     2.6374
+    ],
+    [
+     30,
+     2.3315
+    ],
+    [
+     100,
+     2.019
+    ],
+    [
+     500,
+     1.8783
+    ],
+    [
+     1000,
+     1.8161
+    ]
+   ],
+   "jlc_stock": 43,
    "jlc_type": "Extended",
    "lcsc": "C536262",
    "lcsc_stock": null,
+   "loss": 0,
+   "min_order": 1,
+   "special_fee": 0.0,
+   "xray": false
+  },
+  "IM72D128V01XTMA1": {
+   "assembly_mode": "smtWeld",
+   "assembly_process": "SMT",
+   "jlc_brand": "Infineon Technologies",
+   "jlc_mpn": "IM72D128V01XTMA1",
+   "jlc_p1": 3.1937,
+   "jlc_p10": 2.7094,
+   "jlc_p100": 2.0975,
+   "jlc_package": "SMD-5P",
+   "jlc_prices": [
+    [
+     1,
+     3.1937
+    ],
+    [
+     10,
+     2.7094
+    ],
+    [
+     30,
+     2.4083
+    ],
+    [
+     100,
+     2.0975
+    ],
+    [
+     500,
+     1.9584
+    ],
+    [
+     1000,
+     1.8979
+    ]
+   ],
+   "jlc_stock": 613,
+   "jlc_type": "Extended",
+   "lcsc": "C5119248",
+   "lcsc_stock": null,
+   "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
    "xray": false
@@ -669,14 +1362,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "C&K",
    "jlc_mpn": "JS202011JCQN",
-   "jlc_p1": 1.0616,
-   "jlc_p10": 0.862,
-   "jlc_p100": 0.6641,
+   "jlc_p1": 1.0619,
+   "jlc_p10": 0.8623,
+   "jlc_p100": 0.6643,
    "jlc_package": "SMD",
-   "jlc_stock": 3264,
+   "jlc_prices": [
+    [
+     1,
+     1.0619
+    ],
+    [
+     10,
+     0.8623
+    ],
+    [
+     30,
+     0.7641
+    ],
+    [
+     100,
+     0.6643
+    ],
+    [
+     500,
+     0.6054
+    ],
+    [
+     1300,
+     0.5759
+    ]
+   ],
+   "jlc_stock": 2938,
    "jlc_type": "Extended",
    "lcsc": "C221665",
-   "lcsc_stock": 2702,
+   "lcsc_stock": 2314,
+   "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
    "xray": false
@@ -690,10 +1410,37 @@
    "jlc_p10": 0.0106,
    "jlc_p100": 0.0106,
    "jlc_package": "0603",
-   "jlc_stock": 82388,
+   "jlc_prices": [
+    [
+     1,
+     0.0106
+    ],
+    [
+     500,
+     0.0082
+    ],
+    [
+     1500,
+     0.0069
+    ],
+    [
+     4000,
+     0.0061
+    ],
+    [
+     24000,
+     0.0055
+    ],
+    [
+     48000,
+     0.0051
+    ]
+   ],
+   "jlc_stock": 54538,
    "jlc_type": "Extended",
    "lcsc": "C2288",
-   "lcsc_stock": 72150,
+   "lcsc_stock": 47250,
+   "loss": 14,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -707,10 +1454,81 @@
    "jlc_p10": 0.0119,
    "jlc_p100": 0.0119,
    "jlc_package": "0603",
-   "jlc_stock": 292541,
+   "jlc_prices": [
+    [
+     1,
+     0.0119
+    ],
+    [
+     500,
+     0.0093
+    ],
+    [
+     1500,
+     0.0078
+    ],
+    [
+     4000,
+     0.007
+    ],
+    [
+     24000,
+     0.0062
+    ],
+    [
+     48000,
+     0.0058
+    ]
+   ],
+   "jlc_stock": 204770,
    "jlc_type": "Extended",
    "lcsc": "C12624",
-   "lcsc_stock": 289550,
+   "lcsc_stock": 187300,
+   "loss": 16,
+   "min_order": 20,
+   "special_fee": 0.0,
+   "xray": false
+  },
+  "KT-0603R": {
+   "assembly_mode": "smtWeld",
+   "assembly_process": "SMT",
+   "jlc_brand": "Hubei KENTO Elec",
+   "jlc_mpn": "KT-0603R",
+   "jlc_p1": 0.0077,
+   "jlc_p10": 0.0077,
+   "jlc_p100": 0.0077,
+   "jlc_package": "0603",
+   "jlc_prices": [
+    [
+     1,
+     0.0077
+    ],
+    [
+     1000,
+     0.0059
+    ],
+    [
+     4000,
+     0.0046
+    ],
+    [
+     8000,
+     0.004
+    ],
+    [
+     48000,
+     0.0037
+    ],
+    [
+     100000,
+     0.0036
+    ]
+   ],
+   "jlc_stock": 8411492,
+   "jlc_type": "Basic",
+   "lcsc": "C2286",
+   "lcsc_stock": 5782200,
+   "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,
    "xray": false
@@ -720,32 +1538,42 @@
    "assembly_process": "SMT",
    "jlc_brand": "Texas Instruments",
    "jlc_mpn": "LMR33640ADDAR",
-   "jlc_p1": 2.9066,
-   "jlc_p10": 2.5549,
-   "jlc_p100": 2.11,
+   "jlc_p1": 2.9073,
+   "jlc_p10": 2.5556,
+   "jlc_p100": 2.1106,
    "jlc_package": "ESOP-8",
-   "jlc_stock": 2490,
+   "jlc_prices": [
+    [
+     1,
+     2.9073
+    ],
+    [
+     10,
+     2.5556
+    ],
+    [
+     30,
+     2.3347
+    ],
+    [
+     100,
+     2.1106
+    ],
+    [
+     500,
+     2.0075
+    ],
+    [
+     1000,
+     1.9633
+    ]
+   ],
+   "jlc_stock": 2073,
    "jlc_type": "Extended",
    "lcsc": "C2836966",
-   "lcsc_stock": 2397,
+   "lcsc_stock": 2000,
+   "loss": 0,
    "min_order": 1,
-   "special_fee": 0.0,
-   "xray": false
-  },
-  "LTST-C191KRKT": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "Lite-On",
-   "jlc_mpn": "LTST-C191KRKT",
-   "jlc_p1": 0.0192,
-   "jlc_p10": 0.0192,
-   "jlc_p100": 0.0192,
-   "jlc_package": "0603",
-   "jlc_stock": 380670,
-   "jlc_type": "Extended",
-   "lcsc": "C125099",
-   "lcsc_stock": 377740,
-   "min_order": 20,
    "special_fee": 0.0,
    "xray": false
   },
@@ -754,14 +1582,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "Analog Devices Inc./Maxim Integrated",
    "jlc_mpn": "MAX98357AETE+T",
-   "jlc_p1": 1.3086,
-   "jlc_p10": 1.1434,
-   "jlc_p100": 0.8735,
+   "jlc_p1": 1.2451,
+   "jlc_p10": 1.0815,
+   "jlc_p100": 0.8099,
    "jlc_package": "TQFN-16-EP(3x3)",
-   "jlc_stock": 28670,
+   "jlc_prices": [
+    [
+     1,
+     1.2451
+    ],
+    [
+     10,
+     1.0815
+    ],
+    [
+     30,
+     0.9261
+    ],
+    [
+     100,
+     0.8099
+    ],
+    [
+     500,
+     0.7625
+    ],
+    [
+     1000,
+     0.7396
+    ]
+   ],
+   "jlc_stock": 24121,
    "jlc_type": "Extended",
    "lcsc": "C910544",
-   "lcsc_stock": 28670,
+   "lcsc_stock": 24121,
+   "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
    "xray": false
@@ -771,14 +1626,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "onsemi",
    "jlc_mpn": "MM3Z10VT1G",
-   "jlc_p1": 0.04,
-   "jlc_p10": 0.04,
-   "jlc_p100": 0.04,
+   "jlc_p1": 0.0382,
+   "jlc_p10": 0.0382,
+   "jlc_p100": 0.0303,
    "jlc_package": "SOD-323",
-   "jlc_stock": 21866,
+   "jlc_prices": [
+    [
+     1,
+     0.0382
+    ],
+    [
+     100,
+     0.0303
+    ],
+    [
+     300,
+     0.0264
+    ],
+    [
+     3000,
+     0.0216
+    ],
+    [
+     6000,
+     0.0194
+    ],
+    [
+     9000,
+     0.0182
+    ]
+   ],
+   "jlc_stock": 21092,
    "jlc_type": "Extended",
    "lcsc": "C39057",
-   "lcsc_stock": 21860,
+   "lcsc_stock": 20030,
+   "loss": 4,
    "min_order": 5,
    "special_fee": 0.0,
    "xray": false
@@ -788,14 +1670,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "RF-star",
    "jlc_mpn": "RF-BM-2652P2",
-   "jlc_p1": 6.6325,
-   "jlc_p10": 5.5628,
-   "jlc_p100": 5.5628,
+   "jlc_p1": 8.6843,
+   "jlc_p10": 7.4785,
+   "jlc_p100": 7.4785,
    "jlc_package": "SMD",
+   "jlc_prices": [
+    [
+     1,
+     8.6843
+    ],
+    [
+     10,
+     7.4785
+    ],
+    [
+     30,
+     7.4785
+    ],
+    [
+     100,
+     7.4785
+    ],
+    [
+     102,
+     7.4785
+    ],
+    [
+     104,
+     7.4785
+    ]
+   ],
    "jlc_stock": 126,
    "jlc_type": "Extended",
    "lcsc": "C5440064",
    "lcsc_stock": 126,
+   "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
    "xray": false
@@ -805,14 +1714,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "Littelfuse",
    "jlc_mpn": "SD24C-01FTG",
-   "jlc_p1": 0.204,
-   "jlc_p10": 0.204,
-   "jlc_p100": 0.159,
+   "jlc_p1": 0.2041,
+   "jlc_p10": 0.2041,
+   "jlc_p100": 0.1591,
    "jlc_package": "SOD-323",
-   "jlc_stock": 8806,
+   "jlc_prices": [
+    [
+     1,
+     0.2041
+    ],
+    [
+     50,
+     0.1591
+    ],
+    [
+     150,
+     0.1399
+    ],
+    [
+     500,
+     0.1159
+    ],
+    [
+     3000,
+     0.1051
+    ],
+    [
+     6000,
+     0.0987
+    ]
+   ],
+   "jlc_stock": 8554,
    "jlc_type": "Extended",
    "lcsc": "C207246",
-   "lcsc_stock": 8805,
+   "lcsc_stock": 8550,
+   "loss": 2,
    "min_order": 5,
    "special_fee": 0.0,
    "xray": false
@@ -822,14 +1758,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "Sunltech Tech",
    "jlc_mpn": "SLO0630H6R8MTT",
-   "jlc_p1": 0.1073,
-   "jlc_p10": 0.1073,
+   "jlc_p1": 0.1074,
+   "jlc_p10": 0.1074,
    "jlc_p100": 0.0871,
    "jlc_package": "SMD,7.3x6.6mm",
-   "jlc_stock": 3675,
+   "jlc_prices": [
+    [
+     1,
+     0.1074
+    ],
+    [
+     50,
+     0.0871
+    ],
+    [
+     150,
+     0.0769
+    ],
+    [
+     1000,
+     0.0694
+    ],
+    [
+     2000,
+     0.0632
+    ],
+    [
+     5000,
+     0.0603
+    ]
+   ],
+   "jlc_stock": 4449,
    "jlc_type": "Extended",
    "lcsc": "C207841",
-   "lcsc_stock": 3675,
+   "lcsc_stock": 4275,
+   "loss": 1,
    "min_order": 2,
    "special_fee": 0.0,
    "xray": false
@@ -843,10 +1806,37 @@
    "jlc_p10": 0.1262,
    "jlc_p100": 0.1026,
    "jlc_package": "DO-214AA",
-   "jlc_stock": 1918,
+   "jlc_prices": [
+    [
+     1,
+     0.1262
+    ],
+    [
+     50,
+     0.1026
+    ],
+    [
+     150,
+     0.0909
+    ],
+    [
+     500,
+     0.082
+    ],
+    [
+     3000,
+     0.0666
+    ],
+    [
+     6000,
+     0.063
+    ]
+   ],
+   "jlc_stock": 1834,
    "jlc_type": "Extended",
    "lcsc": "C224015",
-   "lcsc_stock": 1915,
+   "lcsc_stock": 1830,
+   "loss": 2,
    "min_order": 5,
    "special_fee": 0.0,
    "xray": false
@@ -856,14 +1846,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "KEMET",
    "jlc_mpn": "T520B107M006ATE040",
-   "jlc_p1": 0.5578,
-   "jlc_p10": 0.4548,
-   "jlc_p100": 0.355,
+   "jlc_p1": 0.553,
+   "jlc_p10": 0.4483,
+   "jlc_p100": 0.3485,
    "jlc_package": "CASE-B-3528-21(mm)",
-   "jlc_stock": 2609,
+   "jlc_prices": [
+    [
+     1,
+     0.553
+    ],
+    [
+     10,
+     0.4483
+    ],
+    [
+     30,
+     0.4042
+    ],
+    [
+     100,
+     0.3485
+    ],
+    [
+     500,
+     0.324
+    ],
+    [
+     1000,
+     0.2455
+    ]
+   ],
+   "jlc_stock": 4551,
    "jlc_type": "Extended",
    "lcsc": "C116740",
-   "lcsc_stock": 2609,
+   "lcsc_stock": 4551,
+   "loss": 0,
    "min_order": 5,
    "special_fee": 0.0,
    "xray": false
@@ -873,31 +1890,85 @@
    "assembly_process": "SMT",
    "jlc_brand": "Texas Instruments",
    "jlc_mpn": "TPS2553DBVR",
-   "jlc_p1": 0.5529,
-   "jlc_p10": 0.458,
-   "jlc_p100": 0.3354,
+   "jlc_p1": 0.5563,
+   "jlc_p10": 0.4614,
+   "jlc_p100": 0.3387,
    "jlc_package": "SOT-23-6",
-   "jlc_stock": 53853,
+   "jlc_prices": [
+    [
+     1,
+     0.5563
+    ],
+    [
+     10,
+     0.4614
+    ],
+    [
+     30,
+     0.3927
+    ],
+    [
+     100,
+     0.3387
+    ],
+    [
+     500,
+     0.3207
+    ],
+    [
+     1000,
+     0.3093
+    ]
+   ],
+   "jlc_stock": 43731,
    "jlc_type": "Extended",
    "lcsc": "C55266",
-   "lcsc_stock": 53853,
+   "lcsc_stock": 42733,
+   "loss": 0,
    "min_order": 5,
    "special_fee": 0.0,
    "xray": false
   },
-  "USB2514B-I/M2": {
+  "USB2514BT-I/M2": {
    "assembly_mode": "smtWeld",
    "assembly_process": "SMT",
    "jlc_brand": "Microchip Tech",
-   "jlc_mpn": "USB2514B-I/M2",
-   "jlc_p1": 2.4093,
-   "jlc_p10": 2.0446,
-   "jlc_p100": 1.5817,
-   "jlc_package": "SQFN-36-EP(6x6)",
-   "jlc_stock": 1182,
+   "jlc_mpn": "USB2514BT-I/M2",
+   "jlc_p1": 2.3871,
+   "jlc_p10": 2.0059,
+   "jlc_p100": 1.5232,
+   "jlc_package": "QFN-36-EP(6x6)",
+   "jlc_prices": [
+    [
+     1,
+     2.3871
+    ],
+    [
+     10,
+     2.0059
+    ],
+    [
+     30,
+     1.767
+    ],
+    [
+     100,
+     1.5232
+    ],
+    [
+     500,
+     1.4136
+    ],
+    [
+     1000,
+     1.3662
+    ]
+   ],
+   "jlc_stock": 6206,
    "jlc_type": "Extended",
-   "lcsc": "C220679",
-   "lcsc_stock": 1187,
+   "lcsc": "C510949",
+   "lcsc_stock": 6140,
+   "loss": 0,
    "min_order": 1,
    "special_fee": 0.0,
    "xray": false
@@ -907,14 +1978,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "Global Connector Technology",
    "jlc_mpn": "USB4105-GF-A",
-   "jlc_p1": 1.0207,
-   "jlc_p10": 0.8277,
-   "jlc_p100": 0.6363,
+   "jlc_p1": 1.021,
+   "jlc_p10": 0.8279,
+   "jlc_p100": 0.6365,
    "jlc_package": "SMD",
-   "jlc_stock": 17519,
+   "jlc_prices": [
+    [
+     1,
+     1.021
+    ],
+    [
+     10,
+     0.8279
+    ],
+    [
+     30,
+     0.733
+    ],
+    [
+     100,
+     0.6365
+    ],
+    [
+     500,
+     0.5792
+    ],
+    [
+     800,
+     0.5498
+    ]
+   ],
+   "jlc_stock": 12401,
    "jlc_type": "Extended",
    "lcsc": "C3020560",
-   "lcsc_stock": 14825,
+   "lcsc_stock": 8250,
+   "loss": 0,
    "min_order": 1,
    "special_fee": 0.03,
    "xray": false
@@ -924,14 +2022,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "STMicroelectronics",
    "jlc_mpn": "USBLC6-2SC6",
-   "jlc_p1": 0.1559,
-   "jlc_p10": 0.1559,
-   "jlc_p100": 0.1193,
+   "jlc_p1": 0.1561,
+   "jlc_p10": 0.1561,
+   "jlc_p100": 0.1192,
    "jlc_package": "SOT-23-6L",
-   "jlc_stock": 20640,
+   "jlc_prices": [
+    [
+     1,
+     0.1561
+    ],
+    [
+     50,
+     0.1192
+    ],
+    [
+     150,
+     0.1012
+    ],
+    [
+     500,
+     0.0851
+    ],
+    [
+     3000,
+     0.0807
+    ],
+    [
+     6000,
+     0.0781
+    ]
+   ],
+   "jlc_stock": 42853,
    "jlc_type": "Extended",
    "lcsc": "C7519",
-   "lcsc_stock": 20650,
+   "lcsc_stock": 40105,
+   "loss": 2,
    "min_order": 5,
    "special_fee": 0.0,
    "xray": false
@@ -941,14 +2066,41 @@
    "assembly_process": "SMT",
    "jlc_brand": "YXC Crystal Oscillators",
    "jlc_mpn": "X322524MOB4SI",
-   "jlc_p1": 0.0946,
-   "jlc_p10": 0.0946,
-   "jlc_p100": 0.0756,
+   "jlc_p1": 0.0931,
+   "jlc_p10": 0.0931,
+   "jlc_p100": 0.0742,
    "jlc_package": "SMD3225-4P",
-   "jlc_stock": 333261,
+   "jlc_prices": [
+    [
+     1,
+     0.0931
+    ],
+    [
+     50,
+     0.0742
+    ],
+    [
+     150,
+     0.0643
+    ],
+    [
+     500,
+     0.0563
+    ],
+    [
+     3000,
+     0.0485
+    ],
+    [
+     6000,
+     0.0467
+    ]
+   ],
+   "jlc_stock": 292452,
    "jlc_type": "Extended",
    "lcsc": "C70590",
-   "lcsc_stock": 272570,
+   "lcsc_stock": 220935,
+   "loss": 4,
    "min_order": 5,
    "special_fee": 0.0,
    "xray": false

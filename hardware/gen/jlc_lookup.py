@@ -62,7 +62,9 @@ def detail(code):
                 price100=_price(d.get("prices"), 100), package=d.get("componentSpecificationEn"), descr=d.get("describe"),
                 assembly_process=d.get("assemblyProcess"), assembly_mode=d.get("assemblyMode"), xray=bool(d.get("xrayFlag")),
                 fixture=bool(d.get("fixtureFlag")), special_fee=d.get("specialComponentFee") or 0.0,
-                min_order=d.get("leastNumber"), status=d.get("componentStatus"), datasheet=d.get("dataManualUrl"),
+                min_order=d.get("leastNumber"), loss=d.get("lossNumber") or 0,
+                prices=[[q["startNumber"], q["productPrice"]] for q in sorted(d.get("prices") or [], key=lambda q: q["startNumber"])],
+                status=d.get("componentStatus"), datasheet=d.get("dataManualUrl"),
                 attributes={a["attribute_name_en"]: a["attribute_value_name"] for a in d.get("attributes") or []},
                 lcsc_stock=lc.get("stockNumber"), lcsc_url="https://www.lcsc.com/product-detail/%s.html" % code,
                 jlc_url="https://jlcpcb.com/partdetail/%s" % code)
@@ -133,7 +135,7 @@ def main(argv):
             p.update(jlc_stock=d["jlc_stock"], lcsc_stock=d["lcsc_stock"], jlc_p1=d["price1"], jlc_p10=d["price10"], jlc_p100=d["price100"],
                      jlc_type="Preferred Extended" if (pref and d["kind"] != "Basic") else d["kind"], jlc_mpn=d["mpn"], jlc_brand=d["brand"],
                      jlc_package=d["package"], assembly_process=d["assembly_process"], assembly_mode=d["assembly_mode"],
-                     xray=d["xray"], special_fee=d["special_fee"], min_order=d["min_order"])
+                     xray=d["xray"], special_fee=d["special_fee"], min_order=d["min_order"], loss=d["loss"], jlc_prices=d["prices"])
             print("%-28s %-10s %-18s JLC %-8s LCSC %-8s %s" % (key[:28], p["lcsc"], p["jlc_type"], p["jlc_stock"], p["lcsc_stock"], p["jlc_p10"]))
         db["checked"] = datetime.date.today().isoformat()
         json.dump(db, open(argv[1], "w"), indent=1, sort_keys=True, ensure_ascii=False)

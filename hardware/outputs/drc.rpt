@@ -1,5 +1,5 @@
 ** Drc report for voxhub.kicad_pcb **
-** Created on 2026-11-12T10:54:30+0000 **
+** Created on 2026-11-21T15:23:38 **
 ** Report includes: Errors, Warnings, Exclusions **
 
 ** Found 0 DRC violations **
@@ -7,5 +7,10 @@
 ** Found 0 unconnected pads **
 
 ** Found 0 Footprint errors **
+
+** Ignored checks **
+    - Footprint doesn't match symbol's footprint filters
+    - Footprint component type doesn't match footprint pads
+    - Footprint doesn't match copy in library
 
 ** End of Report **
