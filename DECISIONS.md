@@ -1,6 +1,9 @@
 # Design decisions
 
 Every non-obvious choice, with the reasoning behind it. Newest constraints first, then by subsystem.
+The decision logs are records of their sessions and are not rewritten: where a log names revision A2 boards or A2
+values, the Revision A3 log says what changed (the superseded A2 decisions are listed at the top of the A2 log), and
+the numbered sections 0 to 11 and the Open items describe the board as it is now, revision A3.
 "Verified against datasheet" means checked against the manufacturer document named in [section 9](#9-footprint--pin-out-verification-against-the-datasheets);
 anything that could not be verified is called out in [Open items](#open-items---things-a-human-must-re-check).
 
@@ -42,7 +45,7 @@ the revision text on the silkscreen (geometric comparison: pads, 1384 tracks, 28
 |---|---|---|
 | C-1 | **What counts is the number of distinct JLCPCB part numbers, not Basic against Extended.** The BOM goes from 53 to 44 lines (resistor values 15 to 9, capacitor lines 11 to 9, LED lines 4 to 3), the machine-placed part types from 51 to 42 | JLCPCB's price list of 22 Oct 2026: "Feeder Loading: $1.53 Basic/Extend" for Standard PCBA - "all basic and extended components require feeder loading". A Basic part saves nothing in this order; 9 feeders less are 13.77 USD |
 | C-2 | **PD strap resistors (CYPD3177):** R3 (VBUS_MAX to VDDD) and R6 (ISNK_FINE to ground) are 1k instead of 0 ohm; ISNK_COARSE = 2 A is set with R4 / R5 = 2.2k / 1k instead of 5.1k / 2.4k; VBUS_MIN = 9 V with R1 / R2 = 12k / 2.2k instead of 5.1k / 1k. The strap meaning is unchanged: 9 V minimum, 20 V maximum, 2 A, +0 mA. R8 = 49.9k on FLIP stays | The data sheet publishes the pin voltage window of every strap level (0-248 / 249-786 / 787-1347 / 1348-1920 / 1921-2778 / from 2779 mV at 3.3 V, read by an 8-bit ADC with about 4 LSB = 52 mV total error); the resistor values in its tables are "suggested". With 1 % resistors: VBUS_MIN 503-520 mV in 249-786 (the old values gave 532-550 mV; the window centre is 517 mV), ISNK_COARSE 1017-1046 mV in 787-1347 (smallest margin 230 mV = 17.8 LSB), a single 1k moves an end level by 2 uV (2 nA leakage). Infineon's own kit sets end levels with single resistors. The dividers draw 1.26 mA from VDDD instead of 0.98 mA. FLIP reads its pull-up value: 50k means "not data capable", which is what this power-only port is - it must not be merged into a small value. Lines saved: 0 ohm, 2.4k, 5.1k |
-| C-3 | **Gate network of the load switch Q1:** R10 = 100k instead of 150k (R9 stays 100k), so VGS = -0.5 x VBUS instead of -0.4 x VBUS; C7 = 100 nF 16 V instead of 10 nF 50 V. The 10 V Zener D5 is now a working part of the circuit, not only a transient clamp | VGS is 3.56 V at the lowest valid sink voltage of a 9 V contract (7.30 V), 4.4-4.5 V at 9 V, 10.0 V at 20 V and at most 10.86 V at 21.5 V against the AO3401A limit of +-12 V; above 23.8 V the Zener clamps (14 uA at 20 V, 171 uA at the 35.5 V clamp of the TVS). The guaranteed RDS(on) at 9 V improves from 85 to 60 mOhm (0.27 W instead of 0.39 W at the 2.13 A peak). The alternative 49.9k / 100k was rejected: 2.35 V at 7.30 V is below the lowest gate voltage with a guaranteed RDS(on). C7 sets the turn-on: simulated surge into the input capacitors at a 20 V contract 3.3 A with 100 nF (the A2 values gave 7.2 A, 100k / 100k with 10 nF would give 9.6 A); the voltage on C7 is VGS, at most 11 V; turn-off takes about 10 ms, and nothing behind the switch needs a fast turn-off. Lines saved: 150k, 10 nF |
+| C-3 | **Gate network of the load switch Q1:** R10 = 100k instead of 150k (R9 stays 100k), so VGS = -0.5 x VBUS instead of -0.4 x VBUS; C7 = 100 nF 16 V instead of 10 nF 50 V. The 10 V Zener D5 is now a working part of the circuit, not only a transient clamp | VGS is 3.56 V at the lowest valid sink voltage of a 9 V contract (7.30 V), 4.4-4.5 V at 9 V, 10.0 V at 20 V and at most 10.86 V at 21.5 V against the AO3401A limit of +-12 V; above 23.8 V the Zener clamps (14 uA at 20 V, 171 uA at the 35.5 V clamp of the TVS). At a 9 V contract the gate now gets 4.4 to 4.5 V, which is the data sheet's 60 mOhm point (4.5 V) instead of its 85 mOhm point (2.5 V): about 0.28 W instead of up to 0.40 W at the 2.17 A peak. The alternative 49.9k / 100k was rejected: 2.35 V at 7.30 V is below the lowest gate voltage with a guaranteed RDS(on). C7 sets the turn-on: simulated surge into the input capacitors at a 20 V contract 3.3 A with 100 nF (the A2 values gave 7.2 A, 100k / 100k with 10 nF would give 9.6 A); the voltage on C7 is VGS, at most 11 V; turn-off takes about 10 ms, and nothing behind the switch needs a fast turn-off. Lines saved: 150k, 10 nF |
 | C-4 | **Enable divider of the buck converter:** R11 / R12 = 100k / 20k instead of 470k / 100k. Turn-on 7.08 / 7.39 / 7.69 V (min / typ / max), turn-off 6.49 / 6.79 / 7.08 V; before: 7.02 V and 6.45 V typical | Still 1.58 V above vSafe5V (5.5 V), 0.86 V below the lowest 9 V source voltage (8.55 V), off before the converter runs out of input voltage at full load (5.85 to 6.01 V), EN pin at most 3.64 V at 21.5 V. The alternative 100k / 24.9k was rejected (turn-off 5.43 to 5.91 V lies in drop-out). The feedback divider stays 100k / 24.9k, the data sheet's 5 V row: 4.86 / 5.02 / 5.17 V, up to 5.23 V at light load. Line saved: 470k |
 | C-5 | **One 1 uF capacitor: Samsung CL10B105KB8NQNC, 50 V X7R 0603 (C5199872)** for C1 and C2 on VBUS and for the regulator bypass pins C3 (VDDD), C5 (VCCD), C11 (buck VCC). It replaces the 1 uF 50 V X5R, the 100 nF 50 V 0603 and the 1 uF 25 V X7R | No rating goes down: X7R everywhere, 50 V everywhere. Under bias it keeps more than both old parts (0.89 uF at 5 V against 0.83 uF, 0.31 uF at 20 V against 0.15 uF). The VBUS bypass in front of the switch rises from 0.76 uF to 1.78 uF at attach (USB asks for 1 to 10 uF). The Basic 50 V X5R part was not used for the regulator pins: 0.66 uF at 5 V and an 85 C class next to the hottest part of the board. Lines saved: two |
 | C-6 | **LEDs: three part numbers instead of four.** Red D4 / D9: Hubei KENTO KT-0603R (C2286, JLCPCB Basic) instead of Lite-On LTST-C191KRKT, with R22 = 1k instead of 150 ohm. Green D6 (PWR), D7 (status), D10 (ACT): KT-0603G; the Wurth 150060VS75000 is gone; R15 and R18 = 10k | KT-0603R gives 145-300 mcd at 20 mA, so 1.4 mA (1.0 to 1.9 mA) is enough for 13-27 mcd where the Lite-On part needed 9 mA; at that current its lower rating (25 mA, 40 mW, steeper derating - this reverses A2-13) is loaded with 28 % at 85 C. Status LEDs from the data sheet curves: green 27-55 mcd (5 V, 10k, 0.27 mA), blue 23-57 mcd (2.2k), red 13-27 mcd. D10 runs from 3.3 V through 1k like the activity LED of the CM4 IO board: 0.9 mA typical, about 0.1 mA with every limit against it - it lights on every board but its brightness varies about 10 : 1. JLCPCB's footprint of C2286 numbers the pads the other way round (pad 1 = anode); `make_jlc.py` fits by pin name ("terminals swapped by pin name" in the placement report), rotations of D4 and D9 unchanged. Lines saved: 150 ohm, Wurth LED |
@@ -50,7 +53,6 @@ the revision text on the silkscreen (geometric comparison: pads, 1384 tracks, 28
 | C-8 | **Not merged, each for a reason:** R41 = 33 ohm in the PDM clock (150 ohm would give edges of up to 18 ns against the microphone's 13 ns limit; 0 ohm overshoots to 4.0-4.3 V); R16 = 49.9k on the microSD switch (20k would limit at 1.2-1.4 A on a rail rated 600 mA); R14 = 24.9k and R27 = 12.0k (feedback, hub bias); the hub strap resistors (pull-downs must be 47-100k, the port-disable pull-ups 10k); C10 = 220 nF 50 V X7R (the part TI demands at VIN); the 4.7 uF line (bulk for the SD card, the radio and the port switches); the eight 22 uF (only all eight together reach the output capacitance TI's table asks for after DC bias) | A line is worth 1.53 USD; none of these is |
 | C-9 | **The hub filter capacitors C28 / C29 stay 100 nF.** A suspected defect (1 uF required on CRFILT / PLLFILT) was checked and is none | USB251xB data sheet DS00001692E, table 3-2: the pins "can have up to a 0.1 uF low-ESR capacitor to VSS, or be left unconnected"; the 1 uF figure comes from Microchip's 2009 evaluation board, whose 2013 revision carries 0.1 uF |
 | C-10 | **Basic parts were preferred only where they are free:** the red LED. Not swapped: the 4.7 uF line (the Basic part is rated 16 V instead of 25 V) and the 2N7002 (the Basic part is a 115 mA / +-20 V type) | No fee to save (C-1), so a lower rating buys nothing |
-
 | C-11 | **Via covering stays "Epoxy Filled & Capped"; the vias stay in the exposed pads.** The alternative was worked out to the end - a thermal model of the real copper, JLCPCB's published rules, and a layout variant that was built and passed ERC, DRC and all gates - and then not adopted | Asked for: move the thermal vias out of the exposed pads if that makes the free "Plugged" option safe without hurting thermals; it would save 20.96 USD (form prices of 2026-11-20). JLCPCB plugs a via only if it has no solder mask opening on either side and keeps 0.35 mm from every pad opening; a via in a pad is never plugged, and the plugged surface "may not be completely level". (1) Thermals: a 3-D conduction model of the board (0.1 mm cells, validated against hand calculations) gives for the buck converter U2 +2.9 to +5.5 K at the theoretical peak when its four in-window vias go, where the board has no margin left (N-2); the amplifier U10 loses its only via and runs 13 K hotter at continuous full power (1 K with speech). (2) The hub U4 cannot give up the vias under its package: the exposed pad is its only ground ("must be tied to ground with multiple vias", Microchip), a track through the one free corner would be about 0.5 nH instead of 0.04 nH. The only way to keep them is a solder mask strip across the pad with the vias under it - a ridge of unspecified height under the middle of a QFN-36 and, for the PD controller, a QFN-24; Infineon's layout note warns against covered vias in the soldered pad. A lifted U1 is a dead board, and nobody can rework these boards. (3) The best variant found: U2 with 10 vias in its mask-covered pad ends and 6 outside the body (+2 K), U4 and U1 with 5 and 3 vias under a 1.3 mm mask strip, U10 with one via at a ground lead; 306 vias, placement and CPL unchanged. It stays the documented fallback for a later run of boards whose first samples can be inspected - not for two boards that must work the first time. Filled and capped vias are flat and closed: 21 USD remain cheap insurance (A2-29) |
 | C-12 | **R28, the pull-up of the hub's VBUS_DET input: 10k instead of 100k** (no effect on the BOM) | Found in the data sheet check: with 100k and the maximum input leakage of 10 uA the pin sits at 2.21 V against a threshold of 2.0 V - 0.21 V of margin in the worst case; with 10k it is 1.12 V. The pin only tells the hub that the upstream host is present |
 
@@ -67,11 +69,14 @@ the revision text on the silkscreen (geometric comparison: pads, 1384 tracks, 28
 
 ### Final stock and price check (live, JLCPCB assembly library and LCSC, 2026-11-20 22:23 to 22:46 UTC)
 
+The figures below are those of the first reading, which led to the part changes. The sourcing file, the BOM and the
+order cost were read again after the changes (`hardware/gen/sourcing_jlc.json`, field `checked`) and carry that date.
+
 | # | Decision | Why |
 |---|---|---|
 | F-1 | **U4 is ordered as USB2514BT-I/M2 (C510949)** instead of USB2514B-I/M2 (C220679) | 2 pieces left of the tray part (1,182 on 2026-11-12), 2 needed - below twice the need. The "T" part is the same device on tape and reel (data sheet p. 55: the identifier "is not printed on the device package"), 6,206 in stock, same pads, same pin-1 corner, CPL angle unchanged |
-| F-2 | **J6 is ordered as Jing Extension 907-112A1022D10200 (C29780026)**, the Wurth 61400826021 becomes the alternate | The Wurth part fell from 116 to 18 pieces in eight days and would very likely be gone on the day of the order; the Jing part has 2,434 and costs 0.36 instead of 2.75 USD. Checked against both drawings and the board: pins match, the front shell stakes sit 0.12 mm forward and still clear the smallest drilled hole by 0.08 mm, shell 0.26 mm taller (2.4 mm left to the base), flange 14.6 x 15.7 mm in the 15.6 mm window, 1.5 A and 1500 cycles as before. Accepted: its drawing states no temperature range, four of its dimensions are scaled from the drawing, not dimensioned. JLCPCB has a footprint for it, so all 136 placements are now checked against JLCPCB's own footprints (the Wurth part had none) |
-| F-3 | **The microphones are ordered as Infineon IM72D128V01XTMA1 (C5119248)**, the IM69D130V01 becomes the alternate; C43 / C44 at their supply pins become 1 uF 25 V X5R 0402 (CL05A105KA5NQNC, C52923, Basic) | The IM69D130V01 fell from 392 to 43 pieces in eight days and Infineon lists it as not for new designs; the IM72D128 (623 pieces) has the same package, land pattern, pin-out, clock ranges, timing and -36 dBFS sensitivity, 72 instead of 69 dB SNR, overload point 128 instead of 130 dBSPL, absolute maximum 3.6 V instead of 4.0 V on the 3.3 V rail (at most 3.38 V). Two consequences: its data sheet asks for 1 uF at VDD "to ensure best SNR performance" (one new BOM line), and the microphone with SELECT = VDD (MK2, right channel) puts a constant level of typically -40 dBFS into its data stream, which the ADAU7002 passes on - see W-1. The cheaper IM73D122 (875 pieces) was not taken: it is 10 dB more sensitive and every gain default and gain advice of the software would have to move |
+| F-2 | **J6 is ordered as Jing Extension 907-112A1022D10200 (C29780026)**, the Wurth 61400826021 becomes the alternate | The Wurth part fell from 116 to 18 pieces in eight days and would very likely be gone on the day of the order; the Jing part has 2,434 and costs 0.36 instead of 2.75 USD. Checked against both drawings and the board: pins match, the front shell stakes sit 0.12 mm forward and still clear the smallest drilled hole by 0.08 mm, shell 0.26 mm taller (2.4 mm left to the base), flange 14.6 x 15.7 mm in the 15.6 mm window, 1.5 A and 1500 cycles as before. Accepted: its drawing states no temperature range, four of its dimensions are scaled from the drawing, not dimensioned. JLCPCB has a footprint for it, so all 136 placements are now checked against JLCPCB's own footprints (the Wurth part had none). The USB-A window of the enclosure is 0.3 mm longer for its taller flange (15.6 x 17.3 mm) |
+| F-3 | **The microphones are ordered as Infineon IM72D128V01XTMA1 (C5119248)**, the IM69D130V01 becomes the alternate; C43 / C44 at their supply pins become 1 uF 25 V X5R 0402 (CL05A105KA5NQNC, C52923, Basic) | The IM69D130V01 fell from 392 to 43 pieces in eight days and Infineon lists it as not for new designs; the IM72D128 (623 pieces) has the same package, land pattern, pin-out, clock ranges, timing and -36 dBFS sensitivity, 72 instead of 69 dB SNR, overload point 128 instead of 130 dBSPL, absolute maximum 3.6 V instead of 4.0 V on the 3.3 V rail (at most 3.38 V). Two consequences: its data sheet asks for 1 uF at VDD "to ensure best SNR performance" (one new BOM line), and the microphone with SELECT = VDD (MK2, right channel) puts a constant level of typically -40 dBFS into its data stream, which the ADAU7002 passes on - see W-1. The clock input limit (VDD + 0.3 V) is the same as before; a simulation of the clock net with assumed driver data peaks at 3.52 V against 3.6 V, to be looked at on the first board. The cheaper IM73D122 (875 pieces) was not taken: it is 10 dB more sensitive and every gain default and gain advice of the software would have to move |
 | F-4 | **Two thin lines remain and have no alternate:** ADAU7002ACBZ-R7 (63 pieces, was 104; price 2.47 USD, was 3.91) and RF-BM-2652P2 (126 pieces; price 8.66 USD, was 6.63). Reserve them first as the order guide says | No other PDM-to-I2S converter and no other CC2652P module with this footprint is stocked. The spacers 9774015151R are back at 2,091 pieces |
 | F-5 | **The board is revision A3** (title block, silkscreen "VoxHub CM4  rev A3") | Values, part numbers and two land patterns differ from A2; a board must say which BOM belongs to it |
 
@@ -164,6 +169,18 @@ shopping list change; no questions; no comments added to code or config files; c
 | S-40 | **Satellite image builder: the first build's own checks failed** (absolute enable symlinks tested with `-e` on the build host, `$` in the shadow regex, LVA `--help` needs a sound server, the unattended-upgrades dry run does not finish in emulation) | Checks fixed; the image is checked again by a separate runtime test (`os/satellite/test-satellite-image.sh`, `os/README.md`) |
 
 ## Revision A2 (third session, 2026-11-12): orderable at JLCPCB - decision log
+
+**Superseded by revision A3** (this log is kept as written; the new decision is in the Revision A3 log at the top of
+the file): A2-6 microphones -> F-3 (IM72D128V01; the IM69D130V01 is the alternate). A2-8 stacked USB-A connector ->
+F-2 (the Jing part is ordered, the Wurth part is the alternate). The stock figures of 2026-11-12 in A2-2 and A2-6 to
+A2-8 and the list of thin lines under "Exceptions" -> F-1 to F-4 and section 10 (two thin lines are left, the spacers
+are back at 2,091 pieces); the date of the last lookup in A2-1 is now 2026-11-21. A2-9 resistor values and 1 uF
+capacitor lines -> C-1 to C-5, with them the "Extended parts" exception. A2-12, A2-13, A2-43 and A2-49 LED part
+numbers, series resistors and intensities -> C-6 (A2-13 is reversed). A2-27 and A2-34 KiCad 9 tooling -> K-1 to K-4
+(KiCad 10.0.8); the rule set of A2-23 is extended by K-5. A2-28 "135 of 136 placements" -> F-2 (136 of 136); A2-51 "53
+BOM rows" -> C-1 (44). Confirmed and not changed: A2-29 via covering "Epoxy Filled & Capped" (C-11) and with it the
+vias inside exposed pads of A2-18; A2-53 holds for A3 as well (video and still show revision A1). The silkscreen says
+"rev A3" (F-5).
 
 Goal of this revision: the owner orders fully assembled boards from JLCPCB (5 PCBs, 2 assembled, delivery to Austria),
 prints the enclosure, plugs in the CM4 and screws the device together - no soldering anywhere. Rules given for the
@@ -340,7 +357,9 @@ Every change, with its reason:
 ## 0. Constraints of the environment this was designed in
 
 The first session ran in a network-restricted sandbox. These blocks shaped several decisions (the table is kept as a
-record; the second session had general internet access and re-did the checks, see the log above and section 9):
+record; the second session had general internet access and re-did the checks, see the log above and section 9; the
+KiCad 9 tooling named in it was replaced in the fifth session by KiCad 10.0.8 in the project's own image
+`voxhub-kicad:10.0` and by frozen copies of the library parts, log K-1 to K-3):
 
 | Blocked | Consequence | Next-best option used |
 |---|---|---|
@@ -383,71 +402,136 @@ CM5 (higher power, would need 5 V/5 A and has no advantage for a cloud-LLM voice
   firmware and no NVM programming step in production (an STUSB4500 would boot at 5 V until its NVM is
   programmed; FUSB302 needs a host MCU that is not powered yet).
 - **Negotiated voltage: 9 V minimum, 20 V maximum, 2 A minimum.** The theoretical simultaneous peak on the 5 V
-  rail is ~3.5 A = 17.6 W, i.e. 19.5 W at the connector (power budget in README); realistic operation stays below 12 W.
+  rail is 3.45 A = 17.3 W, i.e. about 19.6 W at the connector: 17.3 W plus about 2.3 W of losses in the regulator,
+  the inductor and the load switch, which is 2.17 A at 9 V or 0.98 A at 20 V (power budget in README, corrected
+  figures in log N-3). Typical operation is 4.95 W on the rail and 5.2 to 5.4 W at the connector; realistic operation
+  stays below 12 W.
   5 V/3 A (15 W) is not enough, so 5 V is excluded; 9 V/2 A = 18 W is the smallest PDO that is accepted - it covers
-  realistic operation and practically every >= 20 W PD charger offers it, but the theoretical peak is 8 % above it
-  (README: use a 27 W charger if both USB ports feed 500 mA devices).
+  realistic operation and practically every >= 20 W PD charger offers it, but the theoretical peak is 9 % above it
+  (README: use a 27 W or larger charger if both USB ports feed 500 mA devices).
   **PDO selection (verified):** the BCR walks through the source PDOs from the highest voltage down and takes the first
   one inside VBUS_MIN..VBUS_MAX that offers at least ISNK_COARSE + ISNK_FINE (CY4533 kit guide 002-25263 *B, section
   "PDO selection"; datasheet 002-25383 *C section 4.1). A 30 W charger with 20 V / 1.5 A, 15 V / 2 A, 9 V / 3 A therefore
   ends up at 15 V. If no PDO qualifies it requests 5 V / 900 mA with the capability-mismatch flag, drives FAULT high
-  and leaves VBUS_FET_EN off. The four strap dividers (5.1k / 1k, 0 ohm to VDDD, 5.1k / 2.4k, 0 ohm to GND) are exactly
-  the datasheet table rows for 9 V, 20 V, 2 A and +0 mA.
-- **Load switch**: AO3401A P-FET, gate driven by the BCR's `VBUS_FET_EN` (active-low, slew-controlled driver that
-  swings 0..VBUS) through a 100k/150k divider so |Vgs| = 0.4 x VBUS (3.6 V at 9 V, 8.4 V at 21 V; the part allows 12 V),
-  plus a 10 V zener for transients. The first schematic revision had an N-FET inverter here - wrong polarity,
+  and leaves VBUS_FET_EN off.
+- **Straps (values of revision A3, log C-2):** VBUS_MIN = 9 V with R1 / R2 = 12k / 2.2k (511 mV at the pin, 503 to
+  520 mV with 1 % resistors; the 9 V level is 249 to 786 mV), VBUS_MAX = 20 V with R3 = 1k to VDDD (level from
+  2779 mV), ISNK_COARSE = 2 A with R4 / R5 = 2.2k / 1k (1031 mV, 1017 to 1046 mV; the 2 A level is 787 to 1347 mV),
+  ISNK_FINE = +0 mA with R6 = 1k to ground (level 0 to 248 mV). These are no longer the resistor values of the
+  datasheet tables, which the datasheet calls "suggested": they were verified against the pin voltage windows that
+  the same tables publish for every level (002-25383 Rev. *C, tables 2 to 4; voltages for VDDD = 3.3 V, read by an
+  8-bit ADC with about 52 mV total error; smallest margin 230 mV). The dividers draw 1.26 mA from VDDD (A2: 0.98 mA).
+  FLIP keeps its 49.9k pull-up (R8): the controller reads that value as "port not data capable", which this
+  power-only port is.
+- **Load switch**: AO3401A P-FET (Q1), gate driven by the BCR's `VBUS_FET_EN` (active-low, slew-controlled driver that
+  swings 0..VBUS) through R9 / R10 = 100k / 100k, so VGS = -0.5 x VBUS: 3.56 V at the lowest valid sink voltage of a
+  9 V contract (7.30 V), 4.4 to 4.5 V at 9 V, 10.0 V at 20 V and at most 10.86 V at 21.5 V; the part allows +-12 V.
+  From 23.8 V on VBUS the divider alone would exceed 12 V, so the 10 V Zener D5 between VBUS and the gate is a working
+  part of the circuit and must stay populated (it carries at most 14 uA at 20 V and 171 uA at the 35.5 V clamp of the
+  TVS). C7 = 100 nF 16 V between VBUS and the gate slows the turn-on: the simulated surge into the input capacitors
+  at a 20 V contract is 3.3 A (typical transfer curve of the FET, driver taken as a step; not measured); turn-off
+  takes about 10 ms, and nothing behind the switch needs a fast turn-off. At a 9 V contract the gate voltage is
+  nominally at the datasheet's 4.5 V point, where RDS(on) is at most 60 mOhm; the A2 divider gave 3.6 V, where only
+  the 85 mOhm limit of the 2.5 V point applies. Revision A2 had 100k / 150k and 10 nF (-0.4 x VBUS, simulated surge
+  7.2 A); log C-3 and N-6. The first schematic revision had an N-FET inverter here - wrong polarity,
   caught when the datasheet facts were cross-checked. A single FET is enough: the board is sink-only.
-- If the charger cannot meet the request the BCR stays at 5 V, raises FAULT (red LED) and never closes the
-  switch; additionally the buck's EN divider puts its UVLO at 7.0 V, so nothing downstream starts at vSafe5V.
+- If the charger cannot meet the request the BCR stays at 5 V, raises FAULT (red LED D4) and never closes the
+  switch; additionally the buck's enable divider starts the regulator only above 7.39 V (7.08 V at the low tolerance
+  corner), so nothing downstream starts at vSafe5V (5.5 V at most).
 - **5 V rail: TI LMR33640ADDA** (36 V, 4 A, 400 kHz, HSOIC-8 PowerPAD). All external parts are the values of the
   datasheet table for 5 V / 400 kHz: 6.8 uH (Sunltech SLO0630H6R8MTT, Isat 8 A, Irms 4.5 A, 45/54 mOhm; A1: Bourns SRP7028A-6R8M, log A2-10), 4 x 22 uF out
   (the table's typical value; minimum 3 x 22 uF), 100k / 24.9k feedback (5.02 V), 2 x 10 uF / 50 V X7R + 220 nF / 50 V
-  X7R in, 100 nF boot, 1 uF VCC. Inductor ripple 0.81 A p-p at 9 V in, 1.40 A at 20 V; peak inductor current at 4 A
-  load 4.7 A, well below Isat. EN divider 470k / 100k: on at 7.02 V, off at 6.45 V.
+  X7R in, 100 nF boot, 1 uF VCC (the 50 V X7R part since revision A3, log C-5). Output 4.86 / 5.02 / 5.17 V over the
+  tolerances of reference and resistors, up to 5.23 V at light load. After DC bias the four 22 uF at the regulator
+  are 54 uF (Samsung typical data), the level of the table's minimum column; together with the four other 22 uF on
+  the +5 V net the rail has 109 uF, so none of the eight may be removed or downgraded (log C-8). Inductor ripple
+  0.82 A p-p at 9 V in, 1.38 A at 20 V. Worst-case peak inductor current at the 3.45 A budget: 4.51 A against the
+  regulator's minimum current limit of 4.8 A (Isat 8 A); at the rated 4 A it would be 5.06 A, so the stage is not a
+  guaranteed 4 A supply at 20 V input (log N-4). EN divider R11 / R12 = 100k / 20k: on at 7.08 / 7.39 / 7.69 V, off
+  at 6.49 / 6.79 / 7.08 V (min / typ / max; log C-4; A2 had 470k / 100k: 7.02 V and 6.45 V typical).
   36 V rating leaves margin over 20 V + TVS clamp. Internally compensated -> few parts.
   Revision A was set to 5.1 V "to absorb drops"; that put the tolerance corners above the CM4's 5.25 V limit (see log no. 2).
-- **3.3 V**: taken from the CM4's own 3.3 V output (600 mA budget, ~520 mA worst case used), exactly as the
-  official CM4IO board does. This removes a regulator and all power-sequencing/back-powering questions.
-- TVS SMBJ22A on VBUS, 24 V ESD diodes on CC1/CC2. Known margin: at its full rated surge (16.9 A) the SMBJ22A clamps
-  at 35.5 V - below the LMR33640's 38 V, but above the 30 V absolute maximum of the CYPD3177 and the AO3401A. Hot-plug
-  ringing is far below that current, so this is accepted for revision A; TI TVS2200DRVR would be the tighter clamp
-  (different footprint).
+- **Losses and temperature (log N-2, N-3):** by TI's efficiency curves the regulator dissipates 1.34 W (9 V in) to
+  1.63 W (20 V in) at the theoretical 3.45 A peak; the power stage with the 54 mOhm inductor is then about 89.7 %
+  (9 V) and 88.4 % (20 V) efficient. A conduction model of the board's copper (assumed cooling 10 W/m2K on both
+  faces, 50 C around the board) gives 37.5 K/W from the regulator's pad to ambient and a junction of roughly 135 to
+  145 C at that peak (rating 125 C), about 95 to 105 C at the realistic maximum of 12 W and about 76 C at typical
+  load: the theoretical peak cannot be held continuously inside the closed enclosure. With a charger that only offers
+  9 V the load switch Q1 is the next hot spot (about 0.3 to 0.4 W in a SOT-23 beside the regulator). All of this is a
+  model, not a measurement, and it depends strongly on the assumed cooling (at the 1.1 W loss it was first run with:
+  124.5 C, and 114 to 151 C for 15 to 5 W/m2K). Measure the regulator, the inductor and Q1 on the first board.
+- **3.3 V**: taken from the CM4's own 3.3 V output (600 mA), exactly as the official CM4IO board does. This removes a
+  regulator and all power-sequencing/back-powering questions. The loads add up to 163 mA typical and 403 mA at the
+  peak (hub 95 / 110 mA with two ports, microSD 50 / 200 mA, radio 10 / 85 mA, microphones and converter 3 mA,
+  pull-ups 5 mA; README, log N-3).
+- TVS SMBJ22A on VBUS, 24 V ESD diodes on CC1/CC2. VBUS bypass in front of the switch: C1 + C2 = 2 x 1 uF 50 V X7R,
+  1.78 uF at 5 V after DC bias (USB asks for 1 to 10 uF at attach; log C-5). Known margin: at its full rated surge
+  (16.9 A) the SMBJ22A clamps at 35.5 V - below the LMR33640's 38 V, but above the 30 V absolute maximum of the
+  CYPD3177 and the AO3401A. Hot-plug ringing is far below that current, so this has been accepted since revision A;
+  TI TVS2200DRVR would be the tighter clamp (different footprint).
 
 ## 3. USB
 
-- The CM4 exposes one USB 2.0 port -> **Microchip USB2514B** hub (the same hub the CM4IO uses).
-  Ports 1-2 go to a stacked dual USB-A connector; ports 3-4 are disabled by strapping D+/D- to 3.3 V.
+- The CM4 exposes one USB 2.0 port -> **Microchip USB2514B** hub (the same hub the CM4IO uses), ordered since
+  revision A3 as USB2514BT-I/M2 (C510949), the tape-and-reel ordering code of the same device (log F-1).
+  Ports 1-2 go to a stacked dual USB-A connector (J6: Jing Extension 907-112A1022D10200 since revision A3, on the land
+  pattern that was drawn for the Wurth 61400826021, which is now the alternate; log F-2); ports 3-4 are disabled by
+  strapping D+/D- to 3.3 V through 10k.
 - Per-port power: **TPS2553** (EN active high from the hub's PRTPWR, FAULT to OCS_N), limit 1.3 A typ.,
   100 uF polymer + 100 nF per port, **USBLC6-2SC6** ESD arrays.
 - No external EEPROM: internal default configuration via CFG_SEL straps (self-powered, individual port power).
+  The strap pull-downs are 100k (the datasheet asks for 47 to 100 kOhm), the filter pins CRFILT / PLLFILT carry
+  100 nF each (the datasheet's maximum; log C-9), and VBUS_DET is pulled to 3.3 V through R28 = 10k (100k up to
+  revision A2: with the maximum input leakage the pin then had 0.21 V of margin to its 2.0 V threshold, now 1.12 V;
+  log C-12).
 - RESET_N comes from the CM4's nEXTRST output (as on the CM4IO board): the hub stays in reset until the SoC runs.
-- Current limits with the verified TPS2553 equation: 20k -> 1215 / 1295 / 1375 mA (min / typ / max) per USB-A port,
-  49.9k -> 490 / 520 / 550 mA for the microSD supply.
-- Data lines (revision A2, log A2-20 to A2-22): stack-up JLC04161H-3313; the upstream pair is a coupled 0.14 / 0.16 mm
-  pair (89.96 ohm in JLCPCB's calculator), the downstream lines are two matched 0.185 mm lines per port (45.2 ohm each).
+- The hub draws 95 mA typical / 110 mA maximum from 3.3 V with two ports enabled. Its exposed pad is its only ground
+  connection and has two vias (log N-5).
+- Current limits with the verified TPS2553 equation: 20k -> 1215 / 1295 / 1375 mA (min / typ / max at 25 C) per USB-A
+  port, 49.9k -> 490 / 520 / 550 mA for the microSD supply; over temperature and with the 1 % resistors 1.19 to 1.39 A
+  and 0.47 to 0.59 A. Known layout weakness, not changed in A3: the input capacitors C37 / C40 are 10.9 / 16.7 mm from
+  the IN pins of U5 / U6 and the limit resistors R37 / R39 have 14 / 20 mm of track, where TI asks for "as close as
+  possible" and "as short as possible"; the limit of the two USB-A ports can be slightly less accurate than computed
+  (log N-1).
+- Data lines (designed in revision A2, copper unchanged in A3; log A2-20 to A2-22): stack-up JLC04161H-3313; the
+  upstream pair is a coupled 0.14 / 0.16 mm pair (89.96 ohm in JLCPCB's calculator), the downstream lines are two
+  matched 0.185 mm lines per port (45.2 ohm each).
 - Hub crystal: 24 MHz, CL 12 pF (YXC X322524MOB4SI) with 2 x 15 pF (log A2-14).
 
 ## 4. Audio
 
-- **Microphones: 2 x Infineon IM69D130 (PDM) -> ADI ADAU7002 (PDM-to-I2S) -> CM4 I2S.**
+- **Microphones: 2 x Infineon IM72D128V01 (PDM) -> ADI ADAU7002 (PDM-to-I2S) -> CM4 I2S.**
   The first choice was the I2S-output TDK ICS-43434, but sourcing showed the whole I2S MEMS category is being
   discontinued (ICS-43434: last-time-buy passed; SPH0645LM4H: obsolete; CMM-4030D-261-I2S: obsolete; TDK T5848 is
   1.8 V-only with a different pin-out). PDM microphones are the actively produced mainstream, and the ADAU7002
   turns the pair into a standard stereo I2S stream at 3.3 V with zero configuration.
-  Drop-in microphone alternates: IM69D120 (same package/pin-out).
-- **Amplifier: MAX98357A** (I2S in, filterless class D, 3.2 W / 4 ohm at 5 V) to a 2-pin JST-PH header.
+  Revisions A1 and A2 used the IM69D130V01, which Infineon lists as not for new designs and which fell to 43 pieces
+  at JLCPCB. The IM72D128V01 (ordered as IM72D128V01XTMA1, C5119248) has the same package, land pattern, pin-out,
+  clock ranges, timing and -36 dBFS sensitivity, 72 instead of 69 dB(A) SNR, an overload point of 128 instead of
+  130 dBSPL and an absolute maximum of 3.6 V instead of 4.0 V on the 3.3 V rail (at most 3.38 V); log F-3.
+  Two things follow from its datasheet. C43 / C44 at the supply pins are 1 uF (25 V X5R 0402) instead of 100 nF.
+  And the microphone with SELECT = VDD - MK2, the right channel - puts a constant level of typically -40 dBFS into
+  its data stream (MK1: -80 dBFS); the ADAU7002 has no high-pass filter and passes it on, about 1 % of full scale in
+  the samples of the right channel. The VoxHub Assistant add-on removes it before the gain (log W-1); the two-device
+  path needed no change in a simulation and was not tested on hardware.
+  Alternates with the same footprint and pin-out: IM69D130V01 (the A2 part; its datasheet states no constant level)
+  and IM73D122V01 (10 dB more sensitive, overload point 122 dBSPL - every gain setting would have to move).
+- **Amplifier: MAX98357A** (I2S in, filterless class D, 3.2 W / 4 ohm at 5 V, about 86 % efficient at that power)
+  to a 2-pin JST-PH header.
 - **Linux side needs no custom driver**: wiring matches the Google voiceHAT (BCLK GPIO18, LRCLK GPIO19,
   data-in GPIO20, data-out GPIO21, amp SD_MODE GPIO16), so the stock `googlevoicehat-soundcard` overlay gives one
   full-duplex ALSA card. Verified present (overlay + kernel modules) in the real HAOS 18.5 rpi4-64 image.
-- **Hardware mute**: DPDT slide switch on the top face. Pole A lights a red LED, pole B physically disconnects the
+- **Hardware mute**: DPDT slide switch on the top face. Pole A lights a red LED (D9: KT-0603R through R22 = 1k from
+  3.3 V, 1.44 mA; all LEDs are listed in section 6), pole B physically disconnects the
   converter's data line from the CM4 (and grounds the CM4 input). Software cannot override it. Cutting the
   microphone supply instead was rejected: the I2S/PDM clocks would back-power the microphones through their ESD diodes.
 - No acoustic echo cancellation (would need an XMOS-class DSP). The assistant is half-duplex instead.
-- Microphone spacing ~105 mm (diagonal), bottom-port through the PCB, 7.6 mm acoustic path.
+- Microphone spacing 102 mm (diagonal: MK1 at 9.5 / 70.2 mm, MK2 at 92.0 / 10.0 mm on the board), bottom-port through
+  the PCB, 7.6 mm acoustic path.
 
 ## 5. Zigbee / Thread radio (nice-to-have, included)
 
-- **RF-star RF-BM-2652P2** (TI CC2652P, +20 dBm PA, PCB antenna, 16.5 x 30 mm; revision A2, log A2-3). A1 used the
+- **RF-star RF-BM-2652P2** (TI CC2652P, +20 dBm PA, PCB antenna, 16.5 x 30 mm; since revision A2, log A2-3). A1 used the
   Silicon Labs MGM240PB32VNA3, which nobody stocks. CC2652P coordinators are first-class in Home Assistant (ZHA radio
   type "ZNP", Zigbee2MQTT adapter "zstack") and the same module runs an OpenThread RCP.
 - UART4 on GPIO8 (TXD4 -> module DIO12 = RX) and GPIO9 (RXD4 <- DIO13 = TX), `dtoverlay=uart4` -> `/dev/ttyAMA4` (the
@@ -482,6 +566,20 @@ CM5 (higher power, would need 5 V/5 A and has no advantage for a cloud-LLM voice
   Consequence: first-boot network setup is done by pre-seeding Wi-Fi credentials into the image (`os/build-image.sh --wifi-ssid`).
 - No fan: 14 x 14 x 7 mm heat sink on the SoC plus vents; see thermal estimate in README.
 - User button dropped (wake word + mute switch cover the UI); debug UART header footprint is DNP.
+- LEDs (parts and values of revision A3, log C-6 and C-7): three part numbers. Red Hubei KENTO KT-0603R: D4 (PD
+  fault, R7 = 1k from the controller's FAULT pin) and D9 (muted, R22 = 1k from 3.3 V) at about 1.4 mA (D9: 0.99 to
+  1.86 mA), 13 to 27 mcd. Green KT-0603G: the status LED D7 and the power LED D6, each through 10k from 5 V (R18,
+  R15; 0.27 mA, 27 to 55 mcd), and the activity LED D10 through R26 = 1k from 3.3 V to CM4 pin 21, the circuit of the
+  CM4 IO board: 0.9 mA typical, about 0.1 mA with every limit against it. By the datasheet curves D10 lights on every
+  board, but its brightness varies about 10 : 1 between boards; a minimum current cannot be derived from published
+  limits. Blue KT-0603B: the status LED D8 through R20 = 2.2k from 5 V, 23 to 57 mcd. All intensities are read from
+  the typical curves of the datasheets and scaled to the bin limits; they are estimates. D7 and D8 are switched by
+  2N7002 (Q2, Q3) on GPIO5 / GPIO6 with 2.2k gate pull-downs (R19, R21): against the 33 to 73 kOhm pull-up these GPIOs
+  power up with, the gate stays at 0.21 V at most (with the 10k of A2 up to 0.79 V, a faint glow of the status LEDs
+  during boot on some boards).
+- Rear wall windows of the enclosure: USB-C 13.4 x 7.5 mm, stacked USB-A 15.6 x 17.3 mm, microSD 14.0 x 7.2 mm. The
+  USB-A window was 15.6 x 17.0 mm up to revision A2; its far edge was moved by 0.3 mm for the flange of the Jing
+  connector, whose far lip lies at about 16.2 mm above the board (`enclosure/README.md`).
 
 ## 6a. PCB implementation (how a board gets routed without a GUI)
 
@@ -492,8 +590,27 @@ the buck stage, the two USB port supplies and all six USB data lines as tracks a
 fan-out, the autorouter and the repair loop route everything else around them. The length measurement of item 4
 below still judges the USB lines and still gates the build; the USB router rules, the serpentine tuner and the six
 net-order variants of items 3, 5 and 6 are not needed any more (a hand-designed line is matched by construction and
-by one explicit compensation bump). A2 result: upstream 31.79 / 31.79 mm as a coupled pair, port 1 10.76 / 10.76 mm,
-port 2 16.21 / 16.21 mm, skew 0.00 mm, no vias, off-path copper 0.00 mm.
+by one explicit compensation bump). Result, the same for A2 and A3 (`hardware/outputs/routing_stats.txt`): upstream
+31.79 / 31.79 mm as a coupled pair, port 1 10.76 / 10.76 mm, port 2 16.21 / 16.21 mm, skew 0.00 mm, no vias, off-path
+copper 0.00 mm.
+
+**Revision A3 in one paragraph** (log K-1 to K-10, C-11, F-5): the copper is the copper of A2. Placement, the 1384
+track segments, the 286 vias and the zones are those of A2 in a geometric comparison of the board files (log K-7;
+one track end moved by 0.33 um, and 0.28 mm2 of 4190 mm2 of zone fill differ). What changed is values and part
+numbers, the revision text on the silkscreen and two land patterns that KiCad 10's stricter pad-to-hole test asked
+for (ring land of the spacers H5-H8 from 2.10 to 3.00 mm radius, the four outer contacts of the USB-C receptacle
+1.11 mm long; log K-6). The toolchain is KiCad 10.0.8: `hardware/build.sh` runs in the
+project image `voxhub-kicad:10.0`, which it builds from `hardware/docker/Dockerfile` when the image is missing
+(official `kicad/kicad:10.0` plus numpy and shapely). The generators write native KiCad 10 files and take every
+stock symbol and footprint from frozen copies in `hardware/gen/stock/` (the KiCad 9.0.9 library content in KiCad 10
+format, 33 symbols and 30 footprints; every footprint link is `voxhub:<name>`), so the build does not read the
+libraries of the installation, and a part that is not in `gen/stock` has to be added there before a generator can
+use it. ERC 0; DRC 0 violations, 0 unconnected pads, 0 footprint errors, with the checks KiCad 10 added set to
+error; the two waived library-comparison checks report 4 warnings (U2 footprint type; J4, J6 and C13 against their
+library copies). Via covering stays "Epoxy Filled & Capped": 294 holes of 0.30 mm (286 vias and the 8 thermal holes
+of the U2 footprint), 13 of them in or at exposed pads (U1 2, U2 8, U4 2, U10 1). The board is built from the
+committed autorouter session (`SKIP_ROUTE=1`); a fresh autoroute from the DSN file KiCad 10 writes, and anything on
+Windows, was not tried (log K-10).
 
 - 4 layers: F.Cu / GND plane / +5 V plane / B.Cu. +3V3 is routed (<= 0.5 A, widely distributed).
 - **Placement by script**: fixed positions for connectors, ICs and mechanics; passives are placed greedily next to the pad they
@@ -506,6 +623,8 @@ port 2 16.21 / 16.21 mm, skew 0.00 mm, no vias, off-path copper 0.00 mm.
   not used with a tight placement where it never terminates. v1.9.0 needs a display (no headless JRE support).
 - **Patch router + DRC-driven repair** (in `gen/build_pcb.py`): completes the remaining connections with A* and rip-up, and removes
   anything KiCad's DRC objects to, iterating until `kicad-cli pcb drc` reports nothing. KiCad's DRC is the only judge.
+  Since the KiCad 10 migration the loop (`gen/postroute.sh`) counts only violations that name a track or a via as
+  repairable; the final DRC gate of `build.sh outputs` is unchanged and strict (log K-8).
 - **USB (revision A1)**: the hub is rotated so that its downstream pins face the USB-A connector and its upstream pins face the CM4. The six data
   nets were re-routed after everything else as 0.2 mm traces. True coupled-pair routing was not attempted in A1; A2 routes the
   upstream pair coupled by hand (the pair enters the CM4 socket pads from the centre channel, so no crossover is needed).
@@ -578,6 +697,8 @@ port 2 16.21 / 16.21 mm, skew 0.00 mm, no vias, off-path copper 0.00 mm.
   this environment (ninth attempt); the run log with every stop and its cause is in os/README.md.
 - The radio's reset line is active high since revision A1 (GPIO24 high = reset); nothing in the OS configuration
   drives it, the flashing instructions in hardware/README.md were updated.
+- The second board of the two-device system, the satellite, runs Raspberry Pi OS Lite with the same `config.txt`
+  block (`os/config/config-voxhub.txt`); its image is built by `os/satellite` (log S-19 to S-27).
 
 ## 8. Voice assistant
 
@@ -586,6 +707,10 @@ port 2 16.21 / 16.21 mm, skew 0.00 mm, no vias, off-path copper 0.00 mm.
   TTS (Piper add-on via Wyoming) -> speaker. Only text is sent to Anthropic; audio stays on the device.
 - Default model `claude-haiku-5-5` (latency), selectable `claude-sonnet-5-5` / `claude-opus-5-5`.
 - Dangerous domains (`lock`, `alarm_control_panel`) are never controllable by default.
+- Since version 0.1.1 the capture path removes a constant level before the gain (`DcBlocker` in `audio.py`: one-pole
+  high-pass, 12.7 Hz corner at 16 kHz), because the right-channel microphone of revision A3 adds one (log W-1).
+- This add-on is the single-device alternative. The two-device system (hub and satellite) uses Home Assistant's own
+  Assist pipeline with Linux Voice Assistant on both boards and must not run next to this add-on (log S-1 to S-11).
 
 ## 9. Footprint / pin-out verification against the datasheets
 
@@ -593,35 +718,38 @@ Checked on 2026-11-11 against the manufacturer documents below (pin-out against 
 recommended land pattern or package drawing, strap / component values against the application section). Where the
 manufacturer's own server refused the download, the same manufacturer PDF was read from a mirror; that is stated.
 "Deviation" rows say what was found and what was done about it.
+Entries marked **A3** were added on 2026-11-20: the documents of every part whose value or part number changed in
+revision A3 were fetched again and read by reviewers that had not made the change (Revision A3 log, entries C, N and
+F). They say what was verified and what the documents do not publish.
 
 | Part | Source (revision) | Status |
 |---|---|---|
-| Raspberry Pi CM4 (pin-out, mechanics, antenna) | https://datasheets.raspberrypi.com/cm4/cm4-datasheet.pdf (Release 4, 30/06/2026); official CM4IO KiCad files https://datasheets.raspberrypi.com/cm4io/CM4IO-KiCAD.zip | **verified against datasheet** - 200 / 200 pin names (five spelling-only differences), all used nets, socket spacing, module outline, H5-H8, viewing side (all 200 pads coincide with the official CM4IO footprint). **Deviation found and fixed:** antenna keep-out was in the wrong half of the edge (log no. 1). |
+| Raspberry Pi CM4 (pin-out, mechanics, antenna) | https://datasheets.raspberrypi.com/cm4/cm4-datasheet.pdf (Release 4, 30/06/2026); official CM4IO KiCad files https://datasheets.raspberrypi.com/cm4io/CM4IO-KiCAD.zip | **verified against datasheet** - 200 / 200 pin names (five spelling-only differences), all used nets, socket spacing, module outline, H5-H8, viewing side (all 200 pads coincide with the official CM4IO footprint). **Deviation found and fixed:** antenna keep-out was in the wrong half of the edge (log no. 1). **A3 (the same release read again on 2026-11-20 for electrical values, with the CM4 IO board datasheet of 2022-06-07, https://datasheets.raspberrypi.com/cm4io/cm4io-datasheet.pdf):** GPIO5 / GPIO6 power up with a pull-up and GPIO25 with a pull-down of 33 / 47 / 73 kOhm (tables 1 and 4) - gate pull-downs R19 / R21 now 2.2k (log C-7), strap pull-up R45 confirmed at 2.2k; 3.3 V output 3.3 V +-2.5 %, 600 mA in total; pin 21 (activity LED) is active low, 20 mA maximum, VOL below 0.4 V, and the IO board drives a green LED through 1k from 3.3 V as this board does. Not published: what drives pin 21 and its VOL at about 1 mA, so no minimum current can be given for D10 (log C-6); a waveform showing nEXTRST low during the whole 3.3 V ramp; the behaviour of the 3.3 V regulator above 600 mA. |
 | CM4 socket Hirose DF40C-100DS-0.4V(51) | Hirose DF40 catalogue, edition 2013.11, via mirror https://cdn-shop.adafruit.com/product-files/2227/ed_DF40_20140305-337786.pdf; **A2: re-read from hirose.com** (catalogue Jan. 2025, drawing EDC3-311352-00, guideline) - strips and paste aperture now follow it, log A2-24 / A2-25 | **verified against datasheet** - land pattern, 1.5 mm mated height, 1.5 mm spacer. Note: the inward power stubs cross Hirose's "layout prohibited area" between the pad rows exactly as on the official CM4IO board. |
-| CYPD3177-24LQXQ | https://www.infineon.com/assets/row/public/documents/24/49/infineon-cypd3177-24lqxq-datasheet-en.pdf (002-25383 Rev. *C, 2024-09-18); kit guide 002-25263 Rev. *B https://www.infineon.com/assets/row/public/documents/24/44/infineon-cy4533-ez-pd-barrel-connector-replacement-evk-guide-usermanual-en.pdf | **verified against datasheet** - pin-out, QFN-24 land pattern, active-low P-FET driver, FLIP 49.9k, I2C 0x08, unused pins, all four strap dividers = table values, PDO selection algorithm. **Deviation found and fixed:** VDDD decoupling (1 uF X7R 0603 + 2 x 100 nF instead of 1 uF X5R 0402 + 100 nF). Note: the single-FET gate network differs from the two-FET reference circuit - measure VGS at 9 V and 20 V on the prototype. |
-| LMR33640ADDA | https://www.ti.com/lit/ds/symlink/lmr33640.pdf (SNVSB99C, rev. November 2020) | **verified against datasheet** - pin-out, HSOIC-8 PowerPAD land pattern, "A" = 400 kHz / 4 A, EN thresholds (UVLO 7.02 V / 6.45 V), CBOOT, CVCC; L = 6.8 uH and COUT = 4 x 22 uF are the table row for 5 V / 400 kHz. **Deviations found and fixed:** RFBB 24.3k -> 24.9k, CHF 100 nF -> 220 nF X7R, CIN X5R -> X7R (log no. 2, 3). |
+| CYPD3177-24LQXQ | https://www.infineon.com/assets/row/public/documents/24/49/infineon-cypd3177-24lqxq-datasheet-en.pdf (002-25383 Rev. *C, 2024-09-18); kit guide 002-25263 Rev. *B https://www.infineon.com/assets/row/public/documents/24/44/infineon-cy4533-ez-pd-barrel-connector-replacement-evk-guide-usermanual-en.pdf | **verified against datasheet** - pin-out, QFN-24 land pattern, active-low P-FET driver, FLIP 49.9k, I2C 0x08, unused pins, PDO selection algorithm. **A3 (both documents fetched again on 2026-11-20):** the strap resistors of revision A3 (R1 / R2 = 12k / 2.2k, R3 = 1k, R4 / R5 = 2.2k / 1k, R6 = 1k) are verified against the pin voltage windows of tables 2 to 4 ("Voltage range on pin": 0-248 / 249-786 / 787-1347 / 1348-1920 / 1921-2778 / from 2779 mV at VDDD = 3.3 V), not against the resistor columns, which are headed "suggested": 503-520 mV for 9 V, 1017-1046 mV for 2 A, a single 1k for each end level (input leakage 2 nA; Infineon's kit also sets end levels with single resistors) - log C-2. Also verified: a FLIP pull-up of 50 kOhm means "port not data capable"; VDDD capacitor at least 0.8 uF "X5R ceramic or better" plus 2 x 100 nF and 1 uF on VCCD, met by the new 1 uF 50 V X7R part (0.98 uF at 3.3 V); driver data of VBUS_FET_EN (drives to 0 V or VBUS, pull-down at most 3 kOhm) for the gate network of Q1 (log C-3). Not published, so not verified: when the straps are sampled and against which reference; the current rating of the internal 3.3 V regulator that feeds the dividers (they draw 1.26 mA; dividers and FLIP pull-up of the datasheet's own example circuit draw 1.9 mA); drive mode and soft start of VBUS_FET_EN; how the FLIP pull-up is measured. **Deviation found and fixed (A1):** VDDD decoupling (1 uF X7R 0603 + 2 x 100 nF instead of 1 uF X5R 0402 + 100 nF). Note: the single-FET gate network differs from the two-FET reference circuit - measure VGS at 9 V and 20 V on the prototype (expected 4.4 to 4.5 V and 10 V). |
+| LMR33640ADDA | https://www.ti.com/lit/ds/symlink/lmr33640.pdf (SNVSB99C, rev. November 2020) | **verified against datasheet** - pin-out, HSOIC-8 PowerPAD land pattern, "A" = 400 kHz / 4 A, CBOOT, CVCC; L = 6.8 uH and COUT = 4 x 22 uF are the table row for 5 V / 400 kHz. **A3 (fetched again on 2026-11-20, with the EVM guide SNVU664):** EN divider R11 / R12 = 100k / 20k from the EN threshold 1.200 / 1.231 / 1.260 V and 100 mV hysteresis: on at 7.08 / 7.39 / 7.69 V, off at 6.49 / 6.79 / 7.08 V (A2: 470k / 100k, 7.02 V / 6.45 V typical); the lower resistor is inside TI's 10 to 100 kOhm range; the regulator is off before it runs out of input voltage at 3.45 A (5.85 to 6.01 V); EN at most 3.64 V at 21.5 V in (log C-4). Feedback 100k / 24.9k: 4.86 / 5.02 / 5.17 V, up to 5.23 V at light load. CVCC as the 1 uF 50 V X7R part (0.89 uF at 5 V; log C-5). Loss of the regulator at 3.45 A from the efficiency curves: 1.34 W at 9 V in, 1.63 W at 20 V in; worst-case inductor peak 4.51 A against the 4.8 A minimum current limit (log N-2, N-4). Not verified: the EN hysteresis is published as a typical value only; no loop-gain data is published, so the phase margin with the fitted output capacitors (54 uF effective at the regulator, 109 uF on the rail) cannot be calculated; the losses at 9 V and 20 V are interpolated between TI's curves for 8 / 12 / 24 V; the layout text asks for a 4 x 4 array of thermal vias and 2 oz outer copper, the board has the 8 vias of TI's own land pattern drawing (drilled 0.3 mm) and 1 oz outer copper. **Deviations found and fixed (A1):** RFBB 24.3k -> 24.9k, CHF 100 nF -> 220 nF X7R, CIN X5R -> X7R (log no. 2, 3). |
 | Bourns SRP7028A-6R8M (A1 only, replaced in A2) | https://www.bourns.com/docs/Product-Datasheets/SRP7028A.pdf (REV. 06/24) | **verified against datasheet** - 6.8 uH, Isat 8 A, Irms 4.5 A, DCR 54 typ / 60 max mOhm, footprint. |
-| USB2514B-I/M2 | https://ww1.microchip.com/downloads/aemDocuments/documents/UNG/ProductDocuments/DataSheets/USB251xB-xBi-Data-Sheet-DS00001692.pdf (DS00001692E) | **verified against datasheet** - pin-out, CFG_SEL = 00, NON_REM, port disable by 10k to 3.3 V, PRTPWR / OCS polarity, VBUS_DET, RBIAS 12k 1 %, 24 MHz crystal + load capacitors, filter capacitors. **Deviation found and fixed:** RESET_N (log no. 5). Accepted: the KiCad QFN-36 pads are 0.825 mm long, Microchip recommends 0.90 mm (79 % of the terminal is covered; pitch, exposed pad and numbering match). |
-| TPS2553DBV | https://www.ti.com/lit/ds/symlink/tps2553.pdf (SLVS841G, October 2026) | **verified against datasheet** - pin-out, active-high EN, open-drain FAULT, 2.5-6.5 V input, ILIM equation (20k -> 1.215 / 1.295 / 1.375 A, 49.9k -> 0.49 / 0.52 / 0.55 A). |
-| MAX98357AETE+ | Maxim 19-6779 Rev 7 (original PDF via https://cdn-shop.adafruit.com/product-files/3006/MAX98357A-MAX98357B.pdf), cross-checked with Rev 13 | **verified against datasheet** - TQFN-16 pin-out, SD_MODE at 3.3 V = left channel, GAIN_SLOT open = 9 dB, 2.5-5.5 V, package outline. The separate land-pattern document 90-0031 could not be retrieved. |
-| ADAU7002ACBZ | ADI ADAU7002 Rev. C (11/2019), original PDF via mirror https://cdn.eicom.ru/media/PDF/2429992.pdf | **verified against datasheet** - ball map, CONFIG = IOVDD -> I2S, 1.62-3.6 V, BCLK = 64 fs, 0.4 mm ball grid. The datasheet gives no land pattern (pad diameter 0.22 mm stays an IPC choice). |
-| IM69D130 | https://www.infineon.com/assets/row/public/documents/24/49/infineon-im69d130-datasheet-en.pdf (V1.0, 2017-12-19) | **verified against datasheet** - pins, SELECT (GND = left, VDD = right at the ADAU7002), 1.62-3.6 V, 3.072 MHz clock, land pattern with the 0.8 mm port hole. Note: 70 C ambient limit at 3.3 V. |
+| USB2514B-I/M2 (ordered as USB2514BT-I/M2 since A3, see the A3 table) | https://ww1.microchip.com/downloads/aemDocuments/documents/UNG/ProductDocuments/DataSheets/USB251xB-xBi-Data-Sheet-DS00001692.pdf (DS00001692E, 07-11-23) | **verified against datasheet** - pin-out, CFG_SEL = 00, NON_REM, port disable by 10k to 3.3 V, PRTPWR / OCS polarity, VBUS_DET, RBIAS 12k 1 %, 24 MHz crystal + load capacitors, filter capacitors. **Deviation found and fixed:** RESET_N (log no. 5). Accepted: the KiCad QFN-36 pads are 0.825 mm long, Microchip recommends 0.90 mm (79 % of the terminal is covered; pitch, exposed pad and numbering match). **A3 (fetched again on 2026-11-20):** CRFILT / PLLFILT "can have up to a 0.1 uF low-ESR capacitor to VSS, or be left unconnected" - C28 / C29 = 100 nF are right, 1 uF would be ten times the maximum (log C-9); strap pull-downs 47 to 100 kOhm (100k fitted), port-disable pull-ups 10k; VBUS_DET: high level from 2.0 V, input leakage +-10 uA - pull-up R28 now 10k (log C-12); "the package slug is the only VSS for the device and must be tied to ground with multiple vias" - two are in the pad (log N-5); supply current 95 mA typical / 110 mA maximum with two ports (log N-3). Not verified: maximum crystal ESR, drive level and transconductance of the oscillator are not published, so its start-up margin cannot be calculated; Microchip's hardware design check list and AN 18.15 could not be fetched; whether a revision newer than E exists (the product pages answered 403). |
+| TPS2553DBV | https://www.ti.com/lit/ds/symlink/tps2553.pdf (SLVS841G, October 2026) | **verified against datasheet** - pin-out, active-high EN, open-drain FAULT, 2.5-6.5 V input, ILIM equation (20k -> 1.215 / 1.295 / 1.375 A, 49.9k -> 0.49 / 0.52 / 0.55 A). **A3 (fetched again on 2026-11-20):** the limits above are the 25 C values; over temperature and with the 1 % resistor 1.19 to 1.39 A (20k) and 0.47 to 0.59 A (49.9k); FAULT and EN levels fit the hub; 20k on the microSD switch would limit at 1.2 to 1.4 A on a rail rated 600 mA, so R16 stays 49.9k (log C-8). **Deviation found, not changed:** the datasheet asks for a ceramic capacitor of 0.1 uF or more from IN to GND "as close to the IC as possible" and for RILIM traces "as short as possible"; C37 / C40 are 10.9 / 16.7 mm from the IN pins of U5 / U6 and R37 / R39 have 14 / 20 mm of track (U3: 2.4 mm and 3 mm) - log N-1. Not published: the largest capacitance allowed on the ILIM pin, so the effect of the long traces cannot be put in numbers. |
+| MAX98357AETE+ | Maxim 19-6779 Rev 7 (original PDF via https://cdn-shop.adafruit.com/product-files/3006/MAX98357A-MAX98357B.pdf), cross-checked with Rev 13 | **verified against datasheet** - TQFN-16 pin-out, SD_MODE at 3.3 V = left channel, GAIN_SLOT open = 9 dB, 2.5-5.5 V, package outline. The separate land-pattern document 90-0031 could not be retrieved. **A3 (2026-11-20):** Rev 11 (5/18) read from the LCSC copy of C910544 and cross-checked with Rev 7; analog.com still refuses. Read from the curves for 5 V and 4 ohm: about 86 % efficiency at 3.2 W (0.53 W loss), 82 % at 1 W (log N-3). "The exposed pad is not internally connected"; on this board its one via is also the only ground connection of the ground pins 3, 11 and 15 (log C-11). Not published: the thermal shut-down threshold. |
+| ADAU7002ACBZ | ADI ADAU7002 Rev. C (11/2019), original PDF via mirror https://cdn.eicom.ru/media/PDF/2429992.pdf | **verified against datasheet** - ball map, CONFIG = IOVDD -> I2S, 1.62-3.6 V, BCLK = 64 fs, 0.4 mm ball grid. The datasheet gives no land pattern (pad diameter 0.22 mm stays an IPC choice). **A3 (2026-11-20; Rev. C again, from the mirror and from the LCSC copy of C481886 - analog.com still refuses):** frequency response "DC to 0.45 output fS" and no high-pass filter, so a constant level in a microphone's PDM stream reaches the I2S samples (log F-3, W-1); 64x decimation, 20-bit words; set-up 10 ns / hold 7 ns against the microphone timing (margins 43.5 ns and 33 ns with an assumed trace delay). Not published: output resistance, edge rate and duty cycle of PDM_CLK; the microphone asks for 48 to 52 % and edges of at most 13 ns, and the choice of R41 = 33 ohm rests on a simulation with assumed driver data (log C-8). |
+| IM69D130 (A1 / A2; replaced in A3 and now the alternate) | https://www.infineon.com/assets/row/public/documents/24/49/infineon-im69d130-datasheet-en.pdf (V1.0, 2017-12-19) | **verified against datasheet** - pins, SELECT (GND = left, VDD = right at the ADAU7002), 1.62-3.6 V, 3.072 MHz clock, land pattern with the 0.8 mm port hole. Note: 70 C ambient limit at 3.3 V. The sheet says nothing about a constant level in the data stream. |
 | MGM240PB32VNA (A1 only, replaced in A2) | Silicon Labs MGM240P data sheet Rev. 1.0 (original PDF via https://cdn.sparkfun.com/assets/1/4/5/e/5/MGM240P-Datasheet.pdf; silabs.com refuses automated downloads, Rev. 1.2 not retrievable) | **verified against datasheet** - pin-out, land pattern (36 / 36 pads), RFOUT open for the built-in antenna, antenna keep-out, no external decoupling required. **Deviations found and fixed:** RTS / CTS swapped, RESETn pull-up (log no. 6, 7). |
 | USB-C GCT USB4105-GF-A | https://gct.co/files/drawings/usb4105.pdf (Rev. B4) | **verified against datasheet** - footprint, shell 8.94 x 7.35 x 3.31 mm, shell flush with the PCB edge. |
-| USB-A Wurth 61400826021 | https://www.we-online.com/components/products/datasheet/61400826021.pdf (Rev. 001.001, 2025-09-11) | **verified against datasheet** - footprint and drills, shell height 15.34 mm, flange 14.5 x 15.5 mm with lips at 0.45 / 15.95 mm, 2.5 mm overhang beyond the PCB edge. |
+| USB-A Wurth 61400826021 (A1 / A2; replaced in A3 and now the alternate - the land pattern of J6 is still the one drawn for it) | https://www.we-online.com/components/products/datasheet/61400826021.pdf (Rev. 001.001, 2025-09-11) | **verified against datasheet** - footprint and drills, shell height 15.34 mm, flange 14.5 x 15.5 mm with lips at 0.45 / 15.95 mm, 2.5 mm overhang beyond the PCB edge. **A3 (2026-11-20):** we-online.com refused the download (HTTP 403); drawing rev M (09-APR-2015) was read from the Farnell copy https://www.farnell.com/cad/2124808.pdf for the comparison with the Jing part. Every figure above agrees with it; the lips, which are not dimensioned, scale to 0.47 / 15.98 mm. |
 | microSD Hirose DM3AT-SF-PEJM5 | Hirose drawing EDC-325165-40-00 for the (40) variant, via mirror https://static.chipdip.ru/lib/504/DOC014504844.pdf; **A2: re-read from hirose.com** (drawing EDC-325165-00-00, mark 4, 2024-09-02) - no difference | **verified against datasheet** - footprint, body 13.85 x 15.95 x 1.68 mm, card positions (locked: 1.6 mm behind the enclosure face). |
 | C&K JS202011JCQN | C&K "JS series" data sheet, edition 22 Sep 2022, via mirror https://static.chipdip.ru/lib/994/DOC043994900.pdf (the current Littelfuse-hosted edition refuses downloads) | **verified against datasheet** - land pattern, body 9.0 x 3.6 x 3.5 (3.6) mm, actuator 1.5 x 1.5 x 2.0 mm, 2 mm travel. The drawing has no body tolerances. |
 | JST B2B-PH-K-S | https://www.jst-mfg.com/product/pdf/eng/ePH.pdf (catalogue page, carries no revision) | **verified against datasheet** - footprint, 6.0 mm height. |
 | Wurth 9774015151R | https://www.we-online.com/components/products/datasheet/9774015151R.pdf (Rev. 001.002) | **verified against datasheet** - land pattern, 1.5 mm height, M2.5 thread (2.9 mm long). |
-| AO3401A | https://www.aosmd.com/sites/default/files/res/datasheets/AO3401A.pdf (Rev 3.1) | **verified against datasheet** - SOT-23 G / S / D = 1 / 2 / 3, VDS -30 V, VGS +-12 V. |
+| AO3401A | https://www.aosmd.com/sites/default/files/res/datasheets/AO3401A.pdf (Rev 3.1, December 2023) | **verified against datasheet** - SOT-23 G / S / D = 1 / 2 / 3, VDS -30 V, VGS +-12 V. **A3 (fetched again on 2026-11-20):** gate network R9 / R10 = 100k / 100k with C7 = 100 nF: VGS at most 10.86 V at 21.5 V; RDS(on) at most 85 mOhm at -2.5 V, 60 mOhm at -4.5 V, 50 mOhm at -10 V (25 C; 75 mOhm at -10 V and 125 C); VGS(th) -0.5 / -0.9 / -1.3 V; pulsed drain current 27 A against a simulated switch-on surge of 3.3 A (log C-3, N-6). Not published: the RDS(on) limit between the specified gate voltages (at the lowest valid sink voltage of a 9 V contract the gate sees 3.56 V). The surge is a simulation with the typical transfer curve; the thermal resistance of Q1 on this board was not determined (the datasheet's 125 K/W maximum is for 1 square inch of 2 oz copper). |
 | USBLC6-2SC6 | ST USBLC6-2 data sheet Rev 3 (2008) via mirror https://pccomponents.com/datasheets/ST_MI-USBLC62SC6.pdf | **verified against datasheet** (old revision) - pins 1 + 6 and 3 + 4 are one line each, 5 = VBUS, 2 = GND. |
 | SMBJ22A | Littelfuse SMBJ series data sheet, rev. 2020-06-03, via mirror https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/196/Littelfuse_5F00_TVS_5F00_Diode_5F00_SMBJ_5F00_Datasheet.pdf_2D00_1108540.pdf (littelfuse.com refuses the download) | **verified against datasheet** - 22 V stand-off, 24.4-26.9 V breakdown, 35.5 V clamp at 16.9 A (margin note in section 2). |
-| MM3Z10V / SZMM3Z10VT1G | https://www.onsemi.com/pdf/datasheet/mm3z2v4t1-d.pdf (Rev. 15) | **verified against datasheet** |
+| MM3Z10V / SZMM3Z10VT1G | https://www.onsemi.com/pdf/datasheet/mm3z2v4t1-d.pdf (Rev. 15, February 2026) | **verified against datasheet**. **A3 (fetched again on 2026-11-20):** MM3Z10VT1G: 9.4 to 10.6 V at 5 mA, leakage 0.1 uA at 8 V; D5 sits with its cathode on VBUS. With the 100k / 100k gate divider of revision A3 it limits the gate voltage of Q1 from 23.8 V on VBUS upwards, carries at most 14 uA at 20 V and 171 uA at the 35.5 V clamp of the TVS, and must stay populated (log C-3). Not published: the Zener voltage below 0.5 mA. |
 | Speaker Same Sky CMS-4017-34SP (A1 only, replaced in A2) | https://www.sameskydevices.com/product/resource/cms-4017-34sp.pdf (rev 1.02) | **verified against datasheet** - dia 40 +-0.3 x 17.5 +-0.3 mm, yoke dia 23, 4 ohm, 3 W, baffle opening dia 35.6 with >= 0.8 mm in front of the diaphragm. |
 | Heat sink Same Sky HSB03-141406 (A1 only, replaced in A2) | https://www.sameskydevices.com/product/resource/hsb03-141406.pdf (rev 1.03) | **verified against datasheet** - 14 x 14 x 6 mm. |
 | Crystal Epson TSX-3225 24.0000MF18X-C0 (A1 only, replaced in A2) | https://download.epsondevice.com/td/pdf/brief/TSX-3225_en.pdf (Epson brief, PDF dated 2025-10-14) | **verified against datasheet** - 3.2 x 2.5 x 0.6 mm, internal connection: #1 / #3 crystal, "#2 and #4 are connected to the cover (Please connect to ground)" as on the footprint; f_tol +-10 ppm, +-10 ppm over -20..+75 C; CL is part of the order code (F18 = 18 pF as in the DigiKey description -> 2 x 27 pF). Recommended land pattern: 2.2 x 1.6 mm between pad centres, pads 1.4 x 1.15 mm. Accepted: KiCad's `Crystal_SMD_3225-4Pin` has 2.2 x 1.7 mm and 1.4 x 1.2 mm pads (0.05 mm per pad). |
-| 2N7002,215 (Q2, Q3: LED drivers; Q4: radio reset) | Nexperia 2N7002 product data sheet Rev. 7 (8 September 2011), via mirror https://datasheet.chipsmall.com/2N7002-215/143966.pdf (nexperia.com refuses automated downloads; the product page lists a 2018 edition that could not be retrieved) | **verified against datasheet** (old revision) - SOT23 pinning 1 = G, 2 = S, 3 = D as in `design.py`; VDS 60 V, VGS +-30 V; VGS(th) 1.0 / 2.0 / 2.5 V at 0.25 mA (2.75 V max at -55 C), so the 3.3 V GPIO level turns it on with margin for the 75 uA of the 44k RESETn pull-up and the LED currents; RDSon 5.3 ohm max at 4.5 V. |
-| Passives, diodes, LEDs (0402 / 0603 / 1206 chip, EIA-3528 polymer tantalum, SOD-323, SMB, 0603 and reverse-mount 1206 LEDs), 1 x 3 pin header J5 (DNP), Tag-Connect TC2030-NL pads J8, test points, solder jumper | KiCad 9 standard library footprints named after the package - **no manufacturer document was read for these** | **not individually verified:** standard IPC / KiCad land patterns; values, ratings and packages were checked on the DigiKey product pages (section 10); polarity marks (tantalum, diodes, LEDs) follow the KiCad convention pad 1 = cathode / pad 1 = "+" for the tantalum - check on the first article. |
+| 2N7002,215 (Q2, Q3: LED drivers; Q4: radio reset) | Nexperia 2N7002 product data sheet Rev. 7 (8 September 2011), via mirror https://datasheet.chipsmall.com/2N7002-215/143966.pdf (nexperia.com refuses automated downloads; the product page lists a 2018 edition that could not be retrieved) | **verified against datasheet** (old revision) - SOT23 pinning 1 = G, 2 = S, 3 = D as in `design.py`; VDS 60 V, VGS +-30 V; VGS(th) 1.0 / 2.0 / 2.5 V at 0.25 mA (2.75 V max at -55 C), so the 3.3 V GPIO level turns it on with margin for the 75 uA of the 44k RESETn pull-up and the LED currents; RDSon 5.3 ohm max at 4.5 V. **A3 (2026-11-20; Rev. 7 again, from the LCSC copy of C65189):** a part at the minimum threshold passes 10 to 20 uA at 0.79 V on the gate (transfer curve Fig. 10, read by eye, 25 C) - the reason for the 2.2k gate pull-downs R19 / R21 (log C-7). |
+| Passives, diodes, LEDs (0402 / 0603 / 1206 chip, EIA-3528 polymer tantalum, SOD-323, SMB, 0603 LEDs; the reverse-mount 1206 LEDs of A1 are gone since A2), 1 x 3 pin header J5 (DNP), Tag-Connect TC2030-NL pads J8, test points, solder jumper | footprints of the KiCad 9 standard library named after the package (since revision A3 the project's frozen copies of them in `hardware/gen/stock/`, log K-3) - **no manufacturer document was read for the land patterns** | **not individually verified:** standard IPC / KiCad land patterns; values, ratings and packages were checked on the DigiKey product pages and in JLCPCB's library (section 10); the LEDs and the 1 uF capacitors of revision A3 have rows of their own in the A3 table below; polarity marks (tantalum, diodes, LEDs) follow the KiCad convention pad 1 = cathode / pad 1 = "+" for the tantalum - check on the first article. JLCPCB's own footprint of the red LED KT-0603R numbers its pads the other way round (pad 1 = anode): `make_jlc.py` fits it by pin name and the rotation in the CPL is unchanged (log C-6). |
 
 **Parts that are new in revision A2** (checked on 2026-11-12):
 
@@ -630,15 +758,68 @@ manufacturer's own server refused the download, the same manufacturer PDF was re
 | RF-star RF-BM-2652P2 | https://www.rfstariot.com hardware data sheet V1.1 (2024-08-23); TI CC2652P data sheet SWRS195C (rev. April 2024) and technical reference manual SWCU185G from ti.com | **verified against datasheet** - module pin to DIO map for every connected pin (UART DIO12 / DIO13, backdoor DIO15, JTAG TMSC / TCKC, TDO DIO16, TDI DIO17, RESET, VCC, GND), 30-pad land pattern (identical to JLCPCB's footprint of C5440064 within 0.01 mm), antenna area. RF-star's table gives the width as 16.4 mm in one place and 16.5 mm in the drawing; the footprint uses 16.5 mm. The module has its own pull-up and capacitor on RESET; MSL 3, at most two reflow passes |
 | Sunltech SLO0630H6R8MTT | SLO0630H series data sheet Rev.03 (LCSC C207841) | **verified against datasheet** - 6.8 uH +-20 %, Irms 4.5 A, Isat 8 A, DCR 45 typ / 54 max mOhm, -55..+150 C, 7.1 x 6.6 x 3.0 mm on the pads of the SRP7028A footprint (JLCPCB footprint fit: 0.19 mm) |
 | KEMET T520B107M006ATE040 | KEMET T520 series data sheet | **verified against datasheet** - 100 uF 6.3 V, 40 mOhm, 1.8 A ripple, EIA 3528-21, -55..+105 C |
-| YXC X322524MOB4SI | YXC X3225 data sheet (LCSC C70590) | **verified against datasheet** - 24 MHz, CL 12 pF, +-10 ppm, +-20 ppm over -40..+85 C, ESR 50 ohm max, pads 1 / 3 crystal, 2 / 4 case |
-| LEDs Hubei KENTO KT-0603G / KT-0603B, Lite-On LTST-C191KRKT | manufacturer data sheets (LCSC C12624, C2288, C125099) | **verified against datasheet** - 30 mA continuous, -40..+85 C (Lite-On -55..+85 C), cathode = pad 1 of the JLCPCB footprint = pad 1 of the KiCad footprint (placement report: "pin names agree") |
+| YXC X322524MOB4SI | YXC X3225 data sheet (LCSC C70590) | **verified against datasheet** - 24 MHz, CL 12 pF, +-10 ppm, +-20 ppm over -40..+85 C, ESR 50 ohm max, pads 1 / 3 crystal, 2 / 4 case. **A3 (2026-11-20):** the series sheet lists load capacitance and tolerances as options; that this part number is the 12 pF / +-10 ppm / +-20 ppm version comes from the JLCPCB / LCSC record. Computed drive level 108 uW of 200 uW maximum |
+| LEDs Hubei KENTO KT-0603G / KT-0603B, Lite-On LTST-C191KRKT (the Lite-On part: A2 only, replaced in A3; the three KENTO parts of A3 are in the A3 table below) | manufacturer data sheets (LCSC C12624, C2288, C125099) | **verified against datasheet** - 30 mA continuous, -40..+85 C (Lite-On -55..+85 C), cathode = pad 1 of the JLCPCB footprint = pad 1 of the KiCad footprint (placement report: "pin names agree") |
 | onsemi MM3Z10VT1G | https://www.onsemi.com/pdf/datasheet/mm3z2v4t1-d.pdf (same data sheet as the A1 part) | **verified against datasheet** |
 | Speaker Adafruit 3351 | maker's data sheet C5282-001 (https://cdn-shop.adafruit.com/product-files/3351/C5282-001_datasheet__1_.pdf, found by the enclosure review): flange 70.11 x 30.72 mm, height 16.5 +-0.5 mm, box 66.1 mm, lead 500 mm | **verified against the data sheet** - frame with 0.6 mm clearance per side, pedestal for 16.5 mm. Open point: the sheet calls the plug "XH2.54-2P" while Adafruit and BerryBase sell it as JST-PH 2.0 mm (photo: PH housing); J7 needs PH - check on delivery |
 | Heat sink 14 x 14 x 7 mm (BerryBase RPI-2KKS) | shop page | dimensions from the shop page; 5.7 mm of air remain under it |
 
-## 10. Sourcing (JLCPCB / LCSC live check 2026-11-12; DigiKey 2026-11-11 as the second source)
+**Parts that are new in revision A3** (documents fetched and read on 2026-11-20; the USB limits used in the checks
+are from USB Type-C R2.5, USB PD R3.3 V1.0, USB 3.2 R1.1 and USB 2.0 as published by the USB-IF):
 
-**Revision A2:** the board is assembled by JLCPCB, so the stock that counts is JLCPCB's assembly library. Every BOM line
+| Part | Source (revision) | Status |
+|---|---|---|
+| Microchip USB2514BT-I/M2 (U4) | the datasheet of the USB2514B-I/M2 row in the first table (DS00001692E), p. 55 "Product Identification System" | **verified against datasheet** - "T = Tape and Reel"; the identifier "is used for ordering purposes and is not printed on the device package": same device, package (36-pin SQFN) and temperature range as the USB2514B-I/M2. JLCPCB's footprint of C510949 has the pad numbers and the pin-1 corner of the one of C220679, the CPL angle is unchanged (log F-1) |
+| Infineon IM72D128V01 (MK1, MK2; ordered as IM72D128V01XTMA1) | https://www.infineon.com/assets/row/public/documents/30/49/infineon-im72d128-datasheet-en.pdf (V1.01, 2022-05-05), compared with IM69D130 V1.0 (2017-12-19) and IM73D122V01 V1.00 (2022-08-12) from the same server | **verified against datasheet** - package 4.0 x 3.0 x 1.2 mm (PG-LLGA-5-3), pads, pin functions (1 DATA, 2 VDD, 3 CLOCK, 4 SELECT, 5 GND), 0.6 mm port and recommended land pattern with the 0.8 mm board hole are those of the IM69D130, so the footprint is unchanged (its pads are 0.70 mm long, all three sheets draw 0.75 mm); JLCPCB's footprint records of the two parts have identical pads; VDD 1.62 to 3.6 V, absolute maximum 3.6 V on any pin (rail at most 3.38 V), -40 to +85 C; 3.072 MHz lies in the 2.9 to 3.3 MHz clock window, duty cycle 48 to 52 %, edges at most 13 ns; data timing against the ADAU7002 unchanged (see its row); SELECT = GND is the left channel, SELECT = VDD the right; sensitivity -36 dBFS +-1 dB, SNR 72 dB(A), overload point 128 dBSPL; a 1 uF capacitor "shall be placed close to the microphone VDD pad to ensure best SNR performance" (table footnote; a note on p. 10 of the same sheet still says 100 nF) - C43 / C44 are 1 uF; constant level in the data stream -80 dBFS with SELECT = GND (MK1) and -40 dBFS with SELECT = VDD (MK2), typical values (section 3.4, table 7). Not verified: spread and sign of the constant level (only typical values are given); duty cycle and overshoot of the clock at the microphone pins (a simulation with assumed driver data gives a peak of 3.52 V with R41 = 33 ohm, the limit is 3.6 V); nothing was measured on hardware (log F-3, W-1) |
+| LEDs Hubei KENTO KT-0603R (D4, D9), KT-0603G (D6, D7, D10), KT-0603B (D8) | "Specification for approval", Revision A.0 (2018-12-06) of each part, LCSC copies https://datasheet.lcsc.com/datasheet/pdf/011ec3e8cb1e825f6961d29bc4db4c7a.pdf (C2286), https://datasheet.lcsc.com/datasheet/pdf/69e84a3abd84e5ab5856c47a2d0334ce.pdf (C12624), https://datasheet.lcsc.com/datasheet/pdf/1096dc34dcf507e4677a7d79542be828.pdf (C2288); compared with Lite-On LTST-C191KRKT DS22-2000-223 Rev. F | **verified against datasheet** - KT-0603R: 25 mA, 40 mW, 145 to 300 mcd and 1.8 to 2.4 V at 20 mA, derating to 6.7 mA at 85 C (the board loads it with at most 1.86 mA); KT-0603G: 30 mA, 210 to 430 mcd and 2.6 to 3.1 V at 5 mA; KT-0603B: 30 mA, 70 to 175 mcd and 2.6 to 3.1 V at 5 mA; all -40 to +85 C. Currents and intensities of log C-6 are computed from the typical curves and the bin limits. JLCPCB's footprint of C2286 has pad 1 = anode, those of C12624 and C2288 pad 1 = cathode; the placement report shows D4 and D9 as "terminals swapped by pin name" with unchanged rotations. Not verified: the curves start at about 1.1 mA and the intensity curves cannot be read below about 0.1 mA, so the values at 0.27 mA (D6, D7) and for D10 are extrapolated; KENTO gives no typical intensity; a minimum current for D10 cannot be derived from published limits |
+| Samsung CL10B105KB8NQNC, 1 uF 50 V X7R 0603 (C1, C2, C3, C5, C11) | Samsung "Specification (Reference sheet)" CL10B105KB8NQNC (PDF of 2022-10-17, LCSC copy https://datasheet.lcsc.com/datasheet/pdf/d6d93098a36e9601e7f96915ab74f302.pdf) and the characteristic data in Samsung's component library, https://weblib.samsungsem.com/mlcc/mlcc-ec-data-sheet.do?partNumber=CL10B105KB8NQN | **verified against datasheet** - 1 uF, 50 V, +-10 %, X7R (-55 to +125 C), 1.60 x 0.80 x 0.80 mm on the 0603 pads of the three parts it replaces. Typical capacitance under DC bias: -1.6 % at 3.3 V, -10.7 % at 5 V (0.89 uF), -69.3 % at 20 V (0.31 uF); the replaced 25 V X7R part kept 0.83 uF at 5 V, the replaced 50 V X5R part 0.15 uF at 20 V. Checked with these values: CYPD3177 VDDD (at least 0.8 uF) and VCCD, LMR33640 VCC ("1-uF, 16-V"), VBUS bypass at attach (1.78 uF with C1 + C2; USB: 1 to 10 uF) - log C-5. Not verified: the bias figures are typical curves at 25 C, not guaranteed limits; the alternates named in the BOM (Yageo, Fenghua) have no published bias curve |
+| Samsung CL05A105KA5NQNC, 1 uF 25 V X5R 0402 (C43, C44) | characteristic data in Samsung's component library, https://weblib.samsungsem.com/mlcc/mlcc-ec-data-sheet.do?partNumber=CL05A105KA5NQN ; ratings from JLCPCB's record of C52923 | **verified against datasheet** - typical capacitance under DC bias -27.1 % at 3.3 V (0.73 uF), ESR 10.6 mOhm at 1 MHz; the 10 V and 16 V parts of the same size lose more than half at 3.3 V. It sits on the 0402 pads of the 100 nF part it replaces and is there because the microphone datasheet asks for 1 uF at VDD (log F-3). Not verified: typical curves only; the microphone datasheet gives no SNR figure for 100 nF against 1 uF |
+| Jing Extension 907-112A1022D10200 (J6, stacked USB-A) | maker's drawing 907-112A1022D10200, version A0, 2021/03/10, one page (LCSC copy https://datasheet.lcsc.com/datasheet/pdf/289ecaf1808b1a422bdd31b7682f44fe.pdf); compared with the Wurth drawing rev M and with the board file | **verified against datasheet** - pin assignment, pin pitch 2.5 / 2.0 / 2.5 mm, row spacing 2.60 mm (board 2.62 mm), pin holes 8 x 0.92 mm and stake holes 2.30 mm as drilled, shell stakes 13.10 x 5.80 mm (board 13.14 x 5.68 mm: the front stakes sit 0.12 mm forward), no locating peg; shell 13.10 mm wide, 15.60 mm high, 17.30 mm deep, flange 14.60 x 15.70 mm; 1.5 A per contact, 30 V, 1500 cycles; JLCPCB has a footprint record, fitted by pad numbers with 0.045 mm at the worst pad. **Scaled from the drawing, not dimensioned:** (1) the distance between the stake rows and the pin rows (0.35 mm; the 0.12 mm offset and the 0.08 mm the stakes clear in the smallest drilled hole depend on it), (2) the distance from the pin rows to the front face (overhang beyond the board edge 2.50 to 2.55 mm), (3) the heights of the flange lips (0.45 and 16.12 to 16.20 mm above the board) and of the port openings, (4) the stake cross-section (1.87 x 0.30 mm at the root) and the pin width (0.58 mm). Not stated on the drawing: temperature range, solder process, flammability class. Labels and drawn geometry of the sheet differ in places (13.10 labelled, 13.15 drawn), and no sample was measured (log F-2) |
+
+## 10. Sourcing (JLCPCB / LCSC live check 2026-11-21; DigiKey 2026-11-11 as the second source)
+
+**Revision A3:** the board is assembled by JLCPCB, so the stock that counts is JLCPCB's assembly library. Every BOM
+line was read live from that library and from lcsc.com (`gen/jlc_lookup.py refresh`, raw data in
+`gen/sourcing_jlc.json`). The check of all lines of revision A2 ran on 2026-11-20 between 22:23 and 22:46 UTC and led
+to the decisions F-1 to F-4; the file holds the reading that was taken after the part numbers had changed and
+carries the date 2026-11-21. `hardware/outputs/bom.csv` has 46 lines - 44 assembled and 2 not populated (C13, J5) -
+and 136 placements, 132 on the component side and 4 on the side that faces the top cover. The parts of one board cost
+39.75 USD at JLCPCB's single-piece prices and 29.24 USD at its 100-piece prices (A2 on 2026-11-12: 41.78 and
+30.03 USD). Of the 44 assembled lines 13 are Basic, 1 is Preferred Extended (49.9k) and 30 are Extended; 42 part
+types are placed by machine and 2 are soldered by hand (J6, J7). For the order of two boards
+`hardware/outputs/order_cost.csv` gives 79.49 USD for the parts at the needed quantities, 83.02 USD with JLCPCB's
+minimum quantities and 84.78 USD with minimum and loss quantities. Two lines are below 200 pieces, ADAU7002ACBZ-R7
+(63) and RF-BM-2652P2 (126); neither has a stocked alternate (log F-4). No line is below twice the need.
+`hardware/outputs/bom.csv` carries, per line, the LCSC number, library type, JLCPCB and LCSC stock, JLCPCB prices at
+1 / 10 / 100, the DigiKey second source and other alternates.
+
+Lines that changed from revision A2 to revision A3 (53 -> 44 assembled lines):
+
+| Line | A2 part (LCSC no.; JLCPCB stock 2026-11-12) | A3 part (LCSC no., JLCPCB stock 2026-11-21) | Why (log) |
+|---|---|---|---|
+| USB hub U4 | Microchip USB2514B-I/M2, tray (C220679; 1,182, on 2026-11-20: 2) | USB2514BT-I/M2, tape and reel (C510949, 6,206) | 2 pieces left of the tray part; same device under its other ordering code (F-1) |
+| Stacked USB-A J6 | Wurth 61400826021 (C5366339; 116, on 2026-11-20: 18) | Jing Extension 907-112A1022D10200 (C29780026, 2,434) | stock; 0.36 instead of 2.75 USD; fits the land pattern within 0.12 mm; no temperature range on its drawing (F-2) |
+| Microphones MK1, MK2 | Infineon IM69D130V01 (C536262; 392, on 2026-11-20: 43) | Infineon IM72D128V01XTMA1 (C5119248, 623) | stock, and "not for new designs"; same footprint, pin-out and sensitivity; constant level on MK2 (F-3, W-1) |
+| Microphone bypass C43, C44 | two of the 23 pieces of the 100 nF 16 V X7R 0402 line (C1525) | Samsung CL05A105KA5NQNC 1 uF 25 V X5R 0402 (C52923, Basic, 9.26 M) | the data sheet of the new microphone asks for 1 uF at VDD; the one new line (F-3) |
+| 0603 capacitors C1, C2, C3, C5, C11 | C1: Samsung CL10A105KB8NNNC 1 uF 50 V X5R (C15849); C2: Yageo CC0603KRX7R9BB104 100 nF 50 V X7R (C14663); C3, C5, C11: Samsung CL10B105KA8NNNC 1 uF 25 V X7R (C29936) | Samsung CL10B105KB8NQNC 1 uF 50 V X7R 0603 (C5199872, 2.63 M) | three lines become one; no rating goes down, more capacitance under bias (C-5) |
+| Gate capacitor C7 | Samsung CL05B103KB5NNNC 10 nF 50 V X7R 0402 (C15195) | one more piece of the 100 nF 16 V X7R 0402 line CL05B104KO5NNNC (C1525, Basic, 33.9 M; 22 pieces per board) | 100 nF slows the turn-on of the load switch; one line less (C-3) |
+| Red LEDs D4, D9 | Lite-On LTST-C191KRKT (C125099) | Hubei KENTO KT-0603R (C2286, Basic, 8.48 M) | brighter part, run at 1.4 mA instead of 9 mA with R22 = 1k; its lower ratings (25 mA, 40 mW) are accepted at that load (C-6) |
+| Green LEDs D6, D10 | Wurth 150060VS75000 (C6848499) | Hubei KENTO KT-0603G, the part of D7 (C12624, 206 k; 3 pieces per board) | one line less; R15 = 10k (C-6) |
+| Resistors 0402 1 % | 15 values: 0, 33, 150, 1k, 2.2k, 2.4k, 5.1k, 10k, 12k, 20k, 24.9k, 49.9k, 100k, 150k, 470k | 9 values: 33, 1k, 2.2k, 10k, 12k, 20k, 24.9k, 49.9k, 100k (UNI-ROYAL 0402WGF as before) | strap, gate, enable and LED resistors recalculated with values the board carries anyway (C-2, C-3, C-4, C-6); R19, R21 and R28 changed for margin, without effect on the BOM (C-7, C-12) |
+
+Not replaced although a Basic part exists: the 4.7 uF line (the Basic part is rated 16 V instead of 25 V) and the
+2N7002 (the Basic part is a 115 mA / +-20 V type) - in a Standard PCBA order a Basic part saves no fee (log C-1,
+C-10). The lines revision A1 had flagged are unchanged and in stock: LMR33640ADDAR (2,070 pieces at JLCPCB),
+TPS2553DBVR (43,834), 2N7002,215 (303 k), CL31B106KBHNNNE (208 k) and GRM188R71H224KAC4D (3,204; the BOM names two
+alternates). The CM4 socket DF40C-100DS-0.4V(51), at 1,052 pieces in the A2 BOM, has 19,098; the spacers 9774015151R
+have 2,091 (A2: 230). Three part numbers lost 85 to 99.8 % of their stock in the eight days between the two checks
+(USB2514B-I/M2, IM69D130V01, 61400826021): run the lookup once more on the day of the order.
+
+**Revision A2 text (JLCPCB / LCSC, 2026-11-12) - kept as the record of the change from A1 to A2. Of its lines,
+revision A3 changed again the 1 uF X7R, 1 uF 50 V X5R and 100 nF 50 V 0603 capacitors, both LED lines and the
+resistor values (table above):**
+
+The board is assembled by JLCPCB, so the stock that counts is JLCPCB's assembly library. Every BOM line
 was read live from that library and from lcsc.com (`gen/jlc_lookup.py refresh`, raw data in `gen/sourcing_jlc.json`):
 55 lines, 136 placements, parts for one board 41.78 USD at JLCPCB's single-piece prices. 16 lines are Basic, 5 Preferred
 Extended, 32 Extended (plus 2 lines that are not populated). Three lines are below 200 pieces - ADAU7002ACBZ-R7 (104), 61400826021 (116),
@@ -710,6 +891,11 @@ Cost per unit (DigiKey, 2026-11-11): see the cost summary in README.md.
 
 ## 11. Showcase animation (`/media`)
 
+- Status: the committed video and still show revision A1. They were not rendered again for revision A2 (log A2-53)
+  and not for revision A3; A3 changes little that a render shows (the revision text, two land patterns, the model of
+  the USB-A connector and its window). For A3 the texture script was ported to KiCad 10, which plots a page that is
+  exactly the board outline, and run on the A3 board; Blender and the encoding were not run (`media/README.md`). The
+  points below describe the A1 render.
 - Source geometry is only what the repository already contains as STEP: the KiCad board export
   (`hardware/outputs/voxhub_pcb.step`, placement of every part), the part models in `hardware/3dmodels` and the
   enclosure assembly (`enclosure/voxhub_assembly.step`). `step_to_glb.py` converts them with OpenCascade (XCAF reader ->
@@ -758,25 +944,43 @@ Closed in the second session (kept here so the history is visible):
 Closed in the third session (revision A2):
 
 8. ~~Mouser column~~ - removed; the JLCPCB assembly library is the primary source, DigiKey the second (log A2-1).
-9. ~~Stock risks of A1~~ - every line is in stock at JLCPCB (log A2-2, section 10); three thin lines are listed below.
+9. ~~Stock risks of A1~~ - every line is in stock at JLCPCB (log A2-2, section 10); three thin lines were listed
+   then, two are left (see below).
 10. ~~USB lines not coupled / impedance from a formula~~ - upstream pair coupled, geometry from JLCPCB's calculator on
     a stack-up JLCPCB offers (log A2-20 to A2-22).
 11. ~~Buck layout items "before a production spin"~~ - PGND tie and vias, feed and VBUS widths, vias out of lead pads,
     URL text: all fixed and gated by scripts (log A2-15 to A2-18, A2-26).
 12. ~~Firmware consequences of the MGM240P pin-out~~ - the radio is a CC2652P now (log A2-3, A2-4, A2-32).
 
-Still open:
+Closed in the fifth session (revision A3):
 
-1. **Thin stock at JLCPCB on 2026-11-12:** ADAU7002ACBZ-R7 (104), Wurth 61400826021 (116), RF-BM-2652P2 (126); the CM4
-   socket DF40C-100DS-0.4V(51) has 1,106 pieces at JLCPCB and 0 at LCSC (not being restocked there; the (58) reel
-   variant C3642394 is the same part). Buy the thin parts into the JLCPCB parts library before ordering
-   (`fab/ORDER_GUIDE.md`); the BOM names the alternates.
-2. **Documents the manufacturer still does not serve to scripts** (read from authorised distributors instead, table in
-   the A2 log): MGM240P (moot), C&K JS, ADAU7002, MAX98357A (Rev 13 read, Rev 16 exists), USBLC6-2 (Rev 5 read),
-   SMBJ, 2N7002. Generic passives, diodes, the pin header and the Tag-Connect pads use KiCad standard footprints and
-   were not checked against a manufacturer document (last row of the first table in section 9).
+13. ~~Thin stock of the stacked USB-A connector, the spacers and the CM4 socket~~ - J6 is ordered as the Jing part
+    with 2,434 pieces in stock (log F-2); the spacers 9774015151R are back at 2,091 pieces, the socket
+    DF40C-100DS-0.4V(51) at 19,098 pieces at JLCPCB and 18,478 at LCSC.
+14. ~~Flange lip of the Wurth USB-A connector (scaled)~~ - that connector is the alternate now; the scaled dimensions
+    of the Jing part are item 3 below.
+
+Still open (state of revision A3, 2026-11-21):
+
+1. **Thin stock at JLCPCB on 2026-11-21:** ADAU7002ACBZ-R7 (63; 104 on 2026-11-12) and RF-BM-2652P2 (126). Neither has
+   a stocked alternate (log F-4): buy them into the JLCPCB parts library before ordering (`fab/ORDER_GUIDE.md`).
+   Stock moves fast - USB2514B-I/M2 went from 1,182 to 2 pieces, IM69D130V01 from 392 to 43 and 61400826021 from 116
+   to 18 in eight days - so run `gen/jlc_lookup.py refresh` again on the day of the order.
+2. **Documents the manufacturer still does not serve to scripts** (read from authorised distributors or mirrors
+   instead; table in the A2 log, A3 entries in section 9): MGM240P (moot), C&K JS, ADAU7002 (Rev. C), MAX98357A (Rev 11
+   and Rev 13 read, Rev 16 exists), USBLC6-2 (Rev 5 read), SMBJ, 2N7002 (Rev. 7), and on 2026-11-20 also the Wurth
+   drawing of the USB-A alternate (rev M read instead of Rev. 001.001). The KENTO LED sheets and the Jing drawing were
+   read as LCSC copies; Microchip's hardware design check list for the hub could not be fetched. Generic passives,
+   diodes, the pin header and the Tag-Connect pads use KiCad standard footprints and were not checked against a
+   manufacturer document (last row of the first table in section 9).
 3. **Mechanical points to check on real parts:** the plug of the Adafruit 3351 speaker (its data sheet says XH 2.54 mm,
-   the shops say JST-PH 2.0 mm; J7 is PH), the USB-A flange lip (0.45 / 15.95 mm, scaled), the C&K body tolerance.
+   the shops say JST-PH 2.0 mm; J7 is PH); the C&K body tolerance; and the Jing USB-A connector 907-112A1022D10200
+   (J6), of which no sample was measured. Four of its dimensions are scaled from the drawing, not dimensioned: the
+   distance between the shell stakes and the pin rows (on that basis the stakes clear the smallest drilled hole by
+   0.08 mm), the distance from the pins to the front face (overhang 2.50 to 2.55 mm), the heights of the flange lips
+   (0.45 and 16.12 to 16.20 mm above the board; the enclosure window ends at 17.0 mm) and the cross-sections of
+   stakes and pins. The drawing states no temperature range, solder process or flammability class (log F-2,
+   section 9).
 4. **USB impedance is calculated, not measured.** 0.14 / 0.16 mm on JLC04161H-3313 is 89.96 ohm in JLCPCB's calculator;
    JLCPCB's tolerance without the paid impedance option is not stated. The downstream lines are two uncoupled 45 ohm
    lines per port (log A2-22).
@@ -784,6 +988,43 @@ Still open:
    is in `fab/ASSEMBLY_AND_TEST.md`). How RF-star ships the module (blank, or with a firmware whose backdoor is
    disabled) decides whether the first flash goes over the serial boot loader or over JTAG; the script handles both.
 6. **JLCPCB's order form behind the login was not reachable** (BOM / CPL upload, parts matching, placement preview,
-   final price). Those steps of `fab/ORDER_GUIDE.md` come from JLCPCB's help articles of 2026-11-12, the PCB price and
-   the shipping prices from the live form.
-7. Nothing here has been powered on. Treat revision A2 as a prototype spin.
+   final price), on 2026-11-20 as on 2026-11-12. Those steps of `fab/ORDER_GUIDE.md` come from JLCPCB's help
+   articles, the PCB price and the shipping prices from the live form (read again on 2026-11-20), the assembly fees
+   from JLCPCB's price list of 22 Oct 2026. What the placement preview shows for the new part numbers - J6, and D4 /
+   D9, whose JLCPCB footprint numbers its pads the other way round - has to be looked at in the order (log C-6, F-2).
+7. Nothing here has been powered on. Treat revision A3 as a prototype spin.
+8. **KiCad 10 on Windows is not verified (log K-10).** The evidence is KiCad 10.0.8 on Linux, including an
+   open-edit-save in both editors. Not tried: opening the project on Windows (KiCad's setup wizard appears once),
+   `hardware/build.sh` under Git Bash / Docker Desktop, a fresh autoroute without `SKIP_ROUTE=1` (KiCad 10 writes the
+   Specctra DSN file differently; the committed session imports unchanged) and a `docker build` of the project image
+   without the layer cache of the machine it was made on. Plot fabrication files with `build.sh`, not from the
+   defaults of the Plot dialog.
+9. **Measurements the first board has to deliver (log N-1 to N-6).** Every figure below is a calculation, a
+   simulation or a model result:
+   - Load switch (N-6, C-3): VGS of Q1 at a 9 V and at a 20 V contract (expected 4.4 to 4.5 V and 10 V), the rise of
+     VBUS_SW and the switch-on current on a scope (simulated 3.3 A at 20 V; the drive mode of the controller is not
+     published), FAULT staying low.
+   - Temperatures (N-2): regulator U2, inductor L1 and load switch Q1 in the closed enclosure at typical load and at
+     about 12 W, also with a charger that only offers 9 V. Model for 50 C around the board: about 76 C at typical
+     load, 95 to 105 C at 12 W, 135 to 145 C at the theoretical peak, which cannot be held continuously.
+   - Power (N-3): input power at the connector (expected 5.2 to 5.4 W typical, about 19.6 W at the theoretical peak)
+     and the 5 V rail (4.86 to 5.17 V, up to 5.23 V at light load).
+   - USB-A ports (N-1, N-5): both ports with a high-speed device and under load up to the current limit (computed
+     1.19 to 1.39 A). The input capacitors and limit resistors of U5 / U6 are far from their pins, and the hub's only
+     ground is two vias in its exposed pad.
+   - Inductor current (N-4): nothing to measure; do not plan loads above the 3.45 A budget at 20 V input.
+10. **Brightness of the LEDs, D10 above all (log C-6).** The intensities are computed from typical curves. D10 (ACT,
+    green, 1k from 3.3 V) is expected at 0.9 mA and can be at about 0.1 mA with every limit against it: it should
+    light on every board, with a brightness that differs about 10 : 1 between boards, and no minimum current follows
+    from published limits. Look at it on the first boards; a red KT-0603R in its place would have a current that
+    the data sheet limits guarantee (0.62 to 1.86 mA).
+11. **Constant level of MK2 on real hardware (log F-3, W-1).** The data sheet gives -40 dBFS as a typical value
+    without a spread: about 328 counts in the 16-bit samples of the right channel, 166 in the mono mix, 662 after
+    gain 4. The filter of the VoxHub Assistant add-on has unit tests; the two-device path (Linux Voice Assistant:
+    wake word and voice activity detection) was only simulated with library recordings. On the first boards record
+    both microphones (tests 9 and S9 of `fab/ASSEMBLY_AND_TEST.md` say what MK2 sounds like), then check wake word
+    and a spoken request on the hub and on the satellite.
+12. **PDM clock at the microphones.** The IM72D128V01 allows 3.6 V on any pin (the IM69D130: 4.0 V). A simulation
+    with assumed driver data gives a peak of 3.52 V on the clock line behind R41 = 33 ohm; the data sheets of the
+    converter and of the microphone do not allow a calculation. Measure overshoot, edge time (limit 13 ns) and duty
+    cycle (48 to 52 %) at MK1 and MK2.

@@ -171,7 +171,7 @@ res(s, "100k", 95, 215, "PD_GATE", "PD_FET_EN")
 s.text("VBUS_FET_EN pulls low after a 9-20 V contract.\nVgs = -0.5 x VBUS (-4.5 V @ 9 V, -10 V @ 20 V),\n10 V zener clamps above 20 V; 100 nF slows the turn-on.", 70, 262, size=1.4)
 s.flag("VBUS", 30, 180); s.flag("VBUS_SW", 100, 180); s.flag(GND, 30, 265)
 d.near = "U2"
-s.box(135, 155, 405, 247, "5.0 V / 4 A synchronous buck (LMR33640, 400 kHz) - UVLO 7.4 V keeps it off at vSafe5V")
+s.box(135, 155, 405, 247, "5.0 V synchronous buck (LMR33640, 4 A part, 400 kHz) - UVLO 7.4 V keeps it off at vSafe5V")
 s.place("LMR33640ADDA", "U2", "LMR33640ADDAR", 215, 205,
         {"1": GND, "2": "VBUS_SW", "3": "BUCK_EN", "4": "NC", "5": "BUCK_FB", "6": "BUCK_VCC", "7": "BUCK_BOOT", "8": "BUCK_SW", "9": GND},
         footprint=PARTS["U_BUCK"][3], fields=F("U_BUCK"))
@@ -296,7 +296,7 @@ for i, sel in enumerate((GND, V33)):
     s.place("IM69D130", "MK%d" % (i + 1), "IM72D128", x, 60, {"1": "PDM_DAT", "2": V33, "3": "PDM_CLK_M", "4": sel, "5": GND},
             fields=F("MK_PDM"))
     cap(s, "C_1u_0402", x - 20, 95, V33)
-s.text("MK1 SELECT=GND (left), MK2 SELECT=VDD (right, carries a -40 dBFS DC level); 70 mm apart", 30, 115, size=1.5)
+s.text("MK1 SELECT=GND (left), MK2 SELECT=VDD (right, carries a -40 dBFS DC level); 102 mm apart", 30, 115, size=1.5)
 d.near = "U9"
 s.place("ADAU7002", "U9", "ADAU7002ACBZ-R7", 165, 60, {"A1": "PDM_DAT", "A2": "PDM_CLK", "D2": V33, "C1": GND, "D1": V33,
         "B2": "I2S_BCLK", "C2": "I2S_LRCLK", "B1": "MIC_SDATA"}, fields=F("U_PDM"))
