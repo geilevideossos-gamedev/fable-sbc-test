@@ -37,7 +37,9 @@ S-5. The satellite board itself runs the same satellite software from an SD card
 | LEDs | green = ready, blue = listening, blinking blue = thinking, green + blue = speaking, off = muted, slow green blinking = no connection to Home Assistant |
 | Mute switch | cuts the microphone data in hardware; the bridge also mutes the satellite in Home Assistant |
 
-Setup, step by step: `fab/ASSEMBLY_AND_TEST.md`, chapter 7. Options: `voxhub_satellite/DOCS.md`.
+Setup, step by step: `fab/ASSEMBLY_AND_TEST.md`, chapter 7. Options: `voxhub_satellite/DOCS.md`, which also says
+what the constant level of the right microphone does to the wake word for quiet speech (simulated, not tested on a
+board) and which settings can be tried against it.
 
 Code (`voxhub_satellite/app/voxhub_satellite/`, shared with the satellite image):
 
@@ -232,7 +234,9 @@ hardware/OS part of this repository).
      `https://github.com/geilevideossos-gamedev/fable-sbc-test`. The Supervisor expects
      `repository.yaml` in the **root** of the Git repository and then finds add-on
      folders anywhere below it, so a copy of `assistant/repository.yaml` is kept at the
-     repository root for this method (it is already there).
+     repository root for this method (it is already there). Home Assistant installs what
+     the default branch of the repository holds: if the store offers VoxHub Assistant as
+     version 0.1.0, it reads an older state without the microphone gain of 32.
    - **Local add-on:** copy the folder `assistant/voxhub_assistant` to `/addons/` on the
      device (Samba or SSH add-on), then *Add-on store -> ⋮ -> Check for updates*. It
      appears under *Local add-ons*.

@@ -6,7 +6,7 @@ Everything you must buy that is **not** on the assembled PCB from JLCPCB. Hardwa
   account and the parts that are short". The cost of that order is in its section "8. Cost estimate"; the parcel from
   JLCPCB is checked with its section "10. Incoming inspection - before anything is plugged in".
 - What to do with the parts of this list is described in [`ASSEMBLY_AND_TEST.md`](ASSEMBLY_AND_TEST.md): section
-  "2. Tools and parts on the table" names every part by the line number of this list, section "3. Bring-up before
+  "2. Tools and parts on the table" lists the same parts with their part numbers, section "3. Bring-up before
   assembly" tests the board, section "4. Mechanical assembly" puts the device together.
 - Nothing on this list needs soldering or crimping.
 - **Two-device system (hub upstairs + satellite downstairs):** the second board is the satellite. Its parts and the
@@ -15,9 +15,15 @@ Everything you must buy that is **not** on the assembled PCB from JLCPCB. Hardwa
   Austria. The list was first written with the prices of 2026-11-12; on 2026-11-20 the shop pages were read again
   (DigiKey.at could not be read, mark D below). No price of the numbered lines (1 to 16, 1S, 4S) and no shipping
   fee had changed, so every total is the one of 2026-11-12. Several stock figures had changed.
+- The shops of this list were read twice and not again: on 2026-11-12 and on 2026-11-20 between 23:01 and
+  23:28 UTC. Nothing here was read on 2026-11-21. The part prices of the JLCPCB order are a separate matter with
+  two reads of their own, which `ORDER_GUIDE.md` uses: the read of 2026-11-20, which ended at 00:07 UTC on
+  2026-11-21, and the read of 2026-11-21 at 09:57 UTC, from which its prices and totals come. No article of this
+  list is part of those two reads. The one JLCPCB figure here, the compute module in JLCPCB's parts library
+  (section 6), was looked up together with the shops on 2026-11-20 (mark R).
 - Corrected on 2026-11-21 after a design review, without a new reading of the shops: the charger advice of section
   5.8 (a 9 V contract is for loads up to about 12 W only) and the clearance under the heat sink in section 5.3
-  (5.8 mm).
+  (5.8 mm, with what the figure measures).
 - **Order the BerryBase.at parcel first.** The speaker of line 2 has no substitute, and its stock fell from 67 to
   19 pieces between 2026-11-12 and 2026-11-20 (section 5.2).
 - Prices and stock change daily; the compute module at Reichelt.at rose by 2.67 EUR within the morning of
@@ -93,7 +99,9 @@ Lines 1 to 10 are the same articles, quantities and prices as `hardware/outputs/
 Assumed to be at hand, not on this list and not looked up: the Bambu Lab printer; a PC with a microSD or SD card
 reader (the card comes with an SD adapter); a Wi-Fi network; and the workshop and household items named in
 `ASSEMBLY_AND_TEST.md`, sections "2.2 Only for the bring-up test" and "2.3 Tools": a caliper, drill bits 2.0 mm and
-1.5 mm, a sharp knife or scissors, adhesive tape or one small cable tie, a USB memory stick, one Zigbee device.
+1.5 mm, a sharp knife or scissors, adhesive tape or one small cable tie, a USB memory stick, one Zigbee device, a
+magnifier. A soldering iron and solder are needed in one case only: if the solder joint of a spacer on the board
+shows no fillet (`ASSEMBLY_AND_TEST.md`, section "3.1 Test 1 - visual inspection (no power)", point 9).
 
 ## 2. Two devices
 
@@ -320,7 +328,9 @@ from JST's catalogues, read 2026-11-12. Housings of other makers can differ by a
   the large chip (BCM2711) of the compute module. 1.30 EUR in the BerryBase parcel.
 - The small 8.8 x 8.8 x 5 mm heat sink of the set is not used.
 - Must match if substituted: base 14 x 14 mm, height not more than 9.5 mm including the adhesive, adhesive foil
-  included. The enclosure model leaves 5.8 mm of air under the 7 mm heat sink (`enclosure/README.md`).
+  included. In the enclosure model the processor is 12.8 mm from the inner face of the base plate, so 5.8 mm of
+  air stay between the 7 mm heat sink and the base plate, and 3.3 mm would stay under a 9.5 mm heat sink. These
+  figures are calculated from the model, not measured (`enclosure/README.md`, last row of its table).
   A heat sink without foil (for example Fischer ICK BGA 14 X 14 at Reichelt.at, 1.16 EUR, R; not in stock on
   2026-11-20) needs thermal tape and is not for this build. BerryBase PKKRPI (13 x 13.5 x 10 mm) is too tall.
 - No fan is needed.

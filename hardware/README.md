@@ -6,15 +6,17 @@ a library, the board or the project file that was changed in KiCad or by hand, a
 fabrication files from the project as it is. For anything that is to stay, change the generator and run
 `./build.sh`. How to open the project is in [Opening and editing in KiCad 10](#opening-and-editing-in-kicad-10), how
 generated files and manual edits are kept apart in
-[Editing the project by hand (KiCad 10)](#editing-the-project-by-hand-kicad-10).
+[Editing the project by hand (KiCad 10)](#editing-the-project-by-hand-kicad-10). Close KiCad before you run a build
+step that generates files; the reason is given there.
 
 Revision A3 is the revision that is ordered fully assembled from JLCPCB. The order files are in
 [`../fab/jlcpcb/`](../fab/jlcpcb), the ordering steps in [`../fab/ORDER_GUIDE.md`](../fab/ORDER_GUIDE.md). Against
-revision A2 the placement, the nets and the routing are the same; values, part numbers, three land patterns and the
-toolchain changed. What changed and why is in the A3 log at the top of [`../DECISIONS.md`](../DECISIONS.md) (K-1 to
-K-10: KiCad 10, C-1 to C-12: fewer part numbers, N-1 to N-6: findings on the existing design, F-1 to F-5: stock
-check, K-11 to K-15: editing by hand, R-1 to R-7: review round 1 of 2026-11-21), what changed from A1 to A2 in its
-A2 log.
+revision A2 the placement, the nets and the routing are the same; values, part numbers, three land patterns (two of
+them with their solder paste apertures) and the toolchain changed. What changed and why is in the A3 log at the top
+of [`../DECISIONS.md`](../DECISIONS.md) (K-1 to K-10: KiCad 10, C-1 to C-12: fewer part numbers, N-1 to N-6:
+findings on the existing design, F-1 to F-5: stock check, K-11 to K-15: editing by hand, R-1 to R-7: first part of
+review round 1 of 2026-11-21, R-8 and following: its second part with the build guard, the solder paste of two
+land patterns and the microphone gain of the hub add-on), what changed from A1 to A2 in its A2 log.
 
 ## Opening and editing in KiCad 10
 
@@ -26,19 +28,24 @@ A2 log.
   22.6 x 2.88 x 1.45 mm, 3.38 mm over the contact tails, from the Hirose DF40 catalogue; the inside is a plain trough
   that clears the plug block of the CM4 model; K-15).
 - The files are native KiCad 10 files (schematic format 20260306, board and footprints 20260206, symbol library
-  20251024). Saving them from both KiCad 10 editors left every tracked file byte-identical, with no conversion notice
-  (tested on Linux, K-2). Nothing was tested on Windows itself (K-10); at the first start KiCad shows its own setup
-  wizard once. `.gitattributes` keeps the KiCad files and the scripts at LF line endings on a Windows checkout, and
-  `.gitignore` covers what KiCad creates beside an opened project (K-9).
+  20251024). A save from the schematic editor and from the board editor of KiCad 10.0.8 that changes nothing left
+  every generated file byte-identical, with no conversion notice (K-2; measured on Linux in scripted runs with the
+  editors on a virtual display, not by a person at a screen). Nothing was run on Windows (K-10); at the first start
+  KiCad shows its own setup wizard once. `.gitattributes` keeps the KiCad files and the scripts at LF line endings
+  on a Windows checkout, and `.gitignore` covers what KiCad creates beside an opened project (K-9).
 - **Generated files are guarded.** `build.sh sch`, `pcb`, `route` and `all` write the schematic sheets, the project
-  libraries, the board and the project file again. Since 2026-11-21 such a step stops before it writes anything when
-  one of these files was saved from KiCad or edited by hand: it names the files, and only `OVERWRITE=1` discards the
-  edits (K-11).
+  libraries, the board and the project file again. Such a step stops before it writes anything when one of these
+  files was saved from KiCad or edited by hand: it names the files, and only `OVERWRITE=1` discards the edits
+  (K-11). Since the second part of review round 1 (2026-11-21) it also stops when the record of the generated files
+  has no line for a file it is going to write, when its last run did not finish, and when KiCad has the project
+  open.
+- **Close KiCad before a generating step** (project manager, schematic editor and board editor). A file that is
+  saved while the step writes that same file is lost without a message; the guard cannot see such a save.
 - **`build.sh outputs` works on the project as it is on disk**: it generates nothing, runs the DRC (with schematic
   parity against the schematic on disk), writes Gerbers, drill files, positions, renders and the JLCPCB BOM and CPL
-  from that board, and leaves every project file byte for byte as it found it (K-12). It still writes
-  `outputs/bom.csv` and `outputs/order_cost.*` from `gen/model_netlist.json`, the part list of the last generator
-  run, not from an edited schematic.
+  from that board, and never writes a project file (K-12). It may run while KiCad has the project open. It still
+  writes `outputs/bom.csv` and `outputs/order_cost.*` from `gen/model_netlist.json`, the part list of the last
+  generator run, not from an edited schematic.
 - Without Docker, `voxhub.kicad_jobset` makes reports and fabrication files from the KiCad 10 project manager, and
   *File > Plot* writes the same Gerbers as the build, because the board file stores the plot settings of `build.sh`.
   The drill dialog has no project settings: take the drill files from the jobset or from `build.sh outputs` (K-13,
@@ -48,7 +55,8 @@ A2 log.
 - The build needs Docker and a Linux shell (`bash`, `python3`, `zip`). On Windows that means WSL2 with Docker; Git
   Bash is a second choice. Neither was tested (K-10).
 
-The guard, the jobset, the two dialogs, their limits and what is not tested are described in
+The guard with the exact texts it prints, the jobset, the two dialogs, who owns the files after a build, the limits
+and what is not tested are described in
 [Editing the project by hand (KiCad 10)](#editing-the-project-by-hand-kicad-10).
 
 ## Contents
@@ -71,7 +79,7 @@ The guard, the jobset, the two dialogs, their limits and what is not tested are 
 | `gen/sourcing.py`, `gen/sourcing_live.json`, `gen/make_bom.py` | second sources, DigiKey data of 2026-11-11, system parts with their EU shop, BOM generator |
 | `gen/order_cost.py` | parts cost of an order of assembled boards with JLCPCB's minimum quantities, loss quantities and price breaks |
 | `gen/make_footprints.py`, `gen/make_3dmodels.py` | project footprint library (the copies from `gen/stock`, three of them patched by `LAND_FIXES`: spacer ring, USB-C contacts, microphone ring; and the footprints drawn here) and coloured stand-in models |
-| `gen/guard.py`, `gen/generated.sha256` | guard against overwriting manual edits: SHA-256 record of the generated project files (42 lines) |
+| `gen/guard.py`, `gen/generated.sha256` | guard against overwriting manual edits: SHA-256 record of the generated project files (42 lines, one per file; one more line while a generating step runs and after a stopped one) |
 | `gen/prewire.py` | **hand-designed copper**: PD input, load switch, buck stage, USB port supplies, all six USB data lines; stack-up and USB geometry |
 | `gen/build_pcb.py` | placement, silkscreen legends, pre-wired copper, power fan-out, keep-outs, DSN export, import, patch router, repair, USB length measurement |
 | `gen/postroute.sh` | iterate DRC -> repair -> patch until no connection is open and no track or via violates a rule |
@@ -96,8 +104,8 @@ The guard, the jobset, the two dialogs, their limits and what is not tested are 
 | `via_in_pad.txt` | vias whose land overlaps an SMD pad (allowed only inside the exposed pad of an IC) |
 | `usb_impedance.txt` | USB track geometry in JLCPCB's impedance calculator (asked on 2026-11-12; the geometry is unchanged) |
 | `routing_stats.txt` | track / via counts; USB lines: pad-to-pad length and skew, the pads each line runs through, copper that is not on that path; SD / I2S / PDM lengths |
-| `gerbers/` + `voxhub_gerbers.zip` | Gerbers with Protel extensions: F / In1 / In2 / B copper, mask, paste, silk, Edge.Cuts; Excellon PTH + NPTH drill, drill maps, job file (`../fab/jlcpcb/gerbers.zip` is the same set without maps and job file) |
-| `voxhub_pos.csv` | pick-and-place as KiCad exports it (both sides, DNP parts excluded); for JLCPCB use `../fab/jlcpcb/cpl_jlcpcb.csv`. The jobset writes the same content as `voxhub-all-pos.csv` |
+| `gerbers/` + `voxhub_gerbers.zip` | Gerbers with Protel extensions: F / In1 / In2 / B copper, mask, paste, silk, Edge.Cuts; Excellon PTH + NPTH drill, drill maps, job file (`../fab/jlcpcb/gerbers.zip` is the same set without maps and job file). The 11 Gerbers, the 2 drill maps and the job file carry the revision `A3` of the board's title block in their project id; the two Excellon files have no such field |
+| `voxhub_pos.csv` | pick-and-place as KiCad exports it (both sides, DNP parts excluded); for JLCPCB use `../fab/jlcpcb/cpl_jlcpcb.csv`. The jobset writes the same content as `voxhub-all-pos.csv`, a file that Git ignores |
 | `bom.csv`, `bom_summary.json` | PCB assembly BOM, 44 lines + 2 not populated: MPN, LCSC number, JLCPCB library type, JLCPCB and LCSC stock, JLCPCB prices at 1 / 10 / 100 (live, 2026-11-21), DigiKey second source (2026-11-11), other alternates |
 | `order_cost.csv`, `order_cost.json` | parts of an order of 2 assembled boards: per part type whether it is placed by machine or by hand, the quantity needed, JLCPCB's minimum and loss quantity, the resulting quantity, its unit price and the line total. Summary: 44 part types (42 machine-placed, 2 hand-soldered); 79.68 USD for the parts needed, 83.22 USD with the minimum quantities, 84.99 USD with minimum and loss quantities (the rounded lines of the CSV add up to 84.96). A calculation from JLCPCB's parts data, not a quote |
 | `bom_system.csv` | module, speaker, heat sink, screws, SD card, charger with EU shop and price (read 2026-11-20) |
@@ -119,12 +127,17 @@ hardware/build.sh all                      # same, but runs the autorouter first
 ```
 
 Single steps: `hardware/build.sh sch | pcb | route | outputs`. The generating steps (`sch`, `pcb`, `route`, `all`)
-stop before they write anything when a generated project file was edited in KiCad or by hand; `outputs` generates
-nothing and is never blocked (see [Editing the project by hand](#editing-the-project-by-hand-kicad-10)).
+stop before they write anything when a generated project file was edited in KiCad or by hand, when the record has
+no line for it, when the last run of the step did not finish, or when KiCad has the project open. `pcb` and `route`
+build from the netlist `gen/work/voxhub.net` that `sch` exports; the folder `gen/work/` is ignored by Git, so a
+fresh clone has no netlist, and the two steps then stop with
+`gen/work/voxhub.net is missing: run hardware/build.sh sch first`. `outputs` generates nothing and is never blocked
+by the guard. Ctrl-C ends a running step and its container. The messages and the way on after each stop are in
+[Editing the project by hand](#editing-the-project-by-hand-kicad-10). Close KiCad before a generating step.
 
 | Environment variable | Meaning |
 |---|---|
-| `OVERWRITE=1` | discard manual edits of generated files and regenerate them (see [Editing the project by hand](#editing-the-project-by-hand-kicad-10)) |
+| `OVERWRITE=1` | discard manual edits of generated files and regenerate them. Only the exact value `1` counts. It does not lift the stop for an open KiCad, for a malformed line of the record or for a missing netlist (see [Editing the project by hand](#editing-the-project-by-hand-kicad-10)) |
 | `KICAD_IMAGE` | Docker image with KiCad 10, numpy and shapely. Default `voxhub-kicad:10.0`; when the variable is not set and that image does not exist, the build creates it with `docker build -t voxhub-kicad:10.0 hardware/docker`. An image named in the variable is used as it is and never built |
 | `KICAD_NATIVE=1` | use `kicad-cli` and `pcbnew` of the host instead of Docker. `kicad-cli version` must report 10.x, otherwise the build stops. The build picks the first of `$KICAD_PYTHON`, `python3`, `python3.13`, `python3.12` that imports `pcbnew`, `numpy` and `shapely`, and takes KiCad's library table templates from `/usr/share/kicad/template/` |
 | `FREEROUTING` | path of the Freerouting jar (default `hardware/freerouting-2.0.1.jar`); only read when the autorouter runs |
@@ -134,6 +147,12 @@ The host needs `bash`, `python3` and `zip` (the BOM and the archives are made on
 first), and `docker` unless `KICAD_NATIVE=1` is set. The official KiCad 10 image has the `pcbnew` Python module but
 neither numpy nor shapely nor pip, which is why the project image exists (K-1). KiCad 9 is no longer supported: the
 generators write KiCad 10 files and use the KiCad 10 API only.
+
+The KiCad commands of a build step run in containers of that image, each named `voxhub-build-<pid>-<number>`, as
+root, with the repository mounted at `/work`. At the end of every container call the files under `hardware/` and
+`fab/` are given back to the owner of the folder `hardware/`, so that KiCad and the jobset can write them
+afterwards (tested on Linux with a user that is not root). `SKIP_ROUTE=1 hardware/build.sh all` takes about four
+minutes: 226 to 253 s in four timed runs of 2026-11-21 on the build machine.
 
 `SKIP_ROUTE=1` re-uses the committed autorouter session and gives the same copper as the committed board (the patch
 router is deterministic). The board file and the Gerbers are not byte-identical from run to run, because KiCad
@@ -190,25 +209,44 @@ How the board is produced:
 ## Editing the project by hand (KiCad 10)
 
 The project opens in KiCad 10 as it is (`voxhub.kicad_pro`); every symbol and footprint comes from the project
-libraries. Generated files and manual edits are kept apart by a guard in `build.sh` (DECISIONS.md, K-11 to K-15).
-Everything in this section was tested by its author with KiCad 10.0.8 on Linux. Nothing was run on Windows, and an
-independent test of the package was still running when this was written.
+libraries. Generated files and manual edits are kept apart by a guard in `build.sh` (DECISIONS.md, K-11 to K-15 and
+the entries of the second part of review round 1, R-8 and following).
+
+How this section was checked: with KiCad 10.0.8, Docker 29.10.0 and bash 5.2.21 on Linux, in automated runs -
+`build.sh` and `kicad-cli` in the project image, and the KiCad windows driven by scripts on a virtual display
+(Xvfb). No person worked in a KiCad window, and nothing was run on Windows. The author of the package tested it
+first. An independent test then found two high, one medium and eight low problems: the guard let a step pass when
+the record was missing or incomplete, a save that landed while a step ran was recorded as generated, and files
+written through Docker belonged to root. All eleven were fixed or decided on 2026-11-21, and a second independent
+test of the fixes found no high or medium problem. What remains open is said under "Close KiCad before a generating
+step" and "Not tested" below.
 
 **What is generated.** `build.sh sch` writes the six sheets (`voxhub`, `power`, `cm4`, `usb`, `audio`, `zigbee`
 `.kicad_sch`), `voxhub.kicad_sym`, every footprint in `voxhub.pretty/` (the folder is emptied and written again) and
 `voxhub.kicad_pro`. `build.sh pcb` and `build.sh route` write `voxhub.kicad_pcb` and `voxhub.kicad_pro`.
 `build.sh all` runs all of them. The project file is a copy of `gen/project_settings.json`: a setting that is to stay
-(board rules, net classes, severities) belongs there. `build.sh outputs` generates nothing: it reads the project as
-it is on disk, writes only `outputs/` and `../fab/jlcpcb/`, and leaves every project file byte for byte as it found
-it. (The project file is changed for the duration of the waived-check DRC run and put back, also when that run
-fails. Only a hard kill during the roughly 15 s of that run leaves the two waived checks as warnings in
-`voxhub.kicad_pro`; the original is then in `gen/work/voxhub.kicad_pro.keep`.)
+(board rules, net classes, severities) belongs there. The six sheets and the board carry a title block: a title
+(each sheet its own, the board that of the root sheet), revision `A3`, date `2026-11-21`, the company and the
+comment `Generated by hardware/gen - see hardware/README.md before editing`. Revision and date are fixed values in
+`gen/design.py`, not the day of the build.
 
-**The guard.** `gen/generated.sha256` records the SHA-256 sum of every generated file as the last generating step
-left it (42 lines; CR LF counts as LF, so a Windows checkout or a save by KiCad on Windows is not a change). Before a
-generating step writes anything it compares the files on disk with that record. If a sheet, the symbol library, a
-footprint, the board or the project file was changed, added or deleted - saved from KiCad or edited by hand - the
-step stops, names the files and writes nothing:
+`build.sh outputs` generates nothing. It reads the project as it is on disk, writes `outputs/` and
+`../fab/jlcpcb/` and uses the work folder `gen/work/`, which Git ignores. It never writes a project file. In the
+tests the 47 project files (six sheets, symbol library, 33 footprints, board, project file, rules file, jobset, the
+two library tables and the record) kept content, inode and modification time over an `outputs` run, also when the
+run failed at the DRC or its container was killed. The DRC run with the two waived checks switched on works on a
+copy of the project in `gen/work/waived/`. The copy is deleted at the end of the run; one that a killed run left
+behind is deleted by the next `outputs` run.
+
+**The record.** `gen/generated.sha256` holds one line per generated file: SHA-256 sum, two spaces, file name. It
+has 42 lines (six sheets, the symbol library, 33 footprints, the board, the project file). CR LF counts as LF, so a
+Windows checkout or a save by KiCad on Windows is not a change. The sum of a file is taken directly after the
+generator command that wrote it. The project file is recorded only when it equals `gen/project_settings.json`.
+
+**When a generating step stops.** Before a generating step (`sch`, `pcb`, `route`, `all`) writes anything, it
+compares the files it is going to write with the record. If a sheet, the symbol library, a footprint, the board or
+the project file differs - saved from KiCad or edited by hand - the step stops with exit code 1, names the files and
+writes nothing:
 
 ```text
 generated files that differ from what the last build step wrote (edited in KiCad or by hand, or a build was interrupted):
@@ -220,22 +258,191 @@ to produce the fabrication files from the project as it is now (the manual edits
 for this build step to discard the manual edits and regenerate these files from hardware/gen.
 ```
 
-- `hardware/build.sh outputs` keeps the manual edit. The DRC with schematic parity gates the run as always. Gerbers,
-  drill files, position file, DXF, layer PDF, STEP, renders, the gate reports and the JLCPCB BOM / CPL are made from
-  the edited board. Not refreshed by `outputs`: `outputs/erc.rpt` and `outputs/voxhub_schematic.pdf` (only
-  `build.sh sch` writes them - run the ERC in KiCad or use the jobset below), and `outputs/bom.csv`,
-  `bom_system.csv`, `order_cost.*` (made from the code model `gen/model_netlist.json`, not from an edited schematic).
+The list has one line per file or step. These are the lines it can contain:
+
+| Line | When |
+|---|---|
+| `  changed  <file>` | the file differs from its line in the record: saved from KiCad with a change, or edited by hand |
+| `  added    <file>` | a footprint file in `voxhub.pretty/` for which the record has no line, while it has lines for other footprints |
+| `  deleted  <file>` | the record has a line for the file, and the file is gone |
+| `  not recorded <file>` | the file exists, the step is going to write it, and the record has no line for it: the record is missing, empty or incomplete. Under the list stands `(not recorded: the file exists and gen/generated.sha256 has no line for it)` |
+| `  unfinished build.sh sch`, `  unfinished build.sh pcb or route` | the last run of that step was stopped, or one of its generator commands failed. Under the list stands `(unfinished: the last run of that step was stopped, or one of its generator commands failed, before it had written all its files)` |
+
+There are two ways on from such a stop:
+
+- `hardware/build.sh outputs` keeps the manual edits and makes the fabrication files from the project as it is (see
+  "What `outputs` refreshes and what it does not" below).
 - `OVERWRITE=1 hardware/build.sh <step>` discards the manual edits of the files that step writes and regenerates
-  them. To keep a change for good, make it in the generator (`gen/design.py`, `gen/build_pcb.py`, `gen/prewire.py`,
+  them. Only the exact value `1` counts. The step prints the list of the files it discards, at every check that
+  still finds them, followed by `OVERWRITE=1: the manual edits are discarded, the files are regenerated`. To keep a
+  change for good, make it in the generator (`gen/design.py`, `gen/build_pcb.py`, `gen/prewire.py`,
   `gen/project_settings.json`).
 
-`outputs` is never blocked and never touches the record. Without `gen/generated.sha256` nothing is recorded and
-nothing is blocked until the next generating step has written it again. Commit the file together with the
-regenerated project files: a checkout whose record does not match its files stops at the first generating step (the
-board file is not byte-reproducible, so the record changes with every `route`). KiCad also stores the last used
-export paths in `voxhub.kicad_pro`; that counts as a change of the project file. A build step that was killed half
-way leaves files the record does not know: run it again with `OVERWRITE=1`. Not guarded, because they cannot be
-edited in KiCad: `gen/model_netlist.json`, `gen/placement.json` and the autorouter session `gen/routed/voxhub.ses`.
+Three more stops have a text of their own. Nothing is written, the exit code is 1, and `OVERWRITE=1` lifts none of
+them. The first: KiCad has the project open, that is, a file `hardware/~*.lck` exists.
+
+```text
+KiCad has the project open: lock file hardware/~voxhub.kicad_pro.lck.
+Nothing was written. Close KiCad (project manager, schematic editor and board editor) before a generating step
+(build.sh sch, pcb, route, all); OVERWRITE=1 does not skip this stop. "hardware/build.sh outputs" may run while
+they are open. A lock file left behind by a crash of KiCad or by a killed build can be deleted.
+```
+
+The second: a line of the record is not of the form "sum, two spaces, name", for example after a merge conflict.
+The message names the number of the line, here 7.
+
+```text
+gen/generated.sha256 line 7 is not of the form "<SHA-256 sum>  <file name>" (64 hex digits, two spaces, name): nothing was written, repair the line or restore the file from Git.
+```
+
+The third: `pcb` or `route` finds no netlist of a `sch` run. A fresh clone has none.
+
+```text
+gen/work/voxhub.net is missing: run hardware/build.sh sch first
+```
+
+The comparison with the record and the look for lock files are repeated inside a step, before every generator
+command and after the last one. A stop at one of these later checks cannot say "Nothing was written", because the
+step has already regenerated some files. Its message has this line instead, followed by the same lines about
+`outputs` and `OVERWRITE=1` as above:
+
+```text
+The step was stopped: the files it had already regenerated stay as they are. The files listed above were not touched. Either run
+```
+
+For an open KiCad the second line of the message then begins with `The step was stopped: the files it had already
+regenerated stay as they are. Close KiCad`. The first check of a step says "Nothing was written.", and so does the
+check by hand, `python3 gen/guard.py check . sch pcb` in `hardware/`, which only reads and does not report an
+unfinished step.
+
+**Which step checks which files.**
+
+- `sch`: the six sheets, the symbol library, the footprints and the project file, and whether its own last run
+  finished.
+- `pcb` and `route`: first that the netlist `gen/work/voxhub.net` exists, then the board, the project file and
+  whether the last `pcb` or `route` run finished. `route` checks before the autorouter starts and again before it
+  writes the board. Edited sheets, an edited symbol library and edited footprints do not stop these two steps:
+  they build the board from the netlist of the last `sch` run and from the footprints on disk. After a `sch` run
+  that was stopped during ERC or netlist export that netlist is the older one.
+- `all`: everything, before anything is written. Each of its steps then checks again as above.
+- `outputs`: nothing. It never reads or writes the record, and the guard never blocks it. Its gate is the DRC.
+- Inside a step the check is repeated before every generator command and after the last one - in `sch` once more
+  after ERC, netlist export and PDF, in `route` before every repair and patch pass. Files the step has already
+  written are compared without regard to `OVERWRITE`. A file saved between two generator commands therefore stops
+  the step: the save stays on disk and is not recorded as generated. In `all`, a sheet saved while the `pcb` or the
+  `route` part runs is not noticed by that run; the file stays on disk, and the next `sch` or `all` stops.
+
+**Close KiCad before a generating step.** KiCad 10.0.8 keeps lock files in `hardware/` while the project is open:
+`~voxhub.kicad_pro.lck` (project manager and each editor), `~voxhub.kicad_sch.lck` (schematic editor) and
+`~voxhub.kicad_pcb.lck` (board editor). It removes them when it is closed and leaves them behind after a crash. A
+generating step stops at every check that finds such a file; the project manager alone is enough. `kicad-cli`
+holds `~voxhub.kicad_pro.lck` itself while it runs (seen in the file log of a build), so a second `build.sh` that
+is started in the same checkout at that moment stops with the same message (this follows from the code and was not
+tried). `build.sh` removes the lock files that a killed container of its own left.
+
+This stop exists because the guard cannot protect a save that lands while a file is being written. The lock files
+are looked at only at the checks, and there is no check while a generator command runs. What remains: a generated
+file that is saved while the generator command that writes that same file is running is lost without a message.
+If the save lands before the command writes, the command overwrites it. If it lands between the last write of the
+command and the record, it is recorded as generated, and the next step overwrites it. A KiCad that is opened after
+the step has started is not seen before the next check. The length of these windows was measured in one
+`SKIP_ROUTE=1 build.sh all` that took 229 s:
+
+| Step | Generator command | Files it writes | Window |
+|---|---|---|---|
+| `sch` | `design.py` | sheets, symbol library | 0.59 s |
+| `sch` | `make_footprints.py` | footprints | 0.07 s |
+| `sch` | copy of `gen/project_settings.json` | project file | 0.03 s |
+| `pcb` | `build_pcb.py place` | board, project file | 24.6 s |
+| `route` | `build_pcb.py place` | board, project file | 26.0 s |
+| `route` | `build_pcb.py finish` | board, project file | 2.0 s |
+| `route` | `build_pcb.py repair` (in `postroute.sh`) | board, project file | 1.5 s |
+| `route` | `build_pcb.py patch` (in `postroute.sh`) | board, project file | 11.9 s |
+
+Together that is 66.7 s of the 229 s. Three test runs showed the loss: the board replaced 5 s after the start of
+`place`, the same with the project file, and the board replaced 0.03 s after the last write of `place` and 0.11 s
+before the record. In all these tests a script replaced the file; no save came from a KiCad window while a step
+ran.
+
+**Stopping a step.** Ctrl-C, `kill <pid of build.sh>` (SIGTERM) and closing the terminal (SIGHUP) end the running
+step and its container. In the tests `build.sh` ended 0.6 to 0.9 s after the signal, with exit code 130, 143 or
+129, and printed
+
+```text
+build.sh: stopped by a signal, the running step is ended (the next generating step reports a stopped generating step as unfinished)
+```
+
+`docker stop <container>` and `docker kill <container>` end the step as well (exit code 143 and 137). What the next
+run says depends on where the step was stopped:
+
+- A generating step stopped before its last generator command: the next run of that step, and of `all`, stops
+  with the line `unfinished build.sh sch` or `unfinished build.sh pcb or route`. Run the step again with
+  `OVERWRITE=1`. A stop in the first second of a step can leave this state although no generator command had
+  started.
+- A generator command that failed, for example with a Python error while `gen/` is being changed: the same.
+- A step stopped after its last generator command (in `sch`: during ERC, netlist export or PDF), and a stopped
+  `outputs`: nothing is unfinished, and the next run starts normally.
+- `outputs` after a stopped `pcb` or `route`: it stops at its DRC with exit code 5, because the board is
+  incomplete.
+
+SIGQUIT is ignored (tried once: the step ran to its end). SIGKILL of `build.sh` itself cannot be handled: the
+container then runs on until its command has ended (read from the code, not tried).
+
+**The marker line, and committing the record.** While a generating step runs, the record has one more line:
+
+```text
+0000000000000000000000000000000000000000000000000000000000000000  build step sch
+```
+
+or `build step pcb`, which both `pcb` and `route` write. The line is added when the first check of the step has
+passed and removed after its last generator command. A stopped or failed step leaves it behind, and this is what
+the next run reports as `unfinished`. A record with such a line must not be committed.
+`sha256sum -c gen/generated.sha256` shows the line: it reports `build step sch: FAILED open or read`. (The same
+command reports a file with CR LF line endings as `FAILED` although the guard accepts it, because the guard reads
+CR LF as LF.)
+
+Commit the record together with the regenerated project files: a checkout whose record does not match its files
+stops at the first generating step. The board file is not byte-reproducible, so its line changes with every `pcb`
+and `route` run. Do not delete the record to get past a stop: a missing record stops every generating step with
+`not recorded` lines (until the second part of review round 1 it meant that nothing was blocked). KiCad also
+stores the last used export paths in `voxhub.kicad_pro`; that counts as a change of the project file. Not guarded,
+because they cannot be edited in KiCad: `gen/model_netlist.json`, `gen/placement.json` and the autorouter session
+`gen/routed/voxhub.ses`.
+
+**Who owns the files, and where the checkout may lie.** The build container runs as root. At the end of every
+container call - also of a failed or a stopped one - the files under `hardware/` and `fab/` are given back to the
+owner of the folder `hardware/` (when that owner is root, nothing is changed). Tested on Linux with a user that is
+not root: after `build.sh all` no entry of the checkout belonged to another user (0 of 1103), and
+`kicad-cli jobset run` as that user wrote all 16 files of `outputs/gerbers/`. On a Linux file system KiCad and the
+jobset can therefore write every file after a build step. A checkout inside the WSL2 file system is a Linux file
+system too and is expected to behave the same; this was not tested. A checkout on a Windows drive (`/mnt/c/...`,
+or Docker Desktop with a Windows path) was not tested either.
+
+**What `outputs` refreshes and what it does not.** `hardware/build.sh outputs` keeps a manual edit. The DRC with
+schematic parity gates the run as always. Gerbers, drill files, position file, DXF, layer PDF, STEP, renders, the
+gate reports and the JLCPCB BOM / CPL are made from the board as it is on disk. Not refreshed by `outputs`:
+
+- `outputs/erc.rpt` and `outputs/voxhub_schematic.pdf`: only `build.sh sch` writes them. After a manual edit of
+  the schematic run the ERC in KiCad or use the jobset below.
+- `outputs/mechanical_positions.csv`: written by `build.sh pcb` and `route` (by `build_pcb.py place`).
+- `outputs/usb_impedance.txt`: written by `gen/jlc_impedance.py`, which is run by hand.
+- `outputs/bom.csv`, `bom_system.csv` and `order_cost.*` are written again, but from the code model
+  `gen/model_netlist.json`, not from an edited schematic.
+
+When the DRC of `outputs` finds a violation, the run stops before it plots: `outputs/gerbers/`,
+`outputs/voxhub_gerbers.zip` and `../fab/jlcpcb/gerbers.zip` are then still the files of the previous run.
+`outputs` may run while KiCad has the project open (run with the project manager, the schematic editor and the
+board editor open: exit code 0, no project file written, KiCad's lock files untouched). KiCad's tools create the
+local settings file `voxhub.kicad_prl` when it is missing; Git ignores it.
+
+**Saving from KiCad without a change.** A save from the schematic editor and from the board editor of KiCad 10.0.8
+that changes nothing leaves all generated files byte-identical: the editors rewrote the six sheets and the board,
+and the content of 0 of the 42 recorded files changed. The guard does not report such a save.
+`kicad-cli sch upgrade --force` removes one line from the root sheet, the line `(embedded_fonts no)` before the
+closing bracket, which the schematic editor writes. The guard accepts `voxhub.kicad_sch` with and without that
+line; Git shows the one-line difference. The symbol library, the 33 footprints and the board come back
+byte-identical from `kicad-cli sym upgrade --force`, `kicad-cli fp upgrade --force` and from loading and saving
+the board with pcbnew. Saves from the symbol editor and from the footprint editor were not tried.
 
 **Fabrication files from inside KiCad, without Docker: `voxhub.kicad_jobset`.** In the KiCad 10 project manager
 double-click `voxhub.kicad_jobset` in the project tree and press *Generate All Destinations* (command line:
@@ -245,8 +452,9 @@ with Protel extensions, solder mask subtracted from silkscreen, no X2, no netlis
 and NPTH files in millimetres, decimal, alternate oval mode, absolute origin; Gerber drill maps),
 `voxhub-all-pos.csv` and `voxhub_pcb.step`. The second writes `../fab/jlcpcb/gerbers.zip` with the 13 Gerber and
 drill files of the order. The options are those of `build.sh outputs`; on the same board the files are identical
-apart from their date lines (compared with kicad-cli and from the KiCad 10.0.8 project manager, on Linux). What the
-jobset cannot do:
+apart from their date lines. That was compared after `kicad-cli jobset run` by the author of the package and in the
+first independent test, and once by the author after a run from the KiCad 10.0.8 project manager on a virtual
+display, all on Linux. What the jobset cannot do:
 
 - It does not stop on a violation. A failed ERC or DRC job marks the first destination with a red sign (kicad-cli:
   exit code 6), but all files and the zip are written all the same. Use them only when the first destination is not
@@ -254,7 +462,8 @@ jobset cannot do:
 - Run with `kicad-cli`, KiCad 10.0.8 skips the schematic parity part of the DRC job ("Failed to fetch schematic
   netlist for parity tests") and still reports the job as successful. From the project manager the parity test runs.
 - The position file is named `voxhub-all-pos.csv` (KiCad adds the side to the name); its content equals
-  `outputs/voxhub_pos.csv`. Git does not ignore it: it shows up as a new, untracked file.
+  `outputs/voxhub_pos.csv`. Git ignores it (`.gitignore`). The jobset does not write the tracked files
+  `outputs/voxhub_pos.csv` and `outputs/voxhub_gerbers.zip`: they stay as the last `build.sh outputs` left them.
 - BOM, JLCPCB BOM / CPL, DXF, layer PDF, renders, the waived-check report and the gate reports (`power_paths.txt`,
   `df40_strips.txt`, `via_in_pad.txt`, `routing_stats.txt`) come from `build.sh outputs` only.
 
@@ -269,17 +478,38 @@ Take the drill files from the jobset or from `build.sh outputs`.
 
 **Windows.** Recommended, and the only set-up the build is meant for: WSL2 with Docker (Docker Desktop with WSL
 integration, or Docker inside the distribution), `zip` and `python3` installed there, `build.sh` started from the WSL
-shell; KiCad 10 for Windows opens the same checkout. Git checks the project out with LF line endings
+shell; KiCad 10 for Windows opens the same checkout. None of this was run, and no test says where the checkout
+should lie on such a machine (see "Who owns the files" above). Git checks the project out with LF line endings
 (`.gitattributes`). KiCad on Windows is expected to save schematic, board, symbol and footprint files with CR LF (it
 writes them in text mode - read from the KiCad 10 source, not observed); Git, the guard and `build.sh outputs` accept
-that (tested on Linux with the files converted to CR LF). `build.sh` under Git Bash is untested: the `docker run`
-call is protected against MSYS path conversion (`MSYS_NO_PATHCONV=1`), but Git for Windows has no `zip`, and
-`python3` (and Java for a new autoroute) must be on the PATH.
+that (tested on Linux with the files converted to CR LF). Close KiCad for Windows as well before a generating step
+is started in WSL; whether the build in WSL2 sees the lock files of a KiCad for Windows was not tested. `build.sh`
+under Git Bash is untested: the `docker run` call is protected against MSYS path conversion
+(`MSYS_NO_PATHCONV=1`), but Git for Windows has no `zip`, and `python3` (and Java for a new autoroute) must be on
+the PATH.
 
-**Not tested.** Nothing in this repository has been run on Windows: not KiCad's editors, not a save with CR LF, not
-the jobset, not the build under WSL2 or Git Bash. Also not tested: `KICAD_NATIVE=1` (no native KiCad 10 on the build
-machine), and a fresh autoroute without `SKIP_ROUTE=1` (only the stop of the guard before the autorouter starts was
-tried). The checks of the dialogs and of the jobset in the graphical interface were made with KiCad 10.0.8 on Linux.
+**Not tested.**
+
+- Windows in any form: KiCad's editors there, a save with CR LF, the jobset, Docker Desktop, the build under WSL2
+  or Git Bash, file ownership on a Windows drive.
+- A fresh autoroute without `SKIP_ROUTE=1`, and with it a real Freerouting run that is stopped. The stop during
+  the autorouter was tried only with a stand-in for `java` that sleeps (exit code 130 and 143, nothing left
+  unfinished).
+- `KICAD_NATIVE=1` outside the container: there is no native KiCad 10 on the build machine. With the variable set,
+  `sch`, `pcb` and `route` ran inside the KiCad container as root, with exit code 0 and with working stops for an
+  edited file and for a lock file. `outputs` and `all` were not run in that mode (the image has no `zip`), and no
+  signal was sent in it. Read from the code for that mode: Ctrl-C from a terminal reaches the tools directly,
+  SIGTERM to `build.sh` alone takes effect only when the running command has ended, a lock file left by a killed
+  `kicad-cli` is not removed, and a checkout path with spaces breaks the commands.
+- Saves from the symbol editor and the footprint editor windows. The symbol library and the footprints were
+  re-saved with `kicad-cli` only.
+- A save from a KiCad window while a build step runs (the timed saves were made by a script), and what KiCad shows
+  when it is started while a `kicad-cli` of `build.sh` holds the lock file.
+- The jobset from the project manager window in the two independent tests; they ran it with `kicad-cli`. The one
+  run from the window and the checks of the Plot and drill dialogs were made by the author of the package on a
+  virtual display on Linux.
+- Rootless Docker, Podman, user-namespace remapping, macOS, a checkout whose owner is not the user who runs
+  `build.sh`, and a kill at the moment the record is written.
 
 ## Fabrication notes
 
@@ -287,7 +517,7 @@ tried). The checks of the dialogs and of the jobset in the graphical interface w
 |---|---|
 | Size | 100.0 x 74.0 mm, 3 mm corner radius, 1.6 mm, FR-4 |
 | Layers | 4: F.Cu signal + GND pour / In1.Cu GND plane / In2.Cu +5 V plane / B.Cu signal + GND pour |
-| Stack-up | **JLCPCB JLC04161H-3313**: 35 um copper / 0.0994 mm prepreg 3313 / 15.2 um copper / 1.265 mm core / 15.2 um copper / 0.0994 mm prepreg / 35 um copper (written into the board file) |
+| Stack-up | **JLCPCB JLC04161H-3313**: 35 um copper / 0.0994 mm prepreg 3313 / 15.2 um copper / 1.265 mm core / 15.2 um copper / 0.0994 mm prepreg / 35 um copper (written into the board file). The board file names the core "FR4 TG155" and marks the stack-up as impedance controlled; these are labels of the design file and of `voxhub-job.gbrjob`, which is not uploaded. The order uses Material Type "FR4 TG135" and no impedance control (`fab/ORDER_GUIDE.md`, section 3) |
 | USB 2.0 lines | upstream pair 0.14 mm wide, 0.16 mm gap: 89.96 ohm differential in JLCPCB's calculator; downstream lines 0.185 mm: 45.2 ohm each (`outputs/usb_impedance.txt`). With the 7628 default stack-up the same copper would be far off |
 | Min. track / space | on the board: 0.12 mm track (patch-router fallback), 0.14 mm USB pair, 0.15 mm signals; net-class clearance 0.12 / 0.15 mm, 0.20 mm for the nets that carry the charger voltage (VBUS, VBUS_SW, PD_GATE, PD_FET_EN). Board rules = JLCPCB limits: 0.09 / 0.09 mm |
 | Vias | 286, through, 0.5 mm pad / 0.3 mm drill (signal) and 0.6 / 0.3 mm (power) - JLCPCB's free "0.3 mm / 0.45 mm" class. With the 8 thermal holes of the U2 footprint the board has 294 holes of 0.30 mm |
@@ -295,10 +525,11 @@ tried). The checks of the dialogs and of the jobset in the graphical interface w
 | Via-in-pad | only in exposed pads: U1 (2), U2 (eight, part of the KiCad footprint), U4 (2), U10 (1). No via lies in or touches any other pad (`outputs/via_in_pad.txt`) |
 | Plated slots | 4 x 0.6 mm wide (1.4 and 1.7 mm long), shell stakes of the USB-C connector J1 |
 | Non-plated holes | 2 x 0.8 mm (microphone ports), 2 x 0.65 mm (J1 locating pegs), 3 x 0.99 mm (Tag-Connect J8), 4 x 2.7 mm (mounting), 4 x 3.7 mm (SMT spacers). No non-plated slots |
-| Land patterns corrected in A3 | three stock footprints are patched (`LAND_FIXES` in `gen/make_footprints.py`), so that no copper of the board is closer than 0.2 mm to a non-plated hole (K-6, R-2): the ring land of the SMT spacers H5-H8 runs from 2.10 to 3.00 mm radius (A2: from 1.85 mm, touching the 3.7 mm hole; now 0.25 mm from it); the outer contacts A1 / B12 / A12 / B1 of J1 are 1.11 mm long (A2: 1.15 mm; now 0.21 mm from the 0.65 mm peg holes, pad centres unchanged); and the ground ring of the microphones MK1 / MK2 runs from 0.61 to 1.04 mm radius (until 2026-11-21: from 0.58 mm; the ring is 0.43 mm wide instead of 0.46 mm and now 0.21 mm from the edge of the 0.8 mm sound hole). The spacer keeps 82 % of its land area and its paste apertures. JLCPCB asks for 0.2 mm between copper and a hole without plating and removes closer copper in its own data preparation; with these three patterns there is nothing left for it to cut back, the two microphone holes included |
+| Land patterns corrected in A3 | three stock footprints are patched (`LAND_FIXES` in `gen/make_footprints.py`), so that no copper of the board is closer than 0.2 mm to a non-plated hole (K-6, R-2): the ring land of the SMT spacers H5-H8 runs from 2.10 to 3.00 mm radius (A2: from 1.85 mm, touching the 3.7 mm hole; now 0.25 mm from it); the outer contacts A1 / B12 / A12 / B1 of J1 are 1.11 mm long (A2: 1.15 mm; now 0.21 mm from the 0.65 mm peg holes, pad centres unchanged); and the ground ring of the microphones MK1 / MK2 runs from 0.61 to 1.04 mm radius (until 2026-11-21: from 0.58 mm; the ring is 0.43 mm wide instead of 0.46 mm and now 0.21 mm from the edge of the 0.8 mm sound hole). The spacer keeps 82 % of its land area (14.42 of 17.52 mm2, calculated from the footprint). JLCPCB asks for 0.2 mm between copper and a hole without plating and removes closer copper in its own data preparation; with these three patterns there is nothing left for it to cut back, the two microphone holes included |
+| Solder paste of the corrected land patterns | the paste apertures of the spacers and of the microphone ring follow the narrower lands since the second part of review round 1 (2026-11-21). Until then they were those of A2, and 7.98 mm2 of paste lay on solder mask on the component side: 1.98 mm2 at each spacer in a band 0.20 mm wide, 0.02 mm2 at each microphone. Spacer H5-H8 now: four apertures from 2.15 to 2.92 mm radius (A2: from 1.90 mm), 10.22 mm2 per spacer instead of 12.75 mm2, that is 80 % of the paste on a land that kept 82 %; 0.30 mm from the edge of the 3.7 mm hole (before: 0.05 mm). Microphone ring of MK1 / MK2 now: six apertures with the inner edge on 0.63 mm radius (A2: 0.60 to 0.62 mm) and the outer edge on 1.00 mm, 1.458 mm2 per microphone instead of 1.522 mm2 (95.8 %); 0.23 mm from the edge of the sound hole (before: 0.20 mm). The areas are calculated from the footprints. Measured in the Gerber files after the change, by two independent Gerber readers: no paste outside a mask opening on either side (0.000 mm2); 28 of the 664 paste apertures of the component side changed (4 at each of the 4 spacers, 6 at each of the 2 microphones), and no other layer changed in geometry |
 | Finish | **ENIG** (0.22 mm pads of the 0.4 mm pitch WLCSP, 0.4 mm pitch mezzanine connectors) |
 | Mask / silk | green / white; silkscreen is clipped by the mask openings (`--subtract-soldermask`); smallest text 1.0 mm; revision text "VoxHub CM4  rev A3" on the component side and "VoxHub CM4 rev A3 - this side faces the top cover" on the other |
-| Copper to board edge | >= 0.45 mm for tracks, vias and pours, along the straight edges and around the rounded corners (edge connectors' own pads excepted: the shield pads of J4 are 0.37 mm from the rear edge). JLCPCB limits: 0.2 mm at a routed edge, 0.4 mm at a V-cut edge |
+| Copper to board edge | >= 0.45 mm for tracks, vias and pours, along the straight edges and around the rounded corners (edge connectors' own pads excepted: the shield pads of J4 are 0.375 mm from the rear edge). JLCPCB limits: 0.2 mm at a routed edge, 0.4 mm at a V-cut edge |
 | Keep-outs | no copper on any layer under the antenna of the radio module (11.75..31.25 x 68.0..74.0) and under the copper-free pocket beside its open end (21.0..31.25 x 64.0..68.0), and under the CM4 antenna (91..100 x 44.5..59.5: the 6.5 x 11 mm "Wireless Cutout" of CM4 datasheet fig. 4 enlarged to the recommended 8 x 15 mm and out to the board edge); no foreign copper on the component side in the strips 0.75..1.19 mm from the centre line of each CM4 socket; no foreign tracks or vias in the two free channels between the lead ring and the exposed pad of the hub U4 (only GND and the hand-designed 3.3 V links run there) |
 | Impedance control | not ordered: the stack-up is specified and the geometry comes from JLCPCB's calculator |
 | Panel | fiducials FID1-3 are on the board; JLCPCB adds edge rails and its own fiducials. Ask for the rails on the two 74 mm edges: J6 overhangs the rear 100 mm edge by about 2.5 to 2.85 mm, J1 ends flush with it, the radio module ends flush with the front edge and small parts sit 1 to 2 mm from it |
@@ -326,7 +557,15 @@ tried). The checks of the dialogs and of the jobset in the graphical interface w
   it. C43 / C44 at their supply pins are 1 uF 25 V X5R 0402 (the data sheet of the new microphone asks for 1 uF).
   The new microphone allows 3.6 V on any pin (the old one 4.0 V); for that reason R41, the series resistor of the PDM
   clock, is 75 ohm since review round 1 (UNI-ROYAL 0402WGF750JTCE, C25133; R-1).
-- H5-H8: Wurth 9774015151R SMT spacers (reflow). The CM4 is then fixed with 4 x M2.5 x 5 mm screws.
+- H5-H8: Wurth 9774015151R SMT spacers (reflow). The CM4 is then fixed with 4 x M2.5 x 5 mm screws. The board
+  gives each spacer less solder paste than its data sheet suggests. Wurth's data sheet (revision 001.002) suggests a
+  stencil of four segments from 3.8 to 5.9 mm diameter and "Solder Cream Thickness 150 um min.", that is
+  13.26 mm2 x 0.15 mm = 1.99 mm3 per spacer. The board has 10.22 mm2: 1.02 mm3 with a 0.10 mm stencil (51 %) and
+  1.23 mm3 with a 0.12 mm stencil (62 %). Revision A2 had 12.75 mm2, 64 % and 77 %. The two stencil thicknesses are
+  assumptions; what JLCPCB uses was not looked up. Per land area the paste is 2.6 % lower than in A2. This was
+  left as it is: the ring had to move away from the hole, the paste follows the land, and the outer edge stays at
+  the 2.92 mm of the KiCad library footprint as in A2. All figures are calculated; no board was soldered. Look at
+  the four spacer joints on the first boards and add solder by hand where a fillet is missing.
 - LEDs, all Hubei KENTO 0603: red KT-0603R (D4, D9), green KT-0603G (D6, D7, D10), blue KT-0603B (D8). JLCPCB's
   footprint of the red LED (C2286) numbers its pads the other way round (pad 1 = anode); `make_jlc.py` fits it by
   pin name, and the placement report says "terminals swapped by pin name" for D4 and D9 (C-6).
@@ -363,6 +602,10 @@ that this brought up were corrected in copper, not waived (fabrication notes abo
 of the microphones, was not reported by KiCad's DRC: it does not test this ring pad against the sound hole of its own
 footprint (the reason was not investigated). The check for the order guide found it on 2026-11-21, and it was
 corrected in copper as well (R-2).
+
+Nothing in the build compares the paste layer with the solder mask openings: the paste that lay on solder mask at
+the spacers and at the microphone rings until 2026-11-21 had passed ERC, DRC and every gate, and the result after
+the correction (fabrication notes above) was measured once in the Gerber files, not by a build step.
 
 **Severities.** `gen/project_settings.json` gives each of KiCad 10's 62 DRC checks a severity. Since 2026-11-21 every
 check is an error except three that are ignored, so that a warning can no longer pass unnoticed (K-14):
@@ -444,7 +687,22 @@ are errors now.
     accepted. A simulation with the typical curve of the transistor, not a measurement.
 - New in revision A3 and not tested on hardware: the microphone with SELECT = VDD (MK2, right channel) puts a
   constant level of typically -40 dBFS into its data (F-3). The VoxHub Assistant add-on removes it since version
-  0.1.1; the two-device path (Linux Voice Assistant) behaved the same with and without the level in a simulation (W-1).
+  0.1.1 (W-1). The two-device path (Linux Voice Assistant) passes the level on as long as its automatic gain and
+  its noise suppression are off. In a simulation with the test recordings of its wake word library the level made
+  no difference from 60 dBSPL at the microphone. For quieter speech (45 to 55 dBSPL) the wake word was found 4 to
+  14 percentage points less often with the level: at microphone gain 4 in 73 % instead of 78 % of the attempts at
+  55 dBSPL and in 58 % instead of 62 % at 50 dBSPL. Home Assistant's voice detection gave the same result with and
+  without the level. The remedies are untested on a board: raise the microphone gain first (gain 8 gave 88 % at
+  55 dBSPL with the level), then *Mic Auto Gain* or *Mic Noise Suppression*
+  (`../assistant/voxhub_satellite/DOCS.md`, section "Microphones"). Feeding only MK1 is an option for after the
+  first boards.
+- Calculated and simulated, not measured: the microphone gain the VoxHub Assistant add-on (the single-device path
+  on the hub) needs. Both microphone types, the IM72D128V01 of A3 and the IM69D130V01 of A2, deliver -36 dBFS at
+  94 dBSPL, so speech of 60 dBSPL is about 7.3 counts rms in the 16-bit capture, while the add-on counts a 20 ms
+  frame as speech only above 120 counts after the gain. The default of its option `mic_gain` is therefore 32 since
+  the second part of review round 1. Before, it was 1.0: in the simulation the add-on then heard the wake word and
+  logged "No speech heard" unless the speech reached about 90 dBSPL at the microphones; this was the same on
+  revision A2. The gain has to be set on the first board (`../assistant/README.md`, "Troubleshooting").
 - New in revision A3 and only simulated: the PDM clock at the microphones. The IM72D128V01 allows 3.6 V on any pin
   (the IM69D130: 4.0 V), and its data sheet gives no hysteresis figure. R41, the series resistor of the clock, is
   therefore 75 ohm since review round 1 (R-1); the earlier value had been sized against 4.0 V. Three independent
@@ -459,9 +717,17 @@ are errors now.
   between boards (C-6).
 - The project was not opened on Windows, the build was not run under WSL2 or Git Bash, a fresh autoroute was not run
   under KiCad 10, and the image was not built without the layer cache of the build machine (K-10). The guard, the
-  jobset and the Plot dialog were tested by their author with KiCad 10.0.8 on Linux only; the jobset on Windows and
-  `KICAD_NATIVE=1` were not tried, and an independent test of the local-editing package was still running on
-  2026-11-21 (K-11 to K-15).
+  jobset and the Plot dialog were tested with KiCad 10.0.8 on Linux only, in automated runs: by their author, by an
+  independent test (two high, one medium and eight low problems, all fixed or decided on 2026-11-21) and by a
+  second independent test of the fixes (no high or medium problem). Not tried: anything on Windows,
+  `KICAD_NATIVE=1` outside the build container, and saves from the symbol editor and the footprint editor
+  (K-11 to K-15 and the second part of review round 1, R-8 and following).
+- The guard does not see a file that is saved while a build step writes that same file: such a save is lost
+  without a message. The windows add up to 66.7 s of a 229 s build (measured). Close KiCad before a generating
+  build step ([Editing the project by hand](#editing-the-project-by-hand-kicad-10)).
+- Nothing in the build compares the paste layer with the solder mask openings (see the DRC section above), and
+  the solder paste of the four spacers H5-H8 is 51 to 62 % of what Wurth's data sheet suggests, calculated for a
+  stencil of 0.10 to 0.12 mm (A2: 64 to 77 %). Look at the four spacer joints on the first boards (assembly notes).
 - The plug of the speaker (Adafruit 3351) has to be checked on delivery: the maker's data sheet names an XH 2.5 mm plug, the
   shops sell it with the JST-PH 2.0 mm plug that J7 needs.
 - No hardware has been built or measured.

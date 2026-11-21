@@ -39,9 +39,9 @@ Parametric CadQuery model of the VoxHub CM4 case: `voxhub_enclosure.py`.
 
 | Setting | Value |
 |---|---|
-| Material | PETG or PLA (PETG recommended: the buck area reaches ~60 C) |
+| Material | PETG. The inside of the case gets warm: by the estimates of the project the processor reaches about 60 C in normal use and up to 80 C under full load, and the thermal model gives about 76 C inside the 5 V regulator at typical load with 50 C around the board. Nothing of this is measured. PLA only for a short trial (`../fab/ASSEMBLY_AND_TEST.md`, section 1.3) |
 | Layer height | 0.2 mm, first layer 0.2 mm |
-| Walls / top-bottom | 3 walls, 4 top/bottom layers, 15 % gyroid |
+| Walls / top-bottom | 3 walls, 5 top and 4 bottom layers, 15 % gyroid (the settings of `../fab/ASSEMBLY_AND_TEST.md`, section 1.2) |
 | Supports | **none** |
 | Orientation | as exported: shell upside down (smooth top from the PEI plate), base flat |
 | Bed | both parts fit a 256 x 256 mm plate together |
@@ -70,8 +70,9 @@ The complete procedure with tests is in [`../fab/ASSEMBLY_AND_TEST.md`](../fab/A
 4. Stick a 40 x 18 mm piece of 3 mm cellular rubber on the base pedestal, close the base, fasten with 4 x M2.5 x 8,
    stick the four 8 mm feet into their recesses.
 
-Optional: 0.5 mm foam rings (5 mm outside, 2 mm hole) on the two microphone chimneys improve the acoustic seal. With the
-closed speaker box they are not needed for a first build.
+Optional: 0.5 mm foam rings (5 mm outside, 2 mm hole) on the two microphone chimneys would close the 0.2 mm gap
+between chimney and board. They are not fitted in this build and not on the shopping list (no shop that was
+searched sells 0.5 mm foam); the acoustic effect of leaving them out has not been tested.
 
 ## Verification
 
@@ -81,6 +82,10 @@ closed speaker box they are not needed for a first build.
   width x body depth x highest reading of the far flange lip).
 - Both STL meshes are closed (every edge belongs to exactly two triangles).
 - `renders/fit_top_transparent.png`, `section_cm4.png` and `section_front_row.png` show the PCB inside the shell.
+- `../hardware/gen/placement.json` has not changed since the model files of revision A3 were generated (compared
+  with Git on 2026-11-21): the rebuilds of the board after review round 1 moved no part, so the printed parts did
+  not have to be generated again.
+- All of this is checked in the model. Nothing has been printed and no part has been fitted.
 
 ## Dimensions checked against the manufacturer drawings
 
@@ -98,7 +103,7 @@ generated again. Nothing else in the shell changed (9.36 mm^3 of wall removed at
 | C&K JS202011JCQN (mute switch) | body 9.0 x 3.6 x 3.5 mm, actuator 1.5 x 1.5 mm, 2.0 mm high, 2 mm travel | `GAP_TOP` = 4.0 mm confirmed; dish 16 x 10 x 1.4 mm |
 | Adafruit 3351 (speaker since revision A2) | maker's data sheet C5282-001 linked from the Adafruit product page: flange 70.11 x 30.72 mm (+-0.3), height 16.5 +-0.5 mm, box 66.1 mm long, holes 3.4 mm on 24.11 x 63.79 mm, cone opening 38.5 x 26.8 mm about 3 mm off centre, lead 500 mm leaving one short end 8 mm below the front face. The sheet names the plug "XH2.54-2P", Adafruit and BerryBase say JST-PH 2.0 mm (the photo shows a PH housing) | frame 71.3 x 31.9 mm (0.6 mm clearance per side), grille and relief long enough for the cone offset in either direction, pedestal top 18.5 mm below the top plate (16.5 mm speaker + 2.0 mm compressed foam) |
 | Hirose DM3AT (microSD) | card centre 0.425 mm off the body centre; locked card 1.6 mm behind the outer wall face | window shifted by 0.425 mm; eject = push the card in by 0.8 mm with a fingernail |
-| CM4 + heat sink | SoC 2.378 +-0.11 mm, centre 31.99 / 16.98 mm from the module edges; 1.5 mm stack | heat sink 14 x 14 x 7 mm in the fit model; 5.8 mm left under it |
+| CM4 + heat sink | SoC 2.378 +-0.11 mm, centre 31.99 / 16.98 mm from the module edges; 1.5 mm stack | heat sink 14 x 14 x 7 mm in the fit model. Two distances follow from the constants of the model (calculated, nothing measured). **12.8 mm** from the processor to the inner face of the base plate: `DEPTH` = 18.0 mm (component side of the carrier to the inner face of the base plate) minus 1.5 mm stack, 1.2 mm module board and 2.5 mm, the height the model reserves for the parts of the module (`comp`; the processor at the top of its tolerance is 2.488 mm). With the nominal processor height it would be 12.9 mm. **5.8 mm** of air between the 7.0 mm heat sink and the inner face of the base plate: 12.8 - 7.0 mm. The adhesive foil of the heat sink has no thickness of its own in the model |
 
 Still to be checked on real parts: the plug of the speaker (it must be a JST-PH with 2.0 mm pitch to fit J7 - see the
 table), the stacked USB-A connector (the heights of its flange lips and the distance from its pins to its front face are

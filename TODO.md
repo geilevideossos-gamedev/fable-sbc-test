@@ -4,6 +4,10 @@ Legend: [x] done and verified - [~] done with a documented limitation - [ ] open
 
 ## Revision A3: cheaper order, KiCad 10, final check (fifth session, 2026-11-20 and 2026-11-21)
 
+State on 2026-11-21 after review round 1 (both parts) and its fixes. No board exists: "verified" in this section
+means calculated, simulated or measured in the generated files, on Linux. Nothing was run on Windows, and where a
+KiCad window was needed, a script operated it on a virtual display.
+
 KiCad 10 migration (milestone 1)
 - [x] Generators, `build.sh`, `postroute.sh` and the Docker image ported to KiCad 10.0.8 (`hardware/docker/Dockerfile`,
       image `voxhub-kicad:10.0`); native KiCad 10 project files (DECISIONS.md K-1 to K-4)
@@ -28,32 +32,44 @@ Cost reduction (milestone 2, hardware revision A3)
 - [x] Old and new cost estimate in `fab/ORDER_GUIDE.md` (sections 8.1 and 8.2)
 
 Local editing in KiCad 10 (milestone 3, 2026-11-21)
-- [x] Local-editing package merged: guard that stops a build step before it overwrites a manual edit
-      (`OVERWRITE=1` discards the edit), `build.sh outputs` leaves the project file as it found it,
+- [x] Local-editing package, in this revision of the repository: guard that stops a build step before it
+      overwrites a manual edit (`OVERWRITE=1` discards the edit), `build.sh outputs` never writes a project file,
       `hardware/voxhub.kicad_jobset`, plot settings stored in the board file, every ERC / DRC check an error except
       four ignored ones, stand-in 3D model of the CM4 sockets (K-11 to K-15)
-- [~] Tested by its author with KiCad 10.0.8 on Linux only. Not tested: anything on Windows, `KICAD_NATIVE=1`, a
-      fresh autoroute without `SKIP_ROUTE=1`
-- [ ] Independent test of the package (running on 2026-11-21, result not yet known)
+- [x] Independent test of the package: two high, one medium and eight low findings, all fixed or decided. The guard
+      now also stops on a missing or incomplete record, after an interrupted step and while KiCad has the project
+      open; Ctrl-C ends a step and its container; files written through Docker go back to the owner of the
+      checkout. A second independent test of the fixes found no high or medium problem
+- [~] Left as it is and described in `hardware/README.md`: a file saved while a build step writes that same file is
+      lost without a message (66.7 s of a 229 s build, measured). Close KiCad before a generating step
+- [~] Tested with KiCad 10.0.8 on Linux only, in automated runs. Not tested: anything on Windows, `KICAD_NATIVE=1`
+      outside the build container, a fresh autoroute without `SKIP_ROUTE=1`, saves from the symbol and the
+      footprint editor
 
 Final stock and price check
-- [x] Every BOM line read live on 2026-11-20 (`hardware/gen/sourcing_jlc.json`); replaced: USB hub (tape-and-reel
-      part), stacked USB-A connector, microphones (F-1 to F-3)
-- [x] All 44 lines and the old parts read live again on 2026-11-21: no line below twice the need; JLCPCB's USD
-      prices about 0.24 % higher; parts of one board 39.84 USD (29.30 USD at 100)
+- [x] Every BOM line read live in the read of 2026-11-20, which ended on 2026-11-21 at 00:07 UTC; replaced after
+      it: USB hub (tape-and-reel part), stacked USB-A connector, microphones (F-1 to F-3)
+- [x] All 44 lines and the old parts read live again on 2026-11-21 at 09:57 UTC (`hardware/gen/sourcing_jlc.json`):
+      no line below twice the need; JLCPCB's USD prices about 0.24 % higher; parts of one board 39.84 USD
+      (29.30 USD at 100). Every price in the documents is from this read
 - [~] Two thin lines without an alternate: ADAU7002ACBZ-R7 (63), RF-BM-2652P2 (126) - reserve first (F-4)
 - [x] `fab/SHOPPING_LIST.md`: shop prices and stock re-read on 2026-11-20 (no price changed)
 - [x] README files and the current-state sections of DECISIONS.md updated to revision A3 (section 9: 40 rows,
-      37 verified against a data sheet; section 10: A2 -> A3 part table; open items 8 to 12 added)
-- [~] `fab/ORDER_GUIDE.md` rewritten for revision A3 with the old and the new cost estimate; the review of the order
-      package is still open (see Reviews)
-- [ ] Final stock read at the end of the session, and once more on the day of the order
+      37 verified against a data sheet; section 10: A2 -> A3 part table; open items 8 to 12 added) and to both
+      parts of review round 1
+- [x] `fab/ORDER_GUIDE.md` rewritten for revision A3 with the old and the new cost estimate; the order package was
+      reviewed (see Reviews)
+- [ ] Final stock read of every BOM line at the end of this session (stock only; prices are not read again)
 
 Software
 - [x] VoxHub Assistant add-on: constant level of the new microphones removed before the gain (W-1)
 - [x] Capture filter hardened after review round 1: long buffers, pole check, gain before the single rounding,
-      tests of the capture path and of the pipeline; 143 tests pass (92 VoxHub Assistant + 51 VoxHub Satellite),
-      ruff clean (R-4)
+      tests of the capture path and of the pipeline (R-4)
+- [x] Default microphone gain of the VoxHub Assistant add-on 32 instead of 1.0, with one new test: 144 tests pass
+      (93 VoxHub Assistant + 51 VoxHub Satellite), ruff clean (review round 1, second part, SW-2). Calculated and
+      simulated, not measured
+- [x] Two-device path: the documents say what the simulation showed - the constant level of MK2 costs wake word
+      detections for speech below 60 dBSPL - and name the untested remedies (SW-1); no code and no default changed
 - [x] Mute sense input GPIO27: internal pull-down switched on in the OS configuration and the overlay (R-3)
 - [x] `fab/ASSEMBLY_AND_TEST.md` and the add-on documents follow the changed parts and values; add-on 0.1.1
 - [x] Enclosure: USB-A window 15.6 x 17.3 mm for the new connector; shell regenerated, interference 0 mm3,
@@ -62,23 +78,45 @@ Software
 - [x] CM4 pin map of the software unchanged (25 signals compared between A2 and A3)
 
 Reviews
-- [x] Review round 1 (2026-11-21), four independent reviewers on the changed hardware and software: no high
-      finding. Changed because of it: R41, the series resistor of the PDM clock, is 75 ohm (R-1); the ground ring of
-      the microphone land pattern starts 0.21 mm from the sound hole (R-2); mute sense pull-down (R-3); capture
-      filter and its tests (R-4). The other findings are corrections of the documents (R-5, R-6); four options were
-      not taken (R-7)
-- [ ] Round 1, still pending: the results for the tooling (local-editing package) and for the order package, and
-      the second check of the software findings SW-1 / SW-2 (nothing was changed for them yet)
+- [x] Review round 1, first part (2026-11-21), four independent reviewers on the changed hardware and software: no
+      high finding. Changed because of it: R41, the series resistor of the PDM clock, is 75 ohm (R-1); the ground
+      ring of the microphone land pattern starts 0.21 mm from the sound hole (R-2); mute sense pull-down (R-3);
+      capture filter and its tests (R-4). The other findings are corrections of the documents (R-5, R-6); four
+      options were not taken (R-7)
+- [x] Review round 1, second part (2026-11-21): independent test of the build tooling (T-01 to T-11: two high, one
+      medium, eight low), independent review of the order package (OP-1 to OP-7: no high, two medium, five low),
+      second check of the software findings SW-1 (partly confirmed) and SW-2 (confirmed). Changed because of it:
+      the guard and the build script (above); the solder paste of the spacers H5-H8 and of the microphone rings
+      lies inside the narrowed lands, and the Gerbers show no paste outside a mask opening (OP-1); the board
+      carries the title block with revision A3 (OP-6); microphone gain default 32 (SW-2). The other findings are
+      corrections of the documents. Independent tests of the three fixes: no high or medium finding
 - [ ] Review round 2 (the last round)
 
-Open for the owner on the first boards, added by review round 1 (DECISIONS.md, open items 9, 11 and 12)
+Open for the owner (DECISIONS.md, "Open items"). None of it can be settled without the order form, the boards or a
+Windows machine.
+- [ ] Before the order: stock on the day of the order, the two thin parts reserved first (open item 1); in the
+      order, JLCPCB's parts list and placement preview, J6 and D4 / D9 first, and the final price (open item 6)
+- [ ] Solder joints of the four SMT spacers H5-H8: the paste is 51 to 62 % of what the Wurth data sheet suggests
+      (calculated for a 0.10 to 0.12 mm stencil); add solder by hand where a fillet is missing
+- [ ] Mechanical: plug of the speaker; fit of the Jing USB-A connector J6 in the board and in the enclosure window
+      (open item 3)
+- [ ] Load switch and regulator (open item 9): VGS of Q1 at each charger, switch-on current and turn-off on a
+      scope; VBUS_SW at C8 / C9 above about 7.5 V on the 20 W charger under load (test 4 of
+      `fab/ASSEMBLY_AND_TEST.md`); temperatures of U2, L1 and of Q1 on a 9 V contract at about 12 W - do not hold
+      the full peak on 9 V; input power and the 5 V rail
+- [ ] USB-A ports with a high-speed device and under load up to the current limit (open items 4 and 9)
 - [ ] PDM clock at MK1 / MK2: oscilloscope of about 1 GHz with a short ground spring; cannot be repaired on
-      assembled boards (R-1)
-- [ ] Temperature of the load switch Q1 on a 9 V contract (20 W charger) at about 12 W; do not hold the full peak
-      on 9 V (R-5)
-- [ ] VBUS_SW at C8 / C9 on the 20 W charger with the module under load: must stay above about 7.5 V (test 4 of
-      `fab/ASSEMBLY_AND_TEST.md`)
-- [ ] Wake word from both devices with noise suppression 0 and 1 (from SW-1, which is still being checked)
+      assembled boards (open item 12)
+- [ ] Microphones: record both (constant level of MK2), then wake word and a spoken request on the hub and on the
+      satellite, from 1 m and from across the room (open item 11)
+- [ ] Microphone gain calibration, with the source volume at 100 % first. VoxHub Assistant: default 32, 64 if
+      requests are missed or cut short, 16 if loud speech close to the hub is misunderstood. Two-device path:
+      default 4, raise it if the wake word is missed
+- [ ] Brightness of the LEDs, D10 above all (open item 10)
+- [ ] First flash of the radio module on real hardware; first boot of the hub and of the satellite image (open
+      items 5 and 7)
+- [ ] A first KiCad 10 session on Windows (open, edit, save) and a first build under WSL2 with Docker; neither was
+      ever run (open item 8)
 
 ## Two devices: hub and satellite (fourth session, 2026-11-12)
 

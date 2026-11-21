@@ -55,7 +55,7 @@ describe it completely:
 | Microphones + speaker | `dtoverlay=googlevoicehat-soundcard` | ALSA card `sndrpigooglevoi`, capture + playback, amp enable on GPIO16 |
 | Zigbee radio | `dtoverlay=uart4` | `/dev/ttyAMA4` on GPIO8 / GPIO9, no flow control (the kernel of HAOS 18.5 has fixed aliases: `serial4 = &uart4`) |
 | Status LEDs | `dtoverlay=gpio-led,gpio=5,label=voxhub-green` (and GPIO6 blue) | `/sys/class/leds/voxhub-green`, `voxhub-blue` |
-| Mute switch sense | `dtoverlay=gpio-key,gpio=27,keycode=248,...,gpio_pull=down` | input event `KEY_MICMUTE` while muted; the internal pull-down of the input is on (since 2026-11-21, see below) |
+| Mute switch sense | `dtoverlay=gpio-key,gpio=27,label=voxhub-mute,keycode=248,active_low=0,gpio_pull=down` | input event `KEY_MICMUTE` while muted; the internal pull-down of the input is on (since 2026-11-21, see below) |
 | PD controller status | `dtparam=i2c_arm=on` | CYPD3177 at 0x08 on `i2c-1` |
 
 Because the board ID is still `rpi4-64`, the device keeps receiving the official OTA updates
@@ -65,13 +65,16 @@ Because the board ID is still `rpi4-64`, the device keeps receiving the official
 this if you manage updates yourself.
 
 The mute sense input (GPIO27) has its internal pull-down switched on since 2026-11-21: `gpio_pull=down` in
-`config/config-voxhub.txt` (was `off`) and `brcm,pull = <1>` in `overlay/voxhub-overlay.dts` (`DECISIONS.md`, R-3).
-On the board the input is held low only by 100 kOhm when the switch is not in the mute position; with the
-module's maximum input leakage of 10 uA that is 1.01 V, above the 0.8 V low threshold. With the internal
+`config/config-voxhub.txt` (was `off`) and `brcm,pull = <1>` in `overlay/voxhub-overlay.dts` (was `<0>`;
+`DECISIONS.md`, R-3). The first file is the one the repack image and the satellite image use; the second takes
+effect only with `--custom-overlay` and in the from-source build, which load `dtoverlay=voxhub` instead of the
+stock overlays. On the board the input is held low only by 100 kOhm when the switch is not in the mute position;
+with the module's maximum input leakage of 10 uA that is 1.01 V, above the 0.8 V low threshold. With the internal
 pull-down (33 / 47 / 73 kOhm) the level is at most 0.42 V unmuted and about 2.5 V muted (2.21 V in the worst case,
 high threshold 2.0 V). These are calculations. The hardware mute and the red LED do not depend on this input. The
 satellite image takes the same block, so both cards get the setting when they are built from this state of the
-repository.
+repository. What was checked for the new setting and what was not is said under the table of "Verification
+status".
 
 ## From source: official HAOS build system + `voxhub` board
 
@@ -144,7 +147,21 @@ Requirements: 30-40 GB disk, 8 GB RAM, 1-3 hours on a 16-core machine (measured 
 The results of this table date from 2026-11-12 or earlier, and the satellite image at the end of this file was
 built on 2026-11-12. Both are older than the pull-down of the mute sense input (2026-11-21, see "Why stock
 overlays?"): the images that were built and inspected carry `gpio_pull=off` (`brcm,pull = <0>` in the custom
-overlay). This file records no build or check that was repeated with the new setting.
+overlay). No image has been built or inspected with the new setting.
+
+One check was repeated on 2026-11-21, in the build environment and without an image: `overlay/voxhub-overlay.dts` with
+`brcm,pull = <1>` compiles with `dtc` 1.7.0 without a message (the command of `build-image.sh`), and `fdtoverlay`
+applies the result to the `bcm2711-rpi-cm4.dtb` of the Raspberry Pi firmware repository (stable branch, fetched on
+2026-11-20); the merged tree has `brcm,pull = <1>` for pin 27. The parameter of the stock
+overlay `gpio-key` is documented: the overlay README of the Raspberry Pi firmware repository (master branch, read
+on 2026-11-21) lists `gpio_pull` with the values off, down and up and the default up. Not run: the Raspberry Pi
+firmware reads the line when the board starts, and no script of this directory looks at the parameters of a stock
+overlay, only at whether the overlay file exists. On a board the input shows it: the software must report "muted" in the mute position of the switch and only there
+(`fab/ASSEMBLY_AND_TEST.md`, tests R8 and R9).
+
+Both image scripts compile the overlay source and test-apply it to the device tree of the image in every run:
+`build-image.sh repack` always (the test-apply when `fdtoverlay` is installed), the satellite script in its
+checks at the end unless `--no-verify` is given. A mistake in that file therefore stops the owner's own build.
 
 ### Full build: run log of 2026-11-11
 
