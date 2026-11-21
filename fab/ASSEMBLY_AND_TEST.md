@@ -18,12 +18,13 @@ written), board 2 the **satellite**: chapters 1 and 2, chapter 3 tests 1 to 5 an
 section 7.3 instead of part A of test 6), sections 7.3 and 7.4 (its software tests), then chapter 4 and the rest
 of chapter 7.
 
-Status of this text: it was written on 2026-11-12, brought to hardware revision A3 on 2026-11-20 and corrected
-after both parts of the first review round on 2026-11-21 (`DECISIONS.md`, sections "Review round 1" and "Review
-round 1, second part"). **No board has been built yet.** Every expected value below comes from the schematic
-(`hardware/gen/design.py`), the board file, the enclosure model, a data sheet, a calculation or a simulation, not
-from a measurement. Values marked "estimate" are estimates. The parts and values of the board are those of
-2026-11-21; on-screen labels and software versions were read on 2026-11-12; the source is named where it matters.
+Status of this text: it was written on 2026-11-12, brought to hardware revision A3 on 2026-11-20 and corrected after
+both parts of the first review round and after the second review round on 2026-11-21 (`DECISIONS.md`, sections "Review
+round 1", "Review round 1, second part" and "Review round 2", there R-39 and R-46). **No board has been built yet.**
+Every expected value below comes from the schematic (`hardware/gen/design.py`), the board file, the enclosure model, a
+data sheet, a calculation or a simulation, not from a measurement. Values marked "estimate" are estimates. The parts and
+values of the board are those of 2026-11-21; on-screen labels and software versions were read on 2026-11-12; the source
+is named where it matters.
 
 All positions on the board were read from `hardware/voxhub.kicad_pcb` as committed in `aa97fd3` (revision A3) and
 compared with `fab/jlcpcb/placement_report.csv` of the same commit. The changes made to the board since then moved

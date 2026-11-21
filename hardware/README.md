@@ -12,12 +12,12 @@ step that generates files; the reason is given there.
 Revision A3 is the revision that is ordered fully assembled from JLCPCB. The order files are in
 [`../fab/jlcpcb/`](../fab/jlcpcb), the ordering steps in [`../fab/ORDER_GUIDE.md`](../fab/ORDER_GUIDE.md). Against
 revision A2 the placement, the nets and the routing are the same; values, part numbers, three land patterns with
-their solder paste apertures (for two of them the paste was corrected in the second part of review round 1) and
-the toolchain changed. What changed and why is in the A3 log at the top
-of [`../DECISIONS.md`](../DECISIONS.md) (K-1 to K-10: KiCad 10, C-1 to C-12: fewer part numbers, N-1 to N-6:
-findings on the existing design, F-1 to F-5: stock check, K-11 to K-15: editing by hand, R-1 to R-7: first part of
-review round 1 of 2026-11-21, R-8 and following: its second part with the build guard, the solder paste of two
-land patterns and the microphone gain of the hub add-on), what changed from A1 to A2 in its A2 log.
+their solder paste apertures (for two of them the paste was corrected in the second part of review round 1) and the
+toolchain changed. What changed and why is in the A3 log at the top of [`../DECISIONS.md`](../DECISIONS.md) (K-1 to
+K-10: KiCad 10, C-1 to C-12: fewer part numbers, N-1 to N-6: findings on the existing design, F-1 to F-6: stock check,
+K-11 to K-15: editing by hand, R-1 to R-7: first part of review round 1 of 2026-11-21, R-8 to R-37: its second part with
+the build guard, the solder paste of two land patterns and the microphone gain of the hub add-on, R-38 to R-47: review
+round 2, the last round), what changed from A1 to A2 in its A2 log.
 
 ## Opening and editing in KiCad 10
 
@@ -440,19 +440,21 @@ gate reports and the JLCPCB BOM / CPL are made from the board as it is on disk. 
 - `outputs/usb_impedance.txt`: written by `gen/jlc_impedance.py`, which is run by hand.
 - `outputs/bom.csv`, `bom_system.csv` and `order_cost.*` are written again, but from the code model
   `gen/model_netlist.json`, not from an edited schematic.
-- `../fab/jlcpcb/bom_jlcpcb.csv` and `cpl_jlcpcb.csv` are written from the board, but the part of a footprint
-  comes from its field `MPN` alone, looked up in `gen/sourcing_jlc.json`; the value is not read. The field is
-  hidden in the schematic and on the board; it is in the properties of the symbol and of the footprint. A value
-  that is changed in KiCad without the field `MPN` leaves the old part in the order files, and no message says
-  so (tried with a script that changed R41 from 75 to 100 in sheet and board: exit code 0, the BOM line of R41
-  is still `0402WGF750JTCE`, C25133). Change the field `MPN` together with the value, to a part number that
-  `gen/sourcing_jlc.json` lists (tried with 1k and `0402WGF1001TCE`: R41 moves to the BOM line of C11702). A
-  part that is to be fitted and has no field `MPN` - every symbol placed new from `voxhub.kicad_sym` has none -
-  ends the run with `PROBLEM: <reference>: no field MPN, ...` and exit code 1. An `MPN` that
-  `gen/sourcing_jlc.json` does not list ends it with `PROBLEM: <reference>: no LCSC number for <MPN>` and exit
-  code 1. Both were tried on R41. After a `PROBLEM:` line the two files are already written without that part:
-  do not order with them. A footprint on which nothing is fitted (test pad, hole, fiducial) needs *Exclude from
-  bill of materials*. A part that is to stay belongs in `gen/design.py` and `gen/parts.py`.
+- `../fab/jlcpcb/bom_jlcpcb.csv` and `cpl_jlcpcb.csv` are written from the board, but the part of a footprint comes
+  from its field `MPN` alone, looked up in `gen/sourcing_jlc.json`; the value is not read. The field is hidden in the
+  schematic and on the board; it is in the properties of the symbol and of the footprint. A value that is changed in
+  KiCad without the field `MPN` leaves the old part in the order files, and no message says so (tried with a script
+  that changed R41 from 75 to 100 in sheet and board: exit code 0, the BOM line of R41 is still `0402WGF750JTCE`,
+  C25133). Change the field `MPN` together with the value, to a part number that `gen/sourcing_jlc.json` lists (tried
+  with 1k and `0402WGF1001TCE`: R41 moves to the BOM line of C11702). A field changed in the symbol alone does not get
+  through: the DRC of `outputs` stops with `footprint_symbol_field_mismatch` ("Field 'MPN' differs", exit code 5)
+  until the footprint carries the same text (tried with a script edit of the sheet). A part that is to be fitted and
+  has no field `MPN` - every symbol placed new from `voxhub.kicad_sym` has none - ends the run with `PROBLEM:
+  <reference>: no field MPN, ...` and exit code 1. An `MPN` that `gen/sourcing_jlc.json` does not list ends it with
+  `PROBLEM: <reference>: no LCSC number for <MPN>` and exit code 1. Both were tried on R41. After a `PROBLEM:` line
+  the two files are already written without that part: do not order with them. A footprint on which nothing is fitted
+  (test pad, hole, fiducial) needs *Exclude from bill of materials*. A part that is to stay belongs in `gen/design.py`
+  and `gen/parts.py`.
 
 When the DRC of `outputs` finds a violation, the run stops before it plots: `outputs/gerbers/`,
 `outputs/voxhub_gerbers.zip` and `../fab/jlcpcb/gerbers.zip` are then still the files of the previous run.

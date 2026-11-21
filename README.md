@@ -26,25 +26,22 @@ view, orbit, reassembly, turntable) - rendered with Blender from the STEP files 
 > built and nothing has been measured.** The package is ordered fully assembled from JLCPCB. The checks are those
 > that [`fab/ORDER_GUIDE.md`](fab/ORDER_GUIDE.md) asks for on the day of the order: the stock of the parts on that
 > day, the price boxes of the order form, and JLCPCB's parts list and placement preview, which lie behind the login
-> and could not be opened from here. Every part was in stock in JLCPCB's assembly library on 2026-11-21 at
-> 18:53 UTC, in the last of three reads (`hardware/gen/sourcing_jlc.json` stores the date), ERC and DRC pass
-> against JLCPCB's design rules under
-> KiCad 10.0.8, and the order files are in [`fab/jlcpcb/`](fab/jlcpcb). Two lines are thin and have no alternate:
-> ADAU7002ACBZ-R7 (63 pieces) and RF-BM-2652P2 (126 pieces), 2 of each are needed for two boards - reserve them
-> first as the order guide says. No line is below twice the need. No soldering is planned: order the boards, print
-> the enclosure, plug in the CM4, screw it together. One place may need a soldering iron after all: the four SMT
-> spacers get less solder paste than their data sheet suggests (calculated), so their joints are to be looked at on
-> the first boards ([`hardware/README.md`](hardware/README.md), assembly notes). Read the findings N-1 to N-6 and
-> the review results in the top section and the "Open items" at the end of [DECISIONS.md](DECISIONS.md) before you
-> order.
+> and could not be opened from here. Every part was in stock in JLCPCB's assembly library on 2026-11-21 at 18:53 UTC, in
+> the last of three reads (`hardware/gen/sourcing_jlc.json` stores the date), ERC and DRC pass against JLCPCB's design
+> rules under KiCad 10.0.8, and the order files are in [`fab/jlcpcb/`](fab/jlcpcb). Two lines are thin and have no
+> alternate: ADAU7002ACBZ-R7 (63 pieces) and RF-BM-2652P2 (126 pieces), 2 of each are needed for two boards - reserve
+> them first as the order guide says. No line is below twice the need. No soldering is planned: order the boards, print
+> the enclosure, plug in the CM4, screw it together. One place may need a soldering iron after all: the four SMT spacers
+> get less solder paste than their data sheet suggests (calculated), so their joints are to be looked at on the first
+> boards ([`hardware/README.md`](hardware/README.md), assembly notes). Read the findings N-1 to N-6 and the review
+> results in the top section and the "Open items" at the end of [DECISIONS.md](DECISIONS.md) before you order.
 >
 > Revision A3 is the board of revision A2 with the same placement, nets and routing. Changed: values and part numbers
 > (44 instead of 53 BOM lines), three parts replaced after the stock check of 2026-11-20 (USB hub on tape and reel,
 > stacked USB-A connector, microphones), three land patterns with their solder paste apertures (for two of them the
-> paste was corrected in the second part of review round 1), and
-> the project is now a KiCad 10 project that can also be edited by hand
-> ([Editing in KiCad 10 on Windows](#editing-in-kicad-10-on-windows)). The reasons are in the top section of
-> [DECISIONS.md](DECISIONS.md), "Revision A3".
+> paste was corrected in the second part of review round 1), and the project is now a KiCad 10 project that can also be
+> edited by hand ([Editing in KiCad 10 on Windows](#editing-in-kicad-10-on-windows)). The reasons are in the top section
+> of [DECISIONS.md](DECISIONS.md), "Revision A3".
 >
 > The first part of review round 1 (2026-11-21, four independent reviewers on the changed areas, no high finding)
 > changed two things on the board before the order. R41, the series resistor of the microphone clock, is now
@@ -66,8 +63,12 @@ view, orbit, reassembly, turntable) - rendered with Blender from the STEP files 
 > step was interrupted and when KiCad has the project open; the test had found two high problems there, and a
 > second independent test of the fixes found no high or medium problem. And the default microphone gain of the
 > VoxHub Assistant add-on is 32 instead of 1.0 (calculated and simulated; it has to be set on the first board).
-> Still open in this session: review round 2, which is the last round, and a final stock read of every BOM line
-> ([TODO.md](TODO.md)).
+> Review round 2, the last round (2026-11-21, seven independent reviewers, every high or medium finding to a second
+> agent), found nothing high and two medium findings, both fixed: `hardware/build.sh outputs` now stops when a part
+> that is to be fitted has no field `MPN`, and test 9 of the bring-up guide expects what `ha hardware audio`
+> prints. Its 30 low findings are fixed as well, and the order files in `fab/jlcpcb/` did not change (DECISIONS.md,
+> R-38 to R-47). The final stock read of every BOM line, on 2026-11-21 from 18:52 to 18:53 UTC, replaced nothing
+> (DECISIONS.md, F-6). What is left open is the owner's list in [TODO.md](TODO.md).
 >
 > | Step | Document |
 > |---|---|
@@ -443,12 +444,12 @@ limits and the full list of what is untested are in
 **Parts on the board**, JLCPCB prices read live on 2026-11-21 at 09:57 UTC (USD, without tax, PCB, assembly fees
 and shipping). Line by line: [`hardware/outputs/bom.csv`](hardware/outputs/bom.csv).
 
-The part prices were read twice. The first read began on 2026-11-20 and ended on 2026-11-21 at 00:07 UTC; this file
-calls it the read of 2026-11-20. The second read is the one of 2026-11-21, 09:57 UTC, and every part price and
-every total in this file comes from it. The time is that of the end of the read; the sourcing file stores the date
-only. A third read at the end of the session, on 2026-11-21 from 18:52 to 18:53 UTC, was made for the stock: no
-price had changed since 09:57 UTC, no line was below twice the need, and the stock columns of the sourcing file,
-of `bom.csv` and of `order_cost.csv` are from it (DECISIONS.md, F-6).
+The part prices were read three times. The first read began on 2026-11-20 and ended on 2026-11-21 at 00:07 UTC; this
+file calls it the read of 2026-11-20. The second read is the one of 2026-11-21, 09:57 UTC, and every part price and
+every total in this file comes from it. The time is that of the end of the read; the sourcing file stores the date only.
+A third read at the end of the session, on 2026-11-21 from 18:52 to 18:53 UTC, was made for the stock; it read the
+prices as well: no price had changed since 09:57 UTC, no line was below twice the need, and the stock columns of the
+sourcing file, of `bom.csv` and of `order_cost.csv` are from it (DECISIONS.md, F-6).
 
 | Group | Lines | Placements | 1 board | per board at 100 |
 |---|---|---|---|---|
@@ -493,11 +494,10 @@ was read.
 - The parts of one board cost 39.84 USD at JLCPCB. Revision A2 cost 41.78 USD on 2026-11-12, the DigiKey parts of
   revision A1 74.79 USD. The radio module alone costs 8.68 USD (6.63 USD on 2026-11-12; the DigiKey module of A1 cost
   11.47 USD), the PDM-to-I2S converter 2.48 USD (3.91 USD on 2026-11-12).
-- Thin stock at JLCPCB on 2026-11-21 (18:53 UTC, the same as at 09:57 UTC): ADAU7002ACBZ-R7 (63) and RF-BM-2652P2
-  (126); neither has an
-  alternate. The order guide says how to reserve them. The three lines that had run low by 2026-11-20 were replaced
-  (DECISIONS.md, F-1 to F-3): the USB hub is ordered on tape and reel (USB2514BT-I/M2), the stacked USB-A connector
-  is the Jing Extension 907-112A1022D10200, the microphones are IM72D128V01. The BOM names the old parts as
+- Thin stock at JLCPCB on 2026-11-21 (18:53 UTC, the same as at 09:57 UTC): ADAU7002ACBZ-R7 (63) and RF-BM-2652P2 (126);
+  neither has an alternate. The order guide says how to reserve them. The three lines that had run low by 2026-11-20
+  were replaced (DECISIONS.md, F-1 to F-3): the USB hub is ordered on tape and reel (USB2514BT-I/M2), the stacked USB-A
+  connector is the Jing Extension 907-112A1022D10200, the microphones are IM72D128V01. The BOM names the old parts as
   alternates. Details in [DECISIONS.md](DECISIONS.md), "Final stock and price check" and section 10.
 - In a Standard PCBA order JLCPCB charges the feeder fee (1.53 USD in its price list of 22 Oct 2026) per part type,
   Basic and Extended alike, so a Basic part saves nothing; what counts is the number of different part numbers: 44
