@@ -4,6 +4,7 @@ import asyncio
 import struct
 import sys
 
+import numpy as np
 import pytest
 
 from voxhub_assistant.audio import CHUNK_BYTES, AudioError, Microphone, Speaker
@@ -112,6 +113,25 @@ async def test_microphone_reads_chunks_from_subprocess():
         await asyncio.wait_for(mic.read(), 5)
     with pytest.raises(AudioError):  # and it stays failed until restarted
         await asyncio.wait_for(mic.read(), 5)
+    await mic.stop()
+
+
+async def test_microphone_removes_a_constant_level_before_the_gain(tmp_path):
+    level = tmp_path / "level"
+    script = (
+        "import sys, numpy as np; level = int(open(sys.argv[1]).read()); "
+        f"t = np.arange({CHUNK_BYTES // 2} * 3); "
+        "wave = level + 1000 * np.sin(2 * np.pi * 1000 * t / 16000); "
+        'sys.stdout.buffer.write(wave.astype("<i2").tobytes())'
+    )
+    mic = Microphone(command=f"{sys.executable} -c '{script}' {level}", gain=4.0)
+    for constant in (12000, -300):
+        level.write_text(str(constant))
+        await mic.start()
+        for _ in range(3):
+            samples = np.frombuffer(await asyncio.wait_for(mic.read(), 5), dtype="<i2").astype(float)
+            assert abs(samples.mean()) < 20
+            assert 2700 < np.sqrt(np.mean(samples**2)) < 2950
     await mic.stop()
 
 

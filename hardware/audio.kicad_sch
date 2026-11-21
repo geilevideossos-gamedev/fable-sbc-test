@@ -1753,7 +1753,7 @@
 		)
 		(uuid "8235c529-f1de-5de2-942f-b2049c0eeff7")
 	)
-	(text "MK1 SELECT=GND (left), MK2 SELECT=VDD (right, carries a -40 dBFS DC level); 70 mm apart"
+	(text "MK1 SELECT=GND (left), MK2 SELECT=VDD (right, carries a -40 dBFS DC level); 102 mm apart"
 		(exclude_from_sim no)
 		(at 30 115 0)
 		(effects
@@ -1762,7 +1762,7 @@
 			)
 			(justify left bottom)
 		)
-		(uuid "c3497ab1-ae09-5af0-b681-2b1a44a9ed3b")
+		(uuid "befd10e6-4ffc-5e3a-8fd7-a3f55a5e231f")
 	)
 	(text "Stereo MEMS microphone array (bottom port through PCB) and PDM -> I2S converter"
 		(exclude_from_sim no)
@@ -3000,7 +3000,7 @@
 				)
 			)
 		)
-		(property "Value" "33"
+		(property "Value" "75"
 			(at 149.86 97.85 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3054,7 +3054,7 @@
 				)
 			)
 		)
-		(property "MPN" "0402WGF330JTCE"
+		(property "MPN" "0402WGF750JTCE"
 			(at 149.86 95.25 0)
 			(hide yes)
 			(show_name no)
@@ -3065,7 +3065,7 @@
 				)
 			)
 		)
-		(property "PartDescription" "RES 33 1% 1/16W 0402"
+		(property "PartDescription" "RES 75 1% 1/16W 0402"
 			(at 149.86 95.25 0)
 			(hide yes)
 			(show_name no)

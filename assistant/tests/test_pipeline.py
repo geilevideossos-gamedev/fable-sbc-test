@@ -1,10 +1,11 @@
 import asyncio
+from types import SimpleNamespace
 
 import numpy as np
 
 from conftest import FakeAnthropic, message, text_block
 from voxhub_assistant.agent import ClaudeAgent
-from voxhub_assistant.audio import AudioError
+from voxhub_assistant.audio import AudioError, Microphone, apply_gain
 from voxhub_assistant.leds import Leds, State
 from voxhub_assistant.pipeline import Assistant
 from voxhub_assistant.wyoming_clients import SpeechServiceError, TtsAudio
@@ -116,6 +117,41 @@ async def test_no_speech_after_wake_word_returns_to_idle(config, tools):
     assistant, _, speaker, spoken, heard = build(config, tools, silence(3.0), [])
     await assistant.run_once()
     assert heard == [] and spoken == [] and speaker.written == []
+
+
+async def captured(pcm: bytes, gain: float, filtered: bool) -> bytes:
+    reader = asyncio.StreamReader()
+    reader.feed_data(pcm)
+    reader.feed_eof()
+    mic = Microphone(gain=gain)
+    if not filtered:
+        mic._dc.process = lambda chunk, gain=1.0: apply_gain(chunk, gain)  # type: ignore[method-assign]
+    mic._queue = asyncio.Queue(maxsize=1000)
+    await mic._reader(SimpleNamespace(stdout=reader, returncode=0))  # type: ignore[arg-type]
+    out = []
+    while (chunk := mic._queue.get_nowait()) is not None:
+        out.append(chunk)
+    return b"".join(out)
+
+
+async def test_constant_microphone_level_does_not_hide_the_request(config, tools, monkeypatch):
+    monkeypatch.setattr("voxhub_assistant.pipeline.ECHO_TAIL_SECONDS", 0)
+    config.no_speech_timeout = 3.0
+    quiet = (np.frombuffer(speech(1.0), dtype="<i2") // 10).astype("<i2").tobytes()
+    audio = silence(1.0) + quiet + silence(2.5)
+    shifted = (np.frombuffer(audio, dtype="<i2") + 166).astype("<i2").tobytes()
+
+    assistant, _, _, _, heard = build(config, tools, await captured(shifted, 4.0, False), [])
+    await assistant.run_once()
+    assert heard == []
+
+    reply = message([text_block("Done.")])
+    assistant, _, _, spoken, heard = build(config, tools, await captured(shifted, 4.0, True), [reply])
+    await assistant.run_once()
+    assert len(heard) == 1 and spoken == ["Done."]
+    plain = np.frombuffer(await captured(audio, 4.0, True), dtype="<i2").astype(int)
+    level = np.frombuffer(await captured(shifted, 4.0, True), dtype="<i2").astype(int)
+    assert np.abs(plain - level).max() <= 1
 
 
 async def test_empty_transcript_skips_claude(config, tools):

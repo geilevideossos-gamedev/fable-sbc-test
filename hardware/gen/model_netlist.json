@@ -2439,9 +2439,9 @@
  "R41": {
   "dnp": false,
   "fields": {
-   "MPN": "0402WGF330JTCE",
+   "MPN": "0402WGF750JTCE",
    "Manufacturer": "UNI-ROYAL (Uniroyal Electronics)",
-   "PartDescription": "RES 33 1% 1/16W 0402"
+   "PartDescription": "RES 75 1% 1/16W 0402"
   },
   "footprint": "voxhub:R_0402_1005Metric",
   "in_bom": true,
@@ -2453,7 +2453,7 @@
   "pos": null,
   "ref": "R41",
   "sheet": "audio",
-  "value": "33"
+  "value": "75"
  },
  "R42": {
   "dnp": false,

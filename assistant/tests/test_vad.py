@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from voxhub_assistant.audio import DcBlocker, apply_gain, tone
 from voxhub_assistant.vad import Endpointer, EndpointState, rms
@@ -110,6 +111,38 @@ def test_dc_blocker_removes_offset_and_keeps_speech():
     assert 0.99 < rms(blocked(offset(voice, 662))[RATE // 2 :]) / rms(voice[RATE // 2 :]) < 1.01
     assert blocked(voice, 2560) == blocked(voice, 320) == DcBlocker().process(voice)
     assert DcBlocker().process(b"") == b""
+
+
+def recursion(pcm: bytes, pole: float) -> list[int]:
+    samples = np.frombuffer(pcm, dtype="<i2").astype(np.float64)
+    out, last_in, last_out = [], samples[0], 0.0
+    for sample in samples:
+        last_out = sample - last_in + pole * last_out
+        last_in = sample
+        out.append(last_out)
+    return np.clip(np.rint(out), -32768, 32767).astype(int).tolist()
+
+
+def test_dc_blocker_handles_long_buffers_and_other_poles():
+    long = offset(noise(1.0) + speech(10.0) + noise(1.0), 662)
+    whole = DcBlocker().process(long)
+    assert whole == blocked(long)
+    assert np.abs(np.frombuffer(whole, dtype="<i2")[-RATE // 2 :]).max() < 200
+    short = offset(speech(0.5), -300)
+    for pole in (0.5, 0.9, 0.995, 0.9999):
+        assert np.frombuffer(DcBlocker(pole).process(short), dtype="<i2").tolist() == recursion(short, pole)
+    for pole in (0.0, 1.0, -0.5, 1.5):
+        with pytest.raises(ValueError):
+            DcBlocker(pole)
+
+
+def test_dc_blocker_applies_gain_before_rounding():
+    ramp = (np.arange(RATE) % 7).astype("<i2").tobytes()
+    plain = np.frombuffer(DcBlocker().process(ramp), dtype="<i2")
+    louder = np.frombuffer(DcBlocker().process(ramp, 8.0), dtype="<i2")
+    assert np.abs(louder - 8 * plain).max() <= 4
+    assert len(set((louder % 8).tolist())) > 1
+    assert DcBlocker().process(offset(speech(0.2), 662), 1.0) == DcBlocker().process(offset(speech(0.2), 662))
 
 
 def test_gain_scales_and_clips():

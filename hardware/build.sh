@@ -33,22 +33,26 @@ if [ -z "${KICAD_IMAGE:-}" ] && ! docker image inspect "${IMG}" > /dev/null 2>&1
     docker build -t "${IMG}" "${HW}/docker"
 fi
 kc() {   # run a command inside the KiCad container, repo mounted at /work
-    docker run --rm -u 0 -e HOME=/tmp/kihome -v "${ROOT}:/work" -w /work/hardware "${IMG}" bash -c \
+    MSYS_NO_PATHCONV=1 docker run --rm -u 0 -e HOME=/tmp/kihome -v "${ROOT}:/work" -w /work/hardware "${IMG}" bash -c \
         "mkdir -p /tmp/kihome/.config/kicad/10.0 && cp /usr/share/kicad/template/fp-lib-table /usr/share/kicad/template/sym-lib-table /tmp/kihome/.config/kicad/10.0/ && $*"
 }
 fi
 OUT="${HW}/outputs"; mkdir -p "${OUT}" "${HW}/gen/work"
+GUARD="OVERWRITE=${OVERWRITE:-0} python3 gen/guard.py"
 
 sch() {
-    kc "python3 gen/design.py . && python3 gen/make_footprints.py voxhub.pretty \
+    kc "${GUARD} check . sch && { python3 gen/design.py . && python3 gen/make_footprints.py voxhub.pretty \
+        && cp gen/project_settings.json voxhub.kicad_pro; rc=\$?; ${GUARD} record . sch && [ \$rc = 0 ]; } \
         && kicad-cli sch erc --severity-all --exit-code-violations --format report -o outputs/erc.rpt voxhub.kicad_sch \
         && mkdir -p gen/work && kicad-cli sch export netlist --format kicadsexpr -o gen/work/voxhub.net voxhub.kicad_sch \
         && kicad-cli sch export pdf -o outputs/voxhub_schematic.pdf voxhub.kicad_sch"
 }
 pcb() {
-    kc "python3 gen/build_pcb.py place gen/work/voxhub.net /work/hardware && python3 gen/build_pcb.py dsn /work/hardware --planes"
+    kc "${GUARD} check . pcb && { python3 gen/build_pcb.py place gen/work/voxhub.net /work/hardware && python3 gen/build_pcb.py dsn /work/hardware --planes; \
+        rc=\$?; ${GUARD} record . pcb && [ \$rc = 0 ]; }"
 }
 route() {
+    kc "${GUARD} check . pcb"
     # 1) autoroute the signals (Freerouting), 2) import + pour planes, 3) complete/repair with the
     #    patch router until KiCad's DRC is clean.
     if [ "${SKIP_ROUTE:-0}" = 1 ] && [ -s "${HW}/gen/routed/voxhub.ses" ]; then
@@ -72,8 +76,8 @@ route() {
     grep -q "(wire" "${HW}/gen/routed/voxhub.ses" || { echo "gen/routed/voxhub.ses contains no routing" >&2; exit 1; }
     cp "${HW}/gen/routed/voxhub.ses" "${HW}/gen/work/voxhub.ses"
     # always start from a fresh placement so that this step is repeatable
-    kc "python3 gen/build_pcb.py place gen/work/voxhub.net /work/hardware && python3 gen/build_pcb.py finish /work/hardware \
-        && gen/postroute.sh /work/hardware 30"
+    kc "${GUARD} check . pcb && { python3 gen/build_pcb.py place gen/work/voxhub.net /work/hardware && python3 gen/build_pcb.py finish /work/hardware \
+        && gen/postroute.sh /work/hardware 30; rc=\$?; ${GUARD} record . pcb && [ \$rc = 0 ]; }"
 }
 outputs() {
     # the final DRC gates everything below: no Gerbers from a board with violations
@@ -91,11 +95,12 @@ outputs() {
     # track / via statistics incl. the USB pair lengths ("stats" fails if a pair is not matched or cannot be traced),
     # and the DRC once more with the waived checks switched on (the project file is put back in any case)
     kc "set -o pipefail; python3 gen/build_pcb.py stats /work/hardware | grep -v '^\$' > outputs/routing_stats.txt; rc=\$?; \
-        python3 -c \"import json; d = json.load(open('gen/project_settings.json')); s = d['board']['design_settings']['rule_severities']; \
+        cp voxhub.kicad_pro gen/work/voxhub.kicad_pro.keep || exit 1; \
+        python3 -c \"import json; d = json.load(open('voxhub.kicad_pro')); s = d['board']['design_settings']['rule_severities']; \
 [s.__setitem__(k, 'warning') for k in ('footprint_type_mismatch', 'lib_footprint_mismatch')]; \
 json.dump(d, open('voxhub.kicad_pro', 'w'), indent=2)\" \
         && kicad-cli pcb drc --schematic-parity --severity-all --format report -o outputs/drc_waived_checks_enabled.rpt voxhub.kicad_pcb || rc=1; \
-        cp gen/project_settings.json voxhub.kicad_pro; cat outputs/routing_stats.txt; exit \$rc"
+        cp gen/work/voxhub.kicad_pro.keep voxhub.kicad_pro && rm gen/work/voxhub.kicad_pro.keep || rc=1; cat outputs/routing_stats.txt; exit \$rc"
     kc "python3 gen/check_power.py voxhub.kicad_pcb outputs/power_paths.txt && python3 gen/check_df40.py voxhub.kicad_pcb outputs/df40_strips.txt \
         && python3 gen/check_vias.py voxhub.kicad_pcb outputs/via_in_pad.txt"
     python3 "${HW}/gen/make_bom.py" "${HW}/gen/model_netlist.json" "${OUT}"
@@ -107,6 +112,6 @@ json.dump(d, open('voxhub.kicad_pro', 'w'), indent=2)\" \
 }
 case "${STEP}" in
     sch) sch ;; pcb) pcb ;; route) route ;; outputs) outputs ;;
-    all) sch; pcb; route; outputs ;;
+    all) kc "${GUARD} check . sch pcb"; sch; pcb; route; outputs ;;
     *) echo "usage: $0 [all|sch|pcb|route|outputs]"; exit 2 ;;
 esac

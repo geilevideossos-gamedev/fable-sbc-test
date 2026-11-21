@@ -535,7 +535,7 @@
 "plus_pin": null,
 "title": "Blue light 0603"
 },
-"C25105": {
+"C25133": {
 "package": "R0402",
 "pads": [
 [
@@ -558,7 +558,7 @@
 "2": "2"
 },
 "plus_pin": null,
-"title": "0402WGF330JTCE"
+"title": "0402WGF750JTCE"
 },
 "C25741": {
 "package": "R0402",

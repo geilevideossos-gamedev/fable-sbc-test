@@ -3690,18 +3690,6 @@
 		)
 		(uuid "4f8c39be-bc38-549a-b6cb-a8cb2dd3840e")
 	)
-	(text "5.0 V / 4 A synchronous buck (LMR33640, 400 kHz) - UVLO 7.4 V keeps it off at vSafe5V"
-		(exclude_from_sim no)
-		(at 136.5 159.2 0)
-		(effects
-			(font
-				(size 2.2 2.2)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-		(uuid "89a75214-0a22-536d-adb2-cc63fe1975fa")
-	)
 	(text "USB-C input and PD sink controller (CYPD3177 'BCR', resistor-strapped: 9-20 V, 2 A minimum)"
 		(exclude_from_sim no)
 		(at 16.5 24.2 0)
@@ -3724,6 +3712,18 @@
 			(justify left bottom)
 		)
 		(uuid "f132c979-cb3b-596c-a3a3-fb1b6cc8dad1")
+	)
+	(text "5.0 V synchronous buck (LMR33640, 4 A part, 400 kHz) - UVLO 7.4 V keeps it off at vSafe5V"
+		(exclude_from_sim no)
+		(at 136.5 159.2 0)
+		(effects
+			(font
+				(size 2.2 2.2)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+		(uuid "f73e1174-f381-55d3-accd-847f01db58de")
 	)
 	(no_connect
 		(at 54.61 85.09)

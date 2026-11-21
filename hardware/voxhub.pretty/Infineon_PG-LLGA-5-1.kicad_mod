@@ -487,8 +487,8 @@
 		(primitives
 			(gr_circle
 				(center 0 0.81)
-				(end 0.81 0.81)
-				(width 0.46)
+				(end 0.825 0.81)
+				(width 0.43)
 				(fill no)
 			)
 		)

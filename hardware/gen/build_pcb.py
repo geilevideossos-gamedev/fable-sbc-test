@@ -241,12 +241,22 @@ def crt_bbox(fp):
 def overlap(a, b, m=0.0):
     return not (a[2] + m <= b[0] or b[2] + m <= a[0] or a[3] + m <= b[1] or b[3] + m <= a[1])
 
+PLOT_LAYERS = ("F_Paste", "B_Paste", "F_SilkS", "B_SilkS", "F_Mask", "B_Mask", "Edge_Cuts")
+
 def place(netlist, outdir):
     comps = load_netlist(netlist)
     model = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "model_netlist.json")))
     board = pcbnew.CreateEmptyBoard()
     board.SetCopperLayerCount(4)
     board.SetFileName(os.path.join(outdir, "voxhub.kicad_pcb"))
+    plot, plot_layers = board.GetPlotOptions(), pcbnew.LSET(pcbnew.LSET.AllCuMask())
+    for lay in PLOT_LAYERS:
+        plot_layers.AddLayer(getattr(pcbnew, lay))
+    plot.SetOutputDirectory("outputs/gerbers/")
+    plot.SetLayerSelection(plot_layers); plot.SetDrillMarksType(pcbnew.DRILL_MARKS_NO_DRILL_SHAPE)
+    plot.SetUseGerberProtelExtensions(True); plot.SetSubtractMaskFromSilk(True)
+    plot.SetUseGerberX2format(False); plot.SetIncludeGerberNetlistInfo(False)
+    board.SetPlotOptions(plot)
     nets = {}
     def net(name):
         if name not in nets:

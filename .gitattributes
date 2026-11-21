@@ -1,5 +1,6 @@
 * text=auto eol=lf
 *.kicad_pro text eol=lf
+*.kicad_jobset text eol=lf
 *.kicad_sch text eol=lf
 *.kicad_sym text eol=lf
 *.kicad_mod text eol=lf
@@ -10,6 +11,7 @@ sym-lib-table text eol=lf
 *.sh text eol=lf
 *.py text eol=lf
 *.json text eol=lf
+*.sha256 text eol=lf
 *.ses text eol=lf
 *.rpt text eol=lf
 *.dxf text eol=lf

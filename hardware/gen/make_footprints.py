@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate the project footprint library (voxhub.pretty), KiCad 10 format.
 
-* every footprint of gen/stock/stock.pretty (the KiCad 9.0.9 library footprints revision A2 was designed with), two of them with LAND_FIXES
+* every footprint of gen/stock/stock.pretty (the KiCad 9.0.9 library footprints revision A2 was designed with), three of them with LAND_FIXES
 * CM4_J1/J2_DF40C-100DS : KiCad's Hirose DF40C-100DS land pattern, pads renumbered to the
   CM4 datasheet numbering (J2 = pins 101..200) so schematic pin numbers equal module pin numbers; paste aperture
   0.17 x 0.67 mm = 81 % of the land (Hirose: 80 % at a 0.12 mm stencil).
@@ -27,6 +27,8 @@ LAND_FIXES = {
     "USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal": [
         ('\t\t(at -3.2 -3.68)\n\t\t(size 0.6 1.15)\n', '\t\t(at -3.2 -3.68)\n\t\t(size 0.6 1.11)\n', 2),
         ('\t\t(at 3.2 -3.68)\n\t\t(size 0.6 1.15)\n', '\t\t(at 3.2 -3.68)\n\t\t(size 0.6 1.11)\n', 2)],
+    "Infineon_PG-LLGA-5-1": [
+        ('\t\t\t\t(end 0.81 0.81)\n\t\t\t\t(width 0.46)\n', '\t\t\t\t(end 0.825 0.81)\n\t\t\t\t(width 0.43)\n', 1)],
 }
 for f in sorted(glob.glob(os.path.join(STOCK, "*.kicad_mod"))):
     base = os.path.basename(f)[:-len(".kicad_mod")]

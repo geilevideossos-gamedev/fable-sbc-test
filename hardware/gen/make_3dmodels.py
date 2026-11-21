@@ -2,7 +2,7 @@
 """Stand-in STEP models for parts whose model is missing from the KiCad 3D library (or which are project
 specific).  Outer dimensions are the body envelopes from the manufacturer drawings; the models are written as
 coloured STEP assemblies (one named solid per material) so that renders can tell metal from plastic.
-usage: make_3dmodels.py <hardware/3dmodels>"""
+usage: make_3dmodels.py <hardware/3dmodels> [model name ...]"""
 import os, sys
 import cadquery as cq
 
@@ -70,6 +70,11 @@ def rf_bm_2652p2():
     ant = box(-7.0, 9.6, 0.8, 7.0, 14.4, 0.84).cut(box(-6.0, 10.6, 0.7, 6.0, 13.4, 0.9))
     return [("pcb", pcb, GREEN), ("shield", can, SILVER), ("antenna", ant, GOLD)]
 
+def df40_socket():
+    body = cbox(22.6, 2.88, 1.45).cut(box(-11.4, -1.1, 0.3, 11.4, 1.1, 1.5))
+    tails = box(-9.86, 1.44, 0, 9.86, 1.69, 0.1).union(box(-9.86, -1.69, 0, 9.86, -1.44, 0.1))
+    return [("body", body, BLACK), ("contacts", tails, GOLD)]
+
 def simple(solid, colour):
     return [("body", solid, colour)]
 
@@ -86,8 +91,10 @@ M = {
     "RF-BM-2652P2": rf_bm_2652p2(),
     "ADAU7002": simple(cbox(0.76, 1.56, 0.5), BLACK),
     "RaspberryPi_CM4_with_heatsink": cm4(),
+    "Connector_Hirose_DF40.3dshapes/Hirose_DF40C-100DS-0.4V_2x50_P0.4mm": df40_socket(),
 }
-out = sys.argv[1]
+out, only = sys.argv[1], sys.argv[2:]
+M = {name: parts for name, parts in M.items() if not only or os.path.basename(name) in only}
 for name, parts in M.items():
     path = os.path.join(out, name + ".step")
     os.makedirs(os.path.dirname(path), exist_ok=True)

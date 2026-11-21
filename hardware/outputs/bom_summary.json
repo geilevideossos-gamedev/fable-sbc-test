@@ -9,8 +9,8 @@
  "system_shipping_eur": 12.9,
  "library_types": {
   "Extended": 30,
-  "Basic": 13,
-  "Preferred Extended": 1
+  "Basic": 12,
+  "Preferred Extended": 2
  },
  "below_200_at_jlcpcb": [
   "ADAU7002ACBZ-R7 (63)",

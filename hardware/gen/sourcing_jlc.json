@@ -397,50 +397,6 @@
    "special_fee": 0.0,
    "xray": false
   },
-  "0402WGF330JTCE": {
-   "assembly_mode": "smtWeld",
-   "assembly_process": "SMT",
-   "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
-   "jlc_mpn": "0402WGF330JTCE",
-   "jlc_p1": 0.001,
-   "jlc_p10": 0.001,
-   "jlc_p100": 0.001,
-   "jlc_package": "0402",
-   "jlc_prices": [
-    [
-     1,
-     0.001
-    ],
-    [
-     1000,
-     0.0008
-    ],
-    [
-     3000,
-     0.0007
-    ],
-    [
-     10000,
-     0.0006
-    ],
-    [
-     50000,
-     0.0005
-    ],
-    [
-     50200,
-     0.0005
-    ]
-   ],
-   "jlc_stock": 4519771,
-   "jlc_type": "Basic",
-   "lcsc": "C25105",
-   "lcsc_stock": 1218500,
-   "loss": 15,
-   "min_order": 20,
-   "special_fee": 0.0,
-   "xray": false
-  },
   "0402WGF4992TCE": {
    "assembly_mode": "smtWeld",
    "assembly_process": "SMT",
@@ -480,6 +436,50 @@
    "jlc_type": "Preferred Extended",
    "lcsc": "C25897",
    "lcsc_stock": 652600,
+   "loss": 10,
+   "min_order": 20,
+   "special_fee": 0.0,
+   "xray": false
+  },
+  "0402WGF750JTCE": {
+   "assembly_mode": "smtWeld",
+   "assembly_process": "SMT",
+   "jlc_brand": "UNI-ROYAL(Uniroyal Elec)",
+   "jlc_mpn": "0402WGF750JTCE",
+   "jlc_p1": 0.0012,
+   "jlc_p10": 0.0012,
+   "jlc_p100": 0.0012,
+   "jlc_package": "0402",
+   "jlc_prices": [
+    [
+     1,
+     0.0012
+    ],
+    [
+     1000,
+     0.001
+    ],
+    [
+     3000,
+     0.0008
+    ],
+    [
+     10000,
+     0.0007
+    ],
+    [
+     50000,
+     0.0006
+    ],
+    [
+     50200,
+     0.0006
+    ]
+   ],
+   "jlc_stock": 994323,
+   "jlc_type": "Preferred Extended",
+   "lcsc": "C25133",
+   "lcsc_stock": 554500,
    "loss": 10,
    "min_order": 20,
    "special_fee": 0.0,

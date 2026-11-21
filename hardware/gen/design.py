@@ -300,7 +300,7 @@ s.text("MK1 SELECT=GND (left), MK2 SELECT=VDD (right, carries a -40 dBFS DC leve
 d.near = "U9"
 s.place("ADAU7002", "U9", "ADAU7002ACBZ-R7", 165, 60, {"A1": "PDM_DAT", "A2": "PDM_CLK", "D2": V33, "C1": GND, "D1": V33,
         "B2": "I2S_BCLK", "C2": "I2S_LRCLK", "B1": "MIC_SDATA"}, fields=F("U_PDM"))
-res(s, "33", 150, 95, "PDM_CLK", "PDM_CLK_M"); cap(s, "C_100n", 190, 100, V33); res(s, "100k", 150, 105, "MIC_SDATA", GND)
+res(s, "75", 150, 95, "PDM_CLK", "PDM_CLK_M"); cap(s, "C_100n", 190, 100, V33); res(s, "100k", 150, 105, "MIC_SDATA", GND)
 res(s, "100k", 150, 115, "PDM_DAT", GND)
 s.text("CONFIG = IOVDD -> I2S output; BCLK = 64 fs, PDM clock = 64 fs (3.072 MHz @ 48 kHz)", 110, 135, size=1.5)
 d.near = "U10"

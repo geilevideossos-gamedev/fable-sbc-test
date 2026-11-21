@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import logging
+import math
 import shlex
 
 import numpy as np
@@ -44,7 +45,10 @@ def apply_gain(pcm: bytes, gain: float) -> bytes:
 
 class DcBlocker:
     def __init__(self, pole: float = 0.995) -> None:
+        if not 0.0 < pole < 1.0:
+            raise ValueError("pole must be between 0 and 1")
         self._pole = pole
+        self._block = max(1, min(4096, int(math.log(1e-9) / math.log(pole))))
         self._last_in: float | None = None
         self._last_out = 0.0
 
@@ -52,17 +56,21 @@ class DcBlocker:
         self._last_in = None
         self._last_out = 0.0
 
-    def process(self, pcm: bytes) -> bytes:
+    def process(self, pcm: bytes, gain: float = 1.0) -> bytes:
         samples = np.frombuffer(pcm[: len(pcm) & ~1], dtype="<i2").astype(np.float64)
         if samples.size == 0:
             return pcm
-        previous = samples[0] if self._last_in is None else self._last_in
-        steps = np.diff(samples, prepend=previous)
-        decay = self._pole ** np.arange(samples.size)
-        out = decay * (np.cumsum(steps / decay) + self._pole * self._last_out)
-        self._last_in = float(samples[-1])
-        self._last_out = float(out[-1])
-        return np.clip(np.rint(out), -32768, 32767).astype("<i2").tobytes()
+        out = np.empty(samples.size)
+        for start in range(0, samples.size, self._block):
+            block = samples[start : start + self._block]
+            previous = block[0] if self._last_in is None else self._last_in
+            steps = np.diff(block, prepend=previous)
+            decay = self._pole ** np.arange(block.size)
+            filtered = decay * (np.cumsum(steps / decay) + self._pole * self._last_out)
+            self._last_in = float(block[-1])
+            self._last_out = float(filtered[-1])
+            out[start : start + block.size] = filtered
+        return np.clip(np.rint(out * gain), -32768, 32767).astype("<i2").tobytes()
 
 
 def tone(frequency: float, milliseconds: int, rate: int = 22050, level: float = 0.3) -> bytes:
@@ -109,7 +117,7 @@ class Microphone:
         try:
             while True:
                 chunk = await proc.stdout.readexactly(CHUNK_BYTES)
-                self._put(apply_gain(self._dc.process(chunk), self.gain))
+                self._put(self._dc.process(chunk, self.gain))
         except (asyncio.IncompleteReadError, ConnectionError):
             _LOGGER.warning("Capture process ended (exit code %s)", proc.returncode)
         finally:
